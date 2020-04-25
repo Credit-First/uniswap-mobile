@@ -17,6 +17,7 @@
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* KryptoWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* KryptoWalletTests.m */; };
 		50FA1569B9A97AF2D23DC54F /* libPods-KryptoWallet-KryptoWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A40BEC90FF39DBDBB8D23013 /* libPods-KryptoWallet-KryptoWalletTests.a */; };
+		8031FA52244C8FF900FD5352 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8031FA42244C8FF900FD5352 /* MaterialIcons.ttf */; };
 		D68C33EBB1395E87EB6F8F35 /* libPods-KryptoWallet-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 16DB25576F3C7E28192C72D6 /* libPods-KryptoWallet-tvOS.a */; };
 		E2CA748C6B0069E21C178D58 /* libPods-KryptoWallet-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C468869679999DB607BF46 /* libPods-KryptoWallet-tvOSTests.a */; };
 		FFFDF1BC613ED5F86D2F03F2 /* libPods-KryptoWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24523D1FB883F2C0C62BACB1 /* libPods-KryptoWallet.a */; };
@@ -60,6 +61,7 @@
 		6E50AC37ABA84E1A40033688 /* Pods-KryptoWallet-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KryptoWallet-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-KryptoWallet-tvOS/Pods-KryptoWallet-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		78BA8285B0073107CF610F60 /* Pods-KryptoWallet-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KryptoWallet-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-KryptoWallet-tvOSTests/Pods-KryptoWallet-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		78C468869679999DB607BF46 /* libPods-KryptoWallet-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KryptoWallet-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8031FA42244C8FF900FD5352 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		A24F55CBD08FF19017348E5A /* Pods-KryptoWallet-KryptoWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KryptoWallet-KryptoWalletTests.debug.xcconfig"; path = "Target Support Files/Pods-KryptoWallet-KryptoWalletTests/Pods-KryptoWallet-KryptoWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A346F77679C39D12400DE39C /* Pods-KryptoWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KryptoWallet.release.xcconfig"; path = "Target Support Files/Pods-KryptoWallet/Pods-KryptoWallet.release.xcconfig"; sourceTree = "<group>"; };
 		A40BEC90FF39DBDBB8D23013 /* libPods-KryptoWallet-KryptoWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KryptoWallet-KryptoWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -161,8 +163,16 @@
 				78BA8285B0073107CF610F60 /* Pods-KryptoWallet-tvOSTests.debug.xcconfig */,
 				111EA7F1CB9ADFD538CA9DDB /* Pods-KryptoWallet-tvOSTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		8031FA32244C8FF900FD5352 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				8031FA42244C8FF900FD5352 /* MaterialIcons.ttf */,
+			);
+			name = Fonts;
+			path = "../node_modules/react-native-vector-icons/Fonts";
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -175,6 +185,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				8031FA32244C8FF900FD5352 /* Fonts */,
 				13B07FAE1A68108700A75B9A /* KryptoWallet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* KryptoWalletTests */,
@@ -339,6 +350,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				8031FA52244C8FF900FD5352 /* MaterialIcons.ttf in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
