@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-const Button = ({ title, theme = 'primary', icon }) => {
+const Button = ({ title, theme = 'primary', icon, style }) => {
   const getGradientColors = () => {
     let colors = ['#6A63EE', '#59D4FC'];
     if (theme === 'primary') {
@@ -17,7 +17,7 @@ const Button = ({ title, theme = 'primary', icon }) => {
   };
 
   return (
-    <TouchableOpacity>
+    <TouchableOpacity style={style}>
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -31,10 +31,11 @@ const Button = ({ title, theme = 'primary', icon }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 48,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    borderRadius: 8,
   },
   title: {
     color: '#FFF',
