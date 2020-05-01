@@ -7,9 +7,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   button: {
+    position: 'absolute',
+    bottom: 20,
     width: width - 40,
     alignSelf: 'center',
-    marginBottom: 20,
   },
   buttonIcon: {
     width: 18,

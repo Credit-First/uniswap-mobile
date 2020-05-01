@@ -10,12 +10,26 @@ import React, { useEffect } from 'react';
 import { View, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 
+import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+const AccountsStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode';
-import { AccountsScreen } from './app/screens';
+import { AccountsScreen, ConnectAccountScreen } from './app/screens';
+
+const AccountsStackScreen = () => {
+  return (
+    <AccountsStack.Navigator headerMode={'none'}>
+      <AccountsStack.Screen name="Accounts" component={AccountsScreen} />
+      <AccountsStack.Screen
+        name="ConnectAccount"
+        component={ConnectAccountScreen}
+      />
+    </AccountsStack.Navigator>
+  );
+};
 
 const App = () => {
   useEffect(() => {
@@ -57,8 +71,8 @@ const App = () => {
         tabBarOptions={{
           showLabel: false,
         }}>
-        <Tab.Screen name={'Accounts'} component={AccountsScreen} />
-        <Tab.Screen name={'Transfer'} component={AccountsScreen} />
+        <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
+        <Tab.Screen name={'Transfer'} component={ConnectAccountScreen} />
         <Tab.Screen name={'Vote'} component={AccountsScreen} />
         <Tab.Screen name={'Transactions'} component={AccountsScreen} />
         <Tab.Screen name={'Convert'} component={AccountsScreen} />

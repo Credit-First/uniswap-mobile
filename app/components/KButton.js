@@ -4,7 +4,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import KText from './KText';
 import LinearGradient from 'react-native-linear-gradient';
 
-const KButton = ({ title, theme = 'primary', icon, style, renderIcon }) => {
+const KButton = ({
+  title,
+  theme = 'primary',
+  icon,
+  style,
+  renderIcon,
+  ...props
+}) => {
   const getGradientColors = () => {
     let colors = ['#6A63EE', '#59D4FC'];
     if (theme === 'primary') {
@@ -36,7 +43,7 @@ const KButton = ({ title, theme = 'primary', icon, style, renderIcon }) => {
   };
 
   return (
-    <TouchableOpacity style={style}>
+    <TouchableOpacity {...props} style={style}>
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
