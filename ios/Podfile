@@ -93,12 +93,3 @@ target 'KryptoWallet' do
     flipper_post_install(installer)
   end
 end
-
-target 'KryptoWallet-tvOS' do
-  # Pods for KryptoWallet-tvOS
-
-  target 'KryptoWallet-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
