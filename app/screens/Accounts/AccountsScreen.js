@@ -1,16 +1,30 @@
 import React from 'react';
-import { View, FlatList } from 'react-native';
+import { View, Image, FlatList } from 'react-native';
 
-import { Button } from '../../components';
+import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
 
 const AccountsScreen = props => {
   return (
     <View style={styles.container}>
       <FlatList data={[]} />
-      <Button title={'Connect'} theme={'primary'} style={styles.button} />
-      <Button title={'Connect'} theme={'brown'} style={styles.button} />
-      <Button title={'Connect'} theme={'gray'} style={styles.button} />
+      <KButton
+        title={'Create new account'}
+        theme={'brown'}
+        style={styles.button}
+        icon={'add'}
+      />
+      <KButton
+        title={'Connect account'}
+        theme={'blue'}
+        style={styles.button}
+        renderIcon={() => (
+          <Image
+            source={require('../../../assets/icons/accounts.png')}
+            style={styles.buttonIcon}
+          />
+        )}
+      />
     </View>
   );
 };
