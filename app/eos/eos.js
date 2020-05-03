@@ -7,6 +7,11 @@ const getAccount = (accountName, chain) => {
   return rpc.get_account(accountName);
 };
 
+const getActions = (accountName, chain) => {
+  const rpc = new JsonRpc(chain.endpoint);
+  return rpc.history_get_actions(accountName);
+};
+
 const transfer = (toAccountName, amount, memo, fromAccount, chain) => {
   const rpc = new JsonRpc(chain.endpoint);
   const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
@@ -46,4 +51,4 @@ const transfer = (toAccountName, amount, memo, fromAccount, chain) => {
   );
 };
 
-export { getAccount, transfer };
+export { getAccount, getActions, transfer };

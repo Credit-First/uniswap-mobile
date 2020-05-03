@@ -25,6 +25,7 @@ import {
   AccountsScreen,
   ConnectAccountScreen,
   TransferScreen,
+  TransactionsScreen,
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -83,7 +84,7 @@ const App = () => {
           <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
           <Tab.Screen name={'Transfer'} component={TransferScreen} />
           <Tab.Screen name={'Vote'} component={AccountsScreen} />
-          <Tab.Screen name={'Transactions'} component={AccountsScreen} />
+          <Tab.Screen name={'Transactions'} component={TransactionsScreen} />
           <Tab.Screen name={'Convert'} component={AccountsScreen} />
         </Tab.Navigator>
       </NavigationContainer>
