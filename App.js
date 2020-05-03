@@ -21,7 +21,11 @@ const AccountsStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode';
-import { AccountsScreen, ConnectAccountScreen } from './app/screens';
+import {
+  AccountsScreen,
+  ConnectAccountScreen,
+  TransferScreen,
+} from './app/screens';
 
 const AccountsStackScreen = () => {
   return (
@@ -77,7 +81,7 @@ const App = () => {
             showLabel: false,
           }}>
           <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
-          <Tab.Screen name={'Transfer'} component={ConnectAccountScreen} />
+          <Tab.Screen name={'Transfer'} component={TransferScreen} />
           <Tab.Screen name={'Vote'} component={AccountsScreen} />
           <Tab.Screen name={'Transactions'} component={AccountsScreen} />
           <Tab.Screen name={'Convert'} component={AccountsScreen} />

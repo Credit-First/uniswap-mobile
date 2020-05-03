@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import KText from './KText';
 import LinearGradient from 'react-native-linear-gradient';
+import Spinner from 'react-native-spinkit';
 
 const KButton = ({
   title,
@@ -10,6 +11,7 @@ const KButton = ({
   icon,
   style,
   renderIcon,
+  isLoading = false,
   ...props
 }) => {
   const getGradientColors = () => {
@@ -42,7 +44,7 @@ const KButton = ({
   };
 
   return (
-    <TouchableOpacity {...props} style={style}>
+    <TouchableOpacity {...props} style={style} disabled={isLoading}>
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -51,6 +53,13 @@ const KButton = ({
         {renderMaterialIcon()}
         {renderIconComponent()}
         <KText style={styles.title}>{title}</KText>
+        <Spinner
+          type={'FadingCircle'}
+          size={16}
+          color={'#FFF'}
+          style={styles.spinner}
+          isVisible={isLoading}
+        />
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -76,6 +85,9 @@ const styles = StyleSheet.create({
   },
   iconComponentWrapper: {
     marginRight: 8,
+  },
+  spinner: {
+    marginLeft: 8,
   },
 });
 

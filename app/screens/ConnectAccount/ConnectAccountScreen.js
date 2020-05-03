@@ -11,8 +11,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './ConnectAccountScreen.style';
-import { KHeader, KButton, KText } from '../../components';
-import KInput from '../../components/KInput';
+import { KHeader, KButton, KText, KInput } from '../../components';
 import supportedChains from '../../eos/chains';
 import { getAccount } from '../../eos/eos';
 import { connectAccounts } from '../../redux';
