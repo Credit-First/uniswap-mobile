@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import ecc from 'eosjs-ecc-rn';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KText } from '../../components';
@@ -61,59 +62,64 @@ const ConnectAccountScreen = props => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <KHeader
-          title={'Account'}
-          subTitle={'Connect your account'}
-          style={styles.header}
-        />
-        <KText style={styles.chainLabel}>Blockchain</KText>
-        <View style={styles.chainItemsContainer}>
-          {supportedChains.map((item, index) => (
-            <ChainItem
-              data={item}
-              key={`${index}`}
-              selected={index === chainIndex}
-              onPress={() => setChainIndex(index)}
-            />
-          ))}
-        </View>
-        <KInput
-          label={'Account name'}
-          placeholder={'Enter your account name'}
-          value={accountName}
-          onChangeText={setAccountName}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
-        />
-        <KInput
-          label={'Private Key'}
-          placeholder={'Enter your private key'}
-          secureTextEntry
-          value={privateKey}
-          onChangeText={setPrivateKey}
-          containerStyle={styles.inputContainer}
-        />
-        <KButton
-          title={'Connect account'}
-          theme={'blue'}
-          style={styles.button}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          onPress={_handleConnect}
-        />
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <MaterialIcon
-            name={'keyboard-backspace'}
-            size={24}
-            color={PRIMARY_BLUE}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.content}>
+          <KHeader
+            title={'Account'}
+            subTitle={'Connect your account'}
+            style={styles.header}
           />
-        </TouchableOpacity>
-      </View>
+          <KText style={styles.chainLabel}>Blockchain</KText>
+          <View style={styles.chainItemsContainer}>
+            {supportedChains.map((item, index) => (
+              <ChainItem
+                data={item}
+                key={`${index}`}
+                selected={index === chainIndex}
+                onPress={() => setChainIndex(index)}
+              />
+            ))}
+          </View>
+          <KInput
+            label={'Account name'}
+            placeholder={'Enter your account name'}
+            value={accountName}
+            onChangeText={setAccountName}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KInput
+            label={'Private Key'}
+            placeholder={'Enter your private key'}
+            secureTextEntry
+            value={privateKey}
+            onChangeText={setPrivateKey}
+            containerStyle={styles.inputContainer}
+          />
+          <View style={styles.spacer} />
+          <KButton
+            title={'Connect account'}
+            theme={'blue'}
+            style={styles.button}
+            renderIcon={() => (
+              <Image
+                source={require('../../../assets/icons/accounts.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            onPress={_handleConnect}
+          />
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

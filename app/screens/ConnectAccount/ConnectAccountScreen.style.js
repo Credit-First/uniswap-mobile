@@ -3,6 +3,9 @@ const { width } = Dimensions.get('window');
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 const styles = StyleSheet.create({
+  scrollContentContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -15,8 +18,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
-    position: 'absolute',
-    bottom: 20,
     width: width - 40,
     alignSelf: 'center',
   },
@@ -53,6 +54,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     left: 20,
+  },
+  spacer: {
+    flex: 1,
   },
 });
 
