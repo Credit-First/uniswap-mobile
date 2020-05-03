@@ -1,19 +1,45 @@
 import React from 'react';
-import { View, Image, FlatList, Linking } from 'react-native';
+import { Image, FlatList, Linking, SafeAreaView } from 'react-native';
 
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
+import { connectAccounts } from '../../redux';
+import AccountListItem from './components/AccountListItem';
 
-const AccountsScreen = ({ navigation }) => {
-  const { navigate } = navigation;
+const AccountsScreen = props => {
+  const {
+    navigation: { navigate },
+    accountsState: { accounts, activeAccountIndex },
+    chooseActiveAccount,
+  } = props;
 
   const _handleCreateAccount = () => {
     Linking.openURL('https://eostribe.io/newaccount/index.html');
   };
 
+  const _handleCheckAccount = index => {
+    chooseActiveAccount(index);
+  };
+
+  const _handlePressAccount = () => {
+    console.log('TODO: handle press');
+  };
+
   return (
-    <View style={styles.container}>
-      <FlatList data={[]} />
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={accounts}
+        keyExtractor={(item, index) => `${index}`}
+        renderItem={({ item, index }) => (
+          <AccountListItem
+            account={item}
+            style={styles.listItem}
+            onCheck={() => _handleCheckAccount(index)}
+            onPress={() => _handlePressAccount(index)}
+            checked={index === activeAccountIndex}
+          />
+        )}
+      />
       <KButton
         title={'Create new account'}
         theme={'brown'}
@@ -33,8 +59,8 @@ const AccountsScreen = ({ navigation }) => {
           />
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
-export default AccountsScreen;
+export default connectAccounts()(AccountsScreen);

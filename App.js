@@ -9,9 +9,13 @@
 import React, { useEffect } from 'react';
 import { View, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Provider } from 'react-redux';
+
+import createStore from './app/redux/store';
+
+const store = createStore();
 
 const AccountsStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,19 +69,21 @@ const App = () => {
   });
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={screenOptions}
-        tabBarOptions={{
-          showLabel: false,
-        }}>
-        <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
-        <Tab.Screen name={'Transfer'} component={ConnectAccountScreen} />
-        <Tab.Screen name={'Vote'} component={AccountsScreen} />
-        <Tab.Screen name={'Transactions'} component={AccountsScreen} />
-        <Tab.Screen name={'Convert'} component={AccountsScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={screenOptions}
+          tabBarOptions={{
+            showLabel: false,
+          }}>
+          <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
+          <Tab.Screen name={'Transfer'} component={ConnectAccountScreen} />
+          <Tab.Screen name={'Vote'} component={AccountsScreen} />
+          <Tab.Screen name={'Transactions'} component={AccountsScreen} />
+          <Tab.Screen name={'Convert'} component={AccountsScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 };
 

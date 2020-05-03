@@ -34,7 +34,6 @@ const KButton = ({
   };
 
   const renderIconComponent = () => {
-    console.log(renderIcon);
     if (!!renderIcon && typeof renderIcon === 'function') {
       return <View style={styles.iconComponentWrapper}>{renderIcon()}</View>;
     }

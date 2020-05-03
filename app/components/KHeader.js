@@ -12,9 +12,7 @@ const KHeader = ({ title, subTitle, ...props }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
+  container: {},
   title: {
     fontSize: 24,
     color: '#273D52',

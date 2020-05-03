@@ -16,6 +16,10 @@ const styles = StyleSheet.create({
     height: 18,
     tintColor: '#FFF',
   },
+  listItem: {
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
 });
 
 export default styles;
