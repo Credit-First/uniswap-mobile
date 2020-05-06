@@ -18,6 +18,7 @@ import createStore from './app/redux/store';
 const store = createStore();
 
 const AccountsStack = createStackNavigator();
+const TransactionsStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode';
@@ -26,6 +27,7 @@ import {
   ConnectAccountScreen,
   TransferScreen,
   TransactionsScreen,
+  TransactionDetailScreen,
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -37,6 +39,21 @@ const AccountsStackScreen = () => {
         component={ConnectAccountScreen}
       />
     </AccountsStack.Navigator>
+  );
+};
+
+const TransactionsStackScreen = () => {
+  return (
+    <TransactionsStack.Navigator headerMode={'none'}>
+      <TransactionsStack.Screen
+        name="Transactions"
+        component={TransactionsScreen}
+      />
+      <TransactionsStack.Screen
+        name="TransactionDetail"
+        component={TransactionDetailScreen}
+      />
+    </TransactionsStack.Navigator>
   );
 };
 
@@ -84,7 +101,10 @@ const App = () => {
           <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
           <Tab.Screen name={'Transfer'} component={TransferScreen} />
           <Tab.Screen name={'Vote'} component={AccountsScreen} />
-          <Tab.Screen name={'Transactions'} component={TransactionsScreen} />
+          <Tab.Screen
+            name={'Transactions'}
+            component={TransactionsStackScreen}
+          />
           <Tab.Screen name={'Convert'} component={AccountsScreen} />
         </Tab.Navigator>
       </NavigationContainer>

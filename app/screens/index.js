@@ -6,3 +6,6 @@ export { default as TransferScreen } from './Transfer/TransferScreen';
 export {
   default as TransactionsScreen,
 } from './Transactions/TransactionsScreen';
+export {
+  default as TransactionDetailScreen,
+} from './TransactionDetail/TransactionDetailScreen';

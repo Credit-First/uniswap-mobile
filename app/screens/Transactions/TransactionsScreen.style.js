@@ -15,6 +15,9 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 40,
   },
+  list: {
+    marginTop: 20,
+  },
 });
 
 export default styles;

@@ -13,7 +13,7 @@ const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
   const [showText, setShowText] = useState(false);
 
   return (
-    <View style={containerStyle}>
+    <View style={[styles.container, containerStyle]}>
       <KText style={styles.label}>{label}</KText>
       <TextInput
         {...props}
@@ -34,7 +34,8 @@ const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    borderColor: '#E5E5EE',
+    borderBottomWidth: 1,
   },
   label: {
     fontSize: 16,
@@ -45,9 +46,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Nunito-Bold',
     color: '#273D52',
-    borderColor: '#E5E5EE',
-    borderBottomWidth: 1,
     lineHeight: 22,
+    marginBottom: 12,
   },
   showButton: {
     position: 'absolute',

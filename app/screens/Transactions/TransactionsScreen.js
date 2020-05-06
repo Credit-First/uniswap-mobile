@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, View, FlatList } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './TransactionsScreen.style';
@@ -8,35 +7,45 @@ import { KHeader } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getActions } from '../../eos/eos';
 import supportedChains from '../../eos/chains';
+import TransactionItem from './components/TransactionItem';
 
 const TransactionsScreen = props => {
   const {
+    navigation,
     accountsState: { accounts, activeAccountIndex },
   } = props;
 
+  const [transactions, setTransactions] = useState([]);
+
   useEffect(() => {
-    fetchActions();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const activeAccount = accounts[activeAccountIndex];
+      if (!activeAccount) {
+        return;
+      }
 
-  const fetchActions = async () => {
-    const activeAccount = accounts[activeAccountIndex];
-    if (!activeAccount) {
-      return;
-    }
+      const chain = supportedChains.find(
+        item => item.name === activeAccount.chainName,
+      );
+      if (!chain) {
+        return;
+      }
 
-    const chain = supportedChains.find(
-      item => item.name === activeAccount.chainName,
-    );
-    if (!chain) {
-      return;
-    }
+      try {
+        const res = await getActions(activeAccount.accountName, chain);
+        setTransactions(res.actions);
+      } catch (e) {
+        console.log('get actions failed with error: ', e);
+        setTransactions([]);
+      }
+    });
 
-    try {
-      const actions = await getActions(activeAccount.name, chain);
-      console.log(actions);
-    } catch (e) {
-      console.log('get actions failed with error: ', e);
-    }
+    return unsubscribe;
+  }, [navigation, accounts, activeAccountIndex]);
+
+  const _handlePressTransaction = action => {
+    const { navigate } = navigation;
+    navigate('TransactionDetail', { action });
   };
 
   return (
@@ -49,6 +58,18 @@ const TransactionsScreen = props => {
             title={'Transactions'}
             subTitle={'A list of previous transactions.'}
             style={styles.header}
+          />
+          <FlatList
+            style={styles.list}
+            data={transactions}
+            renderItem={({ item }) => (
+              <TransactionItem
+                onPress={() => _handlePressTransaction(item)}
+                action={item}
+                activeAccount={accounts[activeAccountIndex]}
+              />
+            )}
+            keyExtractor={(item, index) => `${index}`}
           />
         </View>
       </KeyboardAwareScrollView>
