@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, FlatList } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './TransactionsScreen.style';
 import { KHeader } from '../../components';
@@ -50,29 +49,25 @@ const TransactionsScreen = props => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        enableOnAndroid>
-        <View style={styles.inner}>
-          <KHeader
-            title={'Transactions'}
-            subTitle={'A list of previous transactions.'}
-            style={styles.header}
-          />
-          <FlatList
-            style={styles.list}
-            data={transactions}
-            renderItem={({ item }) => (
-              <TransactionItem
-                onPress={() => _handlePressTransaction(item)}
-                action={item}
-                activeAccount={accounts[activeAccountIndex]}
-              />
-            )}
-            keyExtractor={(item, index) => `${index}`}
-          />
-        </View>
-      </KeyboardAwareScrollView>
+      <View style={styles.inner}>
+        <KHeader
+          title={'Transactions'}
+          subTitle={'A list of previous transactions.'}
+          style={styles.header}
+        />
+        <FlatList
+          style={styles.list}
+          data={transactions}
+          renderItem={({ item }) => (
+            <TransactionItem
+              onPress={() => _handlePressTransaction(item)}
+              action={item}
+              activeAccount={accounts[activeAccountIndex]}
+            />
+          )}
+          keyExtractor={(item, index) => `${index}`}
+        />
+      </View>
     </SafeAreaView>
   );
 };

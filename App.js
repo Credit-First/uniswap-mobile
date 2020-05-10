@@ -28,6 +28,7 @@ import {
   TransferScreen,
   TransactionsScreen,
   TransactionDetailScreen,
+  VoteScreen,
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -100,7 +101,7 @@ const App = () => {
           }}>
           <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
           <Tab.Screen name={'Transfer'} component={TransferScreen} />
-          <Tab.Screen name={'Vote'} component={AccountsScreen} />
+          <Tab.Screen name={'Vote'} component={VoteScreen} />
           <Tab.Screen
             name={'Transactions'}
             component={TransactionsStackScreen}
