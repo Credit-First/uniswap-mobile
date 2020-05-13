@@ -6,12 +6,6 @@ const supportedChains = [
     endpoint: 'https://api.eosrio.io',
   },
   {
-    name: 'Worbli',
-    symbol: 'WBI',
-    icon: require('../../assets/chains/eos.png'),
-    endpoint: 'https://api.worbli.eostribe.io',
-  },
-  {
     name: 'BOS',
     symbol: 'BOS',
     icon: require('../../assets/chains/eos.png'),
