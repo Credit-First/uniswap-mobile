@@ -83,7 +83,7 @@ const ExchangeScreen = props => {
     )} ${toChain.symbol}`;
     const feeQuantity = `${((sendQuantity * 0.01) / newdexPrice).toFixed(4)} ${
       toChain.symbol
-      }`;
+    }`;
     setReceiveAmount(receiveQuantity);
     setFeeAmount(feeQuantity);
   }, [sendAmount, newdexPrice, toAccount]);

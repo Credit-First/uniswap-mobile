@@ -11,22 +11,22 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './ConnectAccountScreen.style';
-import { KHeader, KButton, KText, KInput } from '../../components';
+import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { supportedChains } from '../../eos/chains';
 import { getAccount } from '../../eos/eos';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
-const ChainItem = ({ data, onPress, selected }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={[styles.chainItem, selected && styles.chainItemSelected]}>
-        <Image style={styles.chainItemImage} source={data.icon} />
-        <KText>{data.name}</KText>
-      </View>
-    </TouchableOpacity>
-  );
-};
+// const ChainItem = ({ data, onPress, selected }) => {
+//   return (
+//     <TouchableOpacity onPress={onPress}>
+//       <View style={[styles.chainItem, selected && styles.chainItemSelected]}>
+//         <Image style={styles.chainItemImage} source={data.icon} />
+//         <KText>{data.name}</KText>
+//       </View>
+//     </TouchableOpacity>
+//   );
+// };
 
 const ConnectAccountScreen = props => {
   const {
@@ -70,17 +70,15 @@ const ConnectAccountScreen = props => {
             subTitle={'Connect your account'}
             style={styles.header}
           />
-          <KText style={styles.chainLabel}>Blockchain</KText>
-          <View style={styles.chainItemsContainer}>
-            {supportedChains.map((item, index) => (
-              <ChainItem
-                data={item}
-                key={`${index}`}
-                selected={index === chainIndex}
-                onPress={() => setChainIndex(index)}
-              />
-            ))}
-          </View>
+          <KSelect
+            label={'Blockchain'}
+            items={supportedChains.map(item => ({
+              label: item.name,
+              value: item,
+            }))}
+            onValueChange={(item, index) => setChainIndex(index)}
+            containerStyle={styles.inputContainer}
+          />
           <KInput
             label={'Account name'}
             placeholder={'Enter your account name'}
