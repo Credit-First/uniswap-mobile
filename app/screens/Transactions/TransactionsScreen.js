@@ -5,7 +5,7 @@ import styles from './TransactionsScreen.style';
 import { KHeader } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getActions } from '../../eos/eos';
-import supportedChains from '../../eos/chains';
+import { supportedChains } from '../../eos/chains';
 import TransactionItem from './components/TransactionItem';
 
 const TransactionsScreen = props => {

@@ -1,6 +1,7 @@
 import { JsonRpc, Api } from 'eosjs-rn';
 import { JsSignatureProvider } from 'eosjs-rn/dist/eosjs-jssig';
 import { TextEncoder, TextDecoder } from 'text-encoding';
+import { getChain } from './chains';
 
 const getAccount = (accountName, chain) => {
   const rpc = new JsonRpc(chain.endpoint);
@@ -45,6 +46,80 @@ const transfer = (toAccountName, amount, memo, fromAccount, chain) => {
             to: toAccountName,
             quantity: `${amount.toFixed(4)} ${chain.symbol}`,
             memo,
+          },
+        },
+      ],
+    },
+    {
+      blocksBehind: 3,
+      expireSeconds: 30,
+    },
+  );
+};
+
+const newdexTransfer = (amount, fromAccount, toAccount) => {
+  const fromChain = getChain(fromAccount.chainName);
+  const toChain = getChain(toAccount.chainName);
+
+  const rpc = new JsonRpc(fromChain.endpoint);
+  const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
+
+  const api = new Api({
+    rpc,
+    signatureProvider,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder(),
+  });
+
+  const newdexAmount = amount * 0.99;
+  const feeAmount = amount * 0.01;
+  const symbol = `eosio.token-${toChain.symbol.toLowerCase()}-${fromChain.symbol.toLowerCase()}`;
+  const newdexMemo = JSON.stringify({
+    type: 'buy-market',
+    symbol,
+    price: '0.000000',
+    channel: 'web',
+    receiver: toAccount.accountName,
+  });
+  const feeMemo = `newdex-fee-${newdexMemo}`;
+
+  console.log(fromAccount);
+  console.log(newdexMemo);
+  console.log(feeMemo);
+
+  return api.transact(
+    {
+      actions: [
+        {
+          account: 'eosio.token',
+          name: 'transfer',
+          authorization: [
+            {
+              actor: fromAccount.accountName,
+              permission: 'active',
+            },
+          ],
+          data: {
+            from: fromAccount.accountName,
+            to: 'newdexpocket',
+            quantity: `${newdexAmount.toFixed(4)} ${fromChain.symbol}`,
+            memo: newdexMemo,
+          },
+        },
+        {
+          account: 'eosio.token',
+          name: 'transfer',
+          authorization: [
+            {
+              actor: fromAccount.accountName,
+              permission: 'active',
+            },
+          ],
+          data: {
+            from: fromAccount.accountName,
+            to: 'eostribeprod',
+            quantity: `${feeAmount.toFixed(4)} ${fromChain.symbol}`,
+            memo: feeMemo,
           },
         },
       ],
@@ -106,6 +181,7 @@ export {
   getProducers,
   getActions,
   transfer,
+  newdexTransfer,
   voteProducers,
   sumAmount,
 };

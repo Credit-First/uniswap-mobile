@@ -29,6 +29,7 @@ import {
   TransactionsScreen,
   TransactionDetailScreen,
   VoteScreen,
+  ExchangeScreen,
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -83,7 +84,7 @@ const App = () => {
         icon = require('./assets/icons/vote.png');
       } else if (route.name === 'Transactions') {
         icon = require('./assets/icons/transactions.png');
-      } else if (route.name === 'Convert') {
+      } else if (route.name === 'Exchange') {
         icon = require('./assets/icons/coins.png');
       }
 
@@ -106,7 +107,7 @@ const App = () => {
             name={'Transactions'}
             component={TransactionsStackScreen}
           />
-          <Tab.Screen name={'Convert'} component={AccountsScreen} />
+          <Tab.Screen name={'Exchange'} component={ExchangeScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     </Provider>

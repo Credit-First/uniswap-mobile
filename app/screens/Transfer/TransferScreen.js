@@ -6,7 +6,7 @@ import styles from './TransferScreen.style';
 import { KHeader, KButton, KInput } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
-import supportedChains from '../../eos/chains';
+import { supportedChains } from '../../eos/chains';
 
 const TransferScreen = props => {
   const [toAccountName, setToAccountName] = useState('');

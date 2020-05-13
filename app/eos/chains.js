@@ -1,4 +1,4 @@
-const chains = [
+const supportedChains = [
   {
     name: 'EOS',
     symbol: 'EOS',
@@ -49,4 +49,8 @@ const chains = [
   },
 ];
 
-export default chains;
+const getChain = chainName => {
+  return supportedChains.find(item => item.name === chainName);
+};
+
+export { supportedChains, getChain };

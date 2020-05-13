@@ -10,3 +10,4 @@ export {
   default as TransactionDetailScreen,
 } from './TransactionDetail/TransactionDetailScreen';
 export { default as VoteScreen } from './Vote/VoteScreen';
+export { default as ExchangeScreen } from './Exchange/ExchangeScreen';

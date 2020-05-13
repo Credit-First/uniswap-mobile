@@ -11,7 +11,7 @@ import {
   voteProducers,
   sumAmount,
 } from '../../eos/eos';
-import supportedChains from '../../eos/chains';
+import { supportedChains } from '../../eos/chains';
 import ProducerListItem from './components/ProducerListItem';
 import BalanceItem from './components/BalanceItem';
 
