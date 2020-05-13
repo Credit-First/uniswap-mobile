@@ -11,7 +11,7 @@ import {
   voteProducers,
   sumAmount,
 } from '../../eos/eos';
-import { supportedChains } from '../../eos/chains';
+import { getChain } from '../../eos/chains';
 import ProducerListItem from './components/ProducerListItem';
 import BalanceItem from './components/BalanceItem';
 
@@ -35,9 +35,7 @@ const VoteScreen = props => {
         return;
       }
 
-      const chain = supportedChains.find(
-        item => item.name === activeAccount.chainName,
-      );
+      const chain = getChain(activeAccount.chainName);
       if (!chain) {
         return;
       }
@@ -95,9 +93,7 @@ const VoteScreen = props => {
       return;
     }
 
-    const chain = supportedChains.find(
-      item => item.name === activeAccount.chainName,
-    );
+    const chain = getChain(activeAccount.chainName);
     if (!chain) {
       return;
     }

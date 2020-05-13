@@ -7,7 +7,7 @@ import styles from './ExchangeScreen.style';
 import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, newdexTransfer } from '../../eos/eos';
-import { supportedChains, getChain } from '../../eos/chains';
+import { getChain } from '../../eos/chains';
 
 const ExchangeScreen = props => {
   const [fromAccount, setFromAccount] = useState();
@@ -83,7 +83,7 @@ const ExchangeScreen = props => {
     )} ${toChain.symbol}`;
     const feeQuantity = `${((sendQuantity * 0.01) / newdexPrice).toFixed(4)} ${
       toChain.symbol
-    }`;
+      }`;
     setReceiveAmount(receiveQuantity);
     setFeeAmount(feeQuantity);
   }, [sendAmount, newdexPrice, toAccount]);
@@ -91,7 +91,7 @@ const ExchangeScreen = props => {
   const _handleFromAccountChange = async account => {
     setFromAccount(account);
 
-    const chain = supportedChains.find(item => item.name === account.chainName);
+    const chain = getChain(account.chainName);
     if (!chain) {
       return;
     }

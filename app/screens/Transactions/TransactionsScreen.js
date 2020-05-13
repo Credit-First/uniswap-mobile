@@ -5,7 +5,7 @@ import styles from './TransactionsScreen.style';
 import { KHeader } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getActions } from '../../eos/eos';
-import { supportedChains } from '../../eos/chains';
+import { getChain } from '../../eos/chains';
 import TransactionItem from './components/TransactionItem';
 
 const TransactionsScreen = props => {
@@ -23,9 +23,7 @@ const TransactionsScreen = props => {
         return;
       }
 
-      const chain = supportedChains.find(
-        item => item.name === activeAccount.chainName,
-      );
+      const chain = getChain(activeAccount.chainName);
       if (!chain) {
         return;
       }

@@ -6,7 +6,7 @@ import styles from './TransferScreen.style';
 import { KHeader, KButton, KInput } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
-import { supportedChains } from '../../eos/chains';
+import { getChain } from '../../eos/chains';
 
 const TransferScreen = props => {
   const [toAccountName, setToAccountName] = useState('');
@@ -26,9 +26,7 @@ const TransferScreen = props => {
       return;
     }
 
-    const chain = supportedChains.find(
-      item => item.name === activeAccount.chainName,
-    );
+    const chain = getChain(activeAccount.chainName);
     if (!chain) {
       return;
     }
