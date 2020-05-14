@@ -37,15 +37,17 @@ const ConnectAccountScreen = props => {
   const [accountName, setAccountName] = useState('');
   const [privateKey, setPrivateKey] = useState('');
 
-  const [chainIndex, setChainIndex] = useState(0);
+  const [chain, setChain] = useState(null);
 
   const _handleConnect = async () => {
-    const chain = supportedChains[chainIndex];
+    if (!accountName || !privateKey || !chain) {
+      Alert.alert('Please fill in all fields');
+      return;
+    }
+
     try {
-      const account = await getAccount(accountName, chain);
-      console.log('account: ', account);
+      await getAccount(accountName, chain);
     } catch (e) {
-      console.log(e);
       Alert.alert('Please input valid account name');
       return;
     }
@@ -76,7 +78,7 @@ const ConnectAccountScreen = props => {
               label: item.name,
               value: item,
             }))}
-            onValueChange={(item, index) => setChainIndex(index)}
+            onValueChange={setChain}
             containerStyle={styles.inputContainer}
           />
           <KInput
