@@ -6,8 +6,8 @@
  * @flow strict-local
  */
 
-import React, { useEffect } from 'react';
-import { View, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Image, AppState } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,9 +19,9 @@ const store = createStore();
 
 const AccountsStack = createStackNavigator();
 const TransactionsStack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const MainTab = createBottomTabNavigator();
+const MainStack = createStackNavigator();
 
-import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode';
 import {
   AccountsScreen,
   ConnectAccountScreen,
@@ -30,6 +30,7 @@ import {
   TransactionDetailScreen,
   VoteScreen,
   ExchangeScreen,
+  PinCodeScreen,
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -59,56 +60,74 @@ const TransactionsStackScreen = () => {
   );
 };
 
+const tabScreenOptions = ({ route }) => ({
+  tabBarIcon: ({ focused, color, size }) => {
+    let icon;
+    if (route.name === 'Accounts') {
+      icon = require('./assets/icons/accounts.png');
+    } else if (route.name === 'Transfer') {
+      icon = require('./assets/icons/transfer.png');
+    } else if (route.name === 'Vote') {
+      icon = require('./assets/icons/vote.png');
+    } else if (route.name === 'Transactions') {
+      icon = require('./assets/icons/transactions.png');
+    } else if (route.name === 'Exchange') {
+      icon = require('./assets/icons/coins.png');
+    }
+
+    return <Image source={icon} style={{ tintColor: color }} />;
+  },
+});
+
+const MainTabScreen = () => {
+  return (
+    <MainTab.Navigator
+      screenOptions={tabScreenOptions}
+      tabBarOptions={{
+        showLabel: false,
+      }}>
+      <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
+      <MainTab.Screen name={'Transfer'} component={TransferScreen} />
+      <MainTab.Screen name={'Vote'} component={VoteScreen} />
+      <MainTab.Screen
+        name={'Transactions'}
+        component={TransactionsStackScreen}
+      />
+      <MainTab.Screen name={'Exchange'} component={ExchangeScreen} />
+    </MainTab.Navigator>
+  );
+};
+
 const App = () => {
+  const navigationRef = useRef(null);
+
   useEffect(() => {
-    checkPinCode();
+    AppState.addEventListener('change', _handleAppStateChange);
+    navigationRef.current.navigate('PinCode');
+
+    return () => {
+      AppState.removeEventListener('change', _handleAppStateChange);
+    };
   }, []);
 
-  const checkPinCode = async () => {
-    try {
-      const res = await hasUserSetPinCode();
-      console.log('has pin code', res);
-    } catch (e) {
-      console.log('pin code error', e);
+  const _handleAppStateChange = nextAppState => {
+    console.log('App state changed to', nextAppState);
+    if (nextAppState === 'active') {
+      navigationRef.current.navigate('PinCode');
     }
   };
 
-  const screenOptions = ({ route }) => ({
-    tabBarIcon: ({ focused, color, size }) => {
-      let icon;
-      if (route.name === 'Accounts') {
-        icon = require('./assets/icons/accounts.png');
-      } else if (route.name === 'Transfer') {
-        icon = require('./assets/icons/transfer.png');
-      } else if (route.name === 'Vote') {
-        icon = require('./assets/icons/vote.png');
-      } else if (route.name === 'Transactions') {
-        icon = require('./assets/icons/transactions.png');
-      } else if (route.name === 'Exchange') {
-        icon = require('./assets/icons/coins.png');
-      }
-
-      return <Image source={icon} style={{ tintColor: color }} />;
-    },
-  });
-
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={screenOptions}
-          tabBarOptions={{
-            showLabel: false,
-          }}>
-          <Tab.Screen name={'Accounts'} component={AccountsStackScreen} />
-          <Tab.Screen name={'Transfer'} component={TransferScreen} />
-          <Tab.Screen name={'Vote'} component={VoteScreen} />
-          <Tab.Screen
-            name={'Transactions'}
-            component={TransactionsStackScreen}
+      <NavigationContainer ref={navigationRef}>
+        <MainStack.Navigator headerMode={'none'}>
+          <MainStack.Screen name="MainTab" component={MainTabScreen} />
+          <MainStack.Screen
+            name="PinCode"
+            component={PinCodeScreen}
+            options={{ gestureEnabled: false }}
           />
-          <Tab.Screen name={'Exchange'} component={ExchangeScreen} />
-        </Tab.Navigator>
+        </MainStack.Navigator>
       </NavigationContainer>
     </Provider>
   );
