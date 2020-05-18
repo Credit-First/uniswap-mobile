@@ -2,6 +2,7 @@ import { JsonRpc, Api } from 'eosjs-rn';
 import { JsSignatureProvider } from 'eosjs-rn/dist/eosjs-jssig';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getChain } from './chains';
+import { getNewdexSymbol } from './exchange';
 
 const getAccount = (accountName, chain) => {
   const rpc = new JsonRpc(chain.endpoint);
@@ -73,19 +74,16 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
 
   const newdexAmount = amount * 0.99;
   const feeAmount = amount * 0.01;
-  const symbol = `eosio.token-${toChain.symbol.toLowerCase()}-${fromChain.symbol.toLowerCase()}`;
+  const symbol = getNewdexSymbol(fromChain, toChain);
+  const orderType = fromChain.name === 'EOS' ? 'buy-market' : 'sell-market';
   const newdexMemo = JSON.stringify({
-    type: 'buy-market',
+    type: orderType,
     symbol,
     price: '0.000000',
     channel: 'web',
     receiver: toAccount.accountName,
   });
   const feeMemo = `newdex-fee-${newdexMemo}`;
-
-  console.log(fromAccount);
-  console.log(newdexMemo);
-  console.log(feeMemo);
 
   return api.transact(
     {
@@ -101,7 +99,7 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
           ],
           data: {
             from: fromAccount.accountName,
-            to: 'newdexpocket',
+            to: fromChain.newdexAccount,
             quantity: `${newdexAmount.toFixed(4)} ${fromChain.symbol}`,
             memo: newdexMemo,
           },

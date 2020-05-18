@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { get } from 'lodash';
 
 import styles from './ExchangeScreen.style';
 import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, newdexTransfer } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
+import { getNewdexPrice } from '../../eos/exchange';
 
 const ExchangeScreen = props => {
   const [fromAccount, setFromAccount] = useState();
@@ -44,31 +44,15 @@ const ExchangeScreen = props => {
   };
 
   useEffect(() => {
-    const getNewdexPrice = async () => {
-      const fromChain = getChain(fromAccount.chainName);
-      const toChain = getChain(toAccount.chainName);
-      if (!fromChain || !toChain) {
-        return;
-      }
-
-      const symbol = `eosio.token-${toChain.symbol.toLowerCase()}-${fromChain.symbol.toLowerCase()}`;
-      try {
-        const res = await fetch(
-          `https://api.newdex.io/v1/price?symbol=${symbol}`,
-        );
-        const resJson = await res.json();
-        const price = get(resJson, 'data.price');
-
-        setNewdexPrice(price);
-      } catch (e) {
-        console.log('get newdex price failed with error', e);
-      }
+    const getPrice = async (fromAcc, toAcc) => {
+      const price = await getNewdexPrice(fromAcc, toAcc);
+      setNewdexPrice(price);
     };
 
     if (!fromAccount || !toAccount) {
       return;
     }
-    getNewdexPrice();
+    getPrice(fromAccount, toAccount);
   }, [fromAccount, toAccount]);
 
   useEffect(() => {
@@ -78,10 +62,10 @@ const ExchangeScreen = props => {
     }
     const toChain = getChain(toAccount.chainName);
 
-    const receiveQuantity = `${((sendQuantity * 0.99) / newdexPrice).toFixed(
+    const receiveQuantity = `${(sendQuantity * 0.99 * newdexPrice).toFixed(
       4,
     )} ${toChain.symbol}`;
-    const feeQuantity = `${((sendQuantity * 0.01) / newdexPrice).toFixed(4)} ${
+    const feeQuantity = `${(sendQuantity * 0.01 * newdexPrice).toFixed(4)} ${
       toChain.symbol
     }`;
     setReceiveAmount(receiveQuantity);
