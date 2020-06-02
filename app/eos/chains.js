@@ -21,24 +21,11 @@ const supportedChains = [
     newdexAccount: 'newdex',
   },
   {
-    name: 'Lynx',
-    symbol: 'Lynx',
-    icon: require('../../assets/chains/eos.png'),
-    endpoint: 'https://api.lynx.eostribe.io',
-    newdexAccount: 'newdex',
-  },
-  {
     name: 'WAX',
     symbol: 'WAX',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.wax.eostribe.io',
     newdexAccount: 'newdex',
-  },
-  {
-    name: 'DAOBet',
-    symbol: 'DAOBet',
-    icon: require('../../assets/chains/eos.png'),
-    endpoint: 'https://api.daobet.eostribe.io',
   },
   {
     name: 'MEET.ONE',
