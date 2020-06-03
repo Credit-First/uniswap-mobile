@@ -27,6 +27,11 @@ const AccountsScreen = props => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Image
+        style={{flex:1, height: undefined, width: undefined}}
+        source={require('../../../assets/logo/tribe-logo.png')}
+        resizeMode="contain"
+      />
       <FlatList
         data={accounts}
         keyExtractor={(item, index) => `${index}`}
