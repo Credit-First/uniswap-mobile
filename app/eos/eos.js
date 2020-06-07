@@ -81,9 +81,17 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
     symbol,
     price: '0.000000',
     channel: 'web',
-    receiver: toAccount.accountName,
+    receiver: toAccount.accountName
   });
-  const feeMemo = `newdex-fee-${newdexMemo}`;
+  const feeMemo = JSON.stringify({
+    type: orderType,
+    symbol,
+    amount: newdexAmount.toFixed(4),
+    fee: feeAmount.toFixed(4),
+    channel: 'web',
+    sender: fromAccount.accountName,
+    receiver: toAccount.accountName
+  });
 
   return api.transact(
     {

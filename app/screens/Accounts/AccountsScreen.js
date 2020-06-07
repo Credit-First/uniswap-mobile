@@ -7,7 +7,6 @@ import { connectAccounts } from '../../redux';
 import AccountListItem from './components/AccountListItem';
 
 const AccountsScreen = props => {
-  const [accountBalance, setAccountBalance] = useState();
   const {
     navigation: { navigate },
     accountsState: { accounts, activeAccountIndex },
@@ -53,7 +52,7 @@ const AccountsScreen = props => {
         style={styles.button}
         icon={'add'}
         onPress={_handleCreateAccount}
-      />
+      /> 
       <KButton
         title={'Connect account'}
         theme={'blue'}
