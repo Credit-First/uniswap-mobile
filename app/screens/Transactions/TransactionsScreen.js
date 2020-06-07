@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, FlatList } from 'react-native';
+import { SafeAreaView, View, FlatList, Linking } from 'react-native';
 
 import styles from './TransactionsScreen.style';
-import { KHeader } from '../../components';
+import { KHeader, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getActions } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
@@ -45,6 +45,21 @@ const TransactionsScreen = props => {
     navigate('TransactionDetail', { action });
   };
 
+  const _loadBloksHistory = () => {
+    const activeAccount = accounts[activeAccountIndex];
+    if (activeAccount.chainName == 'EOS') {
+      Linking.openURL('https://bloks.io/account/'+activeAccount.accountName);
+    } else if (activeAccount.chainName == 'Telos') {
+      Linking.openURL('https://telos.bloks.io/account/'+activeAccount.accountName);
+    } else if (activeAccount.chainName == 'BOS') {
+      Linking.openURL('https://bos.bloks.io/account/'+activeAccount.accountName);
+    } else if (activeAccount.chainName == 'WAX') {
+      Linking.openURL('https://wax.bloks.io/account/'+activeAccount.accountName);
+    } else if (activeAccount.chainName == 'MEETONE') {
+      Linking.openURL('https://meetone.bloks.io/account/'+activeAccount.accountName);
+    } 
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -52,6 +67,12 @@ const TransactionsScreen = props => {
           title={'Transactions'}
           subTitle={'A list of previous transactions.'}
           style={styles.header}
+        />
+        <KButton
+        title={'Load account history'}
+        theme={'blue'}
+        style={styles.button}
+        onPress={_loadBloksHistory}
         />
         <FlatList
           style={styles.list}
