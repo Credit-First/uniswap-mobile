@@ -46,7 +46,6 @@ const VoteScreen = props => {
         setTotalProducerVoteWeight(res.total_producer_vote_weight);
 
         const account = await getAccount(activeAccount.accountName, chain);
-        console.log(account);
         const vProducers = get(account, 'voter_info.producers', []);
         setVotedProducers(vProducers);
         setLiquidBalance(account.core_liquid_balance.split(' ')[0]);

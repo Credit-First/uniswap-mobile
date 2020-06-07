@@ -17,8 +17,8 @@ const ExchangeScreen = props => {
   const [receiveAmount, setReceiveAmount] = useState();
   const [feeAmount, setFeeAmount] = useState();
   const [newdexPrice, setNewdexPrice] = useState();
-
   const [isSubmitting, setSubmitting] = useState(false);
+
 
   const {
     accountsState: { accounts },
@@ -26,6 +26,18 @@ const ExchangeScreen = props => {
 
   const _handleSubmit = async () => {
     if (!fromAccount || !toAccount || !sendAmount) {
+      return;
+    }
+    var valid = false;
+    if (fromAccount.chainName == toAccount.chainName) {
+      valid = false;
+    } else if (fromAccount.chainName == 'EOS') {
+      valid = true;
+    } else if (toAccount.chainName == 'EOS') {
+      valid = true;
+    }
+    if(!valid) {
+      Alert.alert('Invalid exchange pair: must include EOS.');
       return;
     }
 
@@ -48,10 +60,14 @@ const ExchangeScreen = props => {
       const price = await getNewdexPrice(fromAcc, toAcc);
       setNewdexPrice(price);
     };
-
+    // pre-validation:
     if (!fromAccount || !toAccount) {
       return;
+    } else if (fromAccount.chainName == toAccount.chainName) {
+      return;
     }
+
+
     getPrice(fromAccount, toAccount);
   }, [fromAccount, toAccount]);
 
@@ -60,6 +76,7 @@ const ExchangeScreen = props => {
     if (!sendQuantity || !newdexPrice || !toAccount) {
       return;
     }
+
     const toChain = getChain(toAccount.chainName);
 
     const receiveQuantity = `${(sendQuantity * 0.99 * newdexPrice).toFixed(
