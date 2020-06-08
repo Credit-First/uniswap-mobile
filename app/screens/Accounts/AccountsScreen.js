@@ -21,8 +21,8 @@ const AccountsScreen = props => {
     chooseActiveAccount(index);
   };
 
-  const _handlePressAccount = () => {
-    console.log('TODO: handle press');
+  const _handlePressAccount = action => {
+    navigate('AccountDetails', { action });
   };
 
 
