@@ -14,9 +14,11 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const AccountDetailsScreen = props => {
   const [liquidBalance, setLiquidBalance] = useState();
   const [totalBalance, setTotalBalance] = useState();
+  const [refundBalance, setRefundBalance] = useState();
   const [cpuStaked, setCpuStaked] = useState();
   const [netStaked, setNetStaked] = useState();
   const [liquidNumber, setLiquidNumber] = useState(0);
+  const [refundNumber, setRefundNumber] = useState(0);
   const [cpuStakedNumber, setCpuStakedNumber] = useState(0);
   const [netStakedNumber, setNetStakedNumber] = useState(0);
   const [ramUsed, setRamUsed] = useState();
@@ -39,6 +41,13 @@ const AccountDetailsScreen = props => {
   {
     name: "Liquid",
     balance: liquidNumber,
+    color: "rgba(42, 254, 106, 1)",
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 12
+  },
+  {
+    name: "Refund",
+    balance: refundNumber,
     color: "rgba(254, 142, 42, 1)",
     legendFontColor: "#7F7F7F",
     legendFontSize: 12
@@ -85,16 +94,25 @@ const AccountDetailsScreen = props => {
   const loadAccount = async (account) => {
     const chain = getChain(account.chainName);
     const accountInfo = await getAccount(account.accountName, chain);
-    setLiquidBalance(accountInfo.core_liquid_balance);
+    var token = accountInfo.core_liquid_balance.split(' ')[1];
     const selfUnstaked = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
     const selfCpuStaked = parseFloat(accountInfo.self_delegated_bandwidth.cpu_weight.split(' ')[0]);
     const selfNetStaked = parseFloat(accountInfo.self_delegated_bandwidth.net_weight.split(' ')[0]);
-    var total = (selfUnstaked + selfCpuStaked + selfNetStaked).toFixed(4);
-    var token = accountInfo.core_liquid_balance.split(' ')[1];
+    var refund = accountInfo.refund_request;
+    var totRefund = 0;
+    if (refund) {
+      var cpuRefund = parseFloat(refund.cpu_amount.split(' ')[0]);
+      var netRefund = parseFloat(refund.net_amount.split(' ')[0]);
+      var totRefund = cpuRefund + netRefund;
+      setRefundNumber(totRefund);
+    } 
+    var total = (selfUnstaked + selfCpuStaked + selfNetStaked + totRefund).toFixed(4);
+    setTotalBalance(total + ' ' + token);
+    setLiquidBalance(accountInfo.core_liquid_balance);
+    setRefundBalance(totRefund + ' ' + token);
     setLiquidNumber(selfUnstaked);
     setCpuStakedNumber(selfCpuStaked);
     setNetStakedNumber(selfNetStaked);
-    setTotalBalance(total+' '+token);
     setCpuStaked(accountInfo.total_resources.cpu_weight);
     setNetStaked(accountInfo.total_resources.net_weight);
     setRamUsed(accountInfo.ram_usage);
@@ -127,6 +145,7 @@ const AccountDetailsScreen = props => {
             <View style={styles.spacer} />
             <KText>Available: {liquidBalance}</KText>
             <KText>Total balance: {totalBalance}</KText>
+            <KText>Refund balance: {refundBalance}</KText>
             <KText>CPU Staked: {cpuStaked}</KText>
             <KText>NET Staked: {netStaked}</KText>
             <KText>RAM Used/Quota: {ramUsed}/{ramQuota} bytes</KText>
