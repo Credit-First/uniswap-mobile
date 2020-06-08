@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Alert } from 'react-native';
+import { Image, SafeAreaView, View, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './ExchangeScreen.style';
@@ -21,8 +21,10 @@ const ExchangeScreen = props => {
 
 
   const {
+    navigation: { navigate },
     accountsState: { accounts },
   } = props;
+
 
   const _handleSubmit = async () => {
     if (!fromAccount || !toAccount || !sendAmount) {
@@ -114,6 +116,21 @@ const ExchangeScreen = props => {
     setToAccount(value);
   };
 
+  var displayExchange = false;
+  if (accounts.length > 1) {
+    var eosPresent = false;
+    var anotherChain = false;
+    accounts.map(function(account){
+      if (account.chainName == 'EOS') {
+        eosPresent = true;
+      } else if (account.chainName != 'EOS') {
+        anotherChain = true;
+      }
+    });
+    displayExchange = (eosPresent && anotherChain);
+  }
+
+if (displayExchange) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -187,6 +204,38 @@ const ExchangeScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
+
+} else {
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <KHeader
+            title={'Convert coins'}
+            subTitle={'This feature not available for imported account(s)'}
+            style={styles.header}
+          />
+          <KButton
+            title={'Connect more accounts'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={() => navigate('ConnectAccount')}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+            />
+            )}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+}
+
 };
+
 
 export default connectAccounts()(ExchangeScreen);
