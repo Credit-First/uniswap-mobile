@@ -9,6 +9,8 @@ import { KHeader, KInput, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
+const { Fio, Ecc } = require('@fioprotocol/fiojs');
+
 const RegisterAddressScreen = props => {
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
