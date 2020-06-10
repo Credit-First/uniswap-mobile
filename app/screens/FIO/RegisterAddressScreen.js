@@ -63,6 +63,13 @@ const RegisterAddressScreen = props => {
         contentContainerStyle={styles.scrollContentContainer}
         enableOnAndroid>
       <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+        </TouchableOpacity>
         <KHeader
           title={'Register new address'}
           subTitle={'Register new FIO address under @tribe domain'}
