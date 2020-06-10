@@ -47,17 +47,25 @@ const TransactionsScreen = props => {
 
   const _loadBloksHistory = () => {
     const activeAccount = accounts[activeAccountIndex];
-    if (activeAccount.chainName == 'EOS') {
-      Linking.openURL('https://bloks.io/account/'+activeAccount.accountName);
-    } else if (activeAccount.chainName == 'Telos') {
-      Linking.openURL('https://telos.bloks.io/account/'+activeAccount.accountName);
-    } else if (activeAccount.chainName == 'BOS') {
-      Linking.openURL('https://bos.bloks.io/account/'+activeAccount.accountName);
-    } else if (activeAccount.chainName == 'WAX') {
-      Linking.openURL('https://wax.bloks.io/account/'+activeAccount.accountName);
-    } else if (activeAccount.chainName == 'MEETONE') {
-      Linking.openURL('https://meetone.bloks.io/account/'+activeAccount.accountName);
-    } 
+    if (activeAccount.chainName === 'EOS') {
+      Linking.openURL('https://bloks.io/account/' + activeAccount.accountName);
+    } else if (activeAccount.chainName === 'Telos') {
+      Linking.openURL(
+        'https://telos.bloks.io/account/' + activeAccount.accountName,
+      );
+    } else if (activeAccount.chainName === 'BOS') {
+      Linking.openURL(
+        'https://bos.bloks.io/account/' + activeAccount.accountName,
+      );
+    } else if (activeAccount.chainName === 'WAX') {
+      Linking.openURL(
+        'https://wax.bloks.io/account/' + activeAccount.accountName,
+      );
+    } else if (activeAccount.chainName === 'MEETONE') {
+      Linking.openURL(
+        'https://meetone.bloks.io/account/' + activeAccount.accountName,
+      );
+    }
   };
 
   return (
@@ -69,10 +77,10 @@ const TransactionsScreen = props => {
           style={styles.header}
         />
         <KButton
-        title={'Load account history'}
-        theme={'blue'}
-        style={styles.button}
-        onPress={_loadBloksHistory}
+          title={'Load account history'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={_loadBloksHistory}
         />
         <FlatList
           style={styles.list}

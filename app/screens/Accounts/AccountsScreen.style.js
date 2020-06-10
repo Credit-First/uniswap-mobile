@@ -20,6 +20,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginHorizontal: 20,
   },
+  logo: {
+    flex: 1,
+    height: undefined,
+    width: undefined,
+  },
 });
 
 export default styles;

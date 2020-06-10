@@ -21,80 +21,80 @@ const RegisterAddressScreen = props => {
   } = props;
 
   const _checkAvailable = address => {
-  	setAddress(address);
-  	setAvailable(false);
-  	setCheckState('Checking');
+    setAddress(address);
+    setAvailable(false);
+    setCheckState('Checking');
     if (address.length > 6 && address.endsWith('@tribe')) {
-    	fetch('http://fio.eostribe.io/v1/chain/avail_check', {
-  			method: 'POST',
-  			headers: {
-    			Accept: 'application/json',
-    			'Content-Type': 'application/json'
-  			},
-  			body: JSON.stringify({
-  				"fio_name": address
-  			})
-		})
-      	.then((response) => response.json())
-      	.then((json) => updateAvailableState(json.is_registered, false))
-      	.catch((error) => updateAvailableState(-1, error));
-    } 
+      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fio_name: address,
+        }),
+      })
+        .then(response => response.json())
+        .then(json => updateAvailableState(json.is_registered, false))
+        .catch(error => updateAvailableState(-1, error));
+    }
   };
 
   const updateAvailableState = (regcount, error) => {
-  	if (regcount == 0) {
-  		setAvailable(true);
-  		setCheckState('Available');
-  	} else if (regcount == 1) {
-  		setAvailable(false);
-  		setCheckState('Not available');
-  	} else if(error) {
-  		console.error(error);
-  		setAvailable(false);
-  		setCheckState('Error');
-  	}
-  }
+    if (regcount === 0) {
+      setAvailable(true);
+      setCheckState('Available');
+    } else if (regcount === 1) {
+      setAvailable(false);
+      setCheckState('Not available');
+    } else if (error) {
+      console.error(error);
+      setAvailable(false);
+      setCheckState('Error');
+    }
+  };
 
   const _nextRegister = () => {
-  	console.log(address);
-  }
+    console.log(address);
+  };
 
-   return (
+  return (
     <SafeAreaView style={styles.container}>
-     <KeyboardAwareScrollView
+      <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContentContainer}
         enableOnAndroid>
-      <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
             <MaterialIcon
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
             />
-        </TouchableOpacity>
-        <KHeader
-          title={'Register new address'}
-          subTitle={'Register new FIO address under @tribe domain'}
-          style={styles.header}
-        />
-        <KInput
+          </TouchableOpacity>
+          <KHeader
+            title={'Register new address'}
+            subTitle={'Register new FIO address under @tribe domain'}
+            style={styles.header}
+          />
+          <KInput
             label={'Address'}
             placeholder={'[name]@tribe'}
             value={address}
             onChangeText={_checkAvailable}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
-        />
-        <View style={styles.spacer} />
-        <KButton
-          title={checkState}
-          theme={'blue'}
-          style={styles.button}
-          icon={'check'}
-          onPress={_nextRegister}
-          isLoading={!available}
-        />
-       </View>
+          />
+          <View style={styles.spacer} />
+          <KButton
+            title={checkState}
+            theme={'blue'}
+            style={styles.button}
+            icon={'check'}
+            onPress={_nextRegister}
+            isLoading={!available}
+          />
+        </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );

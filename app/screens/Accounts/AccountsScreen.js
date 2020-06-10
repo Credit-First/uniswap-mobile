@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, FlatList, Linking, SafeAreaView } from 'react-native';
+import React from 'react';
+import { Image, FlatList, SafeAreaView } from 'react-native';
 
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
@@ -13,9 +13,9 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
-  const _handleCreateAccount = () => {
-    Linking.openURL('https://eostribe.io/newaccount/index.html');
-  };
+  // const _handleCreateAccount = () => {
+  //   Linking.openURL('https://eostribe.io/newaccount/index.html');
+  // };
 
   const _handleRegisterAddress = () => {
     navigate('RegisterAddress');
@@ -29,11 +29,10 @@ const AccountsScreen = props => {
     navigate('AccountDetails', { action });
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        style={{flex:1, height: undefined, width: undefined}}
+        style={styles.logo}
         source={require('../../../assets/logo/tribe-logo.png')}
         resizeMode="contain"
       />
@@ -56,7 +55,7 @@ const AccountsScreen = props => {
         style={styles.button}
         icon={'add'}
         onPress={_handleRegisterAddress}
-      /> 
+      />
       <KButton
         title={'Connect account'}
         theme={'blue'}
