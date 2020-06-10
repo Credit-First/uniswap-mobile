@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, FlatList, TouchableOpacity, Linking } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { get } from 'lodash';
-
+import ecc from 'eosjs-ecc-rn';
 import styles from './RegisterAddress.style';
-import { KHeader, KInput, KButton } from '../../components';
+import { KHeader, KInput, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -14,6 +14,7 @@ const RegisterAddressScreen = props => {
   const [available, setAvailable] = useState(false);
   const [checkState, setCheckState] = useState('Checking');
   const {
+    connectAccount,
     accountsState: { accounts, activeAccountIndex },
     navigation: { goBack },
   } = props;
@@ -55,6 +56,14 @@ const RegisterAddressScreen = props => {
 
   const _nextRegister = () => {
   	console.log(address);
+    ecc.randomKey().then(privateKey => {
+      const pubKey = ecc.privateToPublic(privateKey);
+      const fioKey = 'FIO' + pubKey.substring(3);
+      connectAccount({ address, privateKey, chainName: 'FIO' });
+      var registerUrl = 'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
+      Linking.openURL(registerUrl);
+      goBack();
+    })
   }
 
    return (
@@ -92,6 +101,10 @@ const RegisterAddressScreen = props => {
           onPress={_nextRegister}
           isLoading={!available}
         />
+        <View style={styles.spacer} />
+        <KText>Clicking on above button you will be taken to FIO registration site.</KText> 
+        <View style={styles.spacer} />
+        <KText>Please enter the same address and pay FIO registration fee using any one of methods provided.</KText>
        </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

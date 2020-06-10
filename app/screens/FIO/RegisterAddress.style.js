@@ -27,6 +27,9 @@ const styles = StyleSheet.create({
   balanceItem: {
     flex: 1,
   },
+  spacer: {
+    marginTop: 20,
+  },
 });
 
 export default styles;
