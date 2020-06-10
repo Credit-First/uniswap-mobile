@@ -3,6 +3,7 @@ export { default as PinCodeScreen } from './PinCode/PinCodeScreen';
 
 export { default as AccountsScreen } from './Accounts/AccountsScreen';
 export { default as AccountDetailsScreen } from './AccountDetails/AccountDetailsScreen';
+export { default as RegisterAddressScreen } from './FIO/RegisterAddressScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

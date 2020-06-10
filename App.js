@@ -25,6 +25,7 @@ const MainStack = createStackNavigator();
 import {
   AccountsScreen,
   AccountDetailsScreen,
+  RegisterAddressScreen,
   ConnectAccountScreen,
   TransferScreen,
   TransactionsScreen,
@@ -45,6 +46,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="AccountDetails"
         component={AccountDetailsScreen}
+      />
+      <AccountsStack.Screen
+        name="RegisterAddress"
+        component={RegisterAddressScreen}
       />
     </AccountsStack.Navigator>
   );

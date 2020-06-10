@@ -17,6 +17,10 @@ const AccountsScreen = props => {
     Linking.openURL('https://eostribe.io/newaccount/index.html');
   };
 
+  const _handleRegisterAddress = () => {
+    navigate('RegisterAddress');
+  };
+
   const _handleCheckAccount = index => {
     chooseActiveAccount(index);
   };
@@ -47,11 +51,11 @@ const AccountsScreen = props => {
         )}
       />
       <KButton
-        title={'Create new account'}
+        title={'Register [address]@tribe'}
         theme={'brown'}
         style={styles.button}
         icon={'add'}
-        onPress={_handleCreateAccount}
+        onPress={_handleRegisterAddress}
       /> 
       <KButton
         title={'Connect account'}
