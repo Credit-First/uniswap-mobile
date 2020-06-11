@@ -21,6 +21,10 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
   },
+  hidden: {
+    opacity: 0,
+    marginTop: 8,
+  },
   inputContainer: {
     marginTop: 20,
   },

@@ -22,6 +22,8 @@ const KButton = ({
       colors = ['#E06C39', '#DF8856'];
     } else if (theme === 'gray') {
       colors = ['#C6D3DD', '#C6D3DD'];
+    } else if (theme === 'grey') {
+      colors = ['#C6D3DD', '#C6D3DD'];
     }
 
     return colors;

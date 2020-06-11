@@ -26,6 +26,7 @@ import {
   AccountsScreen,
   AccountDetailsScreen,
   RegisterAddressScreen,
+  FIOAddressActionsScreen,
   ConnectAccountScreen,
   TransferScreen,
   TransactionsScreen,
@@ -50,6 +51,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="RegisterAddress"
         component={RegisterAddressScreen}
+      />
+      <AccountsStack.Screen
+        name="FIOAddressActions"
+        component={FIOAddressActionsScreen}
       />
     </AccountsStack.Navigator>
   );
