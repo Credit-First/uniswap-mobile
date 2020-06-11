@@ -26,7 +26,12 @@ const AccountsScreen = props => {
   };
 
   const _handlePressAccount = action => {
-    navigate('AccountDetails', { action });
+    const account = accounts[action];
+    if (account.chainName == 'FIO') {
+      console.log('TOOD: View FIO account')
+    } else {
+      navigate('AccountDetails', { action });
+    }
   };
 
 

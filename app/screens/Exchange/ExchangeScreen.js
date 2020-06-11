@@ -25,6 +25,9 @@ const ExchangeScreen = props => {
     accountsState: { accounts },
   } = props;
 
+  const filteredAccounts = accounts.filter((value, index, array) => {
+    return (value.chainName != 'FIO');
+  });
 
   const _handleSubmit = async () => {
     if (!fromAccount || !toAccount || !sendAmount) {
@@ -104,7 +107,6 @@ const ExchangeScreen = props => {
       if (!accountInfo) {
         console.log('could not get account info');
       }
-
       setFromAccountBalance(accountInfo.core_liquid_balance);
     } catch (e) {
       Alert.alert('Please input valid account name');
@@ -119,15 +121,15 @@ const ExchangeScreen = props => {
   var displayExchange = false;
   if (accounts.length > 1) {
     var eosPresent = false;
-    var anotherChain = false;
+    var anotherValidChain = false;
     accounts.map(function(account){
       if (account.chainName == 'EOS') {
         eosPresent = true;
-      } else if (account.chainName != 'EOS') {
-        anotherChain = true;
-      }
+      } else if (account.chainName != 'EOS' && account.chainName != 'FIO') {
+        anotherValidChain = true;
+      } 
     });
-    displayExchange = (eosPresent && anotherChain);
+    displayExchange = (eosPresent && anotherValidChain);
   }
 
 if (displayExchange) {
@@ -144,7 +146,7 @@ if (displayExchange) {
           />
           <KSelect
             label={'From account'}
-            items={accounts.map(item => ({
+            items={filteredAccounts.map(item => ({
               label: `${item.chainName}: ${item.accountName}`,
               value: item,
             }))}
@@ -171,7 +173,7 @@ if (displayExchange) {
           <View style={styles.spacer} />
           <KSelect
             label={'To account'}
-            items={accounts.map(item => ({
+            items={filteredAccounts.map(item => ({
               label: `${item.chainName}: ${item.accountName}`,
               value: item,
             }))}

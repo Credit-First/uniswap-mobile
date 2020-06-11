@@ -34,6 +34,13 @@ const supportedChains = [
     endpoint: 'https://api.meetone.eostribe.io',
     newdexAccount: 'newdex',
   },
+  {
+    name: 'FIO',
+    symbol: 'FIO',
+    icon: require('../../assets/chains/eos.png'),
+    endpoint: 'https://fio.eostribe.io',
+    newdexAccount: null,
+  },
 ];
 
 const getChain = chainName => {

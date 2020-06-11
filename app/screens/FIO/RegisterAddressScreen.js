@@ -59,6 +59,7 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const pubKey = ecc.privateToPublic(privateKey);
       const fioKey = 'FIO' + pubKey.substring(3);
+      //console.log("Register FIO address: "+address+", key: "+privateKey);
       connectAccount({ address, privateKey, chainName: 'FIO' });
       var registerUrl = 'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
       Linking.openURL(registerUrl);
