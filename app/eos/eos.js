@@ -175,6 +175,35 @@ const voteProducers = (producers, fromAccount, chain) => {
   );
 };
 
+const fioAddPublicAddress = (fioAccount, chain, token, pubkey) => {
+  const fioChain = getChain(fioAccount.chainName);
+  const rpc = new JsonRpc(fioChain.endpoint);
+  const signatureProvider = new JsSignatureProvider([fioAccount.privateKey]);
+
+  const api = new Api({
+    rpc,
+    signatureProvider,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder(),
+  });
+
+  return api.transact(
+    {
+      fio_address: fioAccount.address,
+      public_addresses: [
+        {
+          chain_code: chain,
+          token_code: token,
+          public_address: pubkey
+        }
+      ],
+      max_fee: 0,
+      tpid: 'crypto@tribe',
+      actor: fioAccount.actor
+    }
+  );
+}
+
 const sumAmount = (amount1, amount2) => {
   const m1 = parseFloat(amount1.split(' ')[0]);
   const m2 = parseFloat(amount2.split(' ')[0]);

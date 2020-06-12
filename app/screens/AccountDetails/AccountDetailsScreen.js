@@ -3,7 +3,7 @@ import { SafeAreaView, View, TouchableOpacity, Dimensions } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from "react-native-chart-kit";
-import { KHeader, KText } from '../../components';
+import { KHeader, KButton, KText } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
@@ -122,6 +122,12 @@ const AccountDetailsScreen = props => {
     setNetUsagePct(accountInfo.net_limit.used/accountInfo.net_limit.available);
   };
 
+  const _handleRemoveAccount  = () => {
+    //deleteAccount(account);
+    console.log("TODO: Remove account");
+    goBack();
+  }
+
   loadAccount(account);
 
   return (
@@ -170,6 +176,13 @@ const AccountDetailsScreen = props => {
               radius={32}
               chartConfig={chartConfig}
               hideLegend={false}
+            />
+            <KButton
+              title={'Remove account'}
+              theme={'brown'}
+              style={styles.button}
+              icon={'remove'}
+              onPress={_handleRemoveAccount}
             />
           </View>
       </KeyboardAwareScrollView>
