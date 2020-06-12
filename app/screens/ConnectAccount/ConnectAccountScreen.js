@@ -13,7 +13,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { supportedChains } from '../../eos/chains';
-import { getAccount } from '../../eos/eos';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 

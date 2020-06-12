@@ -175,7 +175,7 @@ const voteProducers = (producers, fromAccount, chain) => {
   );
 };
 
-const fioAddPublicAddress = (fioAccount, chain, token, pubkey) => {
+const fioAddPublicAddress = (fioAccount, account) => {
   const fioChain = getChain(fioAccount.chainName);
   const rpc = new JsonRpc(fioChain.endpoint);
   const signatureProvider = new JsSignatureProvider([fioAccount.privateKey]);
@@ -192,17 +192,17 @@ const fioAddPublicAddress = (fioAccount, chain, token, pubkey) => {
       fio_address: fioAccount.address,
       public_addresses: [
         {
-          chain_code: chain,
-          token_code: token,
-          public_address: pubkey
+          chain_code: account.chainName,
+          token_code: account.chainName,
+          public_address: account.publicKey
         }
       ],
-      max_fee: 0,
+      max_fee: fee,
       tpid: 'crypto@tribe',
-      actor: fioAccount.actor
+      actor: fioAccount.accountName
     }
   );
-}
+};
 
 const sumAmount = (amount1, amount2) => {
   const m1 = parseFloat(amount1.split(' ')[0]);
