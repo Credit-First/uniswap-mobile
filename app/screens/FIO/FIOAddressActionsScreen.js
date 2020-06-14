@@ -14,6 +14,7 @@ import styles from './RegisterAddress.style';
 import { KHeader, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import { findIndex } from 'lodash';
 
 const FIOAddressActionsScreen = props => {
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
@@ -25,11 +26,12 @@ const FIOAddressActionsScreen = props => {
   const [fioFee, setFioFee] = useState(0);
 
   const {
+    navigation: { goBack },
     route: {
       params: { account: fioAccount },
     },
+    deleteAccount,
     accountsState: { accounts },
-    navigation: { goBack },
   } = props;
 
   const privateKey = fioAccount.privateKey;
@@ -146,15 +148,14 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
-  // const _checkRegister = () => {
-  //   var registerUrl =
-  //     'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
-  //   Linking.openURL(registerUrl);
-  // };
-
-  const _removeFIOAddress = () => {
-    //deleteAccount(fioAccount);
-    console.log('TODO: Remove account');
+  const _handleRemoveAccount = () => {
+    const index = findIndex(
+      accounts,
+      el =>
+        el.address === fioAccount.address &&
+        el.chainName === fioAccount.chainName,
+    );
+    deleteAccount(index);
     goBack();
   };
 
@@ -197,7 +198,7 @@ const FIOAddressActionsScreen = props => {
           theme={'brown'}
           style={styles.button}
           icon={'remove'}
-          onPress={_removeFIOAddress}
+          onPress={_handleRemoveAccount}
         />
       </View>
     </SafeAreaView>
