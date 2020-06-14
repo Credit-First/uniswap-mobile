@@ -9,6 +9,11 @@ EOS Wallet App
 $ yarn
 ```
 
+### Nodeify modules
+```
+$ ./node_modules/.bin/rn-nodeify --hack --install --yarn
+```
+
 ### Install pod
 ```
 $ cd ios/ & pod install

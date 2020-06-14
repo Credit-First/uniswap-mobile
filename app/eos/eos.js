@@ -81,7 +81,7 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
     symbol,
     price: '0.000000',
     channel: 'web',
-    receiver: toAccount.accountName
+    receiver: toAccount.accountName,
   });
   const feeMemo = JSON.stringify({
     type: orderType,
@@ -90,7 +90,7 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
     fee: feeAmount.toFixed(4),
     channel: 'web',
     sender: fromAccount.accountName,
-    receiver: toAccount.accountName
+    receiver: toAccount.accountName,
   });
 
   return api.transact(
@@ -175,7 +175,7 @@ const voteProducers = (producers, fromAccount, chain) => {
   );
 };
 
-const fioAddPublicAddress = (fioAccount, account) => {
+const fioAddPublicAddress = (fioAccount, account, fee) => {
   const fioChain = getChain(fioAccount.chainName);
   const rpc = new JsonRpc(fioChain.endpoint);
   const signatureProvider = new JsSignatureProvider([fioAccount.privateKey]);
@@ -187,21 +187,19 @@ const fioAddPublicAddress = (fioAccount, account) => {
     textEncoder: new TextEncoder(),
   });
 
-  return api.transact(
-    {
-      fio_address: fioAccount.address,
-      public_addresses: [
-        {
-          chain_code: account.chainName,
-          token_code: account.chainName,
-          public_address: account.publicKey
-        }
-      ],
-      max_fee: fee,
-      tpid: 'crypto@tribe',
-      actor: fioAccount.accountName
-    }
-  );
+  return api.transact({
+    fio_address: fioAccount.address,
+    public_addresses: [
+      {
+        chain_code: account.chainName,
+        token_code: account.chainName,
+        public_address: account.publicKey,
+      },
+    ],
+    max_fee: fee,
+    tpid: 'crypto@tribe',
+    actor: fioAccount.accountName,
+  });
 };
 
 const sumAmount = (amount1, amount2) => {
@@ -219,4 +217,5 @@ export {
   newdexTransfer,
   voteProducers,
   sumAmount,
+  fioAddPublicAddress,
 };
