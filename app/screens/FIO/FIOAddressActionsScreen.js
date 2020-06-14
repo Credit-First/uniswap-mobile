@@ -22,13 +22,12 @@ const FIOAddressActionsScreen = props => {
 
   const {
   	route: {
-      params: { action },
+      params: { account: fioAccount },
     },
     accountsState: { accounts },
     navigation: { goBack },
   } = props;
 
-  const fioAccount = accounts[action];
   const privateKey = fioAccount.privateKey;
   const eosKey = ecc.privateToPublic(privateKey);
   const fioKey = 'FIO' + eosKey.substring(3);

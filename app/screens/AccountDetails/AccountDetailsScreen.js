@@ -9,7 +9,7 @@ import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
-
+import { findIndex } from 'lodash';
 
 const AccountDetailsScreen = props => {
   const [liquidBalance, setLiquidBalance] = useState();
@@ -30,12 +30,12 @@ const AccountDetailsScreen = props => {
   const {
     navigation: { navigate, goBack },
     route: {
-      params: { action },
+      params: { account },
     },
+    deleteAccount,
     accountsState: { accounts }
   } = props;
 
-  const account = accounts[action];
   // Stake chart data:
   const stakeData = [
   {
@@ -123,8 +123,13 @@ const AccountDetailsScreen = props => {
   };
 
   const _handleRemoveAccount  = () => {
-    //deleteAccount(account);
-    console.log("TODO: Remove account");
+    const index = findIndex(
+      accounts,
+      el =>
+        el.accountName === account.accountName &&
+        el.chainName === account.chainName,
+    );
+    deleteAccount(index);
     goBack();
   }
 

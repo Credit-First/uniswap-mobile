@@ -15,6 +15,7 @@ import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { supportedChains } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import { getAccount } from '../../eos/eos';
 
 // const ChainItem = ({ data, onPress, selected }) => {
 //   return (

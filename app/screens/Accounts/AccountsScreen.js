@@ -25,12 +25,12 @@ const AccountsScreen = props => {
     chooseActiveAccount(index);
   };
 
-  const _handlePressAccount = action => {
-    const account = accounts[action];
+  const _handlePressAccount = index => {
+    const account = accounts[index];
     if (account.chainName == 'FIO') {
-      navigate('FIOAddressActions', { action });
+      navigate('FIOAddressActions', { account });
     } else {
-      navigate('AccountDetails', { action });
+      navigate('AccountDetails', { account });
     }
   };
 
