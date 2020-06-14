@@ -25,7 +25,7 @@ const ExchangeScreen = props => {
   } = props;
 
   const filteredAccounts = accounts.filter((value, index, array) => {
-    return (value.chainName != 'FIO');
+    return value.chainName !== 'FIO';
   });
 
   const _handleSubmit = async () => {
@@ -120,116 +120,31 @@ const ExchangeScreen = props => {
   if (accounts.length > 1) {
     var eosPresent = false;
     var anotherValidChain = false;
-    accounts.map(function(account){
-      if (account.chainName == 'EOS') {
+    accounts.map(function(account) {
+      if (account.chainName === 'EOS') {
         eosPresent = true;
-      } else if (account.chainName != 'EOS' && account.chainName != 'FIO') {
+      } else if (account.chainName !== 'EOS' && account.chainName !== 'FIO') {
         anotherValidChain = true;
-      } 
+      }
     });
-    displayExchange = (eosPresent && anotherValidChain);
+    displayExchange = eosPresent && anotherValidChain;
   }
 
-if (displayExchange) {
-  return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        enableOnAndroid>
-        <View style={styles.inner}>
-          <KHeader
-            title={'Convert coins'}
-            subTitle={'Convert coins across your accounts'}
-            style={styles.header}
-          />
-          <KSelect
-            label={'From account'}
-            items={filteredAccounts.map(item => ({
-              label: `${item.chainName}: ${item.accountName}`,
-              value: item,
-            }))}
-            onValueChange={_handleFromAccountChange}
-            containerStyle={styles.inputContainer}
-          />
-          <KInput
-            label={'Amount to exchange'}
-            placeholder={'Enter amount to exchange'}
-            value={sendAmount}
-            onChangeText={setSendAmount}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-            keyboardType={'numeric'}
-          />
-          <KInput
-            label={'Balance'}
-            placeholder={'Account balance'}
-            value={fromAccountBalance}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-            editable={false}
-          />
-          <View style={styles.spacer} />
-          <KSelect
-            label={'To account'}
-            items={filteredAccounts.map(item => ({
-              label: `${item.chainName}: ${item.accountName}`,
-              value: item,
-            }))}
-            onValueChange={_handleToAccountChange}
-            containerStyle={styles.inputContainer}
-          />
-          <KInput
-            label={'Receive'}
-            placeholder={'Receive amount'}
-            value={receiveAmount}
-            containerStyle={styles.inputContainer}
-            editable={false}
-          />
-          <KInput
-            label={'Fee'}
-            placeholder={'Fee amount'}
-            value={feeAmount}
-            containerStyle={styles.inputContainer}
-            editable={false}
-          />
-          <KButton
-            title={'Submit'}
-            theme={'blue'}
-            style={styles.button}
-            isLoading={isSubmitting}
-            icon={'check'}
-            onPress={_handleSubmit}
-          />
-        </View>
-      </KeyboardAwareScrollView>
-    </SafeAreaView>
-  );
-
-} else {
-  return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        enableOnAndroid>
-        <View style={styles.inner}>
-          <KHeader
-            title={'Convert coins'}
-            subTitle={'This feature not available for imported account(s)'}
-            style={styles.header}
-          />
-          <KButton
-            title={'Connect more accounts'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={() => navigate('ConnectAccount')}
-            renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
+  if (displayExchange) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.inner}>
+            <KHeader
+              title={'Convert coins'}
+              subTitle={'Convert coins across your accounts'}
+              style={styles.header}
             />
             <KSelect
               label={'From account'}
-              items={accounts.map(item => ({
+              items={filteredAccounts.map(item => ({
                 label: `${item.chainName}: ${item.accountName}`,
                 value: item,
               }))}
@@ -256,7 +171,7 @@ if (displayExchange) {
             <View style={styles.spacer} />
             <KSelect
               label={'To account'}
-              items={accounts.map(item => ({
+              items={filteredAccounts.map(item => ({
                 label: `${item.chainName}: ${item.accountName}`,
                 value: item,
               }))}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, TouchableOpacity, Dimensions } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { PieChart, ProgressChart } from "react-native-chart-kit";
+import { PieChart, ProgressChart } from 'react-native-chart-kit';
 import { KHeader, KButton, KText } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
@@ -33,7 +33,7 @@ const AccountDetailsScreen = props => {
       params: { account },
     },
     deleteAccount,
-    accountsState: { accounts }
+    accountsState: { accounts },
   } = props;
 
   // Stake chart data:
@@ -91,7 +91,7 @@ const AccountDetailsScreen = props => {
     },
   };
 
-  const loadAccount = async account => {
+  const loadAccount = async () => {
     const chain = getChain(account.chainName);
     const accountInfo = await getAccount(account.accountName, chain);
     var token = accountInfo.core_liquid_balance.split(' ')[1];
@@ -137,7 +137,7 @@ const AccountDetailsScreen = props => {
     );
   };
 
-  const _handleRemoveAccount  = () => {
+  const _handleRemoveAccount = () => {
     const index = findIndex(
       accounts,
       el =>
@@ -146,9 +146,9 @@ const AccountDetailsScreen = props => {
     );
     deleteAccount(index);
     goBack();
-  }
+  };
 
-  loadAccount(account);
+  loadAccount();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -162,49 +162,51 @@ const AccountDetailsScreen = props => {
               size={24}
               color={PRIMARY_BLUE}
             />
-            </TouchableOpacity>
-            <KHeader
-              title={account.accountName}
-              subTitle={account.chainName}
-              style={styles.header}
-            />
-            <View style={styles.spacer} />
-            <KText>Available: {liquidBalance}</KText>
-            <KText>Total balance: {totalBalance}</KText>
-            <KText>Refund balance: {refundBalance}</KText>
-            <KText>CPU Staked: {cpuStaked}</KText>
-            <KText>NET Staked: {netStaked}</KText>
-            <KText>RAM Used/Quota: {ramUsed}/{ramQuota} bytes</KText>
-            <View style={styles.spacer} />
-            <KText>Staked vs liquid balances: </KText>
-            <PieChart
-              data={stakeData}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              accessor="balance"
-              backgroundColor="transparent"
-              absolute
-            />
-            <View style={styles.spacer} />
-            <KText>Resources usage: </KText>
-            <ProgressChart
-              data={resourceData}
-              width={screenWidth}
-              height={220}
-              strokeWidth={16}
-              radius={32}
-              chartConfig={chartConfig}
-              hideLegend={false}
-            />
-            <KButton
-              title={'Remove account'}
-              theme={'brown'}
-              style={styles.button}
-              icon={'remove'}
-              onPress={_handleRemoveAccount}
-            />
-          </View>
+          </TouchableOpacity>
+          <KHeader
+            title={account.accountName}
+            subTitle={account.chainName}
+            style={styles.header}
+          />
+          <View style={styles.spacer} />
+          <KText>Available: {liquidBalance}</KText>
+          <KText>Total balance: {totalBalance}</KText>
+          <KText>Refund balance: {refundBalance}</KText>
+          <KText>CPU Staked: {cpuStaked}</KText>
+          <KText>NET Staked: {netStaked}</KText>
+          <KText>
+            RAM Used/Quota: {ramUsed}/{ramQuota} bytes
+          </KText>
+          <View style={styles.spacer} />
+          <KText>Staked vs liquid balances: </KText>
+          <PieChart
+            data={stakeData}
+            width={screenWidth}
+            height={220}
+            chartConfig={chartConfig}
+            accessor="balance"
+            backgroundColor="transparent"
+            absolute
+          />
+          <View style={styles.spacer} />
+          <KText>Resources usage: </KText>
+          <ProgressChart
+            data={resourceData}
+            width={screenWidth}
+            height={220}
+            strokeWidth={16}
+            radius={32}
+            chartConfig={chartConfig}
+            hideLegend={false}
+          />
+          <KButton
+            title={'Remove account'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            onPress={_handleRemoveAccount}
+          />
+        </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
