@@ -25,8 +25,13 @@ const AccountsScreen = props => {
     chooseActiveAccount(index);
   };
 
-  const _handlePressAccount = action => {
-    navigate('AccountDetails', { action });
+  const _handlePressAccount = index => {
+    const account = accounts[index];
+    if (account.chainName == 'FIO') {
+      navigate('FIOAddressActions', { account });
+    } else {
+      navigate('AccountDetails', { account });
+    }
   };
 
   return (
@@ -70,6 +75,7 @@ const AccountsScreen = props => {
       />
     </SafeAreaView>
   );
+
 };
 
 export default connectAccounts()(AccountsScreen);
