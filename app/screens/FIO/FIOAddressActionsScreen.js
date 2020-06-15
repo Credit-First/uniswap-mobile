@@ -49,7 +49,7 @@ const FIOAddressActionsScreen = props => {
     const pubKey = ecc.privateToPublic(privateKey);
     account.publicKey = pubKey;
     try {
-      const res = await fioAddPublicAddress(fioAccount, account);
+      const res = await fioAddPublicAddress(fioAccount, account, fioFee);
       console.log('FIO add pubkey result', res);
     } catch (e) {
       Alert.alert(e.message);
