@@ -9,12 +9,13 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import ecc from 'eosjs-ecc-rn';
-import { fioAddPublicAddress } from '../../eos/eos';
+import { fioAddPublicAddress } from '../../eos/fio';
 import styles from './RegisterAddress.style';
 import { KHeader, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
+
 
 const FIOAddressActionsScreen = props => {
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
@@ -22,7 +23,7 @@ const FIOAddressActionsScreen = props => {
   const [registered, setRegistered] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
   const [fioBalance, setFioBalance] = useState(0.0);
-  const [actor, setActor] = useState('4fzg3kyzplmn');
+  const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
 
   const {
@@ -109,23 +110,23 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.error(error));
   };
 
-  // const loadActor = pubkey => {
-  //   console.log('Load actor for ' + pubkey);
-  //   //TODO: replace endpoint with ours after upgrade:
-  //   fetch('http://fio.eosusa.news/v1/chain/get_actor', {
-  //     method: 'POST',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       fio_public_key: pubkey,
-  //     }),
-  //   })
-  //     .then(response => response.json())
-  //     .then(json => setActor(json.actor))
-  //     .catch(error => console.error(error));
-  // };
+  const loadActor = pubkey => {
+    console.log('Load actor for ' + pubkey);
+    //TODO: replace endpoint with ours after upgrade:
+    fetch('http://fio.eosusa.news/v1/chain/get_actor', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fio_public_key: pubkey,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => setActor(json.actor))
+      .catch(error => console.error(error));
+  };
 
   const updateFioRegistration = fioAddresses => {
     if (fioAddresses) {
@@ -140,7 +141,7 @@ const FIOAddressActionsScreen = props => {
       setFioRegistrationContent(content);
       getFioBalance(fioKey);
       getFee(fioAccount.address);
-      //loadActor(fioKey);
+      loadActor(fioKey);
     } else {
       setRegistered(false);
       setButtonColor('gray');
