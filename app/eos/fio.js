@@ -20,10 +20,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const timeInISOString = (new Date(timePlusTen)).toISOString(); 
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
-  console.log(info);
-  console.log(blockInfo);
-  console.log(expiration);
-
   const api = new Api({
     rpc,
     signatureProvider,
@@ -36,35 +32,26 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
     ref_block_num: blockInfo.block_num & 0xffff, 
     ref_block_prefix: blockInfo.ref_block_prefix, 
     actions: [{
-      fio_address: fioAccount.address,
-      public_addresses: [
-      {
-        chain_code: account.chainName,
-        token_code: account.chainName,
-        public_address: account.publicKey,
-      },
-      ],
-      max_fee: fee,
-      tpid: 'crypto@tribe',
-      actor: fioAccount.accountName,
+      account: 'fio.address',
+      name: 'addaddress',
+      authorization: [{ 
+        actor: fioAccount.address, 
+        permission: 'active', 
+      }],
+      data: { 
+        fio_address: fioAccount.address,
+        public_addresses: [{
+          chain_code: account.chainName,
+          token_code: account.chainName,
+          public_address: account.publicKey,
+        }],
+        max_fee: fee,
+        tpid: 'crypto@tribe',
+        actor: fioAccount.accountName,
+      }, 
     }] 
   };
   console.log(transaction);
-
-/*
-      account: 'fio.token', 
-      name: 'trnsfiopubky', 
-      authorization: [{ 
-        actor: actorAccountHash, 
-        permission: 'active', 
-      }], 
-      data: { 
-        payeePublicKey: 'FIO5VE6Dgy9FUmd1mFotXwF88HkQN1KysCWLPqpVnDMjRvGRi1YrM', 
-        amount: '1000000000', 
-        maxFee: 200000000, 
-        technologyProviderId: '' 
-      }, 
-*/
 
   return api.transact(transaction);
 };
