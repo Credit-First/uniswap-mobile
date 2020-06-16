@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { fioAddPublicAddress } from '../../eos/fio';
 import styles from './RegisterAddress.style';
@@ -15,6 +16,8 @@ import { KHeader, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
+import AccountListItem from '../Accounts/components/AccountListItem';
+
 
 
 const FIOAddressActionsScreen = props => {
@@ -25,9 +28,15 @@ const FIOAddressActionsScreen = props => {
   const [fioBalance, setFioBalance] = useState(0.0);
   const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
+  var initialConnectedAccounts = [];
+  var initialFilteredAccounts = [];
+  const [connectedHeader, setConnectedHeader] = useState('');
+  const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
+  const [filteredHeader, setFilteredHeader] = useState('');
+  const [filteredAccounts, setFilteredAccounts] = useState(initialFilteredAccounts);
 
   const {
-    navigation: { goBack },
+    navigation: { navigate, goBack },
     route: {
       params: { account: fioAccount },
     },
@@ -36,14 +45,54 @@ const FIOAddressActionsScreen = props => {
   } = props;
 
   const privateKey = fioAccount.privateKey;
-  const eosKey = ecc.privateToPublic(privateKey);
-  const fioKey = 'FIO' + eosKey.substring(3);
+  const fioKey = Ecc.privateToPublic(privateKey);
   fioAccount.accountName = actor;
 
-  const filteredAccounts = accounts.filter((value, index, array) => {
-    value.title = 'Connect ' + value.chainName + ': ' + value.accountName;
-    return value.chainName !== 'FIO';
-  });
+  const checkRegPubkey = async account => {
+    console.log('Checking registered pubkey for ' + account.chainName + ": " + account.accountName);
+    var chainName = account.chainName;
+    if(chainName == "Telos") {
+      chainName = "TLOS";
+    }
+    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": fioAccount.address,
+        "chain_code": chainName,
+        "token_code": chainName
+      }),
+    })
+      .then(response => response.json())
+      .then(json => updateAccountLists(account, json.public_address))
+      .catch(error => console.log(error));
+  }
+
+
+  const updateAccountLists = (account, regPubkey) => {
+    const accPubkey = ecc.privateToPublic(account.privateKey);
+    //console.log(accPubkey + " == " + regPubkey);
+    if (accPubkey == regPubkey) {
+      account.title = 'Connected '  + account.chainName + ': ' + account.accountName;
+      if (connectedHeader == '') {
+        setConnectedHeader('Connected accounts to the address:');
+      }
+      var newConnectedAccounts = [...initialConnectedAccounts , account ];
+      initialConnectedAccounts.push(account);
+      setConnectedAccounts(newConnectedAccounts);
+    } else {
+      account.title = 'Connect '  + account.chainName + ': ' + account.accountName;
+      if (filteredHeader == '') {
+        setFilteredHeader('Connect following accounts to the address:');
+      }
+      var newFilteredAccounts = [...initialFilteredAccounts , account ];
+      initialFilteredAccounts.push(account);
+      setFilteredAccounts(newFilteredAccounts);
+    }
+  }
 
   const _handleConnectAccountToAddress = async account => {
     try {
@@ -139,6 +188,11 @@ const FIOAddressActionsScreen = props => {
       getFioBalance(fioKey);
       getFee(fioAccount.address);
       loadActor(fioKey);
+        accounts.map((value, index, array) => {
+          if (value.chainName !== 'FIO')  {
+            checkRegPubkey(value); 
+          }
+        });
     } else {
       setRegistered(false);
       setButtonColor('gray');
@@ -157,7 +211,17 @@ const FIOAddressActionsScreen = props => {
     goBack();
   };
 
+  const _handlePressAccount = index => {
+    const account = accounts[index];
+    if (account.chainName === 'FIO') {
+      navigate('FIOAddressActions', { account });
+    } else {
+      navigate('AccountDetails', { account });
+    }
+  };
+
   checkRegistration(fioKey);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -176,7 +240,20 @@ const FIOAddressActionsScreen = props => {
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
         <View style={styles.spacer} />
-        <KText>Connect any of imported accounts to the address:</KText>
+        <KText>{connectedHeader}</KText>
+        <FlatList
+          data={connectedAccounts}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item, index }) => (
+            <AccountListItem
+              account={item}
+              style={styles.listItem}
+              onPress={() => _handlePressAccount(index)}
+              checked={true}
+          />
+          )}
+        />
+        <KText>{filteredHeader}</KText>
         <FlatList
           data={filteredAccounts}
           keyExtractor={(item, index) => `${index}`}

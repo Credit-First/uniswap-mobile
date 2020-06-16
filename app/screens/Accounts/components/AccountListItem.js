@@ -38,7 +38,7 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
         </View>
       </TouchableOpacity>
     );
-  } else {
+  } else if(onCheck) {
     loadAccountBalance(account, setAccountBalance);
     return (
       <TouchableOpacity onPress={onPress}>
@@ -55,6 +55,18 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
               {account.chainName} : {accountBalance}
             </KText>
             <KText style={styles.accountName}>{account.accountName}</KText>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  } else {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <View style={[styles.container, props.style]}>
+          <View style={styles.contentContainer}>
+            <KText style={styles.chainName}>
+              {account.chainName} : {account.accountName}
+            </KText>
           </View>
         </View>
       </TouchableOpacity>

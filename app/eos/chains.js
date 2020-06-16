@@ -14,7 +14,7 @@ const supportedChains = [
     newdexAccount: 'newdexwallet',
   },
   {
-    name: 'TLOS',
+    name: 'Telos',
     symbol: 'TLOS',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.telos.eostribe.io',
