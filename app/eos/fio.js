@@ -41,22 +41,24 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       }, 
     }] 
   };
+  console.log(transaction);
 
   var abiMap = new Map(); 
   var tokenRawAbi = await rpc.get_raw_abi('fio.address'); 
   abiMap.set('fio.address', tokenRawAbi);
 
   const chainId = info.chain_id;
-  const privateKey = fioAccount.privateKey;
+  var privateKeys = [fioAccount.privateKey]; 
 
   const tx = await Fio.prepareTransaction({
     transaction, 
     chainId, 
-    privateKey, 
+    privateKeys, 
     abiMap, 
     textDecoder: new TextDecoder(), 
     textEncoder: new TextEncoder()
   });
+  console.log(tx);
   
   var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
