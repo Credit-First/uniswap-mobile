@@ -25,7 +25,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       account: 'fio.address',
       name: 'addaddress',
       authorization: [{ 
-        actor: fioAccount.address, 
+        actor: fioAccount.accountName, 
         permission: 'active', 
       }],
       data: { 
@@ -41,7 +41,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       }, 
     }] 
   };
-  console.log(transaction);
 
   var abiMap = new Map(); 
   var tokenRawAbi = await rpc.get_raw_abi('fio.address'); 
@@ -58,7 +57,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
     textDecoder: new TextDecoder(), 
     textEncoder: new TextEncoder()
   });
-  console.log(tx);
   
   var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 

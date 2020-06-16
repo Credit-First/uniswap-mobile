@@ -51,6 +51,7 @@ const FIOAddressActionsScreen = props => {
     try {
       const res = await fioAddPublicAddress(fioAccount, account, fioFee);
       console.log('FIO add pubkey result', res);
+      console.log(res.error.details);
     } catch (e) {
       Alert.alert(e.message);
     }
@@ -111,9 +112,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadActor = pubkey => {
-    console.log('Load actor for ' + pubkey);
-    //TODO: replace endpoint with ours after upgrade:
-    fetch('http://fio.eosusa.news/v1/chain/get_actor', {
+    fetch('http://fio.eostribe.io/v1/chain/get_actor', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
