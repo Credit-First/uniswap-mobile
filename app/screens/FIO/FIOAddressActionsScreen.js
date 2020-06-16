@@ -46,12 +46,10 @@ const FIOAddressActionsScreen = props => {
   });
 
   const _handleConnectAccountToAddress = async account => {
-    const pubKey = ecc.privateToPublic(privateKey);
-    account.publicKey = pubKey;
     try {
       const res = await fioAddPublicAddress(fioAccount, account, fioFee);
-      console.log('FIO add pubkey result', res);
-      console.log(res.error.details);
+      console.log(res);
+      Alert.alert("Successfully added!");
     } catch (e) {
       Alert.alert(e.message);
     }

@@ -17,6 +17,13 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const timeInISOString = (new Date(timePlusTen)).toISOString(); 
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
+  var chainName = account.chainName;
+  if(chainName == "Telos") {
+    chainName = "TLOS";
+  }
+  const accPubkey = Ecc.privateToPublic(account.privateKey);
+  const fioPubkey = Ecc.privateToPublic(fioAccount.privateKey);
+
   const transaction = { 
     expiration, 
     ref_block_num: blockInfo.block_num & 0xffff, 
@@ -31,9 +38,9 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       data: { 
         fio_address: fioAccount.address,
         public_addresses: [{
-          chain_code: account.chainName,
-          token_code: account.chainName,
-          public_address: account.publicKey,
+          chain_code: chainName,
+          token_code: chainName,
+          public_address: accPubkey,
         }],
         max_fee: fee,
         tpid: 'crypto@tribe',
