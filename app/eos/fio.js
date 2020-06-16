@@ -1,4 +1,5 @@
 import { Fio, Ecc } from '@fioprotocol/fiojs';
+import ecc from 'eosjs-ecc-rn';
 import { Api } from '@fioprotocol/fiojs/dist/chain-api';
 import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
 import { TextEncoder, TextDecoder } from 'text-encoding';
@@ -21,7 +22,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   if(chainName == "Telos") {
     chainName = "TLOS";
   }
-  const accPubkey = Ecc.privateToPublic(account.privateKey);
+  const accPubkey = ecc.privateToPublic(account.privateKey);
   const fioPubkey = Ecc.privateToPublic(fioAccount.privateKey);
 
   const transaction = { 

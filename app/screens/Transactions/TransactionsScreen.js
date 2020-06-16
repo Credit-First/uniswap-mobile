@@ -53,6 +53,10 @@ const TransactionsScreen = props => {
       Linking.openURL(
         'https://telos.bloks.io/account/' + activeAccount.accountName,
       );
+    } else if (activeAccount.chainName === 'TLOS') {
+      Linking.openURL(
+        'https://telos.bloks.io/account/' + activeAccount.accountName,
+      );
     } else if (activeAccount.chainName === 'BOS') {
       Linking.openURL(
         'https://bos.bloks.io/account/' + activeAccount.accountName,
