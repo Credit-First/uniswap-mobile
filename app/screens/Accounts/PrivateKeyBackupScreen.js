@@ -1,4 +1,5 @@
 import React from 'react';
+import QRCode from 'react-native-qrcode-svg';
 import { Image, SafeAreaView, View, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -35,14 +36,16 @@ return (
             style={styles.header}
           />
           <View style={styles.spacer} />
-          <KInput
-              label={'Private Key'}
-              value={account.privateKey}
-              multiline={true}
-              containerStyle={styles.inputContainer}
-              editable={false}
+            <KInput
+              		label={'Private Key'}
+              		value={account.privateKey}
+              		multiline={true}
+              		containerStyle={styles.inputContainer}
+              		editable={false}
             />
-            <View style={styles.spacer} />
+            <View style={styles.qrcode}>
+            	<QRCode value={account.privateKey} size={300}/>
+            </View>
             <KButton
             title={'Back to account'}
             theme={'primary'}

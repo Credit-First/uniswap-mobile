@@ -16,6 +16,10 @@ const styles = StyleSheet.create({
     height: 18,
     tintColor: '#FFF',
   },
+  qrcode: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   listItem: {
     marginTop: 20,
     marginHorizontal: 20,
