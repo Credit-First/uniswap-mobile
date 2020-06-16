@@ -1,17 +1,14 @@
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { Api } from '@fioprotocol/fiojs/dist/chain-api';
 import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
-import { JsSignatureProvider } from '@fioprotocol/fiojs/dist/chain-jssig';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getChain } from './chains';
-
 
 
 const fioAddPublicAddress = async (fioAccount, account, fee) => {
 
   const fioChain = getChain(fioAccount.chainName);
   const rpc = new JsonRpc(fioChain.endpoint);
-  const signatureProvider = new JsSignatureProvider([fioAccount.privateKey]);
 
   const info = await rpc.get_info(); 
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num); 
@@ -19,13 +16,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const timePlusTen = currentDate.getTime() + 10000; 
   const timeInISOString = (new Date(timePlusTen)).toISOString(); 
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
-
-  const api = new Api({
-    rpc,
-    signatureProvider,
-    textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder(),
-  });
 
   const transaction = { 
     expiration, 
@@ -51,9 +41,30 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       }, 
     }] 
   };
-  console.log(transaction);
 
-  return api.transact(transaction);
+  var abiMap = new Map(); 
+  var tokenRawAbi = await rpc.get_raw_abi('fio.address'); 
+  abiMap.set('fio.address', tokenRawAbi);
+
+  const chainId = info.chain_id;
+  const privateKey = fioAccount.privateKey;
+
+  const tx = await Fio.prepareTransaction({
+    transaction, 
+    chainId, 
+    privateKey, 
+    abiMap, 
+    textDecoder: new TextDecoder(), 
+    textEncoder: new TextEncoder()
+  });
+  
+  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+
+  const json = await pushResult.json(); 
+  if (json.processed && json.processed.except) {
+   throw new RpcError(json); 
+ }
+  return json;
 };
 
 export {
