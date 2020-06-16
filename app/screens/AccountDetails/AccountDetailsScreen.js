@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Dimensions } from 'react-native';
+import { SafeAreaView, View, TouchableOpacity, Dimensions, Image } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
@@ -28,7 +28,7 @@ const AccountDetailsScreen = props => {
   const [ramUsagePct, setRamUsagePct] = useState(0);
 
   const {
-    navigation: { goBack },
+    navigation: { navigate, goBack },
     route: {
       params: { account },
     },
@@ -148,6 +148,10 @@ const AccountDetailsScreen = props => {
     goBack();
   };
 
+  const _handleBackupKey = () => {
+    navigate('PrivateKeyBackup', { account });
+  };
+
   loadAccount();
 
   return (
@@ -198,6 +202,18 @@ const AccountDetailsScreen = props => {
             radius={32}
             chartConfig={chartConfig}
             hideLegend={false}
+          />
+          <KButton
+            title={'Backup private key'}
+            theme={'primary'}
+            style={styles.button}
+            onPress={_handleBackupKey}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+            />
+            )}
           />
           <KButton
             title={'Remove account'}

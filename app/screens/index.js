@@ -5,6 +5,9 @@ export { default as AccountsScreen } from './Accounts/AccountsScreen';
 export {
   default as AccountDetailsScreen,
 } from './AccountDetails/AccountDetailsScreen';
+export {
+  default as PrivateKeyBackupScreen,
+} from './Accounts/PrivateKeyBackupScreen';
 export { default as RegisterAddressScreen } from './FIO/RegisterAddressScreen';
 export {
   default as FIOAddressActionsScreen,

@@ -4,7 +4,7 @@ import {
   View,
   FlatList,
   TouchableOpacity,
-  // Linking,
+  Image,
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -220,6 +220,12 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
+  const _handleBackupKey = () => {
+    const account = fioAccount
+    console.log(account);
+    navigate('PrivateKeyBackup', { account });
+  };
+
   checkRegistration(fioKey);
 
 
@@ -268,6 +274,18 @@ const FIOAddressActionsScreen = props => {
             />
           )}
         />
+        <KButton
+            title={'Backup private key'}
+            theme={'primary'}
+            style={styles.button}
+            onPress={_handleBackupKey}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+            />
+            )}
+          />
         <KButton
           title={'Remove this FIO address'}
           theme={'brown'}

@@ -25,6 +25,9 @@ const styles = StyleSheet.create({
     height: undefined,
     width: undefined,
   },
+  spacer: {
+    marginTop: 20,
+  },
 });
 
 export default styles;
