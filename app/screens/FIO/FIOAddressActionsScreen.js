@@ -12,7 +12,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { fioAddPublicAddress } from '../../eos/fio';
 import styles from './RegisterAddress.style';
-import { KHeader, KText, KButton } from '../../components';
+import { KHeader, KText, KButton, RequestSendButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
@@ -46,10 +46,10 @@ const FIOAddressActionsScreen = props => {
 
   const privateKey = fioAccount.privateKey;
   const fioKey = Ecc.privateToPublic(privateKey);
-  fioAccount.accountName = actor;
+
 
   const checkRegPubkey = async account => {
-    console.log('Checking registered pubkey for ' + account.chainName + ": " + account.accountName);
+    //console.log('Checking registered pubkey for ' + account.chainName + ": " + account.accountName);
     var chainName = account.chainName;
     if(chainName == "Telos") {
       chainName = "TLOS";
@@ -108,7 +108,7 @@ const FIOAddressActionsScreen = props => {
     if (executionCount > 0) {
       return;
     }
-    console.log('Check registration for ' + pubkey);
+    //console.log('Check registration for ' + pubkey);
     setExecutionCount(1);
     fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
       method: 'POST',
@@ -158,6 +158,13 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.error(error));
   };
 
+  const updateActor = actor => {
+    if (!fioAccount.accountName) {
+      fioAccount.accountName = actor;
+    }
+    setActor(actor);
+  }
+
   const loadActor = pubkey => {
     fetch('http://fio.eostribe.io/v1/chain/get_actor', {
       method: 'POST',
@@ -170,7 +177,7 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => setActor(json.actor))
+      .then(json => updateActor(json.actor))
       .catch(error => console.error(error));
   };
 
@@ -190,7 +197,7 @@ const FIOAddressActionsScreen = props => {
       loadActor(fioKey);
         accounts.map((value, index, array) => {
           if (value.chainName !== 'FIO')  {
-            checkRegPubkey(value); 
+            checkRegPubkey(value);
           }
         });
     } else {
@@ -224,6 +231,14 @@ const FIOAddressActionsScreen = props => {
     const account = fioAccount
     console.log(account);
     navigate('PrivateKeyBackup', { account });
+  };
+
+  const _handleFIORequest = () => {
+    navigate('FIORequest');
+  };
+
+  const _handleFIOSend = () => {
+    console.log('FIO Send handler');
   };
 
   checkRegistration(fioKey);
@@ -274,6 +289,17 @@ const FIOAddressActionsScreen = props => {
             />
           )}
         />
+        <RequestSendButtons
+            style={styles.button}
+            onRequestPress={_handleFIORequest}
+            onSendPress={_handleFIOSend}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/transfer.png')}
+              style={styles.buttonIcon}
+            />
+            )}
+        />
         <KButton
             title={'Backup private key'}
             theme={'primary'}
@@ -286,6 +312,14 @@ const FIOAddressActionsScreen = props => {
             />
             )}
           />
+      </View>
+    </SafeAreaView>
+  );
+};
+
+
+/*
+        Disabled:
         <KButton
           title={'Remove this FIO address'}
           theme={'brown'}
@@ -293,9 +327,6 @@ const FIOAddressActionsScreen = props => {
           icon={'remove'}
           onPress={_handleRemoveAccount}
         />
-      </View>
-    </SafeAreaView>
-  );
-};
+*/
 
 export default connectAccounts()(FIOAddressActionsScreen);
