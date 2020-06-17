@@ -17,7 +17,7 @@ import { supportedChains, getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
-const FIORequestScreen = props => {
+const FIOSendScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccount, setToAccount] = useState();
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
@@ -91,8 +91,8 @@ const FIORequestScreen = props => {
               />
           </TouchableOpacity>
           <KHeader
-            title={'FIO Request'}
-            subTitle={'Request for payment from another FIO address'}
+            title={'FIO Send payment'}
+            subTitle={'Send payment to another FIO address'}
             style={styles.header}
           />
           <KSelect
@@ -114,7 +114,7 @@ const FIORequestScreen = props => {
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KSelect
-            label={'Coin requested'}
+            label={'Coin to send'}
             items={supportedChains.map(chain => ({
               label: `${chain.symbol}`,
               value: chain,
@@ -123,7 +123,7 @@ const FIORequestScreen = props => {
             containerStyle={styles.inputContainer}
           />
           <KInput
-            label={'Amount to request'}
+            label={'Amount to send'}
             placeholder={'Enter requested amount'}
             value={amount}
             onChangeText={setAmount}
@@ -155,4 +155,4 @@ const FIORequestScreen = props => {
 
 };
 
-export default connectAccounts()(FIORequestScreen);
+export default connectAccounts()(FIOSendScreen);

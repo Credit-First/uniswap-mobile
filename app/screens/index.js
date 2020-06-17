@@ -12,9 +12,8 @@ export { default as RegisterAddressScreen } from './FIO/RegisterAddressScreen';
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';
-export {
-  default as FIORequestScreen,
-} from './FIO/FIORequestScreen';
+export { default as FIORequestScreen } from './FIO/FIORequestScreen';
+export { default as FIOSendScreen } from './FIO/FIOSendScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

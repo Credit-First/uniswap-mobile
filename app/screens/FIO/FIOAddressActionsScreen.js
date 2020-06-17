@@ -238,7 +238,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const _handleFIOSend = () => {
-    console.log('FIO Send handler');
+    navigate('FIOSend');
   };
 
   checkRegistration(fioKey);
