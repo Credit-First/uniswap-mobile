@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Text,
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +27,9 @@ const FIOAddressActionsScreen = props => {
   const [registered, setRegistered] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
   const [fioBalance, setFioBalance] = useState(0.0);
+  const [fioRequests, setFioRequests] = useState();
+  const [fioRequestsCount, setFioRequestsCount] = useState(0);
+  const [fioRequestsLink, setFioRequestsLink] = useState('');
   const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
   var initialConnectedAccounts = [];
@@ -125,7 +129,25 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.log(error));
   };
 
-  const getFioBalance = pubkey => {
+  const getFioRequests = async pubkey => {
+    fetch('https://fio.eostribe.io/v1/chain/get_pending_fio_requests', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fio_public_key: pubkey,
+        limit: 100,
+        offset: 0
+      }),
+    })
+      .then(response => response.json())
+      .then(json => updateFioRequests(json.requests))
+      .catch(error => console.error(error));
+  };
+
+  const getFioBalance = async pubkey => {
     fetch('http://fio.eostribe.io/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
@@ -141,7 +163,7 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.error(error));
   };
 
-  const getFee = address => {
+  const getFee = async address => {
     fetch('http://fio.eostribe.io/v1/chain/get_fee', {
       method: 'POST',
       headers: {
@@ -165,7 +187,15 @@ const FIOAddressActionsScreen = props => {
     setActor(actor);
   }
 
-  const loadActor = pubkey => {
+  const updateFioRequests = requests => {
+    if (requests) {
+      setFioRequests(requests);
+      setFioRequestsCount(requests.length);
+      setFioRequestsLink('View ' + requests.length + ' pending FIO requests');
+    }
+  }
+
+  const loadActor = async pubkey => {
     fetch('http://fio.eostribe.io/v1/chain/get_actor', {
       method: 'POST',
       headers: {
@@ -194,6 +224,7 @@ const FIOAddressActionsScreen = props => {
       setFioRegistrationContent(content);
       getFioBalance(fioKey);
       getFee(fioAccount.address);
+      getFioRequests(fioKey);
       loadActor(fioKey);
         accounts.map((value, index, array) => {
           if (value.chainName !== 'FIO')  {
@@ -241,6 +272,10 @@ const FIOAddressActionsScreen = props => {
     navigate('FIOSend');
   };
 
+  const _handleShowRequests = () => {
+    console.log('TODO: show pending requests');
+  };
+
   checkRegistration(fioKey);
 
 
@@ -260,6 +295,8 @@ const FIOAddressActionsScreen = props => {
         <KText>Balance: {fioBalance} FIO</KText>
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
+        <Text style={{color: 'blue', fontFamily: 'Nunito-Bold', fontSize: 16,}} 
+              onPress={_handleShowRequests}>{fioRequestsLink}</Text>
         <View style={styles.spacer} />
         <KText>{connectedHeader}</KText>
         <FlatList
