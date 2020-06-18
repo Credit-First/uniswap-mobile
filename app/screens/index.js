@@ -14,6 +14,7 @@ export {
 } from './FIO/FIOAddressActionsScreen';
 export { default as FIORequestScreen } from './FIO/FIORequestScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
+export { default as PendingFIORequestsScreen } from './FIO/PendingFIORequestsScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

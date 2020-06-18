@@ -273,7 +273,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const _handleShowRequests = () => {
-    console.log('TODO: show pending requests');
+    navigate('PendingFIORequests', { fioAccount, fioRequests })
   };
 
   checkRegistration(fioKey);
@@ -290,12 +290,11 @@ const FIOAddressActionsScreen = props => {
           />
         </TouchableOpacity>
         <KHeader title={fioAccount.address} style={styles.header} />
-        <KText>{fioKey}</KText>
         <KText>Actor: {actor}</KText>
         <KText>Balance: {fioBalance} FIO</KText>
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
-        <Text style={{color: 'blue', fontFamily: 'Nunito-Bold', fontSize: 16,}} 
+        <Text style={{color: 'blue', fontFamily: 'Nunito-Bold', fontSize: 16,}}
               onPress={_handleShowRequests}>{fioRequestsLink}</Text>
         <View style={styles.spacer} />
         <KText>{connectedHeader}</KText>
