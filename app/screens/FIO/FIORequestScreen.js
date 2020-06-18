@@ -8,6 +8,7 @@ import {
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { fioNewFundsRequest } from '../../eos/fio';
 import ecc from 'eosjs-ecc-rn';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
@@ -20,10 +21,13 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const FIORequestScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccount, setToAccount] = useState();
+  const [validToAccount, setValidToAccount] = useState();
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
   const [chain, setChain] = useState();
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
+  const [fioFee, setFioFee] = useState(0);
+  const [fioPubkey, setFioPubkey] = useState(); // payee public key
 
   const {
     navigation: { navigate, goBack },
@@ -36,7 +40,44 @@ const FIORequestScreen = props => {
 
   const _handleFromAccountChange = value => {
     setFromAccount(value);
+    getFee(value.address);
   };
+
+  const getFee = address => {
+    console.log("Get fee for "+address);
+    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        end_point: 'add_pub_address',
+        fio_address: address,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => setFioFee(json.fee))
+      .catch(error => console.error(error));
+  };
+
+  const getFioPubkey = async address => {
+    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": address,
+        "chain_code": "FIO",
+        "token_code": "FIO"
+      }),
+    })
+      .then(response => response.json())
+      .then(json => setFioPubkey(json.public_address))
+      .catch(error => console.log(error));
+  }
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
@@ -61,20 +102,32 @@ const FIORequestScreen = props => {
       setAddressInvalidMessage('Invalid address!');
     } else if (regcount === 1) {
       setAddressInvalidMessage('');
-      setToAccount(address);
+      setValidToAccount(address);
+      getFioPubkey(address);
     } else if (error) {
       console.error(error);
       setAddressInvalidMessage('Error validating address');
     }
   };
 
-  const _handleCoinChange = value => {
-    const chain = getChain(value);
-    setChain(chain);
-  };
-
-  const _handleSubmit = () => {
-    console.log("Submit");
+  const _handleSubmit = async () => {
+    if (!fromAccount || !validToAccount || !chain || !amount || !fioPubkey) {
+      Alert.alert("Please fill all required fields including valid payee address!");
+      return;
+    }
+    try {
+      const res = await fioNewFundsRequest(fromAccount,
+        validToAccount,
+        fioPubkey, // To account public key
+        chain.symbol,
+        amount,
+        memo,
+        fioFee);
+      console.log(res);
+      Alert.alert("FIO Request sent!");
+    } catch (e) {
+      Alert.alert(e.message);
+    }
   };
 
   return (
@@ -119,7 +172,7 @@ const FIORequestScreen = props => {
               label: `${chain.symbol}`,
               value: chain,
             }))}
-            onValueChange={_handleCoinChange}
+            onValueChange={setChain}
             containerStyle={styles.inputContainer}
           />
           <KInput
