@@ -123,7 +123,7 @@ const FIORequestScreen = props => {
         amount,
         memo,
         fioFee);
-      console.log(res);
+      //console.log(res);
       Alert.alert("FIO Request sent!");
     } catch (e) {
       Alert.alert(e.message);

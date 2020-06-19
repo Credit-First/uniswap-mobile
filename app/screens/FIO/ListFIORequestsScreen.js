@@ -6,33 +6,28 @@ import {
   FlatList,
   View } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
-import { fioNewFundsRequest } from '../../eos/fio';
-import ecc from 'eosjs-ecc-rn';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KText } from '../../components';
 import { connectAccounts } from '../../redux';
-import { getAccount } from '../../eos/eos';
-import { supportedChains, getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
-const PendingFIORequestsScreen = props => {
+const ListFIORequestsScreen = props => {
 
   const {
     navigation: { navigate, goBack },
     route: {
       params: {
         fioAccount,
-        fioRequests
+        fioRequests,
+        title,
       },
     },
     accountsState: { accounts },
   } = props;
 
-  const _handleViewFIORequest = (request) => {
-    console.log(request);
+  const _handleViewFIORequest = (fioRequest) => {
+    navigate('ViewFIORequest', { fioAccount, fioRequest, title });
   }
 
   const getRequestTitle = (item) => {
@@ -49,7 +44,7 @@ const PendingFIORequestsScreen = props => {
             color={PRIMARY_BLUE}
           />
         </TouchableOpacity>
-        <KHeader title={'Pending FIO Requests'} subTitle={fioAccount.address} style={styles.header} />
+        <KHeader title={title} subTitle={fioAccount.address} style={styles.header} />
         <FlatList
           data={fioRequests}
           keyExtractor={(item, index) => `${index}`}
@@ -66,4 +61,4 @@ const PendingFIORequestsScreen = props => {
   );
 };
 
-export default connectAccounts()(PendingFIORequestsScreen);
+export default connectAccounts()(ListFIORequestsScreen);

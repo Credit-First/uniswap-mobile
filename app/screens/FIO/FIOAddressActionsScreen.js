@@ -27,9 +27,11 @@ const FIOAddressActionsScreen = props => {
   const [registered, setRegistered] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
   const [fioBalance, setFioBalance] = useState(0.0);
-  const [fioRequests, setFioRequests] = useState();
-  const [fioRequestsCount, setFioRequestsCount] = useState(0);
-  const [fioRequestsLink, setFioRequestsLink] = useState('');
+  const [pendingFioRequests, setPendingFioRequests] = useState();
+  const [pendingFioRequestsLink, setPendingFioRequestsLink] = useState('');
+  const [sentFioRequests, setSentFioRequests] = useState();
+  const [sentFioRequestsLink, setSentFioRequestsLink] = useState('');
+
   const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
   var initialConnectedAccounts = [];
@@ -129,7 +131,7 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.log(error));
   };
 
-  const getFioRequests = async pubkey => {
+  const getPendingFioRequests = async pubkey => {
     fetch('https://fio.eostribe.io/v1/chain/get_pending_fio_requests', {
       method: 'POST',
       headers: {
@@ -143,7 +145,25 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => updateFioRequests(json.requests))
+      .then(json => updatePendingFioRequests(json.requests))
+      .catch(error => console.error(error));
+  };
+
+  const getSentFioRequests = async pubkey => {
+    fetch('https://fio.eostribe.io/v1/chain/get_sent_fio_requests', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fio_public_key: pubkey,
+        limit: 100,
+        offset: 0
+      }),
+    })
+      .then(response => response.json())
+      .then(json => updateSentFioRequests(json.requests))
       .catch(error => console.error(error));
   };
 
@@ -187,11 +207,17 @@ const FIOAddressActionsScreen = props => {
     setActor(actor);
   }
 
-  const updateFioRequests = requests => {
+  const updatePendingFioRequests = requests => {
     if (requests) {
-      setFioRequests(requests);
-      setFioRequestsCount(requests.length);
-      setFioRequestsLink('View ' + requests.length + ' pending FIO requests');
+      setPendingFioRequests(requests);
+      setPendingFioRequestsLink('View ' + requests.length + ' pending FIO requests');
+    }
+  }
+
+  const updateSentFioRequests = requests => {
+    if (requests) {
+      setSentFioRequests(requests);
+      setSentFioRequestsLink('View ' + requests.length + ' sent FIO requests');
     }
   }
 
@@ -224,7 +250,8 @@ const FIOAddressActionsScreen = props => {
       setFioRegistrationContent(content);
       getFioBalance(fioKey);
       getFee(fioAccount.address);
-      getFioRequests(fioKey);
+      getPendingFioRequests(fioKey);
+      getSentFioRequests(fioKey);
       loadActor(fioKey);
         accounts.map((value, index, array) => {
           if (value.chainName !== 'FIO')  {
@@ -272,8 +299,28 @@ const FIOAddressActionsScreen = props => {
     navigate('FIOSend');
   };
 
-  const _handleShowRequests = () => {
-    navigate('PendingFIORequests', { fioAccount, fioRequests })
+  const _handleShowPendingRequests = () => {
+    if (pendingFioRequests.length > 1) {
+      const fioRequests = pendingFioRequests;
+      const title = 'Pending FIO requests';
+      navigate('ListFIORequests', { fioAccount, fioRequests, title });
+    } else {
+      const fioRequest = pendingFioRequests[0];
+      const title = 'Pending FIO request';
+      navigate('ViewFIORequest', { fioAccount, fioRequest, title });
+    }
+  };
+
+  const _handleShowSentRequests = () => {
+    if (sentFioRequests.length > 1) {
+      const fioRequests = sentFioRequests;
+      const title = 'Sent FIO requests';
+      navigate('ListFIORequests', { fioAccount, fioRequests, title });
+    } else {
+      const fioRequest = sentFioRequests[0];
+      const title = 'Sent FIO request';
+      navigate('ViewFIORequest', { fioAccount, fioRequest, title });
+    }
   };
 
   checkRegistration(fioKey);
@@ -295,7 +342,9 @@ const FIOAddressActionsScreen = props => {
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
         <Text style={{color: 'blue', fontFamily: 'Nunito-Bold', fontSize: 16,}}
-              onPress={_handleShowRequests}>{fioRequestsLink}</Text>
+              onPress={_handleShowPendingRequests}>{pendingFioRequestsLink}</Text>
+        <Text style={{color: 'blue', fontFamily: 'Nunito-Bold', fontSize: 16,}}
+              onPress={_handleShowSentRequests}>{sentFioRequestsLink}</Text>
         <View style={styles.spacer} />
         <KText>{connectedHeader}</KText>
         <FlatList

@@ -34,6 +34,10 @@ const styles = StyleSheet.create({
   spacer: {
     marginTop: 20,
   },
+  qrcode: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   errorMessage: {
     color: '#FF0000',
     fontSize: 14,

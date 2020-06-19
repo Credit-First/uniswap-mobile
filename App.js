@@ -29,7 +29,8 @@ import {
   RegisterAddressScreen,
   FIOAddressActionsScreen,
   FIORequestScreen,
-  PendingFIORequestsScreen,
+  ListFIORequestsScreen,
+  ViewFIORequestScreen,
   FIOSendScreen,
   ConnectAccountScreen,
   TransferScreen,
@@ -69,8 +70,12 @@ const AccountsStackScreen = () => {
         component={FIORequestScreen}
       />
       <AccountsStack.Screen
-        name="PendingFIORequests"
-        component={PendingFIORequestsScreen}
+        name="ListFIORequests"
+        component={ListFIORequestsScreen}
+      />
+      <AccountsStack.Screen
+        name="ViewFIORequest"
+        component={ViewFIORequestScreen}
       />
       <AccountsStack.Screen
         name="FIOSend"
