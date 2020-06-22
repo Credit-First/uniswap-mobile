@@ -104,7 +104,7 @@ const recordObtData = async (payerFioAccount,
       hash: null,
       offline_url: null
     };
-    console.log(obtContent);
+    //console.log(obtContent);
 
     const cipher = Fio.createSharedCipher({
       privateKey: payerPrivateKey,
@@ -295,7 +295,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       },
     }]
   };
-  console.log(transaction.actions);
 
   var abiMap = new Map();
   var tokenRawAbi = await rpc.get_raw_abi('fio.address');

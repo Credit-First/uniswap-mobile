@@ -12,7 +12,7 @@ import ecc from 'eosjs-ecc-rn';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
-import { getAccount } from '../../eos/eos';
+import { getAccount, transfer } from '../../eos/eos';
 import { supportedChains, getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -24,6 +24,7 @@ const FIOSendScreen = props => {
   const [chain, setChain] = useState();
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const {
     navigation: { navigate, goBack },
@@ -68,13 +69,106 @@ const FIOSendScreen = props => {
     }
   };
 
-  const _handleCoinChange = value => {
-    const chain = getChain(value);
-    setChain(chain);
+  const handleFromToAccountTransfer = async (toAccountName, actorPubkey) => {
+    const [actor, pubkey] = actorPubkey.split(',');
+    try {
+      // Load account info:
+      const fromAccountInfo = await getAccount(actor, chain);
+      if (!fromAccountInfo) {
+        Alert.alert('Error fetching account data for '+actor+' on chain '+chain.name);
+        return;
+      }
+      const activeAccounts = accounts.filter((value, index, array) => {
+        return value.accountName === actor && value.chainName === chain.name;
+      });
+      if (activeAccounts[0] < 1) {
+        Alert.alert('Could not find matching account to send transfer from in this wallet');
+        return;
+      }
+      // Check amount
+      const floatAmount = parseFloat(amount);
+      if (isNaN(floatAmount)) {
+        Alert.alert('Invalid transfer amount '+floatAmount);
+        return;
+      }
+      // Now do transfer:
+      setLoading(true);
+      try {
+        const res = await transfer(toAccountName,
+          floatAmount,
+          memo,
+          activeAccounts[0],
+          chain);
+        //console.log(res);
+        if (res) {
+          Alert.alert('Transfer completed!');
+        }
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+        Alert.alert(e.message);
+      }
+
+    } catch (e) {
+      Alert.alert('Error: '+e);
+      console.log(e);
+      return;
+    }
+  };
+
+  const handleToAccountAddress = async (actorPubkey) => {
+    const [actor, pubkey] = actorPubkey.split(',');
+    try {
+      const toAccount = await getAccount(actor, chain);
+      if (!toAccount) {
+        Alert.alert('Error fetching account data for '+actor+' on chain '+chain.name);
+        return;
+      }
+      // Now load corresponding from account
+      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "fio_address": fromAccount.address,
+          "chain_code": chain.symbol,
+          "token_code": chain.symbol
+        }),
+      })
+      .then(response => response.json())
+      .then(json => handleFromToAccountTransfer(actor, json.public_address))
+      .catch(error => Alert.alert('Error fetching payer public address for '+chain.name));
+
+    } catch (e) {
+      Alert.alert('Error: '+e);
+      console.log(e);
+      return;
+    }
   };
 
   const _handleSubmit = () => {
-    console.log("Submit");
+    if (!fromAccount || !toAccount || !chain || !amount) {
+      Alert.alert("Please fill all required fields including valid payee address!");
+      return;
+    }
+    // Load toAccount actor,publicKey:
+    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": toAccount,
+        "chain_code": chain.symbol,
+        "token_code": chain.symbol
+      }),
+    })
+    .then(response => response.json())
+    .then(json => handleToAccountAddress(json.public_address))
+    .catch(error => Alert.alert('Error fetching payee public address for '+chain.name));
   };
 
   return (
@@ -119,7 +213,7 @@ const FIOSendScreen = props => {
               label: `${chain.symbol}`,
               value: chain,
             }))}
-            onValueChange={_handleCoinChange}
+            onValueChange={setChain}
             containerStyle={styles.inputContainer}
           />
           <KInput
@@ -146,6 +240,7 @@ const FIOSendScreen = props => {
             theme={'blue'}
             style={styles.button}
             icon={'check'}
+            isLoading={loading}
             onPress={_handleSubmit}
           />
         </View>

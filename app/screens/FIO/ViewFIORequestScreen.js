@@ -14,6 +14,7 @@ import { KHeader, KButton, KText, KInput } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { TextEncoder, TextDecoder } from 'text-encoding';
+import { getAccount, transfer } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
 
@@ -21,6 +22,7 @@ const ViewFIORequestScreen = props => {
   const [transactionId, setTransactionId] = useState('');
   const [memo, setMemo] = useState('');
   const [fee, setFee] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const {
     navigation: { navigate, goBack },
@@ -80,11 +82,7 @@ const ViewFIORequestScreen = props => {
     getFee(fioAccount.address);
   }
 
-  const _handleTransferAndAccept = async () => {
-    const chainName = decryptedContent.chain_code
-    const accPubkey = decryptedContent.payee_public_address;
-
-    return;
+  const markFIORequestCompleted = async (transferId) => {
     try {
       const res = await recordObtData(fioAccount,
         fioRequest.payee_fio_address,
@@ -92,16 +90,116 @@ const ViewFIORequestScreen = props => {
         decryptedContent.chain_code,
         decryptedContent.amount,
         fioRequest.fio_request_id,
-        transactionId,
-        memo,
+        transferId,
+        decryptedContent.memo,
         fee);
-        console.log(res);
-      Alert.alert("Request processed!");
+      Alert.alert("FIO Request processed!");
       goBack();
     } catch(e) {
       Alert.alert(e.message);
     }
-  }
+  };
+
+  const handleFromToAccountTransfer = async (chainName, toAccountName, actorPubkey) => {
+    const [actor, pubkey] = actorPubkey.split(',');
+    try {
+      // Load chain info:
+      const chain = getChain(chainName);
+      // Load account info:
+      const fromAccountInfo = await getAccount(actor, chain);
+      if (!fromAccountInfo) {
+        Alert.alert('Error fetching account data for '+actor+' on chain '+chainName);
+        return;
+      }
+      const activeAccounts = accounts.filter((value, index, array) => {
+        return value.accountName === actor && value.chainName === chain.name;
+      });
+      if (activeAccounts[0] < 1) {
+        Alert.alert('Could not find matching account to send transfer from in this wallet');
+        return;
+      }
+      // Check amount
+      const floatAmount = parseFloat(decryptedContent.amount);
+      if (isNaN(floatAmount)) {
+        Alert.alert('Invalid transfer amount '+floatAmount);
+        return;
+      }
+      // Now do transfer:
+      setLoading(true);
+      try {
+        const res = await transfer(toAccountName,
+          floatAmount,
+          decryptedContent.memo,
+          activeAccounts[0],
+          chain);
+        //console.log(res);
+        if (res && res.transaction_id) {
+          markFIORequestCompleted(res.transaction_id);
+        }
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+        Alert.alert(e.message);
+      }
+
+    } catch (e) {
+      Alert.alert('Error: '+e);
+      console.log(e);
+      return;
+    }
+  };
+
+  const handleToAccountAddress = async (chainName, actorPubkey) => {
+    const [actor, pubkey] = actorPubkey.split(',');
+    try {
+      const toAccount = await getAccount(actor, chain);
+      if (!toAccount) {
+        Alert.alert('Error fetching account data for '+actor+' on chain '+chainName);
+        return;
+      }
+      // Now load corresponding from account
+      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "fio_address": fioAccount.address,
+          "chain_code": chainName,
+          "token_code": chainName
+        }),
+      })
+      .then(response => response.json())
+      .then(json => handleFromToAccountTransfer(chainName, actor, json.public_address))
+      .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
+
+    } catch (e) {
+      Alert.alert('Error: '+e);
+      console.log(e);
+      return;
+    }
+  };
+
+  const _handleTransferAndAccept = async () => {
+    const chainName = decryptedContent.chain_code
+    const toFioAddress = decryptedContent.payee_public_address;
+    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": toFioAddress,
+        "chain_code": chainName,
+        "token_code": chainName
+      }),
+    })
+    .then(response => response.json())
+    .then(json => handleToAccountAddress(chainName, json.public_address))
+    .catch(error => Alert.alert('Error fetching payee public address for '+chainName));
+  };
 
   const _handleExternalAccept = async () => {
     try {
@@ -114,13 +212,13 @@ const ViewFIORequestScreen = props => {
         transactionId,
         memo,
         fee);
-        console.log(res);
+        //console.log(res);
       Alert.alert("Request processed!");
       goBack();
     } catch(e) {
       Alert.alert(e.message);
     }
-  }
+  };
 
   const _handleReject = async () => {
     try {
@@ -130,7 +228,7 @@ const ViewFIORequestScreen = props => {
     } catch(e) {
       Alert.alert(e.message);
     }
-  }
+  };
 
   if(payerRole && chain && chainAccounts.length > 0) {
     return (
@@ -160,6 +258,7 @@ const ViewFIORequestScreen = props => {
           theme={'blue'}
           style={styles.button}
           icon={'check'}
+          isLoading={loading}
           onPress={_handleTransferAndAccept}
         />
         <KButton
@@ -167,6 +266,7 @@ const ViewFIORequestScreen = props => {
           theme={'brown'}
           style={styles.button}
           icon={'check'}
+          isLoading={loading}
           onPress={_handleReject}
         />
       </View>

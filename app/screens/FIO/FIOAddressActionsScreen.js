@@ -101,8 +101,9 @@ const FIOAddressActionsScreen = props => {
   const _handleConnectAccountToAddress = async account => {
     try {
       const res = await fioAddPublicAddress(fioAccount, account, fioFee);
-      console.log(res);
-      Alert.alert("Successfully added!");
+      if (res) {
+        Alert.alert("Successfully added!");
+      }
     } catch (e) {
       Alert.alert(e.message);
     }
