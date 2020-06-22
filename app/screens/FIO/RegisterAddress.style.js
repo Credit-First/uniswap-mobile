@@ -16,7 +16,16 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   list: {
-    marginTop: 20,
+    marginTop: 10,
+  },
+  listItem: {
+    marginTop: 5,
+    marginHorizontal: 10,
+  },
+  link: {
+    color: 'blue',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
   },
   button: {
     marginTop: 8,

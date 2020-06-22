@@ -28,6 +28,7 @@ import {
   PrivateKeyBackupScreen,
   RegisterAddressScreen,
   FIOAddressActionsScreen,
+  FIORegisterExternalScreen,
   FIORequestScreen,
   ListFIORequestsScreen,
   ViewFIORequestScreen,
@@ -64,6 +65,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="FIOAddressActions"
         component={FIOAddressActionsScreen}
+      />
+      <AccountsStack.Screen
+        name="FIORegisterExternal"
+        component={FIORegisterExternalScreen}
       />
       <AccountsStack.Screen
         name="FIORequest"

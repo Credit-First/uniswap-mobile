@@ -78,14 +78,13 @@ const FIOAddressActionsScreen = props => {
   }
 
 
-  const updateAccountLists = (account, accountPubkeyEntry) => {
-    var [actor, regPubkey] = accountPubkeyEntry.split(',');
+  const updateAccountLists = (account, regPubkey) => {
     const accPubkey = ecc.privateToPublic(account.privateKey);
     //console.log(accPubkey + " == " + regPubkey);
     if (accPubkey == regPubkey) {
       account.title = 'Connected '  + account.chainName + ': ' + account.accountName;
       if (connectedHeader == '') {
-        setConnectedHeader('Connected accounts to this address:');
+        setConnectedHeader('Connected accounts to the address:');
       }
       var newConnectedAccounts = [...initialConnectedAccounts , account ];
       initialConnectedAccounts.push(account);
@@ -203,21 +202,21 @@ const FIOAddressActionsScreen = props => {
       fioAccount.accountName = actor;
     }
     setActor(actor);
-  };
+  }
 
   const updatePendingFioRequests = requests => {
     if (requests) {
       setPendingFioRequests(requests);
       setPendingFioRequestsLink('View ' + requests.length + ' pending FIO requests');
     }
-  };
+  }
 
   const updateSentFioRequests = requests => {
     if (requests) {
       setSentFioRequests(requests);
       setSentFioRequestsLink('View ' + requests.length + ' sent FIO requests');
     }
-  };
+  }
 
   const updateExternalAccounts = (chain, pubkey) => {
     if (pubkey) {
@@ -225,13 +224,10 @@ const FIOAddressActionsScreen = props => {
       var newExternalAccounts = [...initialExternalAccounts , record ];
       initialExternalAccounts.push(record);
       setExternalAccounts(newExternalAccounts);
-      if (connectedHeader == '') {
-        setConnectedHeader('Connected accounts to this address:');
-      }
     }
-  };
+  }
 
-  const loadExternalAccounts = () => {
+  const loadExternalAccounts = async () => {
     externalChains.map((value, index, array) => {
       fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
         method: 'POST',
@@ -249,7 +245,7 @@ const FIOAddressActionsScreen = props => {
       .then(json => updateExternalAccounts(value.chain_code, json.public_address))
       .catch(error => console.log(error));
     });
-  };
+  }
 
   const loadActor = async pubkey => {
     fetch('http://fio.eostribe.io/v1/chain/get_actor', {
@@ -283,7 +279,7 @@ const FIOAddressActionsScreen = props => {
       getPendingFioRequests(fioKey);
       getSentFioRequests(fioKey);
       loadActor(fioKey);
-      loadExternalAccounts();
+      //loadExternalAccounts();
       accounts.map((value, index, array) => {
           if (value.chainName !== 'FIO')  {
             checkRegPubkey(value);
@@ -391,7 +387,7 @@ const FIOAddressActionsScreen = props => {
           data={externalAccounts}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
-            <Text>{item.chain_code}: {item.public_key}</Text>
+            <Text style={styles.link}>{item.chain_code}: {item.public_key}</Text>
           )}
         />
         <KText>Connect accounts to this address:</KText>

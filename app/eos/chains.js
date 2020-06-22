@@ -44,7 +44,7 @@ const supportedChains = [
 ];
 
 const getChain = chainName => {
-  return supportedChains.find(item => item.name === chainName);
+  return supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
 };
 
 export { supportedChains, getChain };
