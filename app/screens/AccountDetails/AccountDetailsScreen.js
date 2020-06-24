@@ -94,21 +94,38 @@ const AccountDetailsScreen = props => {
   const loadAccount = async () => {
     const chain = getChain(account.chainName);
     const accountInfo = await getAccount(account.accountName, chain);
-    var token = accountInfo.core_liquid_balance.split(' ')[1];
-    const selfUnstaked = parseFloat(
-      accountInfo.core_liquid_balance.split(' ')[0],
-    );
-    const selfCpuStaked = parseFloat(
-      accountInfo.self_delegated_bandwidth.cpu_weight.split(' ')[0],
-    );
-    const selfNetStaked = parseFloat(
-      accountInfo.self_delegated_bandwidth.net_weight.split(' ')[0],
-    );
+    var token = chain.symbol;
+    // Calculate balance:
+    var selfUnstaked = 0;
+    if (accountInfo.core_liquid_balance) {
+      token = accountInfo.core_liquid_balance.split(' ')[1];
+      selfUnstaked = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
+      setLiquidBalance(accountInfo.core_liquid_balance);
+      setLiquidNumber(selfUnstaked);
+    }
+    // Calculate self stakes:
+    var selfCpuStaked = 0;
+    var selfNetStaked = 0;
+    if (accountInfo.self_delegated_bandwidth) {
+      if (accountInfo.self_delegated_bandwidth.cpu_weight) {
+        selfCpuStaked = parseFloat(
+          accountInfo.self_delegated_bandwidth.cpu_weight.split(' ')[0],
+        );
+      }
+      if (accountInfo.self_delegated_bandwidth.net_weight) {
+        selfNetStaked = parseFloat(
+          accountInfo.self_delegated_bandwidth.net_weight.split(' ')[0],
+        );
+      }
+    }
+    setCpuStakedNumber(selfCpuStaked);
+    setNetStakedNumber(selfNetStaked);
+    // Calculate refund amount:
     var refund = accountInfo.refund_request;
     var totRefund = 0;
     if (refund) {
-      var cpuRefund = parseFloat(refund.cpu_amount.split(' ')[0]);
-      var netRefund = parseFloat(refund.net_amount.split(' ')[0]);
+      var cpuRefund = (refund.cpu_amount) ? parseFloat(refund.cpu_amount.split(' ')[0]) : 0;
+      var netRefund = (refund.net_amount) ? parseFloat(refund.net_amount.split(' ')[0]) : 0;
       var totRefund = cpuRefund + netRefund;
       setRefundNumber(totRefund);
     }
@@ -119,22 +136,34 @@ const AccountDetailsScreen = props => {
       totRefund
     ).toFixed(4);
     setTotalBalance(total + ' ' + token);
-    setLiquidBalance(accountInfo.core_liquid_balance);
     setRefundBalance(totRefund + ' ' + token);
-    setLiquidNumber(selfUnstaked);
-    setCpuStakedNumber(selfCpuStaked);
-    setNetStakedNumber(selfNetStaked);
-    setCpuStaked(accountInfo.total_resources.cpu_weight);
-    setNetStaked(accountInfo.total_resources.net_weight);
-    setRamUsed(accountInfo.ram_usage);
-    setRamQuota(accountInfo.ram_quota);
-    setRamUsagePct(accountInfo.ram_usage / accountInfo.ram_quota);
-    setCpuUsagePct(
-      accountInfo.cpu_limit.used / accountInfo.cpu_limit.available,
-    );
-    setNetUsagePct(
-      accountInfo.net_limit.used / accountInfo.net_limit.available,
-    );
+    if (accountInfo.total_resources && accountInfo.total_resources.cpu_weight) {
+      setCpuStaked(accountInfo.total_resources.cpu_weight);
+    }
+    if (accountInfo.total_resources && accountInfo.total_resources.net_weight) {
+      setNetStaked(accountInfo.total_resources.net_weight);
+    }
+    if (accountInfo.ram_usage) {
+      setRamUsed(accountInfo.ram_usage);
+    }
+    if (accountInfo.ram_quota) {
+      setRamQuota(accountInfo.ram_quota);
+    }
+    if (accountInfo.ram_usage && accountInfo.ram_quota) {
+      setRamUsagePct(accountInfo.ram_usage / accountInfo.ram_quota);
+    }
+    if (accountInfo.cpu_limit) {
+      var usedCPU = (accountInfo.cpu_limit.used) ? parseFloat(accountInfo.cpu_limit.used) : 0;
+      var availableCPU = (accountInfo.cpu_limit.available) ? parseFloat(accountInfo.cpu_limit.available) : 0;
+      var totalCPU = usedCPU + availableCPU;
+      setCpuUsagePct(usedCPU/totalCPU);
+    }
+    if (accountInfo.net_limit) {
+      var usedNET = accountInfo.net_limit.used;
+      var availableNET = accountInfo.net_limit.available;
+      var totalNET = usedNET + availableNET;
+      setNetUsagePct(usedNET/totalNET);
+    }
   };
 
   const _handleRemoveAccount = () => {
