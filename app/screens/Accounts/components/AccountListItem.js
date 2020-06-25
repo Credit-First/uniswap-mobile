@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
 import { getChain } from '../../../eos/chains';
@@ -24,21 +25,89 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
+const loadFioAccountBalance = async (account, setAccountBalance) => {
+  try {
+    const pubkey = Ecc.privateToPublic(account.privateKey);
+    fetch('http://fio.eostribe.io/v1/chain/get_fio_balance', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fio_public_key: pubkey,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => setAccountBalance((json.balance?json.balance+' FIO':'N/A')))
+      .catch(error => console.error(error));
+  } catch (e) {
+    console.log('Error: ' + e);
+    return;
+  }
+};
+
+const loadAlgoAccountBalance = async (account, setAccountBalance) => {
+  try {
+    const addr = account.account.addr;
+    fetch('https://algo.eostribe.io/v1/account/'+addr, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(json => setAccountBalance(json.amount + ' ALGO'))
+      .catch(error => console.log(error));
+  } catch (e) {
+    console.log('Error: ' + e);
+    return;
+  }
+};
+
+const _blank = () => {};
+
 const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
+
   if (account.chainName === 'FIO') {
+    loadFioAccountBalance(account, setAccountBalance);
     return (
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
+          <CheckBox
+            value={true}
+            disabled={false}
+            onClick={onCheck}
+            isChecked={checked}
+            checkBoxColor={PRIMARY_BLUE}
+          />
           <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>
-              {account.chainName} : {account.address}
-            </KText>
+            <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
           </View>
         </View>
       </TouchableOpacity>
     );
-  } else if(onCheck) {
+  } else if (account.chainName === 'ALGO') {
+    loadAlgoAccountBalance(account, setAccountBalance);
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <View style={[styles.container, props.style]}>
+          <CheckBox
+            value={true}
+            disabled={false}
+            onClick={onCheck}
+            isChecked={checked}
+            checkBoxColor={PRIMARY_BLUE}
+          />
+          <View style={styles.contentContainer}>
+            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  } else if (onCheck) {
     loadAccountBalance(account, setAccountBalance);
     return (
       <TouchableOpacity onPress={onPress}>
@@ -51,10 +120,7 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
             checkBoxColor={PRIMARY_BLUE}
           />
           <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>
-              {account.chainName} : {accountBalance}
-            </KText>
-            <KText style={styles.accountName}>{account.accountName}</KText>
+            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
           </View>
         </View>
       </TouchableOpacity>
@@ -64,9 +130,7 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>
-              {account.chainName} : {account.accountName}
-            </KText>
+            <KText style={styles.chainName}>{account.chainName} : {account.accountName}</KText>
           </View>
         </View>
       </TouchableOpacity>
@@ -84,8 +148,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     borderRadius: 6,
     elevation: 4,
-    backgroundColor: '#FFF',
-    padding: 20,
+    backgroundColor: '#F1F6FF',
+    padding: 5,
   },
   contentContainer: {
     marginLeft: 20,

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Text,
+  Linking,
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -24,6 +25,8 @@ import AccountListItem from '../Accounts/components/AccountListItem';
 
 const FIOAddressActionsScreen = props => {
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
+  const [registrationLink, setRegistrationLink] = useState();
+  const [registerExternalAccButton, setRegisterExternalAccButton] = useState();
   const [executionCount, setExecutionCount] = useState(0);
   const [registered, setRegistered] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
@@ -268,6 +271,10 @@ const FIOAddressActionsScreen = props => {
       .catch(error => console.error(error));
   };
 
+  const registerFioAddress = () => {
+    Linking.openURL('https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey);
+  };
+
   const updateFioRegistration = fioAddresses => {
     if (fioAddresses) {
       var content = fioAddresses.map(function(item) {
@@ -290,10 +297,33 @@ const FIOAddressActionsScreen = props => {
             checkRegPubkey(value);
           }
       });
+      setRegisterExternalAccButton(
+        <KButton
+            title={'Register external account'}
+            theme={'brown'}
+            style={styles.button}
+            onPress={_handleConnectExternalAccount}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+            />
+            )}
+          />
+      );
     } else {
       setRegistered(false);
       setButtonColor('gray');
       setFioRegistrationContent('Unregistered address');
+      setRegistrationLink(
+        <KButton
+          title={'Register this address'}
+          theme={'brown'}
+          style={styles.button}
+          icon={'add'}
+          onPress={registerFioAddress}
+        />
+      );
     }
   };
 
@@ -319,7 +349,7 @@ const FIOAddressActionsScreen = props => {
 
   const _handleBackupKey = () => {
     const account = fioAccount
-    console.log(account);
+    //console.log(account);
     navigate('PrivateKeyBackup', { account });
   };
 
@@ -377,6 +407,7 @@ const FIOAddressActionsScreen = props => {
         <KText>Balance: {fioBalance} FIO</KText>
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
+        {registrationLink}
         <Text style={styles.link} onPress={_handleShowPendingRequests}>{pendingFioRequestsLink}</Text>
         <Text style={styles.link} onPress={_handleShowSentRequests}>{sentFioRequestsLink}</Text>
         <View style={styles.spacer} />
@@ -396,18 +427,7 @@ const FIOAddressActionsScreen = props => {
           )}
         />
         <KText>Connect accounts to this address:</KText>
-        <KButton
-            title={'Register external account'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={_handleConnectExternalAccount}
-            renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
-            )}
-          />
+        {registerExternalAccButton}
         <FlatList
           data={filteredAccounts}
           keyExtractor={(item, index) => `${index}`}
@@ -427,6 +447,7 @@ const FIOAddressActionsScreen = props => {
             style={styles.button}
             onRequestPress={_handleFIORequest}
             onSendPress={_handleFIOSend}
+            visible={registered}
             renderIcon={() => (
             <Image
               source={require('../../../assets/icons/transfer.png')}

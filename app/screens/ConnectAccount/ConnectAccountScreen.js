@@ -17,16 +17,6 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { getAccount } from '../../eos/eos';
 
-// const ChainItem = ({ data, onPress, selected }) => {
-//   return (
-//     <TouchableOpacity onPress={onPress}>
-//       <View style={[styles.chainItem, selected && styles.chainItemSelected]}>
-//         <Image style={styles.chainItemImage} source={data.icon} />
-//         <KText>{data.name}</KText>
-//       </View>
-//     </TouchableOpacity>
-//   );
-// };
 
 const ConnectAccountScreen = props => {
   const {
@@ -36,7 +26,6 @@ const ConnectAccountScreen = props => {
 
   const [accountName, setAccountName] = useState('');
   const [privateKey, setPrivateKey] = useState('');
-
   const [chain, setChain] = useState(null);
 
   const _handleConnect = async () => {

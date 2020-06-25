@@ -13,7 +13,8 @@ const RequestSendButtons = ({
   style,
   renderIcon,
   onRequestPress,
-  onSendPress
+  onSendPress,
+  visible = true,
 }) => {
 
   const renderMaterialIcon = () => {
@@ -32,7 +33,8 @@ const RequestSendButtons = ({
     return null;
   };
 
-  return (
+  if(visible) {
+    return (
       <View style={styles.rowContainer}>
        <TouchableOpacity onPress={onRequestPress} style={style}>
         <LinearGradient
@@ -45,7 +47,7 @@ const RequestSendButtons = ({
           <KText style={styles.title}>FIO Request</KText>
         </LinearGradient>
        </TouchableOpacity>
-       <TouchableOpacity onPress={onSendPress} style={style}> 
+       <TouchableOpacity onPress={onSendPress} style={style}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -57,7 +59,10 @@ const RequestSendButtons = ({
         </LinearGradient>
        </TouchableOpacity>
       </View>
-  );
+    );
+  } else {
+    return (<View style={styles.spacer} />);
+  }
 };
 
 const styles = StyleSheet.create({

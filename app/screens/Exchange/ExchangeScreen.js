@@ -25,7 +25,7 @@ const ExchangeScreen = props => {
   } = props;
 
   const filteredAccounts = accounts.filter((value, index, array) => {
-    return value.chainName !== 'FIO';
+    return value.chainName !== 'FIO' || value.chainName !== 'ALGO';
   });
 
   const _handleSubmit = async () => {
@@ -123,7 +123,9 @@ const ExchangeScreen = props => {
     accounts.map(function(account) {
       if (account.chainName === 'EOS') {
         eosPresent = true;
-      } else if (account.chainName !== 'EOS' && account.chainName !== 'FIO') {
+      } else if (account.chainName !== 'EOS'
+        && account.chainName !== 'FIO'
+        && account.chainName !== 'ALGO') {
         anotherValidChain = true;
       }
     });

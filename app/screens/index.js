@@ -19,6 +19,7 @@ export { default as FIORequestScreen } from './FIO/FIORequestScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
 export { default as ListFIORequestsScreen } from './FIO/ListFIORequestsScreen';
 export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
+export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

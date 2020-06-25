@@ -36,14 +36,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: PRIMARY_BLUE,
   },
-  // input: {
-  //   marginTop: Platform.OS === 'ios' ? 12 : 0,
-  //   fontSize: 16,
-  //   fontFamily: 'Nunito-Bold',
-  //   color: '#273D52',
-  //   lineHeight: 22,
-  //   marginBottom: 12,
-  // },
   showButton: {
     position: 'absolute',
     right: 0,

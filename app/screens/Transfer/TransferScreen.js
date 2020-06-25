@@ -3,22 +3,26 @@ import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput } from '../../components';
+import { KHeader, KButton, KInput, KSelect } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 
 const TransferScreen = props => {
+  const [fromAccount, setFromAccount] = useState();
   const [toAccountName, setToAccountName] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
-
   const [loading, setLoading] = useState(false);
 
   const {
     accountsState: { accounts, activeAccountIndex },
     navigation: { navigate },
   } = props;
+
+  const _handleFromAccountChange = value => {
+    setFromAccount(value);
+  };
 
   const _handleTransfer = async () => {
     const activeAccount = accounts[activeAccountIndex];
@@ -55,7 +59,10 @@ const TransferScreen = props => {
 
     setLoading(true);
     try {
-      await transfer(toAccountName, floatAmount, memo, activeAccount, chain);
+      if(!fromAccount) {
+        fromAccount = activeAccount;
+      }
+      await transfer(toAccountName, floatAmount, memo, fromAccount, chain);
       navigate('Transactions');
       setLoading(false);
     } catch (e) {
@@ -74,6 +81,15 @@ const TransferScreen = props => {
             title={'Transfer coins'}
             subTitle={'Move funds to another account'}
             style={styles.header}
+          />
+          <KSelect
+            label={'From account'}
+            items={accounts.map(item => ({
+              label: `${item.chainName}: ${(item.accountName)?item.accountName:item.address}`,
+              value: item,
+            }))}
+            onValueChange={_handleFromAccountChange}
+            containerStyle={styles.inputContainer}
           />
           <KInput
             label={'Sending to'}

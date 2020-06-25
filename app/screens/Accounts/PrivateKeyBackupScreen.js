@@ -17,6 +17,9 @@ const PrivateKeyBackupScreen = props => {
     },
   } = props;
 
+
+var privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.privateKey;
+
 return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -38,13 +41,13 @@ return (
           <View style={styles.spacer} />
             <KInput
               		label={'Private Key'}
-              		value={account.privateKey}
+              		value={privateKey}
               		multiline={true}
               		containerStyle={styles.inputContainer}
               		editable={false}
             />
             <View style={styles.qrcode}>
-            	<QRCode value={account.privateKey} size={300}/>
+            	<QRCode value={privateKey} size={250}/>
             </View>
             <KButton
             title={'Back to account'}

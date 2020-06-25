@@ -55,7 +55,7 @@ const RegisterAddressScreen = props => {
   };
 
   const _nextRegister = () => {
-    console.log(address);
+    //console.log(address);
     ecc.randomKey().then(privateKey => {
       const pubKey = ecc.privateToPublic(privateKey);
       const fioKey = 'FIO' + pubKey.substring(3);
