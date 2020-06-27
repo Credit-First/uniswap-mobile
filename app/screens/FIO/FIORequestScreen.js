@@ -14,7 +14,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
-import { supportedChains, getChain } from '../../eos/chains';
+import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
@@ -23,7 +23,7 @@ const FIORequestScreen = props => {
   const [toAccount, setToAccount] = useState();
   const [validToAccount, setValidToAccount] = useState();
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
-  const [chain, setChain] = useState();
+  const [coin, setCoin] = useState();
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
   const [fioFee, setFioFee] = useState(0);
@@ -111,7 +111,7 @@ const FIORequestScreen = props => {
   };
 
   const _handleSubmit = async () => {
-    if (!fromAccount || !validToAccount || !chain || !amount || !fioPubkey) {
+    if (!fromAccount || !validToAccount || !coin || !amount || !fioPubkey) {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
@@ -119,7 +119,7 @@ const FIORequestScreen = props => {
       const res = await fioNewFundsRequest(fromAccount,
         validToAccount,
         fioPubkey, // To account public key
-        chain.symbol,
+        coin,
         amount,
         memo,
         fioFee);
@@ -166,14 +166,13 @@ const FIORequestScreen = props => {
             autoCapitalize={'none'}
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
-          <KSelect
+          <KInput
             label={'Coin requested'}
-            items={supportedChains.map(chain => ({
-              label: `${chain.symbol}`,
-              value: chain,
-            }))}
-            onValueChange={setChain}
+            placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
+            value={coin}
+            onChangeText={setCoin}
             containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
           />
           <KInput
             label={'Amount to request'}
