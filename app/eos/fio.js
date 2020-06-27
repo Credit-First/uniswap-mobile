@@ -5,6 +5,78 @@ import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getChain } from './chains';
 
+// Currently FIO transfers are not allowed
+const sendFioTransfer = async (fromFioAccount,
+  toPublicKey,
+  amount,
+  memo) => {
+  //console.log("sendFioTransfer("+fromFioAccount+", "+toPublicKey+", "+amount+", "+memo+")");
+  const privateKeys = [fromFioAccount.privateKey];
+  const publicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
+  const accountHash = Fio.accountHash(publicKey);
+  const toActor = Fio.accountHash(toPublicKey);
+
+  const fioChain = getChain('FIO');
+  const rpc = new JsonRpc(fioChain.endpoint);
+
+  const info = await rpc.get_info();
+  const chainId = info.chain_id;
+  const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
+  const currentDate = new Date();
+  const timePlusTen = currentDate.getTime() + 10000;
+  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+
+  //(1 FIO token = 1,000,000,000 SUFs)
+  const sufsAmount = (amount * 1000000000);
+  const maxFee = 200000000;
+
+  transaction = {
+    expiration,
+    ref_block_num: blockInfo.block_num & 0xffff,
+    ref_block_prefix: blockInfo.ref_block_prefix,
+    actions: [{
+        account: 'fio.token',
+        name: 'trnsfiopubky',
+        authorization: [{
+            actor: accountHash,
+            permission: 'active',
+        }],
+        data: {
+            payee_public_key: toPublicKey,
+            amount: sufsAmount.toString(),
+            max_fee: maxFee,
+            actor: toActor,
+            tpid: 'crypto@tribe',
+        },
+    }]
+  };
+
+  abiMap = new Map()
+  tokenRawAbi = await rpc.get_raw_abi('fio.token')
+  abiMap.set('fio.token', tokenRawAbi)
+
+  tx = await Fio.prepareTransaction({
+    transaction,
+    chainId,
+    privateKeys,
+    abiMap,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder()
+  });
+
+  pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
+
+  json = await pushResult.json()
+  if (json.processed && json.processed.except) {
+    throw new RpcError(json);
+  }
+  return json;
+}
+
 const rejectFundsRequest = async (payerFioAccount,
   fioRequestId,
   fee) => {
@@ -61,6 +133,7 @@ const rejectFundsRequest = async (payerFioAccount,
   var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
+  console.log(json);
   if (json.processed && json.processed.except) {
    throw new RpcError(json);
  }
@@ -322,7 +395,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
 };
 
 // Used to add external accounts (BTC, ETH, etc) pubkey to FIO address
-const fioAddExternalAddress = async (fioAccount, actor, chainName, pubkey, fee) => {
+const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
 
   const fioChain = getChain(fioAccount.chainName);
   const rpc = new JsonRpc(fioChain.endpoint);
@@ -333,6 +406,9 @@ const fioAddExternalAddress = async (fioAccount, actor, chainName, pubkey, fee) 
   const timePlusTen = currentDate.getTime() + 10000;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+
+  const publicKey = Ecc.privateToPublic(fioAccount.privateKey);
+  const actor = Fio.accountHash(publicKey);
 
   const transaction = {
     expiration,
@@ -385,6 +461,7 @@ const fioAddExternalAddress = async (fioAccount, actor, chainName, pubkey, fee) 
 };
 
 export {
+  sendFioTransfer,
   fioAddPublicAddress,
   fioAddExternalAddress,
   fioNewFundsRequest,

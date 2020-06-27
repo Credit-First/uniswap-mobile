@@ -20,7 +20,7 @@ import algosdk from 'algosdk';
 
 const AlgoAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
-  const [pendingRewards, setPendingRewards] = useState();
+  const [rewards, setRewards] = useState();
   const [accountStatus, setAccountStatus] = useState();
 
   const {
@@ -33,8 +33,8 @@ const AlgoAccountScreen = props => {
   } = props;
 
   const setAccountStats = (json) => {
-    setAccountBalance(json.amount);
-    setPendingRewards(json.pendingrewards);
+    setAccountBalance(parseFloat(json.amount)/1000000);
+    setRewards(parseFloat(json.rewards)/1000000);
     setAccountStatus(json.status);
   };
 
@@ -86,7 +86,7 @@ const AlgoAccountScreen = props => {
         </TouchableOpacity>
         <KHeader title={account.accountName} style={styles.header} />
         <KText>Balance: {accountBalance} ALGO</KText>
-        <KText>Pending rewards: {pendingRewards} ALGO</KText>
+        <KText>Rewards: {rewards} ALGO</KText>
         <KText>Account status: {accountStatus}</KText>
         <KText>Full address: {account.account.addr}</KText>
         <View style={styles.spacer} />

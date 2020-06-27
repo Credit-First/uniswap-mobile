@@ -39,7 +39,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       }),
     })
       .then(response => response.json())
-      .then(json => setAccountBalance((json.balance?json.balance+' FIO':'N/A')))
+      .then(json => setAccountBalance(((json.balance!==undefined)?json.balance+' FIO':'N/A')))
       .catch(error => console.error(error));
   } catch (e) {
     console.log('Error: ' + e);
@@ -58,7 +58,7 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
       },
     })
       .then(response => response.json())
-      .then(json => setAccountBalance(json.amount + ' ALGO'))
+      .then(json => setAccountBalance(parseFloat(json.amount)/1000000 + ' ALGO'))
       .catch(error => console.log(error));
   } catch (e) {
     console.log('Error: ' + e);

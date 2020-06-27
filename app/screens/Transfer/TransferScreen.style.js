@@ -31,6 +31,10 @@ const styles = StyleSheet.create({
   spacer: {
     flex: 1,
   },
+  errorMessage: {
+    color: '#FF0000',
+    fontSize: 14,
+  }
 });
 
 export default styles;

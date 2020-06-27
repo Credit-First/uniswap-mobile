@@ -19,11 +19,6 @@ const externalChains = [
     token_code: 'LTC',
     explorer: 'https://live.blockcypher.com/ltc/address/',
   },
-  {
-    chain_code: 'ALGO',
-    token_code: 'ALGO',
-    explorer: 'https://algoexplorer.io/address/',
-  },
 ];
 
 const getExternalChain = chainName => {

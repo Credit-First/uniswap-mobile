@@ -28,6 +28,10 @@ const ConnectAccountScreen = props => {
   const [privateKey, setPrivateKey] = useState('');
   const [chain, setChain] = useState(null);
 
+  const filteredChains = supportedChains.filter((value, index, array) => {
+    return value.name !== 'FIO';
+  });
+
   const _handleConnect = async () => {
     if (!accountName || !privateKey || !chain) {
       Alert.alert('Please fill in all fields');
@@ -63,7 +67,7 @@ const ConnectAccountScreen = props => {
           />
           <KSelect
             label={'Blockchain'}
-            items={supportedChains.map(item => ({
+            items={filteredChains.map(item => ({
               label: item.name,
               value: item,
             }))}

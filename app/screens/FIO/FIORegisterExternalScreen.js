@@ -19,7 +19,6 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 
 const FIORegisterExternalScreen = props => {
   const [fioAccount, setFioAccount] = useState();
-  const [actor, setActor] = useState();
   const [chain, setChain] = useState();
   const [publicKey, setPublicKey] = useState();
   const [fee, setFee] = useState(0);
@@ -36,8 +35,6 @@ const FIORegisterExternalScreen = props => {
   const _handleFIOAddressChange = value => {
     setFioAccount(value);
     getFee(value.address);
-    const pubkey = Ecc.privateToPublic(value.privateKey);
-    loadActor(pubkey);
   };
 
   const getFee = async address => {
@@ -57,26 +54,10 @@ const FIORegisterExternalScreen = props => {
       .catch(error => console.error(error));
   };
 
-  const loadActor = async pubkey => {
-    fetch('http://fio.eostribe.io/v1/chain/get_actor', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => setActor(json.actor))
-      .catch(error => console.error(error));
-  };
-
   const _handleSubmit = async () => {
     try {
-      const res = await fioAddExternalAddress(fioAccount, actor, chain, publicKey, fee);
-      console.log(res);
+      const res = await fioAddExternalAddress(fioAccount, chain, publicKey, fee);
+      //console.log(res);
       Alert.alert("Successfully added!");
     } catch (e) {
       Alert.alert(e.message);
