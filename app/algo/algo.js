@@ -1,31 +1,40 @@
 import algosdk from 'algosdk';
 
-  const makeTransactionWithParams = (sender, receiver, amount, params) => {
-    let transaction = algosdk.makePaymentTxn(sender.account.addr,
-            receiver, params.minFee, amount * 1000, undefined,
-            params.lastRound, params.lastRound + 1000, new Uint8Array(0),
-            params.genesishashb64, params.genesisID);
-    console.log(transaction);
-    var sk = algosdk.mnemonicToMasterDerivationKey(sender.mnemonic);
-    console.log(sk);
-    let signedTx = transaction.signTxn(sk);
-    console.log(signedTx);
+const algo_endpoint = 'https://algo.eostribe.io';
+const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
+const Buffer = require("buffer").Buffer;
+
+
+  const makeTransactionWithParams = async (sender, receiver, amount, memo, params) => {
+    let algoAmount = amount * 1000000;
+    let base64Memo = new Buffer(memo).toString("base64");
+    let transaction = algosdk.makePaymentTxn(
+          sender.account.addr, /* sender */
+          receiver, /* receiver */
+          params.minFee, /* fee */
+          algoAmount, /* amount */
+          undefined, /*closeRemainderTo*/
+          params.lastRound, /* firstRound */
+          params.lastRound + 1000, /* lastRound */
+          new Uint8Array(Buffer.from(base64Memo, "base64")), /* memo */
+          params.genesishashb64,
+          params.genesisID);
+    let txns = [transaction];
+    let txgroup = algosdk.assignGroupID(txns);
+    let myAccount = algosdk.mnemonicToSecretKey(sender.mnemonic);
+    let signedTx = transaction.signTxn( myAccount.sk );
     // Combine the signed transactions
     let signed = [];
     signed.push( signedTx );
-    console.log(signed);
-    //let tx = (await algodClient.sendRawTransaction(signed).do());
-    //console.log("sent tx id: " + tx.txId);
-
-    // Wait for transaction to be confirmed
-    //await waitForConfirmation(algodClient, tx.txId)
+    let algodClient = new algosdk.Algod(client_token, algo_endpoint, '');
+    let tx = (await algodClient.sendRawTransactions(signed));
   };
 
-  const submitAlgoTransaction = async (sender, receiver, amount) => {
-      fetch('https://algo.eostribe.io/v1/transactions/params')
+  const submitAlgoTransaction = async (sender, receiver, amount, memo) => {
+      fetch(algo_endpoint+'/v1/transactions/params')
         .then((response) => response.json())
         .then((json) => {
-          makeTransactionWithParams(sender, receiver, amount, json);
+          makeTransactionWithParams(sender, receiver, amount, memo, json);
         })
         .catch((error) => {
           console.error(error);

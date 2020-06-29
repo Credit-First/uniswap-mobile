@@ -122,8 +122,10 @@ const TransferScreen = props => {
       if(!fromAccount) {
         fromAccount = activeAccount;
       }
+      const account = fromAccount;
       if(fromAccount.chainName==='ALGO') {
-        submitAlgoTransaction(fromAccount, toAccountName, floatAmount);
+        submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo);
+        navigate('Transactions', { account });
       } else if (fromAccount.chainName==='FIO') {
         if(!fioPubkey) {
           Alert.alert('Could not determine receiver FIO public key - check FIO address');
@@ -131,7 +133,7 @@ const TransferScreen = props => {
         }
         Alert.alert("Currently FIO transfers are not allowed!");
         //sendFioTransfer(fromAccount, fioPubkey, floatAmount, memo);
-      } else {
+      } else { // Any of EOSIO chains:
         await transfer(toAccountName, floatAmount, memo, fromAccount, chain);
         navigate('Transactions');
       }

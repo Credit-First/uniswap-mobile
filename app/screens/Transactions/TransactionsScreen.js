@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, FlatList, Linking } from 'react-native';
-
 import styles from './TransactionsScreen.style';
 import { KHeader, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -15,6 +14,8 @@ const TransactionsScreen = props => {
   } = props;
 
   const [transactions, setTransactions] = useState([]);
+
+  const activeAccount = accounts[activeAccountIndex];
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
@@ -46,7 +47,6 @@ const TransactionsScreen = props => {
   };
 
   const _loadBloksHistory = () => {
-    const activeAccount = accounts[activeAccountIndex];
     if (activeAccount.chainName === 'EOS') {
       Linking.openURL('https://bloks.io/account/' + activeAccount.accountName);
     } else if (activeAccount.chainName === 'Telos') {
@@ -69,15 +69,33 @@ const TransactionsScreen = props => {
       Linking.openURL(
         'https://meetone.bloks.io/account/' + activeAccount.accountName,
       );
+    } else if (activeAccount.chainName === 'FIO') {
+      Linking.openURL(
+        'https://fio.bloks.io/address/' + activeAccount.address,
+      );
+    } else if (activeAccount.chainName === 'ALGO') {
+      Linking.openURL(
+        'https://algoexplorer.io/address/' + activeAccount.account.addr,
+      );
     }
   };
+
+  const getAccountName = () => {
+    if(activeAccount.chainName === 'FIO') {
+      return activeAccount.chainName + ": " + activeAccount.address;
+    } else if(activeAccount.chainName === 'ALGO') {
+      return activeAccount.chainName + ": " + activeAccount.account.addr;
+    } else {
+      return activeAccount.chainName + ": " + activeAccount.accountName;
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader
           title={'Transactions'}
-          subTitle={'A list of previous transactions.'}
+          subTitle={getAccountName()}
           style={styles.header}
         />
         <KButton
