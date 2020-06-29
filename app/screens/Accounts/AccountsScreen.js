@@ -62,7 +62,7 @@ const AccountsScreen = props => {
   };
 
   var optionalButtons = <View style={styles.spacer} />;
-  if (fioAccounts.length == 0 && algoAccounts.length >= 0) {
+  if (fioAccounts.length >= 0 && algoAccounts.length >= 0) {
     optionalButtons = <View>
       <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
       <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
@@ -70,7 +70,7 @@ const AccountsScreen = props => {
   } else if (fioAccounts.length >= 0) {
     optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
   }
-  else if (algoAccounts.length == 0) {
+  else if (algoAccounts.length >= 0) {
     optionalButtons = <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
   }
 

@@ -13,6 +13,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
+import { submitAlgoTransaction } from '../../algo/algo';
 import { supportedChains, getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -21,7 +22,7 @@ const FIOSendScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccount, setToAccount] = useState();
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
-  const [chain, setChain] = useState();
+  const [chainName, setChainName] = useState();
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,11 @@ const FIOSendScreen = props => {
   } = props;
 
   const fioAccounts = accounts.filter((value, index, array) => {
-    return value.chainName == 'FIO';
+    return value.chainName === 'FIO';
+  });
+
+  const importedAccounts = accounts.filter((value, index, array) => {
+    return value.chainName !== 'FIO' && array.indexOf(value) === index;
   });
 
   const _handleFromAccountChange = value => {
@@ -69,61 +74,86 @@ const FIOSendScreen = props => {
     }
   };
 
-  const handleFromToAccountTransfer = async (toAccountName, actorPubkey) => {
-    const [actor, pubkey] = actorPubkey.split(',');
+  const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    // To EOSIO Account record:
+    const [toActor, toPubkey] = toAccountPubkey.split(',');
+    const toAccountInfo = await getAccount(toActor, chainName);
+    if (!toAccountInfo) {
+      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
+      return;
+    }
+    // From EOSIO Account record:
+    const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
+    // Load account info:
+    const fromAccountInfo = await getAccount(fromActor, chainName);
+    if (!fromAccountInfo) {
+      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
+      return;
+    }
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return value.accountName === fromActor && value.chainName === chainName;
+    });
+    if (activeAccounts.length === 0) {
+      Alert.alert('Could not find matching account to send transfer from in this wallet');
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount '+floatAmount);
+      return;
+    }
+    // Now do transfer
+    const res = await transfer(toActor,
+        floatAmount,
+        memo,
+        fromAccount,
+        chain);
+      //console.log(res);
+    if (res) {
+      Alert.alert('Transfer completed!');
+    }
+    return;
+  };
+
+  const doAlgoTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    // Find imported matching from account:
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey;
+    });
+    if (activeAccounts.lnegth === 0) {
+      Alert.alert('Could not find imported Algo account to pubkey '+fromAccountPubkey);
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount '+floatAmount);
+      return;
+    }
+    submitAlgoTransaction(fromAccount, toAccountPubkey, floatAmount, memo);
+    Alert.alert('Transfer completed!');
+  };
+
+  const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     try {
-      // Load account info:
-      const fromAccountInfo = await getAccount(actor, chain);
-      if (!fromAccountInfo) {
-        Alert.alert('Error fetching account data for '+actor+' on chain '+chain.name);
-        return;
-      }
-      const activeAccounts = accounts.filter((value, index, array) => {
-        return value.accountName === actor && value.chainName === chain.name;
-      });
-      if (activeAccounts[0] < 1) {
-        Alert.alert('Could not find matching account to send transfer from in this wallet');
-        return;
-      }
-      // Check amount
-      const floatAmount = parseFloat(amount);
-      if (isNaN(floatAmount)) {
-        Alert.alert('Invalid transfer amount '+floatAmount);
-        return;
-      }
-      // Now do transfer:
-      setLoading(true);
-      try {
-        const res = await transfer(toAccountName,
-          floatAmount,
-          memo,
-          activeAccounts[0],
-          chain);
-        //console.log(res);
-        if (res) {
-          Alert.alert('Transfer completed!');
+        setLoading(true);
+        if (chainName === 'ALGO') {
+          doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
+        } else { // Any of EOSIO based chains:
+          doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
         }
         setLoading(false);
       } catch (e) {
         setLoading(false);
         Alert.alert(e.message);
       }
-
-    } catch (e) {
-      Alert.alert('Error: '+e);
-      console.log(e);
-      return;
-    }
   };
 
-  const handleToAccountAddress = async (actorPubkey) => {
-    const [actor, pubkey] = actorPubkey.split(',');
+  const handleToAccountAddress = async (toAccountPubkey) => {
     try {
-      const toAccount = await getAccount(actor, chain);
-      if (!toAccount) {
-        Alert.alert('Error fetching account data for '+actor+' on chain '+chain.name);
-        return;
-      }
       // Now load corresponding from account
       fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
         method: 'POST',
@@ -133,13 +163,13 @@ const FIOSendScreen = props => {
         },
         body: JSON.stringify({
           "fio_address": fromAccount.address,
-          "chain_code": chain.symbol,
-          "token_code": chain.symbol
+          "chain_code": chainName,
+          "token_code": chainName
         }),
       })
       .then(response => response.json())
-      .then(json => handleFromToAccountTransfer(actor, json.public_address))
-      .catch(error => Alert.alert('Error fetching payer public address for '+chain.name));
+      .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address))
+      .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
 
     } catch (e) {
       Alert.alert('Error: '+e);
@@ -149,7 +179,7 @@ const FIOSendScreen = props => {
   };
 
   const _handleSubmit = () => {
-    if (!fromAccount || !toAccount || !chain || !amount) {
+    if (!fromAccount || !toAccount || !chainName || !amount) {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
@@ -162,13 +192,13 @@ const FIOSendScreen = props => {
       },
       body: JSON.stringify({
         "fio_address": toAccount,
-        "chain_code": chain.symbol,
-        "token_code": chain.symbol
+        "chain_code": chainName,
+        "token_code": chainName
       }),
     })
     .then(response => response.json())
     .then(json => handleToAccountAddress(json.public_address))
-    .catch(error => Alert.alert('Error fetching payee public address for '+chain.name));
+    .catch(error => Alert.alert('Error fetching payee public address for '+chainName));
   };
 
   return (
@@ -209,11 +239,11 @@ const FIOSendScreen = props => {
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KSelect
             label={'Coin to send'}
-            items={supportedChains.map(chain => ({
-              label: `${chain.symbol}`,
-              value: chain,
+            items={importedAccounts.map(item => ({
+              label: `${item.chainName}`,
+              value: `${item.chainName}`,
             }))}
-            onValueChange={setChain}
+            onValueChange={setChainName}
             containerStyle={styles.inputContainer}
           />
           <KInput
