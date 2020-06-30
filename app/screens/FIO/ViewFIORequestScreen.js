@@ -15,6 +15,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
+import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
 
@@ -69,13 +70,18 @@ const ViewFIORequestScreen = props => {
       .catch(error => console.error(error));
   };
 
-  const chain = getChain(decryptedContent.chain_code);
+  var chain = getChain(decryptedContent.chain_code);
+  if(!chain && decryptedContent.chain_code === 'ALGO') {
+    chain = { name: 'ALGO', symbol: 'ALGO' };
+  }
+
   var chainAccounts = [];
   if (chain) {
     chainAccounts = accounts.filter((value, index, array) => {
       return value.chainName !== chain.name;
     });
   }
+
   var payerRole = false;
   if (fioAccount.address == fioRequest.payer_fio_address) {
     payerRole = true;
@@ -100,63 +106,102 @@ const ViewFIORequestScreen = props => {
     }
   };
 
-  const handleFromToAccountTransfer = async (chainName, toAccountName, actorPubkey) => {
-    const [actor, pubkey] = actorPubkey.split(',');
+  const doEOSIOTransfer = async (chainName, toAccountPubkey, fromAccountPubkey) => {
+    // To EOSIO Account record:
+    const [toActor, toPubkey] = toAccountPubkey.split(',');
+    const toAccountInfo = await getAccount(toActor, chainName);
+    if (!toAccountInfo) {
+      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
+      return;
+    }
+    // From EOSIO Account record:
+    const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
+    // Load account info:
+    const fromAccountInfo = await getAccount(fromActor, chainName);
+    if (!fromAccountInfo) {
+      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
+      return;
+    }
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return value.accountName === fromActor && value.chainName === chainName;
+    });
+    if (activeAccounts.length === 0) {
+      Alert.alert('Could not find matching account to send transfer from in this wallet');
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(decryptedContent.amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount ' + decryptedContent.amount);
+      return;
+    }
+    setLoading(true);
     try {
-      // Load chain info:
-      const chain = getChain(chainName);
-      // Load account info:
-      const fromAccountInfo = await getAccount(actor, chain);
-      if (!fromAccountInfo) {
-        Alert.alert('Error fetching account data for '+actor+' on chain '+chainName);
-        return;
+      const res = await transfer(toAccountName,
+        floatAmount,
+        decryptedContent.memo,
+        fromAccount,
+        chain);
+      //console.log(res);
+      if (res && res.transaction_id) {
+        markFIORequestCompleted(res.transaction_id);
       }
-      const activeAccounts = accounts.filter((value, index, array) => {
-        return value.accountName === actor && value.chainName === chain.name;
-      });
-      if (activeAccounts[0] < 1) {
-        Alert.alert('Could not find matching account to send transfer from in this wallet');
-        return;
-      }
-      // Check amount
-      const floatAmount = parseFloat(decryptedContent.amount);
-      if (isNaN(floatAmount)) {
-        Alert.alert('Invalid transfer amount '+floatAmount);
-        return;
-      }
-      // Now do transfer:
-      setLoading(true);
-      try {
-        const res = await transfer(toAccountName,
-          floatAmount,
-          decryptedContent.memo,
-          activeAccounts[0],
-          chain);
-        //console.log(res);
-        if (res && res.transaction_id) {
-          markFIORequestCompleted(res.transaction_id);
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      Alert.alert(e.message);
+    }
+    return;
+  };
+
+  const doAlgoTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    // Find imported matching from account:
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey;
+    });
+    if (activeAccounts.lnegth === 0) {
+      Alert.alert('Could not find imported Algo account to pubkey '+fromAccountPubkey);
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(decryptedContent.amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount ' + decryptedContent.amount);
+      return;
+    }
+    setLoading(true);
+    try {
+      await submitAlgoTransaction(fromAccount,
+        toAccountPubkey,
+        floatAmount,
+        decryptedContent.memo,
+        markFIORequestCompleted);
+    } catch (e) {
+      setLoading(false);
+      Alert.alert(e.message);
+    }
+    return;
+  };
+
+  const handleFromToAccountTransfer = async (chainName, toActorPubkey, fromActorPubkey) => {
+    try {
+        setLoading(true);
+        if (chainName === 'ALGO') {
+          doAlgoTransfer(toActorPubkey, fromActorPubkey);
+        } else { // Any of EOSIO based chains:
+          doEOSIOTransfer(chainName, toActorPubkey, fromActorPubkey);
         }
         setLoading(false);
       } catch (e) {
         setLoading(false);
         Alert.alert(e.message);
       }
-
-    } catch (e) {
-      Alert.alert('Error: '+e);
-      console.log(e);
-      return;
-    }
   };
 
-  const handleToAccountAddress = async (chainName, actorPubkey) => {
-    const [actor, pubkey] = actorPubkey.split(',');
+  const handleToAccountAddress = async (chainName, toActorPubkey) => {
     try {
-      const toAccount = await getAccount(actor, chain);
-      if (!toAccount) {
-        Alert.alert('Error fetching account data for '+actor+' on chain '+chainName);
-        return;
-      }
       // Now load corresponding from account
       fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
         method: 'POST',
@@ -171,7 +216,7 @@ const ViewFIORequestScreen = props => {
         }),
       })
       .then(response => response.json())
-      .then(json => handleFromToAccountTransfer(chainName, actor, json.public_address))
+      .then(json => handleFromToAccountTransfer(chainName, toActorPubkey, json.public_address))
       .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
 
     } catch (e) {

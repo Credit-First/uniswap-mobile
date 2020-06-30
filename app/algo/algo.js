@@ -5,7 +5,7 @@ const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2
 const Buffer = require("buffer").Buffer;
 
 
-  const makeTransactionWithParams = async (sender, receiver, amount, memo, params) => {
+  const makeTransactionWithParams = async (sender, receiver, amount, memo, params, callback) => {
     let algoAmount = amount * 1000000;
     let base64Memo = new Buffer(memo).toString("base64");
     let transaction = algosdk.makePaymentTxn(
@@ -27,20 +27,23 @@ const Buffer = require("buffer").Buffer;
     let signed = [];
     signed.push( signedTx );
     let algodClient = new algosdk.Algod(client_token, algo_endpoint, '');
-    let tx = (await algodClient.sendRawTransactions(signed));
+    let tx = (await algodClient.sendRawTransactions(signed));;
+    if(callback) {
+      callback(tx.txId);
+    }
   };
 
-  const submitAlgoTransaction = async (sender, receiver, amount, memo) => {
+  const submitAlgoTransaction = async (sender, receiver, amount, memo, callback) => {
       fetch(algo_endpoint+'/v1/transactions/params')
         .then((response) => response.json())
         .then((json) => {
-          makeTransactionWithParams(sender, receiver, amount, memo, json);
+          makeTransactionWithParams(sender, receiver, amount, memo, json, callback);
         })
         .catch((error) => {
           console.error(error);
       });
-  }
+  };
 
-export {
-  submitAlgoTransaction,
-};
+  export {
+    submitAlgoTransaction,
+  };

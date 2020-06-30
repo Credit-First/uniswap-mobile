@@ -88,6 +88,11 @@ const TransferScreen = props => {
     setToAccountName(value);
   }
 
+  const _callback = (txid) => {
+    Alert.alert('Transfer completed: '+txid);
+    navigate('Transactions');
+  }
+
   const _handleTransfer = async () => {
     const activeAccount = accounts[activeAccountIndex];
     if (!activeAccount) {
@@ -124,9 +129,7 @@ const TransferScreen = props => {
       }
       const account = fromAccount;
       if(fromAccount.chainName==='ALGO') {
-        submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo);
-        Alert.alert('Transfer completed!');
-        navigate('Transactions');
+        await submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo, _callback);
       } else if (fromAccount.chainName==='FIO') {
         if(!fioPubkey) {
           Alert.alert('Could not determine receiver FIO public key - check FIO address');
