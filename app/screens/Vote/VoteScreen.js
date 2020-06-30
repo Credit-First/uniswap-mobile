@@ -20,6 +20,7 @@ const VoteScreen = props => {
     accountsState: { accounts, activeAccountIndex },
   } = props;
 
+
   const [producers, setProducers] = useState([]);
   const [totalProducerVoteWeight, setTotalProducerVoteWeight] = useState(1);
   const [votedProducers, setVotedProducers] = useState([]);
@@ -108,7 +109,9 @@ const VoteScreen = props => {
     setVoting(false);
   };
 
-  return (
+  const activeAccount = accounts[activeAccountIndex];
+  if (activeAccount && getChain(activeAccount.chainName) && activeAccount.chainName !== 'FIO') {
+    return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader
@@ -160,7 +163,21 @@ const VoteScreen = props => {
         />
       </View>
     </SafeAreaView>
-  );
+    );
+  } else {
+    return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <KHeader
+          title={'Vote screen not available'}
+          subTitle={'Voting not available for current account'}
+          style={styles.header}
+        />
+      </View>
+    </SafeAreaView>
+    );
+  }
+
 };
 
 export default connectAccounts()(VoteScreen);

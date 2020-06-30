@@ -19,7 +19,6 @@ const TransactionsScreen = props => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      const activeAccount = accounts[activeAccountIndex];
       if (!activeAccount) {
         return;
       }
@@ -81,6 +80,9 @@ const TransactionsScreen = props => {
   };
 
   const getAccountName = () => {
+    if(!activeAccount) {
+      return '';
+    }
     if(activeAccount.chainName === 'FIO') {
       return activeAccount.chainName + ": " + activeAccount.address;
     } else if(activeAccount.chainName === 'ALGO') {
@@ -90,7 +92,8 @@ const TransactionsScreen = props => {
     }
   }
 
-  return (
+  if (activeAccount) {
+    return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader
@@ -118,7 +121,21 @@ const TransactionsScreen = props => {
         />
       </View>
     </SafeAreaView>
-  );
+    );
+  } else {
+    return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <KHeader
+          title={'Transactions'}
+          subTitle={'No active account to view transactions for'}
+          style={styles.header}
+        />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
 };
 
 export default connectAccounts()(TransactionsScreen);
