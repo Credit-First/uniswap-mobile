@@ -75,21 +75,22 @@ const FIOSendScreen = props => {
   };
 
   const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    const chain = getChain(chainName);
     // To EOSIO Account record:
     const [toActor, toPubkey] = toAccountPubkey.split(',');
-    const toAccountInfo = await getAccount(toActor, chainName);
+    const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
       Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
       return;
     }
     // From EOSIO Account record:
     const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
-    // Load account info:
-    const fromAccountInfo = await getAccount(fromActor, chainName);
+    const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
       Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
       return;
     }
+    // Find matching active account:
     const activeAccounts = accounts.filter((value, index, array) => {
       return value.accountName === fromActor && value.chainName === chainName;
     });
@@ -105,16 +106,18 @@ const FIOSendScreen = props => {
       return;
     }
     // Now do transfer
-    const res = await transfer(toActor,
+    try {
+      const res = await transfer(toActor,
         floatAmount,
         memo,
         fromAccount,
         chain);
-      //console.log(res);
-    if (res) {
-      Alert.alert('Transfer completed!');
+        if (res) {
+          Alert.alert('Transfer completed!');
+        }
+    } catch(err) {
+      Alert.alert('Transfer failed: '+err);
     }
-    return;
   };
 
   const doAlgoTransfer = async (toAccountPubkey, fromAccountPubkey) => {
