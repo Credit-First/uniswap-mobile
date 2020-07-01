@@ -8,6 +8,9 @@ export {
 export {
   default as PrivateKeyBackupScreen,
 } from './Accounts/PrivateKeyBackupScreen';
+export {
+  default as PrivateKeyDelegateScreen,
+} from './Accounts/PrivateKeyDelegateScreen';
 export { default as RegisterAddressScreen } from './FIO/RegisterAddressScreen';
 export {
   default as FIOAddressActionsScreen,

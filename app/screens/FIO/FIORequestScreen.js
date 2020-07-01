@@ -44,7 +44,6 @@ const FIORequestScreen = props => {
   };
 
   const getFee = address => {
-    console.log("Get fee for "+address);
     fetch('http://fio.eostribe.io/v1/chain/get_fee', {
       method: 'POST',
       headers: {

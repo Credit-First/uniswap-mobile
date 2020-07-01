@@ -8,15 +8,19 @@ import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
+
 const PrivateKeyBackupScreen = props => {
 
 	const {
-    navigation: { goBack },
+    navigation: { navigate, goBack },
     route: {
       params: { account },
     },
   } = props;
 
+const _handleDelegateKey = () => {
+	navigate('PrivateKeyDelegate', { account });
+}
 
 var privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.privateKey;
 
@@ -50,10 +54,10 @@ return (
             	<QRCode value={privateKey} size={250}/>
             </View>
             <KButton
-            title={'Back to account'}
+            title={'Delegate to admin@tribe'}
             theme={'primary'}
             style={styles.button}
-            onPress={goBack}
+            onPress={_handleDelegateKey}
           />
         </View>
       </KeyboardAwareScrollView>
