@@ -61,8 +61,8 @@ const AlgoAccountScreen = props => {
     const index = findIndex(
       accounts,
       el =>
-        el.address === fioAccount.address &&
-        el.chainName === fioAccount.chainName,
+        el.address === account.account.addr &&
+        el.chainName === account.chainName,
     );
     deleteAccount(index);
     goBack();
