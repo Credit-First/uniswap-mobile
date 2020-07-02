@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Image,
@@ -31,7 +32,7 @@ const ListFIORequestsScreen = props => {
   }
 
   const getRequestTitle = (item) => {
-    return item.payer_fio_address + ' -> ' + item.payee_fio_address;
+    return item.fio_request_id + ": " + item.payer_fio_address;
   }
 
   return (

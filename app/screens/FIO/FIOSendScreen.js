@@ -112,9 +112,11 @@ const FIOSendScreen = props => {
         memo,
         fromAccount,
         chain);
-        if (res) {
-          Alert.alert('Transfer completed!');
-        }
+        if (res && res.transaction_id) {
+          Alert.alert("Transfer completed in tx "+res.transaction_id);
+        } else {
+    			Alert.alert("Something went wrong: "+res.message);
+    		}
     } catch(err) {
       Alert.alert('Transfer failed: '+err);
     }

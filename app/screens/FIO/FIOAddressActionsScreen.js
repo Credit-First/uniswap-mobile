@@ -125,10 +125,18 @@ const FIOAddressActionsScreen = props => {
     try {
       if (account.chainName==='ALGO') {
         const res = await fioAddExternalAddress(fioAccount, 'ALGO', account.account.addr, fioFee);
-        if (res) { Alert.alert("Successfully added!"); }
+        if (res && res.transaction_id) {
+          Alert.alert("Successfully added in tx "+res.transaction_id);
+        } else {
+    			Alert.alert("Something went wrong: "+res.message);
+    		}
       } else {
         const res = await fioAddPublicAddress(fioAccount, account, fioFee);
-        if (res) { Alert.alert("Successfully added!"); }
+        if (res && res.transaction_id) {
+          Alert.alert("Successfully added in tx "+res.transaction_id);
+        } else {
+    			Alert.alert("Something went wrong: "+res.message);
+    		}
       }
     } catch (e) {
       Alert.alert(e.message);

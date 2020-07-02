@@ -147,7 +147,9 @@ const ViewFIORequestScreen = props => {
       //console.log(res);
       if (res && res.transaction_id) {
         markFIORequestCompleted(res.transaction_id);
-      }
+      } else {
+  			Alert.alert("Something went wrong: " + res.message);
+  		}
       setLoading(false);
     } catch (e) {
       setLoading(false);
@@ -419,6 +421,33 @@ const ViewFIORequestScreen = props => {
       </View>
     </SafeAreaView>
     );
+  } else if(decryptedContent.offline_url) { // Private key delegate:
+    return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
+          />
+        </TouchableOpacity>
+        <KHeader title={'Delegated Key Request'} subTitle={decryptedContent.offline_url} style={styles.header} />
+        <View style={styles.spacer} />
+        <KText>Payer: {fioRequest.payer_fio_address}</KText>
+        <KText>Payee: {fioRequest.payee_fio_address}</KText>
+        <KText>Amount: {decryptedContent.amount} {decryptedContent.token_code}</KText>
+        <KText>Memo: {decryptedContent.memo}</KText>
+        <KText>Timestamp: {fioRequest.time_stamp}</KText>
+        <KText>Status: {fioRequest.status}</KText>
+        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
+        <View style={styles.spacer} />
+        <View style={styles.qrcode}>
+          <QRCode value={decryptedContent.memo} size={200}/>
+        </View>
+      </View>
+    </SafeAreaView>
+    );
   } else { // My account is Payee - passive view
     return (
     <SafeAreaView style={styles.container}>
@@ -441,7 +470,7 @@ const ViewFIORequestScreen = props => {
         <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
         <View style={styles.spacer} />
         <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.payee_public_address} size={200}/>
+          <QRCode value={decryptedContent.memo} size={200}/>
         </View>
       </View>
     </SafeAreaView>

@@ -7,9 +7,9 @@ import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
-import { fioNewFundsRequest } from '../../eos/fio';
+import { fioDelegateSecretRequest } from '../../eos/fio';
 import CryptoJS from "react-native-crypto-js";
-
+import algosdk from 'algosdk';
 
 const PrivateKeyDelegateScreen = props => {
 
@@ -26,7 +26,11 @@ const [email, setEmail] = useState();
 const [password, setPassword] = useState();
 
 const adminPubkey = "FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5";
-const privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.privateKey;
+let privateKey = account.privateKey;
+if (account.chainName === 'ALGO') {
+	let algoAccount = algosdk.mnemonicToSecretKey(account.mnemonic);
+	privateKey = new Buffer(algoAccount.sk).toString("base64");
+}
 
 const fioAccounts = accounts.filter((value, index, array) => {
 	return value.chainName == 'FIO';
@@ -38,19 +42,18 @@ const _delegateKey = async () => {
 		return;
 	}
 	let encryptedKey = CryptoJS.AES.encrypt(privateKey, password).toString();
-	let record = email + "," + encryptedKey;
 	try {
-		const res = await fioNewFundsRequest(fromAccount,
+		const res = await fioDelegateSecretRequest(fromAccount,
 			'admin@tribe',
 			adminPubkey,
 			account.chainName,
-			0,
-			record,
+			email,
+			encryptedKey,
 			0);
-		if(res) {
-			Alert.alert("Private key encrypted and delegated to admin@tribe!");
+		if (res && res.transaction_id) {
+			Alert.alert("Private key encrypted and delegated to admin@tribe! in tx "+res.transaction_id);
 		} else {
-			Alert.alert("Something went wrong.. check network.");
+			Alert.alert("Something went wrong: "+res.message);
 		}
 	} catch (err) {
 		Alert.alert(err.message);
