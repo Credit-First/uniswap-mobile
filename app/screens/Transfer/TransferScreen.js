@@ -99,13 +99,16 @@ const TransferScreen = props => {
       return;
     }
 
-    if(activeAccount.chainName!=='ALGO') {
-      const chain = getChain(activeAccount.chainName);
-      if (!chain) {
-        return;
-      }
+    const floatAmount = parseFloat(amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Please input valid amount');
+      return;
+    }
+
+    let chain = getChain(activeAccount.chainName);
+    if(activeAccount.chainName !== 'ALGO') {
       try {
-        const toAccount = await getAccount(toAccountName, chain);
+        let toAccount = await getAccount(toAccountName, chain);
         if (!toAccount) {
           Alert.alert('Please input valid account name');
           return;
@@ -114,12 +117,6 @@ const TransferScreen = props => {
         Alert.alert('Please input valid account name');
         return;
       }
-    }
-
-    const floatAmount = parseFloat(amount);
-    if (isNaN(floatAmount)) {
-      Alert.alert('Please input valid amount');
-      return;
     }
 
     setLoading(true);
