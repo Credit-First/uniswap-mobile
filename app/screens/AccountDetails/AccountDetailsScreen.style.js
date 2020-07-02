@@ -16,6 +16,11 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 40,
   },
+  alert: {
+    color: 'red',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   button: {
     width: width - 40,
     alignSelf: 'center',

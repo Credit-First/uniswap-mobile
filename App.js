@@ -25,6 +25,7 @@ const MainStack = createStackNavigator();
 import {
   AccountsScreen,
   AccountDetailsScreen,
+  ResourceManagementScreen,
   PrivateKeyBackupScreen,
   PrivateKeyDelegateScreen,
   RegisterAddressScreen,
@@ -55,6 +56,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="AccountDetails"
         component={AccountDetailsScreen}
+      />
+      <AccountsStack.Screen
+        name="ResourceManagement"
+        component={ResourceManagementScreen}
       />
       <AccountsStack.Screen
         name="PrivateKeyBackup"

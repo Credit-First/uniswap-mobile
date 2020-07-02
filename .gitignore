@@ -29,6 +29,7 @@ build/
 local.properties
 *.iml
 android/app/release
+android/app/debug
 
 # node.js
 #

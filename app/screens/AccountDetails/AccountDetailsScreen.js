@@ -11,6 +11,7 @@ import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 
+
 const AccountDetailsScreen = props => {
   const [liquidBalance, setLiquidBalance] = useState();
   const [totalBalance, setTotalBalance] = useState();
@@ -26,6 +27,7 @@ const AccountDetailsScreen = props => {
   const [netUsagePct, setNetUsagePct] = useState(0);
   const [cpuUsagePct, setCpuUsagePct] = useState(0);
   const [ramUsagePct, setRamUsagePct] = useState(0);
+  const [resourcesWarning, setResourcesWarning] = useState('');
 
   const {
     navigation: { navigate, goBack },
@@ -35,6 +37,8 @@ const AccountDetailsScreen = props => {
     deleteAccount,
     accountsState: { accounts },
   } = props;
+
+  const maxRatio = 0.95;
 
   // Stake chart data:
   const stakeData = [
@@ -150,19 +154,31 @@ const AccountDetailsScreen = props => {
       setRamQuota(accountInfo.ram_quota);
     }
     if (accountInfo.ram_usage && accountInfo.ram_quota) {
-      setRamUsagePct(accountInfo.ram_usage / accountInfo.ram_quota);
+      var ratioRAM = accountInfo.ram_usage / accountInfo.ram_quota;
+      setRamUsagePct(ratioRAM);
+      if (ratioCPU > maxRatio) {
+        setResourcesWarning('RAM usage is too high - you may not be able to submit transactions from this account.')
+      }
     }
     if (accountInfo.cpu_limit) {
       var usedCPU = (accountInfo.cpu_limit.used) ? parseFloat(accountInfo.cpu_limit.used) : 0;
       var availableCPU = (accountInfo.cpu_limit.available) ? parseFloat(accountInfo.cpu_limit.available) : 0;
       var totalCPU = usedCPU + availableCPU;
-      setCpuUsagePct(usedCPU/totalCPU);
+      var ratioCPU = usedCPU/totalCPU;
+      setCpuUsagePct(ratioCPU);
+      if (ratioCPU > maxRatio) {
+        setResourcesWarning('CPU usage is too high - you may not be able to submit transactions from this account.')
+      }
     }
     if (accountInfo.net_limit) {
       var usedNET = accountInfo.net_limit.used;
       var availableNET = accountInfo.net_limit.available;
       var totalNET = usedNET + availableNET;
-      setNetUsagePct(usedNET/totalNET);
+      var ratioNET = usedNET/totalNET;
+      setNetUsagePct(ratioNET);
+      if (ratioNET > maxRatio) {
+        setResourcesWarning('NET usage is too high - you may not be able to submit transactions from this account.')
+      }
     }
   };
 
@@ -180,6 +196,23 @@ const AccountDetailsScreen = props => {
   const _handleBackupKey = () => {
     navigate('PrivateKeyBackup', { account });
   };
+
+  const _handleManageResources = () => {
+    const params = {
+      liquidBalance: liquidBalance,
+      liquidNumber: liquidNumber,
+      totalBalance: totalBalance,
+      refundBalance: refundBalance,
+      refundNumber: refundNumber,
+      cpuStaked: cpuStaked,
+      netStaked: netStaked,
+      cpuStakedNumber: cpuStakedNumber,
+      netStakedNumber: netStakedNumber,
+      ramUsed: ramUsed,
+      ramQuota: ramQuota,
+    };
+    navigate('ResourceManagement', { account, params });
+  }
 
   loadAccount();
 
@@ -231,6 +264,13 @@ const AccountDetailsScreen = props => {
             radius={32}
             chartConfig={chartConfig}
             hideLegend={false}
+          />
+          <KText style={styles.alert}>{resourcesWarning}</KText>
+          <KButton
+            title={'Manage resources'}
+            theme={'primary'}
+            style={styles.button}
+            onPress={_handleManageResources}
           />
           <KButton
             title={'Backup private key'}
