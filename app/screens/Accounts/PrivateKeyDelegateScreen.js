@@ -104,6 +104,7 @@ return (
 							label={'Password'}
 							placeholder={'Enter encryption password you will remember'}
 							value={password}
+							secureTextEntry
 							onChangeText={setPassword}
 							containerStyle={styles.inputContainer}
 							autoCapitalize={'none'}
