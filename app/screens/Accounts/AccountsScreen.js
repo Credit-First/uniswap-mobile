@@ -3,6 +3,8 @@ import { Image, View, FlatList, SafeAreaView, Linking } from 'react-native';
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
+import ecc from 'eosjs-ecc-rn';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
 
@@ -43,8 +45,25 @@ const AccountsScreen = props => {
   };
 
   const _handleRegisterAddress = () => {
-    navigate('RegisterAddress');
+    ecc.randomKey().then(privateKey => {
+      const fioKey = Ecc.privateToPublic(privateKey);
+      const address = 'pending@tribe';
+      connectAccount({ address, privateKey, chainName: 'FIO' });
+      var registerUrl =
+        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
+      Linking.openURL(registerUrl);
+    });
   };
+
+  const hasPendingFIOAddress = () => {
+    let ret = false;
+    fioAccounts.map((value, index, array) => {
+      if (value.address === 'pending@tribe') {
+        ret = true;
+      }
+    });
+    return ret;
+  }
 
   const _handleCheckAccount = index => {
     chooseActiveAccount(index);
@@ -62,15 +81,12 @@ const AccountsScreen = props => {
   };
 
   var optionalButtons = <View style={styles.spacer} />;
-  if (fioAccounts.length >= 0 && algoAccounts.length >= 0) {
+  if (!hasPendingFIOAddress()) {
     optionalButtons = <View>
       <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
       <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
       </View>;
-  } else if (fioAccounts.length >= 0) {
-    optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
-  }
-  else if (algoAccounts.length >= 0) {
+  } else {
     optionalButtons = <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
   }
 

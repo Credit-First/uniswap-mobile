@@ -39,7 +39,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       }),
     })
       .then(response => response.json())
-      .then(json => setAccountBalance(((json.balance!==undefined)?json.balance+' FIO':'N/A')))
+      .then(json => setAccountBalance(((json.balance!==undefined)?json.balance+' FIO':'validate')))
       .catch(error => console.error(error));
   } catch (e) {
     console.log('Error: ' + e);
