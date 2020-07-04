@@ -28,6 +28,7 @@ const FIORequestScreen = props => {
   const [memo, setMemo] = useState('');
   const [fioFee, setFioFee] = useState(0);
   const [fioPubkey, setFioPubkey] = useState(); // payee public key
+  const [loading, setLoading] = useState(false);
 
   const {
     navigation: { navigate, goBack },
@@ -115,6 +116,7 @@ const FIORequestScreen = props => {
       return;
     }
     try {
+      setLoading(true);
       const res = await fioNewFundsRequest(fromAccount,
         validToAccount,
         fioPubkey, // To account public key
@@ -123,8 +125,10 @@ const FIORequestScreen = props => {
         memo,
         fioFee);
       //console.log(res);
+      setLoading(false);
       Alert.alert("FIO Request sent!");
     } catch (e) {
+      setLoading(false);
       Alert.alert(e.message);
     }
   };
@@ -197,6 +201,7 @@ const FIORequestScreen = props => {
             theme={'blue'}
             style={styles.button}
             icon={'check'}
+            isLoading={loading}
             onPress={_handleSubmit}
           />
         </View>
