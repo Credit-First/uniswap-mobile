@@ -3,7 +3,7 @@ import { SafeAreaView, View, FlatList } from 'react-native';
 import { get } from 'lodash';
 
 import styles from './VoteScreen.style';
-import { KHeader, KButton } from '../../components';
+import { KHeader, KButton, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import {
   getProducers,
@@ -119,23 +119,8 @@ const VoteScreen = props => {
           subTitle={'You can vote for up to 30 producers.'}
           style={styles.header}
         />
-        <View style={styles.balanceContainer}>
-          <BalanceItem
-            label={'Liquid balance'}
-            value={liquidBalance}
-            style={styles.balanceItem}
-          />
-          <BalanceItem
-            label={'Refunding'}
-            value={refundingBalance}
-            style={styles.balanceItem}
-          />
-          <BalanceItem
-            label={'Total staked'}
-            value={totalStaked}
-            style={styles.balanceItem}
-          />
-        </View>
+        <KText>Total voted for {votedProducers.length} producers</KText>
+        <KText>Total staked: {totalStaked}</KText>
         <FlatList
           style={styles.list}
           data={producers}
