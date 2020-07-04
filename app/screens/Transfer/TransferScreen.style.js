@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    marginTop: 40,
+    marginTop: 20,
   },
   button: {
     width: width - 40,
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     tintColor: '#FFF',
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   spacer: {
     flex: 1,

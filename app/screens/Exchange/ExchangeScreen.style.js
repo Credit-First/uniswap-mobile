@@ -11,15 +11,15 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
-    marginTop: 40,
+    marginTop: 10,
   },
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginTop: 40,
+    marginTop: 20,
   },
   buttonIcon: {
     width: 18,
@@ -27,10 +27,10 @@ const styles = StyleSheet.create({
     tintColor: '#FFF',
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   spacer: {
-    marginTop: 40,
+    marginTop: 10,
   },
 });
 

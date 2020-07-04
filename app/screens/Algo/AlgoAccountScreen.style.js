@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    marginTop: 40,
+    marginTop: 20,
   },
   qrcode: {
     alignSelf: 'center',
@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   balanceItem: {
     flex: 1,
   },
   spacer: {
-    marginTop: 20,
+    marginTop: 10,
   },
 });
 

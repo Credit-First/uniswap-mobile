@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    marginTop: 40,
+    marginTop: 20,
   },
   alert: {
     color: 'red',
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginTop: 40,
+    marginTop: 20,
   },
   buttonIcon: {
     width: 18,
@@ -32,10 +32,10 @@ const styles = StyleSheet.create({
     tintColor: '#FFF',
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   spacer: {
-    marginTop: 20,
+    marginTop: 10,
   },
 });
 
