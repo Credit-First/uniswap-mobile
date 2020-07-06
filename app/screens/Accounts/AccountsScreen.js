@@ -82,12 +82,16 @@ const AccountsScreen = props => {
 
   var optionalButtons = <View style={styles.spacer} />;
   if (!hasPendingFIOAddress()) {
-    optionalButtons = <View>
-      <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-      <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-      </View>;
-  } else {
-    optionalButtons = <KButton title={'Create Algorant account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
+    if(algoAccounts.length == 0) {
+      optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+        </View>;
+    } else if(fioAccounts.length == 0) {
+      optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
+    }
+  } else if(algoAccounts.length == 0) {
+    optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
   }
 
   return (

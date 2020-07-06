@@ -109,6 +109,10 @@ const VoteScreen = props => {
     setVoting(false);
   };
 
+  const getSubtitle = () => {
+    return activeAccount.chainName + " " + activeAccount.accountName;
+  }
+
   const activeAccount = accounts[activeAccountIndex];
   if (activeAccount && getChain(activeAccount.chainName) && activeAccount.chainName !== 'FIO') {
     return (
@@ -116,7 +120,7 @@ const VoteScreen = props => {
       <View style={styles.inner}>
         <KHeader
           title={'Vote for Block Producers'}
-          subTitle={'You can vote for up to 30 producers.'}
+          subTitle={getSubtitle()}
           style={styles.header}
         />
         <KText>Total voted for {votedProducers.length} producers</KText>
