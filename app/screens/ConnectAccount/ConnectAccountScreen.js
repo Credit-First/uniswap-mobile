@@ -38,13 +38,12 @@ const ConnectAccountScreen = props => {
       return;
     }
 
-    /* Disable account validation:
     try {
       await getAccount(accountName, chain);
     } catch (e) {
       Alert.alert('Please input valid account name');
       return;
-    }*/
+    }
 
     if (!ecc.isValidPrivate(privateKey)) {
       Alert.alert('Please input valid private key');

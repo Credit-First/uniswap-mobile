@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
     marginTop: 20,
