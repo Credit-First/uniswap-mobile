@@ -16,6 +16,8 @@ const ResourceManagementScreen = props => {
   const [cpuNewStaked, setCpuNewStaked] = useState(0);
   const [netNewStaked, setNetNewStaked] = useState(0);
   const [newRamAmount, setNewRamAmount] = useState(0);
+  const [loadingStake, setLoadingStake] = useState(false);
+  const [loadingRAM, setLoadingRAM] = useState(false);
 
   const {
     navigation: { navigate, goBack },
@@ -36,8 +38,8 @@ const ResourceManagementScreen = props => {
       return;
     }
     let totalStake = cpuStake + netStake;
-    let toalAvailable = parseFloat(params.liquidNumber);
-    if (totalStake > toalAvailable) {
+    let totalAvailable = parseFloat(params.liquidNumber);
+    if (totalStake > totalAvailable) {
       Alert.alert('Can not stake more then available balance');
       return;
     }
@@ -47,8 +49,15 @@ const ResourceManagementScreen = props => {
       return;
     }
     // Do Staking:
-    await stake(account, cpuStake, netStake, chain);
-    Alert.alert('Successfully staked! Reload account details screen to see new stats.');
+    setLoadingStake(true);
+    try {
+      await stake(account, cpuStake, netStake, chain);
+      setLoadingStake(false);
+      Alert.alert('Successfully staked! Reload account details screen to see new stats.');
+    } catch(err) {
+      console.log(err);
+      setLoadingStake(false);
+    }
   }
 
   const _handleBuyRam = async () => {
@@ -57,7 +66,8 @@ const ResourceManagementScreen = props => {
       Alert.alert('Please input valid amount to buy RAM');
       return;
     }
-    if (ramAmount > toalAvailable) {
+    let totalAvailable = parseFloat(params.liquidNumber);
+    if (ramAmount > totalAvailable) {
       Alert.alert('Can not use more then available balance');
       return;
     }
@@ -66,8 +76,15 @@ const ResourceManagementScreen = props => {
       Alert.alert('Unknown chain: '+account.chainName);
       return;
     }
-    await buyram(account, ramAmount, chain);
-    Alert.alert('Successfully bought RAM! Reload account details screen to see new stats.');
+    setLoadingRAM(true);
+    try {
+      await buyram(account, ramAmount, chain);
+      setLoadingRAM(false);
+      Alert.alert('Successfully bought RAM! Reload account details screen to see new stats.');
+    } catch(err) {
+      console.log(err);
+      setLoadingRAM(false);
+    }
   }
 
   return (
@@ -125,6 +142,7 @@ const ResourceManagementScreen = props => {
             placeholder={'Enter amount to buy RAM'}
             value={newRamAmount}
             onChangeText={setNewRamAmount}
+            isLoading={loadingStake}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
             keyboardType={'numeric'}
@@ -134,6 +152,7 @@ const ResourceManagementScreen = props => {
             theme={'blue'}
             style={styles.button}
             icon={'add'}
+            isLoading={loadingRAM}
             onPress={_handleBuyRam}
           />
         </View>

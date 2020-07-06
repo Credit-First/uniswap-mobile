@@ -14,7 +14,9 @@ const TransferScreen = props => {
   const [toAccountName, setToAccountName] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
-  const [fioPubkey, setFioPubkey] = useState('');
+  const [isFioAddress, setIsFioAddress] = useState(false);
+  const [toActor, setToActor] = useState('');
+  const [toPubkey, setToPubkey] = useState('');
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
@@ -27,7 +29,25 @@ const TransferScreen = props => {
     return value.chainName !== 'FIO';
   });
 
-  const getFioPubkey = async address => {
+  const processToPubkeyUpdate = async (toAccountPubkey) => {
+    const chain = getChain(fromAccount.chainName);
+    if(chain) { // EOSIO chain
+      const [toActorValue, toPubkeyValue] = toAccountPubkey.split(',');
+      const toAccountInfo = await getAccount(toActorValue, chain);
+      if (!toAccountInfo) {
+        Alert.alert('Error fetching account data for '+toActor+' on chain '+fromAccount.chainName);
+        return;
+      }
+      setToActor(toActorValue);
+      setToPubkey(toPubkeyValue);
+    } else { // Non EOSIO chain - no 'actor,pubkey' split
+      setToActor('');
+      setToPubkey(toAccountPubkey);
+    }
+  }
+
+  const loadToPubkey = async address => {
+    let chainCode = (fromAccount.chainName === 'Telos') ? 'TLOS' : fromAccount.chainName;
     fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
@@ -36,14 +56,14 @@ const TransferScreen = props => {
       },
       body: JSON.stringify({
         "fio_address": address,
-        "chain_code": "FIO",
-        "token_code": "FIO"
+        "chain_code": chainCode,
+        "token_code": chainCode,
       }),
     })
       .then(response => response.json())
-      .then(json => setFioPubkey(json.public_address))
+      .then(json => processToPubkeyUpdate(json.public_address))
       .catch(error => console.log(error));
-  }
+  };
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
@@ -65,15 +85,15 @@ const TransferScreen = props => {
 
   const updateAvailableState = (regcount, address, error) => {
     if (regcount === 0) {
-      setAddressInvalidMessage('Invalid address!');
-      setFioPubkey('');
+      setAddressInvalidMessage('Invalid FIO address!');
+      setToPubkey('');
     } else if (regcount === 1) {
       setAddressInvalidMessage('');
-      getFioPubkey(address);
+      loadToPubkey(address);
     } else if (error) {
       console.error(error);
-      setFioPubkey('');
-      setAddressInvalidMessage('Error validating address');
+      setToPubkey('');
+      setAddressInvalidMessage('Error validating FIO address');
     }
   };
 
@@ -82,8 +102,19 @@ const TransferScreen = props => {
   };
 
   const _handleToAccountChange = value => {
+    if(!fromAccount) {
+      Alert.alert('Select from account first!');
+      return;
+    }
     if (fromAccount.chainName==='FIO') {
       _validateAddress(value);
+      setIsFioAddress(true);
+    } else if(value.indexOf('@') > 1) {
+      _validateAddress(value);
+      setIsFioAddress(true);
+    } else {
+      setIsFioAddress(false);
+      setAddressInvalidMessage('');
     }
     setToAccountName(value);
   }
@@ -94,21 +125,41 @@ const TransferScreen = props => {
   }
 
   const _handleTransfer = async () => {
-    const activeAccount = accounts[activeAccountIndex];
-    if (!activeAccount) {
+    if(!fromAccount || !toAccountName || !amount) {
+      Alert.alert('Please select from and to account as well as amount for transfer');
       return;
     }
 
+    // Validate amount:
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
       Alert.alert('Please input valid amount');
       return;
     }
 
-    let chain = getChain(activeAccount.chainName);
-    if(activeAccount.chainName !== 'ALGO') {
+    // EOSIO chain (undefined for not EOSIO account)
+    let chain = getChain(fromAccount.chainName);
+
+    // If to account is FIO address:
+    if(isFioAddress) {
+      if(!toPubkey) {
+        await _validateAddress(toAccountName);
+      }
+      if(!toPubkey) {
+        Alert.alert('Could not determine receiver public key for '+fromAccount.chainName+' registered to '+toAccountName);
+        return;
+      }
+      if(chain && !toActor) {
+        Alert.alert('Could not determine receiver public key for '+fromAccount.chainName+' registered to '+toAccountName);
+        return;
+      }
+    }
+
+    // EOSIO to actor name validation:
+    let actorName = (isFioAddress) ? toActor : toAccountName;
+    if(chain) {
       try {
-        let toAccount = await getAccount(toAccountName, chain);
+        let toAccount = await getAccount(actorName, chain);
         if (!toAccount) {
           Alert.alert('Please input valid account name');
           return;
@@ -120,25 +171,17 @@ const TransferScreen = props => {
     }
 
     setLoading(true);
+    // From account validation
     try {
-      if(!fromAccount) {
-        fromAccount = activeAccount;
-      }
-      const account = fromAccount;
-      if(fromAccount.chainName==='ALGO') {
+      if(fromAccount.chainName === 'ALGO') {
         await submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo, _callback);
-      } else if (fromAccount.chainName==='FIO') {
-        if(!fioPubkey) {
-          Alert.alert('Could not determine receiver FIO public key - check FIO address');
-          return;
-        }
-        Alert.alert("Currently FIO transfers are not supported!");
-        //sendFioTransfer(fromAccount, fioPubkey, floatAmount, memo);
-      } else { // Any of EOSIO chains:
-        await transfer(toAccountName, floatAmount, memo, fromAccount, chain);
+      } else if(chain) { // Any of supported EOSIO chains:
+        await transfer(actorName, floatAmount, memo, fromAccount, chain);
         Alert.alert('Transfer completed!');
-        navigate('Transactions');
+      } else {
+        Alert.alert('Unsupported transfer state!');
       }
+      //Add for FIO: sendFioTransfer(fromAccount, fioPubkey, floatAmount, memo);
       setLoading(false);
     } catch (e) {
       setLoading(false);
@@ -168,7 +211,7 @@ const TransferScreen = props => {
           />
           <KInput
             label={'Sending to'}
-            placeholder={'Enter username to send to'}
+            placeholder={'Enter either direct or FIO address'}
             value={toAccountName}
             onChangeText={_handleToAccountChange}
             containerStyle={styles.inputContainer}
