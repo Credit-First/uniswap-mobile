@@ -6,6 +6,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -27,21 +28,31 @@ const ConnectAccountScreen = props => {
   const [accountName, setAccountName] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [chain, setChain] = useState(null);
-  const [accountNamePlaceholder, setAccountNamePlaceholder] = useState('');
   const [isFioChain, setIsFioChain] = useState(false);
 
+  const connectFioAccount = fioAddresses => {
+    if (fioAddresses) {
+      fioAddresses.map(function(item) {
+        let address = item.fio_address;
+        console.log('Connecting FIO address '+address);
+        connectAccount({ address, privateKey, chainName: 'FIO' });
+      });
+    }
+  }
 
   const _handleConnect = async () => {
-    if (!accountName || !privateKey || !chain) {
-      Alert.alert('Please fill in all fields');
+    if (!chain || !privateKey) {
+      Alert.alert('Please fill in all required fields');
       return;
     }
 
-    try {
-      await getAccount(accountName, chain);
-    } catch (e) {
-      Alert.alert('Please input valid account name');
-      return;
+    if (chain.name !== 'FIO') {
+      try {
+        await getAccount(accountName, chain);
+      } catch (e) {
+        Alert.alert('Please input valid account name');
+        return;
+      }
     }
 
     if (!ecc.isValidPrivate(privateKey)) {
@@ -49,20 +60,26 @@ const ConnectAccountScreen = props => {
       return;
     }
 
-    connectAccount({ accountName, privateKey, chainName: chain.name });
+    if(chain.name==='FIO') {
+      const fioPublicKey = Ecc.privateToPublic(privateKey);
+      fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fio_public_key: fioPublicKey,
+          }),
+        })
+        .then(response => response.json())
+        .then(json => connectFioAccount(json.fio_addresses))
+        .catch(error => console.log(error));
+    } else {
+      connectAccount({ accountName, privateKey, chainName: chain.name });
+    }
     goBack();
   };
-
-  const _handleOnChainChange = (value) => {
-    if(value.chainName==='FIO') {
-      setAccountNamePlaceholder('Not required for FIO import');
-      setIsFioChain(true);
-    } else {
-      setAccountNamePlaceholder('Enter your account name');
-      setIsFioChain(false);
-    }
-    setChain(value);
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,17 +98,16 @@ const ConnectAccountScreen = props => {
               label: item.name,
               value: item,
             }))}
-            onValueChange={_handleOnChainChange}
+            onValueChange={setChain}
             containerStyle={styles.inputContainer}
           />
           <KInput
             label={'Account name'}
-            placeholder={accountNamePlaceholder}
+            placeholder={'Enter account name (optional for FIO import)'}
             value={accountName}
             onChangeText={setAccountName}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
-            editable={!isFioChain}
           />
           <KInput
             label={'Private Key'}

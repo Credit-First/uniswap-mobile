@@ -312,7 +312,7 @@ const FIOAddressActionsScreen = props => {
         if (fioAccount.address !== item.fio_address) {
           fioAccount.address = item.fio_address;
         }
-        return item.fio_address + ' expires ' + item.expiration;
+        return item.fio_address + ' expires ' + item.expiration + ', ';
       });
       setRegistered(true);
       setButtonColor('primary');
