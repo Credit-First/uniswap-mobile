@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, View, FlatList, SafeAreaView, Linking } from 'react-native';
+import { Image, View, FlatList, SafeAreaView, Linking, Text } from 'react-native';
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
@@ -16,6 +16,8 @@ const AccountsScreen = props => {
     accountsState: { accounts, activeAccountIndex },
     chooseActiveAccount,
   } = props;
+
+  const promotText = "Promotion: Register FREE FIO address and link to your new Algorand account and send FIO Request to promo@tribe for 100 ALGO. Include a link to a social media post about your experience with TRIBE Wallet in memo field. We will grant first 10 unique requests.";
 
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
@@ -80,12 +82,13 @@ const AccountsScreen = props => {
     }
   };
 
+
   var optionalButtons = <View style={styles.spacer} />;
   if (!hasPendingFIOAddress()) {
     if(algoAccounts.length == 0) {
       optionalButtons = <View>
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+          <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
     } else if(fioAccounts.length == 0) {
       optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
@@ -94,8 +97,33 @@ const AccountsScreen = props => {
     optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
   }
 
-  return (
-    <SafeAreaView style={styles.container}>
+  if(accounts.length == 0) {
+    return (
+     <SafeAreaView style={styles.container}>
+      <Image
+        style={styles.logo}
+        source={require('../../../assets/logo/tribe-logo.png')}
+        resizeMode="contain"
+      />
+      <Text style={styles.promo}>{promotText}</Text>
+      {optionalButtons}
+      <KButton
+          title={'Import accounts'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={() => navigate('ConnectAccount')}
+          renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+              />
+            )}
+            />
+     </SafeAreaView>
+    );
+  } else {
+    return (
+     <SafeAreaView style={styles.container}>
       <Image
         style={styles.logo}
         source={require('../../../assets/logo/tribe-logo.png')}
@@ -127,8 +155,10 @@ const AccountsScreen = props => {
           />
         )}
       />
-    </SafeAreaView>
-  );
+     </SafeAreaView>
+    );
+  }
+
 };
 
 export default connectAccounts()(AccountsScreen);

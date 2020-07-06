@@ -51,7 +51,7 @@ return (
               		editable={false}
             />
             <View style={styles.qrcode}>
-            	<QRCode value={privateKey} size={250}/>
+            	<QRCode value={privateKey} size={200}/>
             </View>
             <KButton
             title={'Delegate to admin@tribe'}

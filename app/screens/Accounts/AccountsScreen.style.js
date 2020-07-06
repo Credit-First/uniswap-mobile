@@ -30,6 +30,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20,
   },
+  promo: {
+    padding: 20,
+    color: '#D17B00',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   link: {
     color: 'blue',
     fontFamily: 'Nunito-Bold',

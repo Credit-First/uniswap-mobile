@@ -10,6 +10,7 @@ import {
   Linking,
   Alert,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KHeader, KText, KButton } from '../../components';
 import styles from './AlgoAccountScreen.style';
@@ -76,6 +77,9 @@ const AlgoAccountScreen = props => {
 
   return (
     <SafeAreaView style={styles.container}>
+     <KeyboardAwareScrollView
+      contentContainerStyle={styles.scrollContentContainer}
+      enableOnAndroid>
       <View style={styles.inner}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <MaterialIcon
@@ -91,7 +95,7 @@ const AlgoAccountScreen = props => {
         <KText>Full address: {account.account.addr}</KText>
         <View style={styles.spacer} />
         <View style={styles.qrcode}>
-          <QRCode value={account.account.addr} size={250}/>
+          <QRCode value={account.account.addr} size={200}/>
         </View>
         <View style={styles.spacer} />
         <KButton
@@ -114,6 +118,7 @@ const AlgoAccountScreen = props => {
             onPress={_handleRemoveAccount}
           />
       </View>
+     </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
