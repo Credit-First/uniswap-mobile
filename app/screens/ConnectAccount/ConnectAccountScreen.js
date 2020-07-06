@@ -27,10 +27,9 @@ const ConnectAccountScreen = props => {
   const [accountName, setAccountName] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [chain, setChain] = useState(null);
+  const [accountNamePlaceholder, setAccountNamePlaceholder] = useState('');
+  const [isFioChain, setIsFioChain] = useState(false);
 
-  const filteredChains = supportedChains.filter((value, index, array) => {
-    return value.name !== 'FIO';
-  });
 
   const _handleConnect = async () => {
     if (!accountName || !privateKey || !chain) {
@@ -54,6 +53,17 @@ const ConnectAccountScreen = props => {
     goBack();
   };
 
+  const _handleOnChainChange = (value) => {
+    if(value.chainName==='FIO') {
+      setAccountNamePlaceholder('Not required for FIO import');
+      setIsFioChain(true);
+    } else {
+      setAccountNamePlaceholder('Enter your account name');
+      setIsFioChain(false);
+    }
+    setChain(value);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -67,20 +77,21 @@ const ConnectAccountScreen = props => {
           />
           <KSelect
             label={'Blockchain'}
-            items={filteredChains.map(item => ({
+            items={supportedChains.map(item => ({
               label: item.name,
               value: item,
             }))}
-            onValueChange={setChain}
+            onValueChange={_handleOnChainChange}
             containerStyle={styles.inputContainer}
           />
           <KInput
             label={'Account name'}
-            placeholder={'Enter your account name'}
+            placeholder={accountNamePlaceholder}
             value={accountName}
             onChangeText={setAccountName}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
+            editable={!isFioChain}
           />
           <KInput
             label={'Private Key'}

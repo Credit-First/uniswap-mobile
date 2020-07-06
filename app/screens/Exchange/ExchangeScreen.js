@@ -3,7 +3,7 @@ import { Image, SafeAreaView, View, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './ExchangeScreen.style';
-import { KHeader, KButton, KInput, KSelect } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, newdexTransfer } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
@@ -18,6 +18,8 @@ const ExchangeScreen = props => {
   const [feeAmount, setFeeAmount] = useState();
   const [newdexPrice, setNewdexPrice] = useState();
   const [isSubmitting, setSubmitting] = useState(false);
+
+  const MAX_AMOUNT = 1000;
 
   const {
     navigation: { navigate },
@@ -46,13 +48,26 @@ const ExchangeScreen = props => {
     }
 
     const floatAmount = parseFloat(sendAmount);
+    if(floatAmount > MAX_AMOUNT) {
+      Alert.alert('We do not recommended to submit large amount market orders.');
+      return;
+    }
+
+    let chain = getChain(fromAccount.chainName);
+    const accountInfo = await getAccount(fromAccount.accountName, chain);
+    let liquidBalance = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
+    let token = accountInfo.core_liquid_balance.split(' ')[1];
+    if(floatAmount > liquidBalance) {
+      Alert.alert('Amount is more then account liquid balance: '+liquidBalance+' '+token);
+      return;
+    }
 
     setSubmitting(true);
     try {
       const res = await newdexTransfer(floatAmount, fromAccount, toAccount);
-      console.log('newdex transfer result', res);
+      //console.log('newdex transfer result', res);
       setSubmitting(false);
-      Alert.alert('Exchange success');
+      Alert.alert('Market order submitted to Newdex for processing!');
     } catch (e) {
       setSubmitting(false);
       Alert.alert(e.message);
@@ -80,13 +95,14 @@ const ExchangeScreen = props => {
       return;
     }
 
+    const fromChain = getChain(fromAccount.chainName);
     const toChain = getChain(toAccount.chainName);
 
     const receiveQuantity = `${(sendQuantity * 0.99 * newdexPrice).toFixed(
       4,
     )} ${toChain.symbol}`;
-    const feeQuantity = `${(sendQuantity * 0.01 * newdexPrice).toFixed(4)} ${
-      toChain.symbol
+    const feeQuantity = `${(sendQuantity * 0.01).toFixed(4)} ${
+      fromChain.symbol
     }`;
     setReceiveAmount(receiveQuantity);
     setFeeAmount(feeQuantity);
@@ -140,8 +156,8 @@ const ExchangeScreen = props => {
           enableOnAndroid>
           <View style={styles.inner}>
             <KHeader
-              title={'Convert coins'}
-              subTitle={'Convert coins across your accounts'}
+              title={'Convert coins in your accounts'}
+              subTitle={'Convert coins using Newdex exchange'}
               style={styles.header}
             />
             <KSelect
@@ -181,14 +197,14 @@ const ExchangeScreen = props => {
               containerStyle={styles.inputContainer}
             />
             <KInput
-              label={'Receive'}
+              label={'Receive (*)'}
               placeholder={'Receive amount'}
               value={receiveAmount}
               containerStyle={styles.inputContainer}
               editable={false}
             />
             <KInput
-              label={'Fee'}
+              label={'Fee: 1% of send amount'}
               placeholder={'Fee amount'}
               value={feeAmount}
               containerStyle={styles.inputContainer}
@@ -202,6 +218,7 @@ const ExchangeScreen = props => {
               icon={'check'}
               onPress={_handleSubmit}
             />
+            <KText>(*) Note: exact receive amount depends on final market order execution at Newdex.io exchange.</KText>
           </View>
         </KeyboardAwareScrollView>
       </SafeAreaView>
