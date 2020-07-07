@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KHeader, KText, KButton } from '../../components';
+import { KHeader, KText, KInput, KButton } from '../../components';
 import styles from './AlgoAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -33,9 +33,11 @@ const AlgoAccountScreen = props => {
     accountsState: { accounts },
   } = props;
 
+  const divider = 1000000;
+
   const setAccountStats = (json) => {
-    setAccountBalance(parseFloat(json.amount)/1000000);
-    setRewards(parseFloat(json.rewards)/1000000);
+    setAccountBalance(parseFloat(json.amount)/divider);
+    setRewards(parseFloat(json.rewards)/divider);
     setAccountStatus(json.status);
   };
 
@@ -91,8 +93,13 @@ const AlgoAccountScreen = props => {
         <KHeader title={account.accountName} style={styles.header} />
         <KText>Balance: {accountBalance} ALGO</KText>
         <KText>Rewards: {rewards} ALGO</KText>
-        <KText>Account status: {accountStatus}</KText>
-        <KText>Full address: {account.account.addr}</KText>
+        <KInput
+          label={'Account address'}
+          value={account.account.addr}
+          containerStyle={styles.inputContainer}
+          multiline={true}
+          editable={false}
+        />
         <View style={styles.spacer} />
         <View style={styles.qrcode}>
           <QRCode value={account.account.addr} size={200}/>

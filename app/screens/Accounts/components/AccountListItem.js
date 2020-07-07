@@ -11,6 +11,9 @@ import {
   PRIMARY_BLUE,
 } from '../../../theme/colors';
 
+const fioDivider = 1000000000;
+const algoDivider = 1000000;
+
 const loadAccountBalance = async (account, setAccountBalance) => {
   const chain = getChain(account.chainName);
   if (!chain) {
@@ -39,7 +42,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       }),
     })
       .then(response => response.json())
-      .then(json => setAccountBalance(((json.balance!==undefined)?json.balance+' FIO':'validate')))
+      .then(json => setAccountBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) + ' FIO' : 'validate')))
       .catch(error => console.error(error));
   } catch (e) {
     console.log('Error: ' + e);
@@ -58,7 +61,7 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
       },
     })
       .then(response => response.json())
-      .then(json => setAccountBalance(parseFloat(json.amount)/1000000 + ' ALGO'))
+      .then(json => setAccountBalance( (parseFloat(json.amount)/algoDivider).toFixed(4) + ' ALGO'))
       .catch(error => console.log(error));
   } catch (e) {
     console.log('Error: ' + e);

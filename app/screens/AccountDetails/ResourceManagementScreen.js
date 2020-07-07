@@ -55,7 +55,8 @@ const ResourceManagementScreen = props => {
       setLoadingStake(false);
       Alert.alert('Successfully staked! Reload account details screen to see new stats.');
     } catch(err) {
-      console.log(err);
+      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(errorMsg);
       setLoadingStake(false);
     }
   }
@@ -82,7 +83,8 @@ const ResourceManagementScreen = props => {
       setLoadingRAM(false);
       Alert.alert('Successfully bought RAM! Reload account details screen to see new stats.');
     } catch(err) {
-      console.log(err);
+      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(errorMsg);
       setLoadingRAM(false);
     }
   }

@@ -54,6 +54,7 @@ const FIOAddressActionsScreen = props => {
     accountsState: { accounts },
   } = props;
 
+  const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
   const fioKey = Ecc.privateToPublic(privateKey);
 
@@ -212,7 +213,7 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => setFioBalance(json.balance))
+      .then(json => setFioBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) : 0)))
       .catch(error => console.error(error));
   };
 

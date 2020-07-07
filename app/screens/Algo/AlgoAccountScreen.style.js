@@ -10,14 +10,14 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
-    marginTop: 20,
+    marginTop: 10,
   },
   qrcode: {
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   list: {
     marginTop: 10,
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   inputContainer: {
-    marginTop: 10,
+    marginTop: 5,
   },
   balanceItem: {
     flex: 1,
