@@ -98,9 +98,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const updateAccountLists = (account, json) => {
-    console.log('updateAccountLists:'+account.chainName);
     let accountPubkeyEntry = json.public_address;
-    console.log(json);
     var accPubkey = '';
     if (account.chainName==='ALGO') {
       accPubkey = account.account.addr;
@@ -151,7 +149,6 @@ const FIOAddressActionsScreen = props => {
     if (executionCount > 0) {
       return;
     }
-    console.log('Check registration for ' + pubkey);
     setExecutionCount(1);
     fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
       method: 'POST',
@@ -311,7 +308,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const replacePendingFioAddress = (fioAddress) => {
-    //console.log('Replace with '+fioAddress);
     // Delete old pending FIO account:
     const index = findIndex(
       accounts,
@@ -320,13 +316,10 @@ const FIOAddressActionsScreen = props => {
         el.chainName === fioAccount.chainName,
     );
     deleteAccount(index);
-    //console.log('Removed old FIO address at index '+index);
     // Connect new FIO account:
     let account = { address: fioAddress, privateKey: privateKey, chainName: 'FIO' };
     connectAccount(account);
     fioAccount.address = fioAddress;
-    console.log('Added new account:');
-    console.log(account);
   };
 
   const updateFioRegistration = json => {
@@ -458,14 +451,6 @@ const FIOAddressActionsScreen = props => {
   const getConnectAccountText = (account) => {
     return 'Connect '  + account.chainName + ': ' + account.accountName;
   }
-
-  const _handleCheckRegistration = () => {
-    setExecutionCount(0);
-    console.log("Rechecking for "+fioKey);
-    checkRegistration(fioKey);
-    console.log(fioAccount);
-  }
-
 
   return (
     <SafeAreaView style={styles.container}>
