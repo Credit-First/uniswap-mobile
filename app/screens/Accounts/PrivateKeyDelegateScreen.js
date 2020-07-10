@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, SafeAreaView, View, TouchableOpacity, Alert, } from 'react-native';
+import { Image, SafeAreaView, View, TouchableOpacity, Alert, Linking, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KHeader, KSelect, KButton, KText } from '../../components';
@@ -24,8 +24,12 @@ const PrivateKeyDelegateScreen = props => {
 const [fromAccount, setFromAccount] = useState();
 const [email, setEmail] = useState();
 const [password, setPassword] = useState();
+const [guardian1, setGuardian1] = useState('admin@tribe');
+const [guardian1Pubkey, setGuardian1Pubkey] = useState('FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5');
+const [guardian2, setGuardian2] = useState('lostkeys@eosusa');
+const [guardian2Pubkey, setGuardian2Pubkey] = useState('FIO5EHH7qRJrWTVimhWrECApz1JNW9tnqzHKxb7aAQoo8SoT5r8hV');
+const [loading, setLoading] = useState(false);
 
-const adminPubkey = "FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5";
 let privateKey = account.privateKey;
 if (account.chainName === 'ALGO') {
 	let algoAccount = algosdk.mnemonicToSecretKey(account.mnemonic);
@@ -36,28 +40,98 @@ const fioAccounts = accounts.filter((value, index, array) => {
 	return value.chainName == 'FIO';
 });
 
+const _handleGuardian1Change = (address) => {
+	setGuardian1(address);
+	fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			"fio_address": address,
+			"chain_code": "FIO",
+			"token_code": "FIO"
+		}),
+	})
+		.then(response => response.json())
+		.then(json => setGuardian1Pubkey(json.public_address))
+		.catch(error => console.log(error));
+};
+
+const _handleGuardian2Change = (address) => {
+	setGuardian2(address);
+	fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			"fio_address": address,
+			"chain_code": "FIO",
+			"token_code": "FIO"
+		}),
+	})
+		.then(response => response.json())
+		.then(json => setGuardian2Pubkey(json.public_address))
+		.catch(error => console.log(error));
+};
+
 const _delegateKey = async () => {
-	if (!fromAccount || !email || !password) {
-		Alert.alert("Please fill all fields on this form.");
+	if (!fromAccount || !email || !password || !guardian1 || !guardian2 ) {
+		Alert.alert("Please fill all required fields on this form.");
+		return;
+	}
+	if(!guardian1Pubkey) {
+		Alert.alert("Unable to load guardian #1 FIO public key!");
+		return;
+	}
+	if(!guardian2Pubkey) {
+		Alert.alert("Unable to load guardian #2 FIO public key!");
 		return;
 	}
 	let encryptedKey = CryptoJS.AES.encrypt(privateKey, password).toString();
+	let splitIndex = parseInt(encryptedKey.length/2);
+	let firstHalf = encryptedKey.substring(0, splitIndex);
+	let secondHalf = encryptedKey.substring(splitIndex, encryptedKey.length);
 	try {
-		const res = await fioDelegateSecretRequest(fromAccount,
-			'admin@tribe',
-			adminPubkey,
+		setLoading(true);
+		const res1 = await fioDelegateSecretRequest(fromAccount,
+			guardian1,
+			guardian1Pubkey,
 			account.chainName,
 			email,
-			encryptedKey,
+			firstHalf,
 			0);
-		if (res && res.transaction_id) {
-			Alert.alert("Private key encrypted and delegated to admin@tribe! in tx "+res.transaction_id);
+		//console.log(res1);
+		if (res1 && res1.transaction_id) {
+			const res2 = await fioDelegateSecretRequest(fromAccount,
+				guardian2,
+				guardian2Pubkey,
+				account.chainName,
+				email,
+				secondHalf,
+				0);
+			//console.log(res2);
+			setLoading(false);
+			if (res2 && res2.transaction_id) {
+				Alert.alert("Private key encrypted, segmented and delegated!");
+			} else {
+				Alert.alert("Something went wrong on second segment delegation: "+res2.message);
+			}
 		} else {
-			Alert.alert("Something went wrong: "+res.message);
+			setLoading(false);
+			Alert.alert("Something went wrong on first segment delegation: "+res1.message);
 		}
 	} catch (err) {
+		setLoading(false);
 		Alert.alert(err.message);
 	}
+};
+
+const _loadAboutKeyDelegation = () => {
+	Linking.openURL('https://eostribe.io/keydelegation.html');
 }
 
 return (
@@ -78,15 +152,9 @@ return (
             subTitle={account.chainName}
             style={styles.header}
           />
-					<View style={styles.spacer} />
-					<KText>1. Your private key will be encrypted using password you supply below.
-					We will not save your password - so make sure you will remember it!</KText>
-					<KText>2. Your encrypted private key alone with email will be double encrypted by admin@tribe public key.</KText>
-					<KText>3. Recovery of private key will be handled over email with instructions provided on request.</KText>
-					<KText>4. You will need your password to ultimately decrypt and gain access to your original private key.</KText>
           <View style={styles.spacer} />
 						<KSelect
-							label={'FIO address'}
+							label={'Your FIO address'}
 							placeholder={'Your originating FIO address for this request'}
 							items={fioAccounts.map(item => ({
 								label: `${item.chainName}: ${item.address}`,
@@ -96,7 +164,7 @@ return (
 							containerStyle={styles.inputContainer}
 						/>
 						<KInput
-							label={'Email'}
+							label={'Your email'}
 							placeholder={'Enter your contact email to be used for recovery'}
 							value={email}
 							onChangeText={setEmail}
@@ -112,16 +180,28 @@ return (
 							containerStyle={styles.inputContainer}
 							autoCapitalize={'none'}
             />
-						<View style={styles.spacer} />
+						<KInput
+							label={'Guardian #1 (use default or enter your own)'}
+							value={guardian1}
+							onChangeText={_handleGuardian1Change}
+							containerStyle={styles.inputContainer}
+							autoCapitalize={'none'}
+						/>
+						<KInput
+							label={'Guardian #2 (use default or enter your own)'}
+							value={guardian2}
+							onChangeText={_handleGuardian2Change}
+							containerStyle={styles.inputContainer}
+							autoCapitalize={'none'}
+						/>
             <KButton
-            	title={'Delegate to admin@tribe'}
+            	title={'Delegate to guardians'}
             	theme={'primary'}
             	style={styles.button}
             	onPress={_delegateKey}
+							isLoading={loading}
           	/>
-						<View style={styles.spacer} />
-						<KText>Disclaimer: This service is optional and provides relatively safe key backup and recovery mechanism.</KText>
-						<KText>However for high balance and high risk accounts we recommend using offline hardware keys.</KText>
+						<Text style={styles.link} onPress={_loadAboutKeyDelegation}>Learn more at https://eostribe.io</Text>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

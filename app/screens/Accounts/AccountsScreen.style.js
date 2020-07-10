@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
     marginTop: 20,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listItem: {
-    marginTop: 20,
+    marginTop: 10,
     marginHorizontal: 20,
   },
   logo: {
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     width: undefined,
   },
   spacer: {
-    marginTop: 20,
+    marginTop: 10,
   },
 });
 

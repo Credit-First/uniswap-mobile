@@ -37,6 +37,7 @@ const ViewFIORequestScreen = props => {
     accountsState: { accounts },
   } = props;
 
+
   var otherPublicKey = fioRequest.payer_fio_public_key;
   if (fioAccount.address == fioRequest.payer_fio_address) {
     otherPublicKey = fioRequest.payee_fio_public_key;
@@ -47,7 +48,14 @@ const ViewFIORequestScreen = props => {
     textEncoder: new TextEncoder(),
     textDecoder: new TextDecoder()
   });
-  const decryptedContent = cipher.decrypt('new_funds_content', fioRequest.content);
+
+
+  let decryptedContent = null;
+  try {
+    decryptedContent = cipher.decrypt('new_funds_content', fioRequest.content);
+  } catch(err) {
+    Alert.alert("Error decrypting FIO Request: "+err);
+  }
 
   const getRequestTitle = () => {
     return fioRequest.payer_fio_address + ' -> ' + fioRequest.payee_fio_address;
@@ -70,9 +78,12 @@ const ViewFIORequestScreen = props => {
       .catch(error => console.error(error));
   };
 
-  var chain = getChain(decryptedContent.chain_code);
-  if(!chain && decryptedContent.chain_code === 'ALGO') {
-    chain = { name: 'ALGO', symbol: 'ALGO' };
+  let chain = null;
+  if(decryptedContent != null) {
+    chain = getChain(decryptedContent.chain_code);
+    if(!chain && decryptedContent.chain_code === 'ALGO') {
+      chain = { name: 'ALGO', symbol: 'ALGO' };
+    }
   }
 
   var chainAccounts = [];
@@ -278,7 +289,7 @@ const ViewFIORequestScreen = props => {
     }
   };
 
-  if(payerRole && chain && chainAccounts.length > 0) {
+  if(decryptedContent!=null && payerRole && chain && chainAccounts.length > 0) {
     return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -320,7 +331,7 @@ const ViewFIORequestScreen = props => {
       </View>
     </SafeAreaView>
     );
-  } else if (payerRole && chain) {
+  } else if (decryptedContent!=null && payerRole && chain) {
     return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -366,7 +377,7 @@ const ViewFIORequestScreen = props => {
       </View>
     </SafeAreaView>
     );
-  } else if (payerRole) {
+  } else if (decryptedContent!=null && payerRole) {
     return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -421,7 +432,7 @@ const ViewFIORequestScreen = props => {
       </View>
     </SafeAreaView>
     );
-  } else if(decryptedContent.offline_url) { // Private key delegate:
+  } else if(decryptedContent!=null && decryptedContent.offline_url) { // Private key delegate:
     return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -448,7 +459,7 @@ const ViewFIORequestScreen = props => {
       </View>
     </SafeAreaView>
     );
-  } else { // My account is Payee - passive view
+  } else if(decryptedContent!=null) { // My account is Payee - passive view
     return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -472,6 +483,27 @@ const ViewFIORequestScreen = props => {
         <View style={styles.qrcode}>
           <QRCode value={decryptedContent.memo} size={200}/>
         </View>
+      </View>
+    </SafeAreaView>
+    );
+  } else {
+    return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
+          />
+        </TouchableOpacity>
+        <KHeader title={title} subTitle={getRequestTitle()} style={styles.header} />
+        <View style={styles.spacer} />
+        <KText>Payer: {fioRequest.payer_fio_address}</KText>
+        <KText>Payee: {fioRequest.payee_fio_address}</KText>
+        <KText>Timestamp: {fioRequest.time_stamp}</KText>
+        <KText>Status: {fioRequest.status}</KText>
+        <KText>Error: Unable to decrypt FIO Request content!</KText>
       </View>
     </SafeAreaView>
     );

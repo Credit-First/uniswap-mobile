@@ -54,7 +54,7 @@ return (
             	<QRCode value={privateKey} size={200}/>
             </View>
             <KButton
-            title={'Delegate to admin@tribe'}
+            title={'Delegate to guardians'}
             theme={'primary'}
             style={styles.button}
             onPress={_handleDelegateKey}

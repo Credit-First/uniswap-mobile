@@ -18,6 +18,12 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 10,
   },
+  error: {
+    padding: 10,
+    color: '#BF0F0F',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   button: {
     marginTop: 8,
   },
