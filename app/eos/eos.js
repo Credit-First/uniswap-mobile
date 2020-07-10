@@ -47,7 +47,7 @@ const stake = (account, cpuAmount, netAmount, chain) => {
             receiver: account.accountName,
             stake_cpu_quantity: `${cpuAmount.toFixed(4)} ${chain.symbol}`,
             stake_net_quantity: `${netAmount.toFixed(4)} ${chain.symbol}`,
-            transfer: 0,
+            transfer: false,
           },
         },
       ],

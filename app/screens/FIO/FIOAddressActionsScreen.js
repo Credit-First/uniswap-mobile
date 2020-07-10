@@ -46,11 +46,12 @@ const FIOAddressActionsScreen = props => {
   const [externalAccounts, setExternalAccounts] = useState(initialExternalAccounts);
 
   const {
+    connectAccount,
+    deleteAccount,
     navigation: { navigate, goBack },
     route: {
       params: { account: fioAccount },
     },
-    deleteAccount,
     accountsState: { accounts },
   } = props;
 
@@ -77,7 +78,7 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => updateAccountLists(account, json.public_address))
+      .then(json => updateAccountLists(account, json))
       .catch(error => console.log(error));
   };
 
@@ -96,8 +97,10 @@ const FIOAddressActionsScreen = props => {
     setFilteredAccounts(newFilteredAccounts);
   };
 
-  const updateAccountLists = (account, accountPubkeyEntry) => {
-    //console.log(account.chainName + ": " + accountPubkeyEntry);
+  const updateAccountLists = (account, json) => {
+    console.log('updateAccountLists:'+account.chainName);
+    let accountPubkeyEntry = json.public_address;
+    console.log(json);
     var accPubkey = '';
     if (account.chainName==='ALGO') {
       accPubkey = account.account.addr;
@@ -148,7 +151,7 @@ const FIOAddressActionsScreen = props => {
     if (executionCount > 0) {
       return;
     }
-    //console.log('Check registration for ' + pubkey);
+    console.log('Check registration for ' + pubkey);
     setExecutionCount(1);
     fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
       method: 'POST',
@@ -161,7 +164,7 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => updateFioRegistration(json.fio_addresses))
+      .then(json => updateFioRegistration(json))
       .catch(error => console.log(error));
   };
 
@@ -307,11 +310,35 @@ const FIOAddressActionsScreen = props => {
     Linking.openURL('https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey);
   };
 
-  const updateFioRegistration = fioAddresses => {
+  const replacePendingFioAddress = (fioAddress) => {
+    //console.log('Replace with '+fioAddress);
+    // Delete old pending FIO account:
+    const index = findIndex(
+      accounts,
+      el =>
+        el.address === fioAccount.address &&
+        el.chainName === fioAccount.chainName,
+    );
+    deleteAccount(index);
+    //console.log('Removed old FIO address at index '+index);
+    // Connect new FIO account:
+    let account = { address: fioAddress, privateKey: privateKey, chainName: 'FIO' };
+    connectAccount(account);
+    fioAccount.address = fioAddress;
+    console.log('Added new account:');
+    console.log(account);
+  };
+
+  const updateFioRegistration = json => {
+    let fioAddresses = json.fio_addresses;
     if (fioAddresses) {
       var content = fioAddresses.map(function(item) {
         if (fioAccount.address !== item.fio_address) {
-          fioAccount.address = item.fio_address;
+          if(fioAccount.address === 'pending@tribe') {
+            replacePendingFioAddress(item.fio_address);
+          } else {
+            fioAccount.address = item.fio_address;
+          }
         }
         return item.fio_address + ' expires ' + item.expiration + ', ';
       });
@@ -344,6 +371,7 @@ const FIOAddressActionsScreen = props => {
           />
       );
     } else {
+      Alert.alert(json.message);
       setRegistered(false);
       setButtonColor('gray');
       setFioRegistrationContent('Unregistered address');
@@ -423,11 +451,21 @@ const FIOAddressActionsScreen = props => {
     navigate('FIORegisterExternal');
   }
 
-  checkRegistration(fioKey);
+  if (executionCount === 0) {
+    checkRegistration(fioKey);
+  }
 
   const getConnectAccountText = (account) => {
     return 'Connect '  + account.chainName + ': ' + account.accountName;
   }
+
+  const _handleCheckRegistration = () => {
+    setExecutionCount(0);
+    console.log("Rechecking for "+fioKey);
+    checkRegistration(fioKey);
+    console.log(fioAccount);
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -479,7 +517,6 @@ const FIOAddressActionsScreen = props => {
             />
           )}
         />
-
         <RequestSendButtons
             style={styles.button}
             onRequestPress={_handleFIORequest}
@@ -504,21 +541,17 @@ const FIOAddressActionsScreen = props => {
             />
             )}
           />
+          <KButton
+            title={'Remove this FIO address'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            onPress={_handleRemoveAccount}
+          />
       </View>
     </SafeAreaView>
   );
 };
 
-
-/*
-        Disabled:
-        <KButton
-          title={'Remove this FIO address'}
-          theme={'brown'}
-          style={styles.button}
-          icon={'remove'}
-          onPress={_handleRemoveAccount}
-        />
-*/
 
 export default connectAccounts()(FIOAddressActionsScreen);

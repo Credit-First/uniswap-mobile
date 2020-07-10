@@ -34,8 +34,8 @@ const ConnectAccountScreen = props => {
     if (fioAddresses) {
       fioAddresses.map(function(item) {
         let address = item.fio_address;
-        console.log('Connecting FIO address '+address);
-        connectAccount({ address, privateKey, chainName: 'FIO' });
+        //console.log('Connecting FIO address '+address);
+        connectAccount({ address: address, privateKey: privateKey, chainName: 'FIO' });
       });
     }
   }

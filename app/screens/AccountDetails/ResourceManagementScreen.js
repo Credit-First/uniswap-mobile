@@ -133,6 +133,7 @@ const ResourceManagementScreen = props => {
             theme={'blue'}
             style={styles.button}
             icon={'add'}
+            isLoading={loadingStake}
             onPress={_handleCpuNetStake}
           />
           <View style={styles.spacer} />
@@ -144,7 +145,6 @@ const ResourceManagementScreen = props => {
             placeholder={'Enter amount to buy RAM'}
             value={newRamAmount}
             onChangeText={setNewRamAmount}
-            isLoading={loadingStake}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
             keyboardType={'numeric'}
