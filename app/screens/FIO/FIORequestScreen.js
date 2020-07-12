@@ -195,7 +195,6 @@ const FIORequestScreen = props => {
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
           />
-          <View style={styles.spacer} />
           <KButton
             title={'Submit'}
             theme={'blue'}

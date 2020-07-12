@@ -29,6 +29,7 @@ const FIOAddressActionsScreen = props => {
   const [registerExternalAccButton, setRegisterExternalAccButton] = useState();
   const [executionCount, setExecutionCount] = useState(0);
   const [registered, setRegistered] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
   const [fioBalance, setFioBalance] = useState(0.0);
   const [pendingFioRequests, setPendingFioRequests] = useState();
@@ -60,7 +61,6 @@ const FIOAddressActionsScreen = props => {
   const fioKey = Ecc.privateToPublic(privateKey);
 
   const checkRegPubkey = async account => {
-    //console.log('Checking registered pubkey for ' + account.chainName + ": " + account.accountName);
     var chainName = account.chainName;
     if(chainName == "Telos") {
       chainName = "TLOS";
@@ -125,6 +125,7 @@ const FIOAddressActionsScreen = props => {
 
   const _handleConnectAccountToAddress = async account => {
     try {
+      setLoading(true);
       if (account.chainName==='ALGO') {
         const res = await fioAddExternalAddress(fioAccount, 'ALGO', account.account.addr, fioFee);
         if (res && res.transaction_id) {
@@ -140,12 +141,15 @@ const FIOAddressActionsScreen = props => {
     			Alert.alert("Something went wrong: "+res.message);
     		}
       }
+      setLoading(false);
     } catch (e) {
       Alert.alert(e.message);
+      setLoading(false);
     }
   };
 
   const checkRegistration = pubkey => {
+    //console.log('checkRegistration '+pubkey);
     if (executionCount > 0) {
       return;
     }
@@ -350,18 +354,7 @@ const FIOAddressActionsScreen = props => {
           }
       });
       setRegisterExternalAccButton(
-        <KButton
-            title={'Register external account'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={_handleConnectExternalAccount}
-            renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
-            )}
-          />
+        <Text style={styles.link} onPress={_handleConnectExternalAccount}>{'Register external account'}</Text>
       );
     } else {
       Alert.alert(json.message);
@@ -387,7 +380,19 @@ const FIOAddressActionsScreen = props => {
         el.address === fioAccount.address &&
         el.chainName === fioAccount.chainName,
     );
-    deleteAccount(index);
+    Alert.alert(
+      'Delete FIO Account',
+      'Are you sure you want to delete this account?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Delete account cancelled'),
+          style: 'cancel'
+        },
+        { text: 'OK', onPress: () => deleteAccount(index) }
+      ],
+      { cancelable: false }
+    );
     goBack();
   };
 
@@ -496,7 +501,7 @@ const FIOAddressActionsScreen = props => {
               title={getConnectAccountText(item)}
               theme={buttonColor}
               style={styles.button}
-              isLoading={!registered}
+              isLoading={loading}
               icon={'check'}
               onPress={() => _handleConnectAccountToAddress(item)}
             />
@@ -526,13 +531,7 @@ const FIOAddressActionsScreen = props => {
             />
             )}
           />
-          <KButton
-            title={'Remove this FIO address'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'remove'}
-            onPress={_handleRemoveAccount}
-          />
+          <Text style={styles.link} onPress={_handleRemoveAccount}>{'Remove this FIO address'}</Text>
       </View>
     </SafeAreaView>
   );

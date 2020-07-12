@@ -148,12 +148,10 @@ const MainTabScreen = () => {
       }}>
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferScreen} />
+      <MainTab.Screen name={'Transactions'} component={TransactionsStackScreen} />
       <MainTab.Screen name={'Vote'} component={VoteScreen} />
-      <MainTab.Screen
-        name={'Transactions'}
-        component={TransactionsStackScreen}
-      />
       <MainTab.Screen name={'Exchange'} component={ExchangeScreen} />
+
     </MainTab.Navigator>
   );
 };

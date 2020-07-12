@@ -67,7 +67,19 @@ const AlgoAccountScreen = props => {
         el.accountName === account.accountName &&
         el.chainName === account.chainName,
     );
-    deleteAccount(index);
+    Alert.alert(
+      'Delete Algorand Account',
+      'Are you sure you want to delete this account?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Delete account cancelled'),
+          style: 'cancel'
+        },
+        { text: 'OK', onPress: () => deleteAccount(index) }
+      ],
+      { cancelable: false }
+    );
     goBack();
   };
 

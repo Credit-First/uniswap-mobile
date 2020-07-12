@@ -308,9 +308,6 @@ const ViewFIORequestScreen = props => {
         <KText>Memo: {decryptedContent.memo}</KText>
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
-        <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.payee_public_address} size={200}/>
-        </View>
         <View style={styles.spacer} />
         <KButton
           title={'Pay and accept'}

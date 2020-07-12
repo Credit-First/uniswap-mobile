@@ -17,7 +17,7 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
-  const promotText = "Promotion: Register FREE FIO address and link to your new Algorand account and send FIO Request to promo@tribe for 100 ALGO. Include a link to a social media post about your experience with TRIBE Wallet in memo field. We will grant first 10 unique requests.";
+  const promoText = "Promotion: Register FREE FIO address and link to your new Algorand account and send FIO Request to promo@tribe for 100 ALGO. Include a link to a social media post about your experience with TRIBE Wallet in memo field. We will grant first 10 unique requests.";
 
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
@@ -85,13 +85,15 @@ const AccountsScreen = props => {
 
   var optionalButtons = <View style={styles.spacer} />;
   if (!hasPendingFIOAddress()) {
-    if(algoAccounts.length == 0) {
+    if(algoAccounts.length == 0 && fioAccounts.length == 0) {
       optionalButtons = <View>
           <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
           <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
     } else if(fioAccounts.length == 0) {
       optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
+    } else if(algoAccounts.length == 0) {
+      optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
     }
   } else if(algoAccounts.length == 0) {
     optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
@@ -105,7 +107,7 @@ const AccountsScreen = props => {
         source={require('../../../assets/logo/tribe-logo.png')}
         resizeMode="contain"
       />
-      <Text style={styles.promo}>{promotText}</Text>
+      <Text style={styles.promo}>{promoText}</Text>
       {optionalButtons}
       <KButton
           title={'Import accounts'}

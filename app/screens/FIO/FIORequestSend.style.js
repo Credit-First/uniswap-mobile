@@ -10,13 +10,13 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 5,
   },
   header: {
-    marginTop: 10,
+    marginTop: 5,
   },
   list: {
-    marginTop: 10,
+    marginTop: 5,
   },
   error: {
     padding: 10,
@@ -29,16 +29,16 @@ const styles = StyleSheet.create({
   },
   hidden: {
     opacity: 0,
-    marginTop: 8,
+    marginTop: 5,
   },
   inputContainer: {
-    marginTop: 10,
+    marginTop: 5,
   },
   balanceItem: {
     flex: 1,
   },
   spacer: {
-    marginTop: 10,
+    marginTop: 5,
   },
   qrcode: {
     alignSelf: 'center',

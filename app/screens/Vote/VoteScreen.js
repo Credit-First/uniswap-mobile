@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, FlatList } from 'react-native';
+import { SafeAreaView, View, Linking, FlatList } from 'react-native';
 import { get } from 'lodash';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
+import ecc from 'eosjs-ecc-rn';
+import algosdk from 'algosdk';
 
 import styles from './VoteScreen.style';
 import { KHeader, KButton, KText } from '../../components';
@@ -17,6 +20,8 @@ import BalanceItem from './components/BalanceItem';
 
 const VoteScreen = props => {
   const {
+    connectAccount,
+    navigation: { navigate },
     accountsState: { accounts, activeAccountIndex },
   } = props;
 
@@ -113,6 +118,29 @@ const VoteScreen = props => {
     return activeAccount.chainName + " " + activeAccount.accountName;
   }
 
+  // Extra wallet actions:
+  const _handleRegisterAddress = () => {
+    ecc.randomKey().then(privateKey => {
+      const fioKey = Ecc.privateToPublic(privateKey);
+      const address = 'pending@tribe';
+      connectAccount({ address, privateKey, chainName: 'FIO' });
+      var registerUrl =
+        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
+      Linking.openURL(registerUrl);
+    });
+  };
+
+  const _handleCreateAlgorandAccount = () => {
+    var account = algosdk.generateAccount();
+    var address = account.addr;
+    var accountName = address.substring(0, 4) + ".." + address.substring(address.length - 4, address.length);
+    var mnemonic = algosdk.secretKeyToMnemonic(account.sk);
+    var algoAccount = { accountName, mnemonic, chainName: "ALGO", account: account };
+    connectAccount(algoAccount);
+    navigate('Accounts');
+  };
+
+
   const activeAccount = accounts[activeAccountIndex];
   if (activeAccount && getChain(activeAccount.chainName) && activeAccount.chainName !== 'FIO') {
     return (
@@ -158,9 +186,19 @@ const VoteScreen = props => {
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader
-          title={'Vote screen not available'}
-          subTitle={'Voting not available for current account'}
-          style={styles.header}
+          title={'Available wallet actions'}
+          style={styles.header}/>
+        <View style={styles.spacer} />
+        <KButton title={'Register [address]@tribe'} theme={'brown'}
+        style={styles.button} icon={'add'}
+        onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Algorand account'} theme={'brown'}
+        style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+        <KButton
+          title={'Import EOSIO Accounts'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={() => navigate('ConnectAccount')}
         />
       </View>
     </SafeAreaView>
