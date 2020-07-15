@@ -16,6 +16,7 @@ import { getAccount, transfer } from '../../eos/eos';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { supportedChains, getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import { log } from '../../logger/logger';
 
 
 const FIOSendScreen = props => {
@@ -69,7 +70,6 @@ const FIOSendScreen = props => {
       setAddressInvalidMessage('');
       setToAccount(address);
     } else if (error) {
-      console.error(error);
       setAddressInvalidMessage('Error validating address');
     }
   };
@@ -119,6 +119,7 @@ const FIOSendScreen = props => {
     		}
     } catch(err) {
       Alert.alert('Transfer failed: '+err);
+      log({ description: 'doEOSIOTransfer', cause: err, location: 'FIOSendScreen'});
     }
   };
 
@@ -175,10 +176,9 @@ const FIOSendScreen = props => {
       .then(response => response.json())
       .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address))
       .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
-
-    } catch (e) {
-      Alert.alert('Error: '+e);
-      console.log(e);
+    } catch (err) {
+      Alert.alert('Error: '+err);
+      log({ description: '_handleSubmit', cause: err, location: 'FIOSendScreen'});
       return;
     }
   };

@@ -8,6 +8,8 @@ import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain } from '../../eos/chains';
+import { log } from '../../logger/logger';
+
 
 const TransferScreen = props => {
   const [fromAccount, setFromAccount] = useState();
@@ -62,7 +64,12 @@ const TransferScreen = props => {
     })
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'loadToPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        cause: error,
+        location: 'ViewFIORequestScreen'
+      })
+    );
   };
 
   const _validateAddress = address => {
@@ -91,7 +98,6 @@ const TransferScreen = props => {
       setAddressInvalidMessage('');
       loadToPubkey(address);
     } else if (error) {
-      console.error(error);
       setToPubkey('');
       setAddressInvalidMessage('Error validating FIO address');
     }
@@ -183,9 +189,14 @@ const TransferScreen = props => {
       }
       //Add for FIO: sendFioTransfer(fromAccount, fioPubkey, floatAmount, memo);
       setLoading(false);
-    } catch (e) {
+    } catch (err) {
       setLoading(false);
-      Alert.alert(e.message);
+      Alert.alert(err.message);
+      log({
+        description: '_handleTransfer - transfer: '+fromAccount.chainName,
+        cause: err.message,
+        location: 'ViewFIORequestScreen'
+      });
     }
   };
 

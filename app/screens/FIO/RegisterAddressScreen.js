@@ -7,8 +7,8 @@ import styles from './RegisterAddress.style';
 import { KHeader, KInput, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-
-// const { Fio, Ecc } = require('@fioprotocol/fiojs');
+import { log } from '../../logger/logger';
+;
 
 const RegisterAddressScreen = props => {
   const [address, setAddress] = useState();
@@ -48,18 +48,16 @@ const RegisterAddressScreen = props => {
       setAvailable(false);
       setCheckState('Not available');
     } else if (error) {
-      console.error(error);
       setAvailable(false);
       setCheckState('Error');
+      log({ description: 'updateAvailableState', cause: error, location: 'RegisterAddressScreen'});
     }
   };
 
   const _nextRegister = () => {
-    //console.log(address);
     ecc.randomKey().then(privateKey => {
       const pubKey = ecc.privateToPublic(privateKey);
       const fioKey = 'FIO' + pubKey.substring(3);
-      //console.log("Register FIO address: "+address+", key: "+privateKey);
       connectAccount({ address, privateKey, chainName: 'FIO' });
       var registerUrl =
         'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;

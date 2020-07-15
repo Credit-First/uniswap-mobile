@@ -65,7 +65,6 @@ const ExchangeScreen = props => {
     setSubmitting(true);
     try {
       const res = await newdexTransfer(floatAmount, fromAccount, toAccount);
-      //console.log('newdex transfer result', res);
       setSubmitting(false);
       Alert.alert('Market order submitted to Newdex for processing!');
     } catch (e) {
@@ -119,7 +118,7 @@ const ExchangeScreen = props => {
     try {
       const accountInfo = await getAccount(account.accountName, chain);
       if (!accountInfo) {
-        console.log('could not get account info');
+        Alert.alert('Could not load account info for '+account.accountName);
       }
       setFromAccountBalance(accountInfo.core_liquid_balance);
     } catch (e) {

@@ -10,6 +10,7 @@ import { getAccount } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
+import { log } from '../../logger/logger'
 
 
 const AccountDetailsScreen = props => {

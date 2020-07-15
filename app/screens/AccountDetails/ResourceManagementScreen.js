@@ -9,6 +9,7 @@ import { getAccount, stake, buyram } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
+import { log } from '../../logger/logger';
 
 
 const ResourceManagementScreen = props => {
@@ -58,6 +59,11 @@ const ResourceManagementScreen = props => {
       let errorMsg = (err.message !== undefined) ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingStake(false);
+      log({
+        description: '_handleCpuNetStake',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen'
+      });
     }
   }
 
@@ -86,6 +92,11 @@ const ResourceManagementScreen = props => {
       let errorMsg = (err.message !== undefined) ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingRAM(false);
+      log({
+        description: '_handleBuyRam',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen'
+      });
     }
   }
 

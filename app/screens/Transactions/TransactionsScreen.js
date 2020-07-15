@@ -6,6 +6,8 @@ import { connectAccounts } from '../../redux';
 import { getActions } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import TransactionItem from './components/TransactionItem';
+import { log } from '../../logger/logger';
+
 
 const TransactionsScreen = props => {
   const {
@@ -31,9 +33,9 @@ const TransactionsScreen = props => {
       try {
         const res = await getActions(activeAccount.accountName, chain);
         setTransactions(res.actions);
-      } catch (e) {
-        console.log('get actions failed with error: ', e);
+      } catch (err) {
         setTransactions([]);
+        log({ description: 'Error loading actions', cause: err, location: 'TransactionsScreen'});
       }
     });
 

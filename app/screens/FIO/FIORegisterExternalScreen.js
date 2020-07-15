@@ -57,7 +57,6 @@ const FIORegisterExternalScreen = props => {
   const _handleSubmit = async () => {
     try {
       const res = await fioAddExternalAddress(fioAccount, chain, publicKey, fee);
-      //console.log(res);
       Alert.alert("Successfully added!");
     } catch (e) {
       Alert.alert(e.message);

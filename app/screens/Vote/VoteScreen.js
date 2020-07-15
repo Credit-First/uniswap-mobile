@@ -17,6 +17,8 @@ import {
 import { getChain } from '../../eos/chains';
 import ProducerListItem from './components/ProducerListItem';
 import BalanceItem from './components/BalanceItem';
+import { log } from '../../logger/logger';
+
 
 const VoteScreen = props => {
   const {
@@ -72,11 +74,14 @@ const VoteScreen = props => {
             ),
           );
         }
-      } catch (e) {
-        console.log('get producers failed with error: ', e);
+      } catch (err) {
+        log({
+          description: 'get producers failed with error',
+          cause: err,
+          location: 'VoteScreen'
+        });
       }
     };
-
     fetchProducers();
   }, [accounts, activeAccountIndex]);
 
@@ -107,9 +112,12 @@ const VoteScreen = props => {
     try {
       const sortedVps = votedProducers.slice().sort();
       const res = await voteProducers(sortedVps, activeAccount, chain);
-      console.log('vote producer res: ', res);
-    } catch (e) {
-      console.log('vote failed with error: ', e);
+    } catch (err) {
+      log({
+        description: 'vote failed with error',
+        cause: err,
+        location: 'VoteScreen'
+      });
     }
     setVoting(false);
   };

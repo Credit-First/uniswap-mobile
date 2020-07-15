@@ -14,13 +14,13 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { externalChains } from '../../external/blockchains';
 import { fioAddPublicAddress, fioAddExternalAddress } from '../../eos/fio';
+import { log } from '../../logger/logger'
 import styles from './RegisterAddress.style';
 import { KHeader, KText, KButton, RequestSendButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import AccountListItem from '../Accounts/components/AccountListItem';
-
 
 
 const FIOAddressActionsScreen = props => {
@@ -79,7 +79,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateAccountLists(account, json))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'checkRegPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const addAccountToConnectedList = (account) => {
@@ -98,6 +103,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const updateAccountLists = (account, json) => {
+    log(json);
     let accountPubkeyEntry = json.public_address;
     var accPubkey = '';
     if (account.chainName==='ALGO') {
@@ -149,7 +155,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const checkRegistration = pubkey => {
-    //console.log('checkRegistration '+pubkey);
     if (executionCount > 0) {
       return;
     }
@@ -166,7 +171,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateFioRegistration(json))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'checkRegistration - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getPendingFioRequests = async pubkey => {
@@ -184,7 +194,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updatePendingFioRequests(json.requests))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getPendingFioRequests - fetch https://fio.eostribe.io/v1/chain/get_pending_fio_requests',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getSentFioRequests = async pubkey => {
@@ -202,7 +217,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateSentFioRequests(json.requests))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getSentFioRequests - fetch https://fio.eostribe.io/v1/chain/get_sent_fio_requests',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getFioBalance = async pubkey => {
@@ -218,7 +238,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) : 0)))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFioBalance - fetch http://fio.eostribe.io/v1/chain/get_fio_balance',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getFee = async address => {
@@ -235,7 +260,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const updateActor = actor => {
@@ -287,7 +317,12 @@ const FIOAddressActionsScreen = props => {
       })
       .then(response => response.json())
       .then(json => updateExternalAccounts(value.chain_code, json.public_address))
-      .catch(error => console.log(error));
+      .catch(error => log({
+          description: 'loadExternalAccounts - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+          cause: error,
+          location: 'FIOAddressActionsScreen'
+        })
+      );
     });
   };
 
@@ -304,7 +339,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateActor(json.actor))
-      .catch(error => console.error(error));
+      .catch(error => log({
+          description: 'loadActor - fetch http://fio.eostribe.io/v1/chain/get_actor',
+          cause: error,
+          location: 'FIOAddressActionsScreen'
+        })
+      );
   };
 
   const registerFioAddress = () => {
@@ -409,7 +449,6 @@ const FIOAddressActionsScreen = props => {
 
   const _handleBackupKey = () => {
     const account = fioAccount
-    //console.log(account);
     navigate('PrivateKeyBackup', { account });
   };
 
