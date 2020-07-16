@@ -22,6 +22,7 @@ import { log } from '../../logger/logger';
 const FIOSendScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccount, setToAccount] = useState();
+  const [validToAccount, setValidToAccount] = useState();
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
   const [chainName, setChainName] = useState();
   const [amount, setAmount] = useState(0);
@@ -68,7 +69,7 @@ const FIOSendScreen = props => {
       setAddressInvalidMessage('Invalid address!');
     } else if (regcount === 1) {
       setAddressInvalidMessage('');
-      setToAccount(address);
+      setValidToAccount(address);
     } else if (error) {
       setAddressInvalidMessage('Error validating address');
     }
@@ -184,7 +185,7 @@ const FIOSendScreen = props => {
   };
 
   const _handleSubmit = () => {
-    if (!fromAccount || !toAccount || !chainName || !amount) {
+    if (!fromAccount || !validToAccount || !chainName || !amount) {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
@@ -196,7 +197,7 @@ const FIOSendScreen = props => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "fio_address": toAccount,
+        "fio_address": validToAccount,
         "chain_code": chainName,
         "token_code": chainName
       }),
@@ -269,7 +270,6 @@ const FIOSendScreen = props => {
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
           />
-          <View style={styles.spacer} />
           <KButton
             title={'Submit'}
             theme={'blue'}

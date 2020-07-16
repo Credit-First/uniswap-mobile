@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   error: {
-    padding: 10,
+    padding: 5,
     color: '#BF0F0F',
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
   button: {
-    marginTop: 8,
+    marginTop: 5,
   },
   hidden: {
     opacity: 0,
