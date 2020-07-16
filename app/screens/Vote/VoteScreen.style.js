@@ -12,6 +12,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  link: {
+    color: 'blue',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   header: {
     marginTop: 40,
   },

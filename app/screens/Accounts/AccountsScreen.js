@@ -7,6 +7,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
+import { log } from '../../logger/logger'
 
 
 const AccountsScreen = props => {
@@ -22,12 +23,16 @@ const AccountsScreen = props => {
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
 
+  const filteredAccounts = accounts.filter((value, index, array) => {
+    return !(value.chainName === 'FIO' && value.address === 'pending@tribe');
+  });
+
   const fioAccounts = accounts.filter((value, index, array) => {
-    return value.chainName == 'FIO';
+    return value.chainName === 'FIO';
   });
 
   const algoAccounts = accounts.filter((value, index, array) => {
-    return value.chainName == 'ALGO';
+    return value.chainName === 'ALGO';
   });
 
   const updateAccountLists = (account) => {
@@ -57,11 +62,68 @@ const AccountsScreen = props => {
     });
   };
 
+  const replacePendingFioAddress = (fioAddress) => {
+    // Delete old pending FIO account:
+    const index = findIndex(
+      accounts,
+      el =>
+        el.address === fioAccount.address &&
+        el.chainName === fioAccount.chainName,
+    );
+    deleteAccount(index);
+    // Connect new FIO account:
+    let account = { address: fioAddress, privateKey: privateKey, chainName: 'FIO' };
+    connectAccount(account);
+  };
+
+  const updateFioRegistration = json => {
+    console.log(json);
+    let fioAddresses = json.fio_addresses;
+    if (fioAddresses) {
+      fioAddresses.map(function(item) {
+        replacePendingFioAddress(item.fio_address);
+        console.log('Got registered address '+item.fio_address);
+      });
+    } else {
+      log({
+        description: 'updateFioRegistration - missing registration info',
+        cause: json,
+        location: 'ActionsScreen'
+      })
+    }
+  };
+
+  const checkPendingFIOAddressRegistration = async (account) => {
+    const privateKey = account.privateKey;
+    const publicKey = Ecc.privateToPublic(privateKey);
+    console.log('Checking pending registration for public key: '+publicKey);
+    fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fio_public_key: publicKey,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => updateFioRegistration(json))
+      .catch(error => log({
+        description: 'checkPendingFIOAddressRegistration - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+        cause: error,
+        location: 'ActionsScreen'
+      })
+    );
+  };
+
   const hasPendingFIOAddress = () => {
     let ret = false;
     fioAccounts.map((value, index, array) => {
       if (value.address === 'pending@tribe') {
         ret = true;
+        let account = value;
+        checkPendingFIOAddressRegistration(account);
       }
     });
     return ret;
@@ -132,7 +194,7 @@ const AccountsScreen = props => {
         resizeMode="contain"
       />
       <FlatList
-        data={accounts}
+        data={filteredAccounts}
         keyExtractor={(item, index) => `${index}`}
         renderItem={({ item, index }) => (
           <AccountListItem
