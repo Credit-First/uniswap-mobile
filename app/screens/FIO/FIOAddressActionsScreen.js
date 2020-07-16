@@ -26,7 +26,6 @@ import AccountListItem from '../Accounts/components/AccountListItem';
 const FIOAddressActionsScreen = props => {
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
   const [registrationLink, setRegistrationLink] = useState();
-  const [registerExternalAccButton, setRegisterExternalAccButton] = useState();
   const [executionCount, setExecutionCount] = useState(0);
   const [registered, setRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -129,9 +128,11 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
+
   const _handleConnectAccountToAddress = async account => {
     try {
       setLoading(true);
+      setFilteredAccounts(filteredAccounts.filter(function(item) { return item != account; }));
       if (account.chainName==='ALGO') {
         const res = await fioAddExternalAddress(fioAccount, 'ALGO', account.account.addr, fioFee);
         if (res && res.transaction_id) {
@@ -393,9 +394,6 @@ const FIOAddressActionsScreen = props => {
             checkRegPubkey(value);
           }
       });
-      setRegisterExternalAccButton(
-        <Text style={styles.link} onPress={_handleConnectExternalAccount}>{'Register external account'}</Text>
-      );
     } else {
       Alert.alert(json.message);
       setRegistered(false);
@@ -484,10 +482,6 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
-  const _handleConnectExternalAccount = () => {
-    navigate('FIORegisterExternal');
-  }
-
   if (executionCount === 0) {
     checkRegistration(fioKey);
   }
@@ -511,10 +505,8 @@ const FIOAddressActionsScreen = props => {
         <KText>Balance: {fioBalance} FIO</KText>
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
-        {registrationLink}
         <Text style={styles.link} onPress={_handleShowPendingRequests}>{pendingFioRequestsLink}</Text>
         <Text style={styles.link} onPress={_handleShowSentRequests}>{sentFioRequestsLink}</Text>
-        <View style={styles.spacer} />
         <KText>{connectedHeader}</KText>
         <FlatList
           data={connectedAccounts}
@@ -531,19 +523,11 @@ const FIOAddressActionsScreen = props => {
           )}
         />
         <KText>Connect accounts to this address:</KText>
-        {registerExternalAccButton}
         <FlatList
           data={filteredAccounts}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
-            <KButton
-              title={getConnectAccountText(item)}
-              theme={buttonColor}
-              style={styles.button}
-              isLoading={loading}
-              icon={'check'}
-              onPress={() => _handleConnectAccountToAddress(item)}
-            />
+            <Text style={styles.link} onPress={() => _handleConnectAccountToAddress(item)}>{getConnectAccountText(item)}</Text>
           )}
         />
         <RequestSendButtons
@@ -571,6 +555,7 @@ const FIOAddressActionsScreen = props => {
             )}
           />
           <Text style={styles.link} onPress={_handleRemoveAccount}>{'Remove this FIO address'}</Text>
+          {registrationLink}
       </View>
     </SafeAreaView>
   );

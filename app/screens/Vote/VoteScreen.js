@@ -155,6 +155,9 @@ const VoteScreen = props => {
     navigate('FIOAddressActions', { account });
   };
 
+  const _handleConnectExternalAccount = () => {
+    navigate('FIORegisterExternal');
+  }
 
   const activeAccount = accounts[activeAccountIndex];
   if (activeAccount && getChain(activeAccount.chainName) && activeAccount.chainName !== 'FIO') {
@@ -205,6 +208,8 @@ const VoteScreen = props => {
         <KButton title={'Register [address]@tribe'} theme={'brown'}
         style={styles.button} icon={'add'}
         onPress={_handleRegisterAddress}/>
+        <KButton title={'Register external account'} theme={'brown'}
+        style={styles.button} icon={'add'} onPress={_handleConnectExternalAccount}/>
         <KButton title={'Create Algorand account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         <KButton

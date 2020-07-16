@@ -77,12 +77,10 @@ const AccountsScreen = props => {
   };
 
   const updateFioRegistration = json => {
-    console.log(json);
     let fioAddresses = json.fio_addresses;
     if (fioAddresses) {
       fioAddresses.map(function(item) {
         replacePendingFioAddress(item.fio_address);
-        console.log('Got registered address '+item.fio_address);
       });
     } else {
       log({
@@ -96,7 +94,6 @@ const AccountsScreen = props => {
   const checkPendingFIOAddressRegistration = async (account) => {
     const privateKey = account.privateKey;
     const publicKey = Ecc.privateToPublic(privateKey);
-    console.log('Checking pending registration for public key: '+publicKey);
     fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {

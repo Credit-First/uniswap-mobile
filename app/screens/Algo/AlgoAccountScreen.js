@@ -121,7 +121,7 @@ const AlgoAccountScreen = props => {
         />
         <View style={styles.spacer} />
         <View style={styles.qrcode}>
-          <QRCode value={account.account.addr} size={200}/>
+          <QRCode value={account.account.addr} size={150}/>
         </View>
         <View style={styles.spacer} />
         <KButton
