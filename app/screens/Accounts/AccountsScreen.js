@@ -202,7 +202,7 @@ const AccountsScreen = props => {
         resizeMode="contain"
       />
       <FlatList
-        data={filteredAccounts}
+        data={accounts}
         keyExtractor={(item, index) => `${index}`}
         renderItem={({ item, index }) => (
           <AccountListItem
