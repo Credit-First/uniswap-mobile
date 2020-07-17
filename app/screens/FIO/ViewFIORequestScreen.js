@@ -18,6 +18,8 @@ import { getAccount, transfer } from '../../eos/eos';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
+import { log } from '../../logger/logger';
+
 
 const ViewFIORequestScreen = props => {
   const [transactionId, setTransactionId] = useState('');
@@ -55,6 +57,7 @@ const ViewFIORequestScreen = props => {
     decryptedContent = cipher.decrypt('new_funds_content', fioRequest.content);
   } catch(err) {
     Alert.alert("Error decrypting FIO Request: "+err);
+    log({ description: 'Error decrypting FIO Request', cause: err, location: 'ViewFIORequestScreen'});
   }
 
   const getRequestTitle = () => {
@@ -75,7 +78,12 @@ const ViewFIORequestScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFee(json.fee))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        cause: error,
+        location: 'ViewFIORequestScreen'
+      })
+    );
   };
 
   let chain = null;
@@ -112,8 +120,9 @@ const ViewFIORequestScreen = props => {
         fee);
       Alert.alert("FIO Request processed!");
       goBack();
-    } catch(e) {
-      Alert.alert(e.message);
+    } catch(err) {
+      Alert.alert(err.message);
+      log({ description: 'markFIORequestCompleted', cause: err, location: 'ViewFIORequestScreen'});
     }
   };
 
@@ -155,16 +164,16 @@ const ViewFIORequestScreen = props => {
         decryptedContent.memo,
         fromAccount,
         chain);
-      //console.log(res);
       if (res && res.transaction_id) {
         markFIORequestCompleted(res.transaction_id);
       } else {
   			Alert.alert("Something went wrong: " + res.message);
   		}
       setLoading(false);
-    } catch (e) {
+    } catch (err) {
       setLoading(false);
-      Alert.alert(e.message);
+      Alert.alert(err.message);
+      log({ description: 'doEOSIOTransfer', cause: err.message, location: 'ViewFIORequestScreen'});
     }
     return;
   };
@@ -192,9 +201,10 @@ const ViewFIORequestScreen = props => {
         floatAmount,
         decryptedContent.memo,
         markFIORequestCompleted);
-    } catch (e) {
+    } catch (err) {
       setLoading(false);
-      Alert.alert(e.message);
+      Alert.alert(err.message);
+      log({ description: 'doAlgoTransfer', cause: err.message, location: 'ViewFIORequestScreen'});
     }
     return;
   };
@@ -208,9 +218,10 @@ const ViewFIORequestScreen = props => {
           doEOSIOTransfer(chainName, toActorPubkey, fromActorPubkey);
         }
         setLoading(false);
-      } catch (e) {
+      } catch (err) {
         setLoading(false);
-        Alert.alert(e.message);
+        Alert.alert(err.message);
+        log({ description: 'handleFromToAccountTransfer', cause: err.message, location: 'ViewFIORequestScreen'});
       }
   };
 
@@ -232,10 +243,8 @@ const ViewFIORequestScreen = props => {
       .then(response => response.json())
       .then(json => handleFromToAccountTransfer(chainName, toActorPubkey, json.public_address))
       .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
-
     } catch (e) {
       Alert.alert('Error: '+e);
-      console.log(e);
       return;
     }
   };
@@ -271,11 +280,11 @@ const ViewFIORequestScreen = props => {
         transactionId,
         memo,
         fee);
-        //console.log(res);
       Alert.alert("Request processed!");
       goBack();
-    } catch(e) {
-      Alert.alert(e.message);
+    } catch(err) {
+      Alert.alert(err.message);
+      log({ description: '_handleExternalAccept', cause: err.message, location: 'ViewFIORequestScreen'});
     }
   };
 
@@ -284,8 +293,9 @@ const ViewFIORequestScreen = props => {
       const res = await rejectFundsRequest(fioAccount, fioRequest.fio_request_id, fee);
       Alert.alert("Request rejected!");
       goBack();
-    } catch(e) {
-      Alert.alert(e.message);
+    } catch(err) {
+      Alert.alert(err.message);
+      log({ description: '_handleReject', cause: err.message, location: 'ViewFIORequestScreen'});
     }
   };
 

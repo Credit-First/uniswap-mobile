@@ -16,6 +16,7 @@ import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import { log } from '../../logger/logger';
 
 
 const FIORequestScreen = props => {
@@ -58,7 +59,12 @@ const FIORequestScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        cause: error,
+        location: 'FIORequestScreen'
+      })
+    );
   };
 
   const getFioPubkey = async address => {
@@ -76,7 +82,12 @@ const FIORequestScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioPubkey(json.public_address))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'getFioPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        cause: error,
+        location: 'FIORequestScreen'
+      })
+    );
   }
 
   const _validateAddress = address => {
@@ -105,7 +116,11 @@ const FIORequestScreen = props => {
       setValidToAccount(address);
       getFioPubkey(address);
     } else if (error) {
-      console.error(error);
+      log({
+        description: 'updateAvailableState - error validating address',
+        cause: error,
+        location: 'FIORequestScreen'
+      });
       setAddressInvalidMessage('Error validating address');
     }
   };
@@ -124,12 +139,16 @@ const FIORequestScreen = props => {
         amount,
         memo,
         fioFee);
-      //console.log(res);
       setLoading(false);
       Alert.alert("FIO Request sent!");
-    } catch (e) {
+    } catch (err) {
       setLoading(false);
-      Alert.alert(e.message);
+      Alert.alert(err.message);
+      log({
+        description: '_handleSubmit - fioNewFundsRequest',
+        cause: err,
+        location: 'FIORequestScreen'
+      });
     }
   };
 

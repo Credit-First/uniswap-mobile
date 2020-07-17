@@ -14,8 +14,7 @@ const PinCodeScreen = ({ navigation }) => {
       const hasCode = await hasUserSetPinCode(pinCodeKeychainName);
       setStatus(hasCode ? 'enter' : 'choose');
       setLoading(false);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
       setStatus('choose');
       setLoading(false);
     }

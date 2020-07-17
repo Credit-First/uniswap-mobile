@@ -5,6 +5,7 @@ import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
 import { getChain } from '../../../eos/chains';
 import { getAccount } from '../../../eos/eos';
+import { log } from '../../../logger/logger';
 import {
   PRIMARY_GRAY,
   PRIMARY_BLACK,
@@ -22,8 +23,8 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   try {
     const accountInfo = await getAccount(account.accountName, chain);
     setAccountBalance(accountInfo.core_liquid_balance);
-  } catch (e) {
-    console.log('Error: ' + e);
+  } catch (err) {
+    log({ description: 'loadAccountBalance', cause: err, location: 'AccountListItem'});
     return;
   }
 };
@@ -43,9 +44,14 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
     })
       .then(response => response.json())
       .then(json => setAccountBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) + ' FIO' : 'validate')))
-      .catch(error => console.error(error));
-  } catch (e) {
-    console.log('Error: ' + e);
+      .catch(error => log({
+        description: 'loadFioAccountBalance - fetch http://fio.eostribe.io/v1/chain/get_fio_balance',
+        cause: error,
+        location: 'AccountListItem'
+      })
+    );
+  } catch (err) {
+    log({ description: 'loadFioAccountBalance', cause: err, location: 'AccountListItem'});
     return;
   }
 };
@@ -62,9 +68,14 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
     })
       .then(response => response.json())
       .then(json => setAccountBalance( (parseFloat(json.amount)/algoDivider).toFixed(4) + ' ALGO'))
-      .catch(error => console.log(error));
-  } catch (e) {
-    console.log('Error: ' + e);
+      .catch(error => log({
+        description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
+        cause: error,
+        location: 'AccountListItem'
+      })
+    );
+  } catch (err) {
+    log({ description: 'loadAlgoAccountBalance', cause: err, location: 'AccountListItem'});
     return;
   }
 };

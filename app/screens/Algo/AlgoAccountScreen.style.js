@@ -10,17 +10,17 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 10,
+    padding: 5,
   },
   header: {
-    marginTop: 10,
+    marginTop: 5,
   },
   qrcode: {
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   list: {
-    marginTop: 10,
+    marginTop: 5,
   },
   listItem: {
     marginTop: 5,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   spacer: {
-    marginTop: 10,
+    marginTop: 5,
   },
 });
 

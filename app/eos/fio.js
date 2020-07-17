@@ -10,7 +10,6 @@ const sendFioTransfer = async (fromFioAccount,
   toPublicKey,
   amount,
   memo) => {
-  //console.log("sendFioTransfer("+fromFioAccount+", "+toPublicKey+", "+amount+", "+memo+")");
   const privateKeys = [fromFioAccount.privateKey];
   const publicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
   const accountHash = Fio.accountHash(publicKey);
@@ -133,7 +132,6 @@ const rejectFundsRequest = async (payerFioAccount,
   var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  console.log(json);
   if (json.processed && json.processed.except) {
    throw new RpcError(json);
  }
@@ -177,7 +175,6 @@ const recordObtData = async (payerFioAccount,
       hash: null,
       offline_url: null
     };
-    //console.log(obtContent);
 
     const cipher = Fio.createSharedCipher({
       privateKey: payerPrivateKey,

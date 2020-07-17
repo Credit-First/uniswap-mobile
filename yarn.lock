@@ -6663,6 +6663,11 @@ react-native-crypto@^2.2.0:
     public-encrypt "^4.0.0"
     randomfill "^1.0.3"
 
+react-native-device-info@^5.6.2:
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-5.6.2.tgz#194c055355f1dd3121ab682b00598086cf4beb32"
+  integrity sha512-c+bVrvbQIlUlUHpIiggjhCUnqTga7sK0+G1RhRN25ct3kQvDkj3TKv0GGsqTJxIqNBfzg2Hh5ulMkrU0ddeu/Q==
+
 react-native-easy-grid@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/react-native-easy-grid/-/react-native-easy-grid-0.2.2.tgz#f0be33620be1ebe2d2295918eb58b0a27e8272ab"

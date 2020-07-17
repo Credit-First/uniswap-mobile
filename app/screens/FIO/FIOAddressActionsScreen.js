@@ -14,6 +14,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { externalChains } from '../../external/blockchains';
 import { fioAddPublicAddress, fioAddExternalAddress } from '../../eos/fio';
+import { log } from '../../logger/logger'
 import styles from './RegisterAddress.style';
 import { KHeader, KText, KButton, RequestSendButtons } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -22,11 +23,9 @@ import { findIndex } from 'lodash';
 import AccountListItem from '../Accounts/components/AccountListItem';
 
 
-
 const FIOAddressActionsScreen = props => {
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
   const [registrationLink, setRegistrationLink] = useState();
-  const [registerExternalAccButton, setRegisterExternalAccButton] = useState();
   const [executionCount, setExecutionCount] = useState(0);
   const [registered, setRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -79,7 +78,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateAccountLists(account, json))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'checkRegPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const addAccountToConnectedList = (account) => {
@@ -98,6 +102,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const updateAccountLists = (account, json) => {
+    log(json);
     let accountPubkeyEntry = json.public_address;
     var accPubkey = '';
     if (account.chainName==='ALGO') {
@@ -123,9 +128,11 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
+
   const _handleConnectAccountToAddress = async account => {
     try {
       setLoading(true);
+      setFilteredAccounts(filteredAccounts.filter(function(item) { return item != account; }));
       if (account.chainName==='ALGO') {
         const res = await fioAddExternalAddress(fioAccount, 'ALGO', account.account.addr, fioFee);
         if (res && res.transaction_id) {
@@ -149,7 +156,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const checkRegistration = pubkey => {
-    //console.log('checkRegistration '+pubkey);
     if (executionCount > 0) {
       return;
     }
@@ -166,7 +172,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateFioRegistration(json))
-      .catch(error => console.log(error));
+      .catch(error => log({
+        description: 'checkRegistration - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getPendingFioRequests = async pubkey => {
@@ -184,7 +195,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updatePendingFioRequests(json.requests))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getPendingFioRequests - fetch https://fio.eostribe.io/v1/chain/get_pending_fio_requests',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getSentFioRequests = async pubkey => {
@@ -202,7 +218,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateSentFioRequests(json.requests))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getSentFioRequests - fetch https://fio.eostribe.io/v1/chain/get_sent_fio_requests',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getFioBalance = async pubkey => {
@@ -218,7 +239,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) : 0)))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFioBalance - fetch http://fio.eostribe.io/v1/chain/get_fio_balance',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const getFee = async address => {
@@ -235,7 +261,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
-      .catch(error => console.error(error));
+      .catch(error => log({
+        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
   };
 
   const updateActor = actor => {
@@ -287,7 +318,12 @@ const FIOAddressActionsScreen = props => {
       })
       .then(response => response.json())
       .then(json => updateExternalAccounts(value.chain_code, json.public_address))
-      .catch(error => console.log(error));
+      .catch(error => log({
+          description: 'loadExternalAccounts - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+          cause: error,
+          location: 'FIOAddressActionsScreen'
+        })
+      );
     });
   };
 
@@ -304,7 +340,12 @@ const FIOAddressActionsScreen = props => {
     })
       .then(response => response.json())
       .then(json => updateActor(json.actor))
-      .catch(error => console.error(error));
+      .catch(error => log({
+          description: 'loadActor - fetch http://fio.eostribe.io/v1/chain/get_actor',
+          cause: error,
+          location: 'FIOAddressActionsScreen'
+        })
+      );
   };
 
   const registerFioAddress = () => {
@@ -353,9 +394,6 @@ const FIOAddressActionsScreen = props => {
             checkRegPubkey(value);
           }
       });
-      setRegisterExternalAccButton(
-        <Text style={styles.link} onPress={_handleConnectExternalAccount}>{'Register external account'}</Text>
-      );
     } else {
       Alert.alert(json.message);
       setRegistered(false);
@@ -409,7 +447,6 @@ const FIOAddressActionsScreen = props => {
 
   const _handleBackupKey = () => {
     const account = fioAccount
-    //console.log(account);
     navigate('PrivateKeyBackup', { account });
   };
 
@@ -445,10 +482,6 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
-  const _handleConnectExternalAccount = () => {
-    navigate('FIORegisterExternal');
-  }
-
   if (executionCount === 0) {
     checkRegistration(fioKey);
   }
@@ -472,10 +505,8 @@ const FIOAddressActionsScreen = props => {
         <KText>Balance: {fioBalance} FIO</KText>
         <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
-        {registrationLink}
         <Text style={styles.link} onPress={_handleShowPendingRequests}>{pendingFioRequestsLink}</Text>
         <Text style={styles.link} onPress={_handleShowSentRequests}>{sentFioRequestsLink}</Text>
-        <View style={styles.spacer} />
         <KText>{connectedHeader}</KText>
         <FlatList
           data={connectedAccounts}
@@ -492,19 +523,11 @@ const FIOAddressActionsScreen = props => {
           )}
         />
         <KText>Connect accounts to this address:</KText>
-        {registerExternalAccButton}
         <FlatList
           data={filteredAccounts}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
-            <KButton
-              title={getConnectAccountText(item)}
-              theme={buttonColor}
-              style={styles.button}
-              isLoading={loading}
-              icon={'check'}
-              onPress={() => _handleConnectAccountToAddress(item)}
-            />
+            <Text style={styles.link} onPress={() => _handleConnectAccountToAddress(item)}>{getConnectAccountText(item)}</Text>
           )}
         />
         <RequestSendButtons
@@ -532,6 +555,7 @@ const FIOAddressActionsScreen = props => {
             )}
           />
           <Text style={styles.link} onPress={_handleRemoveAccount}>{'Remove this FIO address'}</Text>
+          {registrationLink}
       </View>
     </SafeAreaView>
   );

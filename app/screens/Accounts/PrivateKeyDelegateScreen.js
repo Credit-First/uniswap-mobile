@@ -10,6 +10,8 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { fioDelegateSecretRequest } from '../../eos/fio';
 import CryptoJS from "react-native-crypto-js";
 import algosdk from 'algosdk';
+import { log } from '../../logger/logger';
+
 
 const PrivateKeyDelegateScreen = props => {
 
@@ -56,7 +58,12 @@ const _handleGuardian1Change = (address) => {
 	})
 		.then(response => response.json())
 		.then(json => setGuardian1Pubkey(json.public_address))
-		.catch(error => console.log(error));
+		.catch(error => log({
+			description: '_handleGuardian1Change - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+			cause: error,
+			location: 'PrivateKeyDelegateScreen'
+		})
+	);
 };
 
 const _handleGuardian2Change = (address) => {
@@ -75,7 +82,12 @@ const _handleGuardian2Change = (address) => {
 	})
 		.then(response => response.json())
 		.then(json => setGuardian2Pubkey(json.public_address))
-		.catch(error => console.log(error));
+		.catch(error => log({
+			description: '_handleGuardian2Change - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+			cause: error,
+			location: 'PrivateKeyDelegateScreen'
+		})
+	);
 };
 
 const _delegateKey = async () => {
@@ -104,7 +116,6 @@ const _delegateKey = async () => {
 			email,
 			firstHalf,
 			0);
-		//console.log(res1);
 		if (res1 && res1.transaction_id) {
 			const res2 = await fioDelegateSecretRequest(fromAccount,
 				guardian2,
@@ -113,7 +124,6 @@ const _delegateKey = async () => {
 				email,
 				secondHalf,
 				0);
-			//console.log(res2);
 			setLoading(false);
 			if (res2 && res2.transaction_id) {
 				Alert.alert("Private key encrypted, segmented and delegated!");
@@ -127,6 +137,11 @@ const _delegateKey = async () => {
 	} catch (err) {
 		setLoading(false);
 		Alert.alert(err.message);
+		log({
+			description: '_delegateKey - fioDelegateSecretRequest',
+			cause: err.message,
+			location: 'PrivateKeyDelegateScreen'
+		});
 	}
 };
 

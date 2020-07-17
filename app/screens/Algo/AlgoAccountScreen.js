@@ -18,6 +18,8 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import algosdk from 'algosdk';
+import { log } from '../../logger/logger';
+
 
 const AlgoAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
@@ -53,9 +55,14 @@ const AlgoAccountScreen = props => {
       })
         .then(response => response.json())
         .then(json => setAccountStats(json))
-        .catch(error => console.log(error));
-    } catch (e) {
-      console.log('Error: ' + e);
+        .catch(error => log({
+          description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
+          cause: error,
+          location: 'AlgoAccountScreen'
+        })
+      );
+    } catch (err) {
+      log({ description: 'loadAlgoAccountBalance', cause: err, location: 'AlgoAccountScreen'});
       return;
     }
   };
@@ -114,7 +121,7 @@ const AlgoAccountScreen = props => {
         />
         <View style={styles.spacer} />
         <View style={styles.qrcode}>
-          <QRCode value={account.account.addr} size={200}/>
+          <QRCode value={account.account.addr} size={150}/>
         </View>
         <View style={styles.spacer} />
         <KButton

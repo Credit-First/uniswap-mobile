@@ -17,6 +17,7 @@ import { supportedChains } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { getAccount } from '../../eos/eos';
+import { log } from '../../logger/logger';
 
 
 const ConnectAccountScreen = props => {
@@ -34,7 +35,6 @@ const ConnectAccountScreen = props => {
     if (fioAddresses) {
       fioAddresses.map(function(item) {
         let address = item.fio_address;
-        //console.log('Connecting FIO address '+address);
         connectAccount({ address: address, privateKey: privateKey, chainName: 'FIO' });
       });
     }
@@ -74,12 +74,18 @@ const ConnectAccountScreen = props => {
         })
         .then(response => response.json())
         .then(json => connectFioAccount(json.fio_addresses))
-        .catch(error => console.log(error));
+        .catch(error => log({
+          description: '_handleConnect - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+          cause: error,
+          location: 'ConnectAccountScreen'
+        })
+      );
     } else {
       connectAccount({ accountName, privateKey, chainName: chain.name });
     }
     goBack();
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
