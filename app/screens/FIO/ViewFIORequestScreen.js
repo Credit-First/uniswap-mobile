@@ -16,7 +16,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { getChain } from '../../eos/chains';
+import { getChain, getAvailableEndpoint } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
 import { log } from '../../logger/logger';
 
@@ -26,7 +26,7 @@ const ViewFIORequestScreen = props => {
   const [memo, setMemo] = useState('');
   const [fee, setFee] = useState(0);
   const [loading, setLoading] = useState(false);
-
+  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     route: {
@@ -65,7 +65,8 @@ const ViewFIORequestScreen = props => {
   }
 
   const getFee = async address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -79,7 +80,7 @@ const ViewFIORequestScreen = props => {
       .then(response => response.json())
       .then(json => setFee(json.fee))
       .catch(error => log({
-        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        description: 'getFee - fetch ' + fioEndpoint + '/v1/chain/get_fee',
         cause: error,
         location: 'ViewFIORequestScreen'
       })
@@ -228,7 +229,8 @@ const ViewFIORequestScreen = props => {
   const handleToAccountAddress = async (chainName, toActorPubkey) => {
     try {
       // Now load corresponding from account
-      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+      fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -252,7 +254,8 @@ const ViewFIORequestScreen = props => {
   const _handleTransferAndAccept = async () => {
     const chainName = decryptedContent.chain_code
     const toFioAddress = decryptedContent.payee_public_address;
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

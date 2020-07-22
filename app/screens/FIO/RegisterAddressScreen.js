@@ -3,66 +3,104 @@ import { SafeAreaView, View, TouchableOpacity, Linking } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ecc from 'eosjs-ecc-rn';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
 import styles from './RegisterAddress.style';
 import { KHeader, KInput, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
-;
+import { getAvailableEndpoint } from '../../eos/chains';
+
 
 const RegisterAddressScreen = props => {
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
   const [checkState, setCheckState] = useState('Checking');
+  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     connectAccount,
     navigation: { goBack },
   } = props;
 
-  const _checkAvailable = address => {
+  const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
+
+  const _checkAvailable = async address => {
     setAddress(address);
     setAvailable(false);
     setCheckState('Checking');
     if (address.length > 6 && address.endsWith('@tribe')) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+      console.log(fioEndpoint+'/v1/chain/avail_check: '+address);
+      fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fio_name: address,
+          fio_name: address
         }),
       })
         .then(response => response.json())
-        .then(json => updateAvailableState(json.is_registered, false))
-        .catch(error => updateAvailableState(-1, error));
+        .then(json => updateAvailableState(json))
+        .catch(error => updateAvailableState({is_registered:-1}, error));
     }
   };
 
-  const updateAvailableState = (regcount, error) => {
+  const updateAvailableState = (json, error) => {
+    console.log(json);
+    let regcount = json.is_registered;
     if (regcount === 0) {
       setAvailable(true);
       setCheckState('Available');
     } else if (regcount === 1) {
       setAvailable(false);
       setCheckState('Not available');
-    } else if (error) {
+    } else {
       setAvailable(false);
       setCheckState('Error');
       log({ description: 'updateAvailableState', cause: error, location: 'RegisterAddressScreen'});
     }
   };
 
-  const _nextRegister = () => {
+  const connectFioAccount = (json, fioAccount) => {
+    if(json.success) {
+      connectAccount(fioAccount);
+      Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
+    } else {
+      reportError(json);
+    }
+  };
+
+  const reportError = (error) => {
+    Alert.alert('Failed to register FIO address with error '+error);
+    log({
+      description: 'FIO address registration error',
+      cause: error,
+      location: 'RegisterAddressScreen'
+    })
+  };
+
+  const _nextRegister = async () => {
     ecc.randomKey().then(privateKey => {
-      const pubKey = ecc.privateToPublic(privateKey);
-      const fioKey = 'FIO' + pubKey.substring(3);
-      connectAccount({ address, privateKey, chainName: 'FIO' });
-      var registerUrl =
-        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
-      Linking.openURL(registerUrl);
-      goBack();
+      const fioPubkey = Ecc.privateToPublic(privateKey);
+      const fioAccount = { address, privateKey, chainName: 'FIO' };
+      fetch('https://reg.fioprotocol.io/public-api/buy-address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "referralCode":"tribe",
+          "publicKey":fioPubkey,
+          "address":address,
+          "apiToken":apiToken
+        }),
+      })
+        .then(response => response.json())
+        .then(json => connectFioAccount(json, fioAccount))
+        .catch(error => reportError(error));
     });
   };
 

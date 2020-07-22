@@ -54,6 +54,8 @@ const AccountsScreen = props => {
   };
 
   const _handleRegisterAddress = () => {
+    navigate('RegisterAddress');
+    /*
     ecc.randomKey().then(privateKey => {
       const fioKey = Ecc.privateToPublic(privateKey);
       const address = 'pending@tribe';
@@ -61,7 +63,7 @@ const AccountsScreen = props => {
       var registerUrl =
         'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
       Linking.openURL(registerUrl);
-    });
+    }); */
   };
 
   const replacePendingFioAddress = (fioAddress, fioAccount) => {

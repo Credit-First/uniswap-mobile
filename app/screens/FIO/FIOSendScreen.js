@@ -14,7 +14,10 @@ import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { supportedChains, getChain } from '../../eos/chains';
+import {
+  supportedChains,
+  getChain,
+  getAvailableEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -28,7 +31,7 @@ const FIOSendScreen = props => {
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     accountsState: { accounts },
@@ -46,9 +49,10 @@ const FIOSendScreen = props => {
     setFromAccount(value);
   };
 
-  const _validateAddress = address => {
+  const _validateAddress = async address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+      fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -161,8 +165,8 @@ const FIOSendScreen = props => {
 
   const handleToAccountAddress = async (toAccountPubkey) => {
     try {
-      // Now load corresponding from account
-      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+      fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -184,13 +188,14 @@ const FIOSendScreen = props => {
     }
   };
 
-  const _handleSubmit = () => {
+  const _handleSubmit = async () => {
     if (!fromAccount || !validToAccount || !chainName || !amount) {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
     // Load toAccount actor,publicKey:
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

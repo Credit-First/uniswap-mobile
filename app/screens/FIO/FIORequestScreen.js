@@ -14,7 +14,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
-import { getChain } from '../../eos/chains';
+import { getChain, getAvailableEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -30,7 +30,7 @@ const FIORequestScreen = props => {
   const [fioFee, setFioFee] = useState(0);
   const [fioPubkey, setFioPubkey] = useState(); // payee public key
   const [loading, setLoading] = useState(false);
-
+  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     accountsState: { accounts },
@@ -45,8 +45,9 @@ const FIORequestScreen = props => {
     getFee(value.address);
   };
 
-  const getFee = address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+  const getFee = async address => {
+    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -68,7 +69,8 @@ const FIORequestScreen = props => {
   };
 
   const getFioPubkey = async address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -90,9 +92,10 @@ const FIORequestScreen = props => {
     );
   }
 
-  const _validateAddress = address => {
+  const _validateAddress = async address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+      fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
