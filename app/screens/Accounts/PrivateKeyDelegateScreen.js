@@ -44,7 +44,7 @@ const fioAccounts = accounts.filter((value, index, array) => {
 
 const _handleGuardian1Change = (address) => {
 	setGuardian1(address);
-	fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+	fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',
@@ -59,7 +59,7 @@ const _handleGuardian1Change = (address) => {
 		.then(response => response.json())
 		.then(json => setGuardian1Pubkey(json.public_address))
 		.catch(error => log({
-			description: '_handleGuardian1Change - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+			description: '_handleGuardian1Change - fetch http://fio.greymass.com/v1/chain/get_pub_address',
 			cause: error,
 			location: 'PrivateKeyDelegateScreen'
 		})
@@ -68,7 +68,7 @@ const _handleGuardian1Change = (address) => {
 
 const _handleGuardian2Change = (address) => {
 	setGuardian2(address);
-	fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+	fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',
@@ -83,7 +83,7 @@ const _handleGuardian2Change = (address) => {
 		.then(response => response.json())
 		.then(json => setGuardian2Pubkey(json.public_address))
 		.catch(error => log({
-			description: '_handleGuardian2Change - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+			description: '_handleGuardian2Change - fetch http://fio.greymass.com/v1/chain/get_pub_address',
 			cause: error,
 			location: 'PrivateKeyDelegateScreen'
 		})

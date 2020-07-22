@@ -38,7 +38,7 @@ const supportedChains = [
     name: 'FIO',
     symbol: 'FIO',
     icon: require('../../assets/chains/eos.png'),
-    endpoint: 'https://fio.eostribe.io',
+    endpoint: 'https://fio.greymass.com',
     newdexAccount: null,
   },
 ];

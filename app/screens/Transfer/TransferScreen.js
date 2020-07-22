@@ -50,7 +50,7 @@ const TransferScreen = props => {
 
   const loadToPubkey = async address => {
     let chainCode = (fromAccount.chainName === 'Telos') ? 'TLOS' : fromAccount.chainName;
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -65,7 +65,7 @@ const TransferScreen = props => {
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
       .catch(error => log({
-        description: 'loadToPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        description: 'loadToPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
         cause: error,
         location: 'ViewFIORequestScreen'
       })
@@ -74,7 +74,7 @@ const TransferScreen = props => {
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      fetch('http://fio.greymass.com/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

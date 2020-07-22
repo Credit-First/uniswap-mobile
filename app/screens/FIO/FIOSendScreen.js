@@ -48,7 +48,7 @@ const FIOSendScreen = props => {
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      fetch('http://fio.greymass.com/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -162,7 +162,7 @@ const FIOSendScreen = props => {
   const handleToAccountAddress = async (toAccountPubkey) => {
     try {
       // Now load corresponding from account
-      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -190,7 +190,7 @@ const FIOSendScreen = props => {
       return;
     }
     // Load toAccount actor,publicKey:
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

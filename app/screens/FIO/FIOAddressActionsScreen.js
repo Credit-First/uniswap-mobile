@@ -64,7 +64,7 @@ const FIOAddressActionsScreen = props => {
     if(chainName == "Telos") {
       chainName = "TLOS";
     }
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -79,7 +79,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateAccountLists(account, json))
       .catch(error => log({
-        description: 'checkRegPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        description: 'checkRegPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -160,7 +160,7 @@ const FIOAddressActionsScreen = props => {
       return;
     }
     setExecutionCount(1);
-    fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
+    fetch('http://fio.greymass.com/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -173,7 +173,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateFioRegistration(json))
       .catch(error => log({
-        description: 'checkRegistration - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+        description: 'checkRegistration - fetch http://fio.greymass.com/v1/chain/get_fio_names',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -181,7 +181,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getPendingFioRequests = async pubkey => {
-    fetch('http://fio.eostribe.io/v1/chain/get_pending_fio_requests', {
+    fetch('http://fio.greymass.com/v1/chain/get_pending_fio_requests', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -196,7 +196,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updatePendingFioRequests(json.requests))
       .catch(error => log({
-        description: 'getPendingFioRequests - fetch https://fio.eostribe.io/v1/chain/get_pending_fio_requests',
+        description: 'getPendingFioRequests - fetch https://fio.greymass.com/v1/chain/get_pending_fio_requests',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -204,7 +204,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getSentFioRequests = async pubkey => {
-    fetch('http://fio.eostribe.io/v1/chain/get_sent_fio_requests', {
+    fetch('http://fio.greymass.com/v1/chain/get_sent_fio_requests', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -219,7 +219,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateSentFioRequests(json.requests))
       .catch(error => log({
-        description: 'getSentFioRequests - fetch https://fio.eostribe.io/v1/chain/get_sent_fio_requests',
+        description: 'getSentFioRequests - fetch https://fio.greymass.com/v1/chain/get_sent_fio_requests',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -227,7 +227,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFioBalance = async pubkey => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fio_balance', {
+    fetch('http://fio.greymass.com/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -240,7 +240,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => setFioBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) : 0)))
       .catch(error => log({
-        description: 'getFioBalance - fetch http://fio.eostribe.io/v1/chain/get_fio_balance',
+        description: 'getFioBalance - fetch http://fio.greymass.com/v1/chain/get_fio_balance',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -248,7 +248,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFee = async address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+    fetch('http://fio.greymass.com/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -262,7 +262,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
       .catch(error => log({
-        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        description: 'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -304,7 +304,7 @@ const FIOAddressActionsScreen = props => {
 
   const loadExternalAccounts = () => {
     externalChains.map((value, index, array) => {
-      fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+      fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -319,7 +319,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateExternalAccounts(value.chain_code, json.public_address))
       .catch(error => log({
-          description: 'loadExternalAccounts - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+          description: 'loadExternalAccounts - fetch http://fio.greymass.com/v1/chain/get_pub_address',
           cause: error,
           location: 'FIOAddressActionsScreen'
         })
@@ -328,7 +328,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadActor = async pubkey => {
-    fetch('http://fio.eostribe.io/v1/chain/get_actor', {
+    fetch('http://fio.greymass.com/v1/chain/get_actor', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -341,7 +341,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateActor(json.actor))
       .catch(error => log({
-          description: 'loadActor - fetch http://fio.eostribe.io/v1/chain/get_actor',
+          description: 'loadActor - fetch http://fio.greymass.com/v1/chain/get_actor',
           cause: error,
           location: 'FIOAddressActionsScreen'
         })

@@ -24,7 +24,7 @@ const RegisterAddressScreen = props => {
     setAvailable(false);
     setCheckState('Checking');
     if (address.length > 6 && address.endsWith('@tribe')) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      fetch('http://fio.greymass.com/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

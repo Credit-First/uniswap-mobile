@@ -32,7 +32,7 @@ const loadAccountBalance = async (account, setAccountBalance) => {
 const loadFioAccountBalance = async (account, setAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
-    fetch('http://fio.eostribe.io/v1/chain/get_fio_balance', {
+    fetch('http://fio.greymass.com/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -45,7 +45,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       .then(response => response.json())
       .then(json => setAccountBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) + ' FIO' : 'validate')))
       .catch(error => log({
-        description: 'loadFioAccountBalance - fetch http://fio.eostribe.io/v1/chain/get_fio_balance',
+        description: 'loadFioAccountBalance - fetch http://fio.greymass.com/v1/chain/get_fio_balance',
         cause: error,
         location: 'AccountListItem'
       })

@@ -38,7 +38,7 @@ const FIORegisterExternalScreen = props => {
   };
 
   const getFee = async address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+    fetch('http://fio.greymass.com/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

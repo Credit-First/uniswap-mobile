@@ -46,7 +46,7 @@ const FIORequestScreen = props => {
   };
 
   const getFee = address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_fee', {
+    fetch('http://fio.greymass.com/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -60,7 +60,7 @@ const FIORequestScreen = props => {
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
       .catch(error => log({
-        description: 'getFee - fetch http://fio.eostribe.io/v1/chain/get_fee',
+        description: 'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
         cause: error,
         location: 'FIORequestScreen'
       })
@@ -68,7 +68,7 @@ const FIORequestScreen = props => {
   };
 
   const getFioPubkey = async address => {
-    fetch('http://fio.eostribe.io/v1/chain/get_pub_address', {
+    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -83,7 +83,7 @@ const FIORequestScreen = props => {
       .then(response => response.json())
       .then(json => setFioPubkey(json.public_address))
       .catch(error => log({
-        description: 'getFioPubkey - fetch http://fio.eostribe.io/v1/chain/get_pub_address',
+        description: 'getFioPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
         cause: error,
         location: 'FIORequestScreen'
       })
@@ -92,7 +92,7 @@ const FIORequestScreen = props => {
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.eostribe.io/v1/chain/avail_check', {
+      fetch('http://fio.greymass.com/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
