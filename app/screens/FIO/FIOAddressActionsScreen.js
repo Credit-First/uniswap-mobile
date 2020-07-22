@@ -181,7 +181,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getPendingFioRequests = async pubkey => {
-    fetch('https://fio.eostribe.io/v1/chain/get_pending_fio_requests', {
+    fetch('http://fio.eostribe.io/v1/chain/get_pending_fio_requests', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -204,7 +204,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getSentFioRequests = async pubkey => {
-    fetch('https://fio.eostribe.io/v1/chain/get_sent_fio_requests', {
+    fetch('http://fio.eostribe.io/v1/chain/get_sent_fio_requests', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

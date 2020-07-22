@@ -59,7 +59,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
 const loadAlgoAccountBalance = async (account, setAccountBalance) => {
   try {
     const addr = account.account.addr;
-    fetch('https://algo.eostribe.io/v1/account/'+addr, {
+    fetch('http://algo.eostribe.io/v1/account/'+addr, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
