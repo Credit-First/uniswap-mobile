@@ -25,10 +25,6 @@ const AccountsScreen = props => {
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
 
-  const filteredAccounts = accounts.filter((value, index, array) => {
-    return !(value.chainName === 'FIO' && value.address === 'pending@tribe');
-  });
-
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'FIO';
   });
@@ -153,7 +149,7 @@ const AccountsScreen = props => {
           <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
           <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
-    } else if(fioAccounts.length >= 0) {
+    } else if(fioAccounts.length == 0) {
       optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
     } else if(algoAccounts.length == 0) {
       optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;

@@ -4,7 +4,6 @@ import { get } from 'lodash';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import algosdk from 'algosdk';
-
 import styles from './VoteScreen.style';
 import { KHeader, KButton, KText } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -35,9 +34,6 @@ const VoteScreen = props => {
   const [refundingBalance, setRefundingBalance] = useState('0.0000');
   const [totalStaked, setTotalStaked] = useState('0.0000');
 
-  const pendingFioAccounts = accounts.filter((value, index, array) => {
-    return (value.chainName === 'FIO' && value.address === 'pending@tribe');
-  });
 
   useEffect(() => {
     const fetchProducers = async () => {
@@ -131,14 +127,7 @@ const VoteScreen = props => {
 
   // Extra wallet actions:
   const _handleRegisterAddress = () => {
-    ecc.randomKey().then(privateKey => {
-      const fioKey = Ecc.privateToPublic(privateKey);
-      const address = 'pending@tribe';
-      connectAccount({ address, privateKey, chainName: 'FIO' });
-      var registerUrl =
-        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
-      Linking.openURL(registerUrl);
-    });
+    navigate('RegisterAddress');
   };
 
   const _handleCreateAlgorandAccount = () => {
@@ -217,14 +206,6 @@ const VoteScreen = props => {
           theme={'blue'}
           style={styles.button}
           onPress={() => navigate('ConnectAccount')}
-        />
-        <KHeader title={'Pending FIO registrations:'} style={styles.header}/>
-        <FlatList
-          data={pendingFioAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <Text style={styles.link} onPress={() => loadFioAccount(item)}>{item.address} [{item.privateKey.substring(0,5)}..]</Text>
-          )}
         />
       </View>
     </SafeAreaView>

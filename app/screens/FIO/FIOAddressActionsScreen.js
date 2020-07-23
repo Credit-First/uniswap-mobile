@@ -67,7 +67,7 @@ const FIOAddressActionsScreen = props => {
     if(chainName == "Telos") {
       chainName = "TLOS";
     }
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
@@ -164,7 +164,7 @@ const FIOAddressActionsScreen = props => {
       return;
     }
     setExecutionCount(1);
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
@@ -186,7 +186,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getPendingFioRequests = async pubkey => {
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_pending_fio_requests', {
       method: 'POST',
       headers: {
@@ -210,7 +210,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getSentFioRequests = async pubkey => {
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_sent_fio_requests', {
       method: 'POST',
       headers: {
@@ -234,7 +234,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFioBalance = async pubkey => {
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
@@ -256,7 +256,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFee = async address => {
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
@@ -312,7 +312,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadExternalAccounts = async () => {
-    console.log(fioEndpoint);
+
     externalChains.map((value, index, array) => {
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
@@ -338,7 +338,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadActor = async pubkey => {
-    console.log(fioEndpoint);
+
     fetch(fioEndpoint+'/v1/chain/get_actor', {
       method: 'POST',
       headers: {
