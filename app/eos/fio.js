@@ -3,7 +3,7 @@ import ecc from 'eosjs-ecc-rn';
 import { Api } from '@fioprotocol/fiojs/dist/chain-api';
 import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
 import { TextEncoder, TextDecoder } from 'text-encoding';
-import { getAvailableEndpoint } from './chains';
+import { getEndpoint } from './chains';
 
 // Currently FIO transfers are not allowed
 const sendFioTransfer = async (fromFioAccount,
@@ -15,7 +15,7 @@ const sendFioTransfer = async (fromFioAccount,
   const accountHash = Fio.accountHash(publicKey);
   const toActor = Fio.accountHash(toPublicKey);
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
@@ -83,7 +83,7 @@ const rejectFundsRequest = async (payerFioAccount,
   const payerActor = payerFioAccount.accountName;
   const payerPrivateKey = payerFioAccount.privateKey;
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
@@ -153,7 +153,7 @@ const recordObtData = async (payerFioAccount,
     const payerPrivateKey = payerFioAccount.privateKey;
     const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
 
-    const fioEndpoint = await getAvailableEndpoint('FIO');
+    const fioEndpoint = getEndpoint('FIO');
     const rpc = new JsonRpc(fioEndpoint);
 
     const info = await rpc.get_info();
@@ -243,7 +243,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
@@ -330,7 +330,7 @@ const fioNewFundsRequest = async (fromFioAccount,
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
@@ -409,7 +409,7 @@ const fioNewFundsRequest = async (fromFioAccount,
 // Used to add EOSIO accounts to FIO Address
 const fioAddPublicAddress = async (fioAccount, account, fee) => {
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
@@ -480,7 +480,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
 // Used to add external accounts (BTC, ETH, etc) pubkey to FIO address
 const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
 
-  const fioEndpoint = await getAvailableEndpoint('FIO');
+  const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();

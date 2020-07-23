@@ -55,15 +55,6 @@ const AccountsScreen = props => {
 
   const _handleRegisterAddress = () => {
     navigate('RegisterAddress');
-    /*
-    ecc.randomKey().then(privateKey => {
-      const fioKey = Ecc.privateToPublic(privateKey);
-      const address = 'pending@tribe';
-      connectAccount({ address, privateKey, chainName: 'FIO' });
-      var registerUrl =
-        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
-      Linking.openURL(registerUrl);
-    }); */
   };
 
   const replacePendingFioAddress = (fioAddress, fioAccount) => {
@@ -162,7 +153,7 @@ const AccountsScreen = props => {
           <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
           <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
-    } else if(fioAccounts.length == 0) {
+    } else if(fioAccounts.length >= 0) {
       optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
     } else if(algoAccounts.length == 0) {
       optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;

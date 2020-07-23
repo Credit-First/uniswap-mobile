@@ -17,7 +17,7 @@ import { submitAlgoTransaction } from '../../algo/algo';
 import {
   supportedChains,
   getChain,
-  getAvailableEndpoint } from '../../eos/chains';
+  getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -31,11 +31,12 @@ const FIOSendScreen = props => {
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(false);
-  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     accountsState: { accounts },
   } = props;
+
+  const fioEndpoint = getEndpoint('FIO');
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'FIO';
@@ -51,7 +52,6 @@ const FIOSendScreen = props => {
 
   const _validateAddress = async address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
       fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
@@ -165,7 +165,6 @@ const FIOSendScreen = props => {
 
   const handleToAccountAddress = async (toAccountPubkey) => {
     try {
-      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
@@ -194,7 +193,6 @@ const FIOSendScreen = props => {
       return;
     }
     // Load toAccount actor,publicKey:
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {

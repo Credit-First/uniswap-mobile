@@ -16,7 +16,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { getChain, getAvailableEndpoint } from '../../eos/chains';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
 import { log } from '../../logger/logger';
 
@@ -26,7 +26,6 @@ const ViewFIORequestScreen = props => {
   const [memo, setMemo] = useState('');
   const [fee, setFee] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     route: {
@@ -39,6 +38,7 @@ const ViewFIORequestScreen = props => {
     accountsState: { accounts },
   } = props;
 
+  const fioEndpoint = getEndpoint('FIO');
 
   var otherPublicKey = fioRequest.payer_fio_public_key;
   if (fioAccount.address == fioRequest.payer_fio_address) {
@@ -65,7 +65,6 @@ const ViewFIORequestScreen = props => {
   }
 
   const getFee = async address => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
@@ -229,7 +228,6 @@ const ViewFIORequestScreen = props => {
   const handleToAccountAddress = async (chainName, toActorPubkey) => {
     try {
       // Now load corresponding from account
-      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
@@ -254,7 +252,6 @@ const ViewFIORequestScreen = props => {
   const _handleTransferAndAccept = async () => {
     const chainName = decryptedContent.chain_code
     const toFioAddress = decryptedContent.payee_public_address;
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {

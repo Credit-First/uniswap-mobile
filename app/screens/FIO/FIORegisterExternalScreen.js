@@ -14,7 +14,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
-import { getAvailableEndpoint } from '../../eos/chains';
+import { getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
@@ -23,11 +23,12 @@ const FIORegisterExternalScreen = props => {
   const [chain, setChain] = useState();
   const [publicKey, setPublicKey] = useState();
   const [fee, setFee] = useState(0);
-  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     navigation: { navigate, goBack },
     accountsState: { accounts },
   } = props;
+
+  const fioEndpoint = getEndpoint('FIO');
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName == 'FIO';
@@ -39,7 +40,6 @@ const FIORegisterExternalScreen = props => {
   };
 
   const getFee = async address => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {

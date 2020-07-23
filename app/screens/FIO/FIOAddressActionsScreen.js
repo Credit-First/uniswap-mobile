@@ -20,7 +20,7 @@ import { KHeader, KText, KButton, RequestSendButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import { getAvailableEndpoint } from '../../eos/chains';
+import { getEndpoint } from '../../eos/chains';
 import AccountListItem from '../Accounts/components/AccountListItem';
 
 
@@ -38,7 +38,6 @@ const FIOAddressActionsScreen = props => {
   const [sentFioRequestsLink, setSentFioRequestsLink] = useState('');
   const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
-  const [fioEndpoint, setFioEndpoint] = useState();
   var initialConnectedAccounts = [];
   var initialFilteredAccounts = [];
   var initialExternalAccounts = [];
@@ -60,6 +59,7 @@ const FIOAddressActionsScreen = props => {
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
   const fioKey = Ecc.privateToPublic(privateKey);
+  const fioEndpoint = getEndpoint('FIO');
 
 
   const checkRegPubkey = async account => {
@@ -67,7 +67,7 @@ const FIOAddressActionsScreen = props => {
     if(chainName == "Telos") {
       chainName = "TLOS";
     }
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
@@ -164,7 +164,7 @@ const FIOAddressActionsScreen = props => {
       return;
     }
     setExecutionCount(1);
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
@@ -186,7 +186,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getPendingFioRequests = async pubkey => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_pending_fio_requests', {
       method: 'POST',
       headers: {
@@ -210,7 +210,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getSentFioRequests = async pubkey => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_sent_fio_requests', {
       method: 'POST',
       headers: {
@@ -234,7 +234,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFioBalance = async pubkey => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
@@ -256,7 +256,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFee = async address => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
@@ -312,7 +312,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadExternalAccounts = async () => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     externalChains.map((value, index, array) => {
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
@@ -338,7 +338,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const loadActor = async pubkey => {
-    if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
+    console.log(fioEndpoint);
     fetch(fioEndpoint+'/v1/chain/get_actor', {
       method: 'POST',
       headers: {

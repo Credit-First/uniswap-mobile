@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Linking } from 'react-native';
+import { SafeAreaView,
+  View,
+  TouchableOpacity,
+  Alert,
+  Linking } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ecc from 'eosjs-ecc-rn';
@@ -9,19 +13,20 @@ import { KHeader, KInput, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
-import { getAvailableEndpoint } from '../../eos/chains';
+import { getEndpoint } from '../../eos/chains';
 
 
 const RegisterAddressScreen = props => {
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [checkState, setCheckState] = useState('Checking');
-  const [fioEndpoint, setFioEndpoint] = useState();
   const {
     connectAccount,
     navigation: { goBack },
   } = props;
 
+  const fioEndpoint = getEndpoint('FIO');
   const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
 
   const _checkAvailable = async address => {
@@ -29,8 +34,6 @@ const RegisterAddressScreen = props => {
     setAvailable(false);
     setCheckState('Checking');
     if (address.length > 6 && address.endsWith('@tribe')) {
-      if(!fioEndpoint) { setFioEndpoint(await getAvailableEndpoint('FIO')); }
-      console.log(fioEndpoint+'/v1/chain/avail_check: '+address);
       fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
@@ -48,7 +51,6 @@ const RegisterAddressScreen = props => {
   };
 
   const updateAvailableState = (json, error) => {
-    console.log(json);
     let regcount = json.is_registered;
     if (regcount === 0) {
       setAvailable(true);
@@ -64,6 +66,8 @@ const RegisterAddressScreen = props => {
   };
 
   const connectFioAccount = (json, fioAccount) => {
+    console.log(json);
+    setLoading(false);
     if(json.success) {
       connectAccount(fioAccount);
       Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
@@ -73,7 +77,8 @@ const RegisterAddressScreen = props => {
   };
 
   const reportError = (error) => {
-    Alert.alert('Failed to register FIO address with error '+error);
+    setLoading(false);
+    Alert.alert('Failed to register FIO address with error '+error.error);
     log({
       description: 'FIO address registration error',
       cause: error,
@@ -82,6 +87,7 @@ const RegisterAddressScreen = props => {
   };
 
   const _nextRegister = async () => {
+    setLoading(true);
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
@@ -137,7 +143,7 @@ const RegisterAddressScreen = props => {
             style={styles.button}
             icon={'check'}
             onPress={_nextRegister}
-            isLoading={!available}
+            isLoading={!available||loading}
           />
           <View style={styles.spacer} />
           <KText>
