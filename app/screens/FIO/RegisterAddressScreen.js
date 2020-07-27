@@ -27,7 +27,7 @@ const RegisterAddressScreen = props => {
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
-  const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
+  const apiToken = 'XXX';
 
   const _checkAvailable = async address => {
     setAddress(address);
