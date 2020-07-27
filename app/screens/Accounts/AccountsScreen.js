@@ -25,10 +25,6 @@ const AccountsScreen = props => {
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
 
-  const filteredAccounts = accounts.filter((value, index, array) => {
-    return !(value.chainName === 'FIO' && value.address === 'pending@tribe');
-  });
-
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'FIO';
   });
@@ -54,14 +50,7 @@ const AccountsScreen = props => {
   };
 
   const _handleRegisterAddress = () => {
-    ecc.randomKey().then(privateKey => {
-      const fioKey = Ecc.privateToPublic(privateKey);
-      const address = 'pending@tribe';
-      connectAccount({ address, privateKey, chainName: 'FIO' });
-      var registerUrl =
-        'https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey;
-      Linking.openURL(registerUrl);
-    });
+    navigate('RegisterAddress');
   };
 
   const replacePendingFioAddress = (fioAddress, fioAccount) => {

@@ -4,6 +4,9 @@ const supportedChains = [
     symbol: 'EOS',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.eosrio.io',
+    endpoint1: 'https://api.eosrio.io',
+    endpoint2: 'https://eos.greymass.com',
+    endpoint3: 'https://api.eossweden.org',
     newdexAccount: 'newdexpocket',
   },
   {
@@ -11,6 +14,9 @@ const supportedChains = [
     symbol: 'BOS',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.bos.eostribe.io',
+    endpoint1: 'https://api.bos.eostribe.io',
+    endpoint2: 'https://bos.cryptolions.io',
+    endpoint3: 'https://api.bos.eosrio.io',
     newdexAccount: 'newdexwallet',
   },
   {
@@ -18,6 +24,9 @@ const supportedChains = [
     symbol: 'TLOS',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.telos.eostribe.io',
+    endpoint1: 'https://api.telos.eostribe.io',
+    endpoint2: 'https://telos.greymass.com',
+    endpoint3: 'https://telos.cryptolions.io',
     newdexAccount: 'newdex',
   },
   {
@@ -25,6 +34,9 @@ const supportedChains = [
     symbol: 'WAX',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.wax.eostribe.io',
+    endpoint1: 'https://api.wax.eostribe.io',
+    endpoint2: 'https://wax.greymass.com',
+    endpoint3: 'http://api.wax.alohaeos.com',
     newdexAccount: 'newdex',
   },
   {
@@ -32,6 +44,9 @@ const supportedChains = [
     symbol: 'MEETONE',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://api.meetone.eostribe.io',
+    endpoint1: 'https://api.meetone.eostribe.io',
+    endpoint2: 'https://api.meetsweden.org',
+    endpoint3: 'https://api.meetone.alohaeos.com',
     newdexAccount: 'newdex',
   },
   {
@@ -39,6 +54,9 @@ const supportedChains = [
     symbol: 'FIO',
     icon: require('../../assets/chains/eos.png'),
     endpoint: 'https://fio.greymass.com',
+    endpoint1: 'https://fio.greymass.com',
+    endpoint2: 'https://fio.eossweden.org',
+    endpoint3: 'https://fio.eostribe.io',
     newdexAccount: null,
   },
 ];
@@ -47,4 +65,43 @@ const getChain = chainName => {
   return supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
 };
 
-export { supportedChains, getChain };
+const checkEndpoints = async (chain) => {
+  try {
+    var result = await fetch(chain.endpoint + '/v1/chain/get_info', { method: 'GET' });
+    if (result.status !== 200) {
+      console.log(chain.endpoint + ' not available!')
+      let foundAvailable = false;
+      if (chain.endpoint1 !== chain.endpoint) {
+        var result1 = await fetch(chain.endpoint1 + '/v1/chain/get_info', { method: 'GET' });
+        if (result1.status === 200) {
+          chain.endpoint = chain.endpoint1;
+          foundAvailable = true;
+        }
+      }
+      if(!foundAvailable && chain.endpoint2 !== chain.endpoint) {
+        var result2 = await fetch(chain.endpoint2 + '/v1/chain/get_info', { method: 'GET' });
+        if (result2.status === 200) {
+          chain.endpoint = chain.endpoint2;
+          foundAvailable = true;
+        }
+      }
+      if(!foundAvailable && chain.endpoint3 !== chain.endpoint) {
+        var result3 = await fetch(chain.endpoint3 + '/v1/chain/get_info', { method: 'GET' });
+        if (result3.status === 200) {
+          chain.endpoint = chain.endpoint3;
+          foundAvailable = true;
+        }
+      }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+};
+
+const getEndpoint = chainName => {
+  let chain = supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
+  checkEndpoints(chain);
+  return chain.endpoint;
+};
+
+export { supportedChains, getChain, getEndpoint };

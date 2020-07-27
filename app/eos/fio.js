@@ -3,7 +3,7 @@ import ecc from 'eosjs-ecc-rn';
 import { Api } from '@fioprotocol/fiojs/dist/chain-api';
 import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
 import { TextEncoder, TextDecoder } from 'text-encoding';
-import { getChain } from './chains';
+import { getEndpoint } from './chains';
 
 // Currently FIO transfers are not allowed
 const sendFioTransfer = async (fromFioAccount,
@@ -15,8 +15,8 @@ const sendFioTransfer = async (fromFioAccount,
   const accountHash = Fio.accountHash(publicKey);
   const toActor = Fio.accountHash(toPublicKey);
 
-  const fioChain = getChain('FIO');
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const chainId = info.chain_id;
@@ -64,7 +64,7 @@ const sendFioTransfer = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
-  pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', {
+  pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
     body: JSON.stringify(tx),
     method: 'POST',
   });
@@ -83,8 +83,8 @@ const rejectFundsRequest = async (payerFioAccount,
   const payerActor = payerFioAccount.accountName;
   const payerPrivateKey = payerFioAccount.privateKey;
 
-  const fioChain = getChain('FIO');
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -129,7 +129,7 @@ const rejectFundsRequest = async (payerFioAccount,
     textEncoder: new TextEncoder()
   });
 
-  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
   if (json.processed && json.processed.except) {
@@ -153,8 +153,8 @@ const recordObtData = async (payerFioAccount,
     const payerPrivateKey = payerFioAccount.privateKey;
     const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
 
-    const fioChain = getChain('FIO');
-    const rpc = new JsonRpc(fioChain.endpoint);
+    const fioEndpoint = getEndpoint('FIO');
+    const rpc = new JsonRpc(fioEndpoint);
 
     const info = await rpc.get_info();
     const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -223,7 +223,7 @@ const recordObtData = async (payerFioAccount,
       textEncoder: new TextEncoder()
     });
 
-    var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
     const json = await pushResult.json();
     if (json.processed && json.processed.except) {
@@ -243,8 +243,8 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
 
-  const fioChain = getChain('FIO');
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -310,7 +310,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
-  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
   if (json.processed && json.processed.except) {
@@ -330,8 +330,8 @@ const fioNewFundsRequest = async (fromFioAccount,
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
 
-  const fioChain = getChain('FIO');
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -397,7 +397,7 @@ const fioNewFundsRequest = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
-  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
   if (json.processed && json.processed.except) {
@@ -409,8 +409,8 @@ const fioNewFundsRequest = async (fromFioAccount,
 // Used to add EOSIO accounts to FIO Address
 const fioAddPublicAddress = async (fioAccount, account, fee) => {
 
-  const fioChain = getChain(fioAccount.chainName);
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -468,7 +468,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
     textEncoder: new TextEncoder()
   });
 
-  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
   if (json.processed && json.processed.except) {
@@ -480,8 +480,8 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
 // Used to add external accounts (BTC, ETH, etc) pubkey to FIO address
 const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
 
-  const fioChain = getChain(fioAccount.chainName);
-  const rpc = new JsonRpc(fioChain.endpoint);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
@@ -534,7 +534,7 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
     textEncoder: new TextEncoder()
   });
 
-  var pushResult = await fetch(fioChain.endpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
   if (json.processed && json.processed.except) {

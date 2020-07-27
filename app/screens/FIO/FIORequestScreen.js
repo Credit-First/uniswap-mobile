@@ -14,7 +14,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
-import { getChain } from '../../eos/chains';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -30,11 +30,12 @@ const FIORequestScreen = props => {
   const [fioFee, setFioFee] = useState(0);
   const [fioPubkey, setFioPubkey] = useState(); // payee public key
   const [loading, setLoading] = useState(false);
-
   const {
     navigation: { navigate, goBack },
     accountsState: { accounts },
   } = props;
+
+  const fioEndpoint = getEndpoint('FIO');
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName == 'FIO';
@@ -45,8 +46,8 @@ const FIORequestScreen = props => {
     getFee(value.address);
   };
 
-  const getFee = address => {
-    fetch('http://fio.greymass.com/v1/chain/get_fee', {
+  const getFee = async address => {
+    fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -68,7 +69,7 @@ const FIORequestScreen = props => {
   };
 
   const getFioPubkey = async address => {
-    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -90,9 +91,9 @@ const FIORequestScreen = props => {
     );
   }
 
-  const _validateAddress = address => {
+  const _validateAddress = async address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.greymass.com/v1/chain/avail_check', {
+      fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

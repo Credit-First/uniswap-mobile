@@ -10,10 +10,10 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
-    marginTop: 40,
+    marginTop: 10,
   },
   list: {
     marginTop: 10,
@@ -27,6 +27,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
+  error: {
+    padding: 5,
+    color: '#BF0F0F',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   button: {
     marginTop: 8,
   },
@@ -35,13 +41,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   balanceItem: {
     flex: 1,
   },
   spacer: {
-    marginTop: 20,
+    marginTop: 10,
   },
 });
 
