@@ -62,7 +62,7 @@ const ConnectAccountScreen = props => {
 
     if(chain.name==='FIO') {
       const fioPublicKey = Ecc.privateToPublic(privateKey);
-      fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
+      fetch('http://fio.greymass.com/v1/chain/get_fio_names', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -75,7 +75,7 @@ const ConnectAccountScreen = props => {
         .then(response => response.json())
         .then(json => connectFioAccount(json.fio_addresses))
         .catch(error => log({
-          description: '_handleConnect - fetch http://fio.eostribe.io/v1/chain/get_fio_names',
+          description: '_handleConnect - fetch http://fio.greymass.com/v1/chain/get_fio_names',
           cause: error,
           location: 'ConnectAccountScreen'
         })

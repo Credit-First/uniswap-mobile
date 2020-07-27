@@ -95,7 +95,7 @@ const AccountsScreen = props => {
       return;
     }
     const publicKey = Ecc.privateToPublic(privateKey);
-    fetch('http://fio.eostribe.io/v1/chain/get_fio_names', {
+    fetch('http://fio.greymass.com/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -108,7 +108,7 @@ const AccountsScreen = props => {
       .then(response => response.json())
       .then(json => updateFioRegistration(json, account))
       .catch(error => log({
-        description: 'checkPendingFIOAddressRegistration - fetch http://fio.eostribe.io/v1/chain/get_fio_names ['+publicKey+']',
+        description: 'checkPendingFIOAddressRegistration - fetch http://fio.greymass.com/v1/chain/get_fio_names ['+publicKey+']',
         cause: error,
         location: 'ActionsScreen'
       })
