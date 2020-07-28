@@ -5,12 +5,32 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Clipboard
 } from 'react-native';
 import KText from './KText';
 import { PRIMARY_BLUE } from '../theme/colors';
 
 const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
   const [showText, setShowText] = useState(false);
+
+  const handlePressLabel = async () => {
+    if(props.value) {
+      setShowText(!showText);
+    } else if(props.onPasteHandler) {
+      props.value = await Clipboard.getString();
+      props.onPasteHandler(props.value);
+    }
+  }
+
+  const getHideShowPasteText = () => {
+    if(props.value) {
+      return showText ? 'Hide' : 'Show';
+    } else if(props.onPasteHandler) {
+      return 'Paste';
+    } else {
+      return '';
+    }
+  }
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -24,8 +44,8 @@ const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
       {!!secureTextEntry && (
         <TouchableOpacity
           style={styles.showButton}
-          onPress={() => setShowText(!showText)}>
-          <KText style={styles.label}>{showText ? 'Hide' : 'Show'}</KText>
+          onPress={() => handlePressLabel()}>
+          <KText style={styles.label}>{getHideShowPasteText()}</KText>
         </TouchableOpacity>
       )}
     </View>

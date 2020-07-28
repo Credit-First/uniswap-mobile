@@ -267,6 +267,7 @@ if(chain && chain.name == "Algorand") {
             secureTextEntry
             value={privateKey}
             onChangeText={setPrivateKey}
+            onPasteHandler={setPrivateKey}
             containerStyle={styles.inputContainer}
           />
           <View style={styles.spacer} />
