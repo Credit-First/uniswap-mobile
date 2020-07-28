@@ -202,7 +202,7 @@ const VoteScreen = props => {
         <KButton title={'Create Algorand account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         <KButton
-          title={'Import EOSIO Accounts'}
+          title={'Import Accounts'}
           theme={'blue'}
           style={styles.button}
           onPress={() => navigate('ConnectAccount')}
