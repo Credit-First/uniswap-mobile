@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'react-native-qrcode-svg';
-import { Image, SafeAreaView, View, TouchableOpacity } from 'react-native';
+import { Text, Image, SafeAreaView, View, TouchableOpacity, Clipboard } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KHeader, KButton } from '../../components';
@@ -24,6 +24,10 @@ const _handleDelegateKey = () => {
 
 var privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.privateKey;
 
+const copyToClipboard = () => {
+	Clipboard.setString(privateKey);
+}
+
 return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -42,23 +46,23 @@ return (
             subTitle={account.chainName}
             style={styles.header}
           />
-          <View style={styles.spacer} />
-            <KInput
-              		label={'Private Key'}
-              		value={privateKey}
-              		multiline={true}
-              		containerStyle={styles.inputContainer}
-              		editable={false}
-            />
+						<Text style={styles.link} onPress={copyToClipboard}>{privateKey}</Text>
+						<View style={styles.spacer} />
             <View style={styles.qrcode}>
             	<QRCode value={privateKey} size={200}/>
             </View>
+						<KButton
+            	title={'Copy to Clipboard'}
+            	theme={'brown'}
+            	style={styles.button}
+            	onPress={copyToClipboard}
+          	/>
             <KButton
-            title={'Delegate to guardians'}
-            theme={'primary'}
-            style={styles.button}
-            onPress={_handleDelegateKey}
-          />
+            	title={'Delegate to guardians'}
+            	theme={'primary'}
+            	style={styles.button}
+            	onPress={_handleDelegateKey}
+          	/>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
