@@ -4,16 +4,14 @@ import { Api } from '@fioprotocol/fiojs/dist/chain-api';
 import { JsonRpc } from '@fioprotocol/fiojs/dist/tests/chain-jsonrpc';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getEndpoint } from './chains';
+import { log } from '../logger/logger';
+import { Alert } from 'react-native';
 
-// Currently FIO transfers are not allowed
 const sendFioTransfer = async (fromFioAccount,
-  toPublicKey,
-  amount,
-  memo) => {
+  toPublicKey, amount, memo, callback) => {
   const privateKeys = [fromFioAccount.privateKey];
   const publicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
   const accountHash = Fio.accountHash(publicKey);
-  const toActor = Fio.accountHash(toPublicKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -28,9 +26,9 @@ const sendFioTransfer = async (fromFioAccount,
 
   //(1 FIO token = 1,000,000,000 SUFs)
   const sufsAmount = (amount * 1000000000);
-  const maxFee = 200000000;
+  const maxFee = 700000000;
 
-  transaction = {
+  const transaction = {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
@@ -45,17 +43,17 @@ const sendFioTransfer = async (fromFioAccount,
             payee_public_key: toPublicKey,
             amount: sufsAmount.toString(),
             max_fee: maxFee,
-            actor: toActor,
+            actor: accountHash,
             tpid: 'crypto@tribe',
         },
     }]
   };
 
-  abiMap = new Map()
-  tokenRawAbi = await rpc.get_raw_abi('fio.token')
+  var abiMap = new Map()
+  var tokenRawAbi = await rpc.get_raw_abi('fio.token')
   abiMap.set('fio.token', tokenRawAbi)
 
-  tx = await Fio.prepareTransaction({
+  const tx = await Fio.prepareTransaction({
     transaction,
     chainId,
     privateKeys,
@@ -64,14 +62,23 @@ const sendFioTransfer = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
-  pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
     body: JSON.stringify(tx),
     method: 'POST',
   });
 
-  json = await pushResult.json()
-  if (json.processed && json.processed.except) {
-    throw new RpcError(json);
+  const json = await pushResult.json()
+  if (!json.processed) {
+    log({
+      description: 'sendFioTransfer error',
+      cause: json,
+      location: 'fio'
+    });
+    let errmsg = (json.message) ? json.message : json;
+    Alert.alert(errmsg);
+  }
+  if(callback && json.transaction_id) {
+    callback(json.transaction_id);
   }
   return json;
 }
@@ -132,8 +139,12 @@ const rejectFundsRequest = async (payerFioAccount,
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  if (json.processed && json.processed.except) {
-   throw new RpcError(json);
+  if (!json.processed) {
+    log({
+      description: 'rejectFundsRequest error',
+      cause: json,
+      location: 'fio'
+    });
  }
   return json;
 };
@@ -226,8 +237,12 @@ const recordObtData = async (payerFioAccount,
     var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
     const json = await pushResult.json();
-    if (json.processed && json.processed.except) {
-     throw new RpcError(json);
+    if (!json.processed) {
+      log({
+        description: 'recordObtData error',
+        cause: json,
+        location: 'fio'
+      });
    }
     return json;
 };
@@ -242,6 +257,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
 
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
+  const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -254,7 +270,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const newFundsContent = {
-    payee_public_address: fromFioAddress,
+    payee_public_address: fromPublicKey,
     amount: '0',
     chain_code: token,
     token_code: token,
@@ -313,9 +329,13 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  if (json.processed && json.processed.except) {
-   throw new RpcError(json);
- }
+  if (!json.processed) {
+    log({
+      description: 'fioDelegateSecretRequest error',
+      cause: json,
+      location: 'fio'
+    });
+  }
   return json;
 };
 
@@ -329,6 +349,7 @@ const fioNewFundsRequest = async (fromFioAccount,
 
   const fromFioAddress = fromFioAccount.address;
   const fromActor = fromFioAccount.accountName;
+  const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -341,7 +362,7 @@ const fioNewFundsRequest = async (fromFioAccount,
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const newFundsContent = {
-    payee_public_address: fromFioAddress,
+    payee_public_address: fromPublicKey,
     amount: amount.toString(),
     chain_code: token,
     token_code: token,
@@ -349,6 +370,7 @@ const fioNewFundsRequest = async (fromFioAccount,
     hash: null,
     offline_url: null
   };
+  console.log(newFundsContent);
 
   const fromPrivateKey = fromFioAccount.privateKey;
   const cipher = Fio.createSharedCipher({
@@ -400,9 +422,13 @@ const fioNewFundsRequest = async (fromFioAccount,
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  if (json.processed && json.processed.except) {
-   throw new RpcError(json);
- }
+  if (!json.processed) {
+    log({
+      description: 'fioNewFundsRequest error',
+      cause: json,
+      location: 'fio'
+    });
+  }
   return json;
 };
 
@@ -471,9 +497,13 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  if (json.processed && json.processed.except) {
-   throw new RpcError(json);
- }
+  if (!json.processed) {
+    log({
+      description: 'fioAddPublicAddress error',
+      cause: json,
+      location: 'fio'
+    });
+  }
   return json;
 };
 
@@ -537,9 +567,13 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
 
   const json = await pushResult.json();
-  if (json.processed && json.processed.except) {
-   throw new RpcError(json);
- }
+  if (!json.processed) {
+    log({
+      description: 'fioAddExternalAddress error',
+      cause: json,
+      location: 'fio'
+    });
+  }
   return json;
 };
 

@@ -1,4 +1,5 @@
 import algosdk from 'algosdk';
+import { log } from '../logger/logger';
 
 const algo_endpoint = 'https://algo.eostribe.io';
 const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
@@ -27,9 +28,15 @@ const Buffer = require("buffer").Buffer;
     let signed = [];
     signed.push( signedTx );
     let algodClient = new algosdk.Algod(client_token, algo_endpoint, '');
-    let tx = (await algodClient.sendRawTransactions(signed));;
-    if(callback) {
+    let tx = (await algodClient.sendRawTransactions(signed));
+    if(callback && tx.txId) {
       callback(tx.txId);
+    } else if(!tx.txId) {
+      log({
+        description: 'makeTransactionWithParams error',
+        cause: tx,
+        location: 'algo'
+      });
     }
   };
 

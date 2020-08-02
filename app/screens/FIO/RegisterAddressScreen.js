@@ -53,11 +53,6 @@ const RegisterAddressScreen = props => {
   };
 
   const updateAvailableState = (json, error) => {
-    log({
-      description: 'FIO address registration check '+ (error)?error:'',
-      cause: json,
-      location: 'RegisterAddressScreen'
-    });
     let regcount = json.is_registered;
     if (regcount === 0) {
       setAvailable(true);

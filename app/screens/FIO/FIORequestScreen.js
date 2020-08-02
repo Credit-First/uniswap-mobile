@@ -84,7 +84,7 @@ const FIORequestScreen = props => {
       .then(response => response.json())
       .then(json => setFioPubkey(json.public_address))
       .catch(error => log({
-        description: 'getFioPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
+        description: 'getFioPubkey - fetch ' + fioEndpoint+'/v1/chain/get_pub_address',
         cause: error,
         location: 'FIORequestScreen'
       })

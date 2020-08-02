@@ -7,7 +7,7 @@ import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { getChain } from '../../eos/chains';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { log } from '../../logger/logger';
 
 
@@ -27,13 +27,14 @@ const TransferScreen = props => {
     navigation: { navigate },
   } = props;
 
-  const filteredAccounts = accounts.filter((value, index, array) => {
-    return value.chainName !== 'FIO';
-  });
+  const fioEndpoint = getEndpoint('FIO');
 
   const processToPubkeyUpdate = async (toAccountPubkey) => {
     const chain = getChain(fromAccount.chainName);
-    if(chain) { // EOSIO chain
+    if(chain.name === 'FIO') {
+      setToActor('');
+      setToPubkey(toAccountPubkey);
+    } else if(chain) { // EOSIO chain
       const [toActorValue, toPubkeyValue] = toAccountPubkey.split(',');
       const toAccountInfo = await getAccount(toActorValue, chain);
       if (!toAccountInfo) {
@@ -50,7 +51,7 @@ const TransferScreen = props => {
 
   const loadToPubkey = async address => {
     let chainCode = (fromAccount.chainName === 'Telos') ? 'TLOS' : fromAccount.chainName;
-    fetch('http://fio.greymass.com/v1/chain/get_pub_address', {
+    fetch(fioEndpoint + '/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -65,16 +66,16 @@ const TransferScreen = props => {
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
       .catch(error => log({
-        description: 'loadToPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
+        description: 'loadToPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
         cause: error,
-        location: 'ViewFIORequestScreen'
+        location: 'TransferScreen'
       })
     );
   };
 
   const _validateAddress = address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch('http://fio.greymass.com/v1/chain/avail_check', {
+      fetch(fioEndpoint + '/v1/chain/avail_check', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -100,6 +101,11 @@ const TransferScreen = props => {
     } else if (error) {
       setToPubkey('');
       setAddressInvalidMessage('Error validating FIO address');
+      log({
+        description: '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
+        cause: error,
+        location: 'TransferScreen'
+      });
     }
   };
 
@@ -155,15 +161,11 @@ const TransferScreen = props => {
         Alert.alert('Could not determine receiver public key for '+fromAccount.chainName+' registered to '+toAccountName);
         return;
       }
-      if(chain && !toActor) {
-        Alert.alert('Could not determine receiver public key for '+fromAccount.chainName+' registered to '+toAccountName);
-        return;
-      }
     }
 
     // EOSIO to actor name validation:
     let actorName = (isFioAddress) ? toActor : toAccountName;
-    if(chain) {
+    if(chain && chain.name !== 'FIO') {
       try {
         let toAccount = await getAccount(actorName, chain);
         if (!toAccount) {
@@ -181,13 +183,14 @@ const TransferScreen = props => {
     try {
       if(fromAccount.chainName === 'ALGO') {
         await submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo, _callback);
+      } else if(fromAccount.chainName === 'FIO') {
+        await sendFioTransfer(fromAccount, toPubkey, floatAmount, memo, _callback);
       } else if(chain) { // Any of supported EOSIO chains:
         await transfer(actorName, floatAmount, memo, fromAccount, chain);
         Alert.alert('Transfer completed!');
       } else {
         Alert.alert('Unsupported transfer state!');
       }
-      //Add for FIO: sendFioTransfer(fromAccount, fioPubkey, floatAmount, memo);
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -213,7 +216,7 @@ const TransferScreen = props => {
           />
           <KSelect
             label={'From account'}
-            items={filteredAccounts.map(item => ({
+            items={accounts.map(item => ({
               label: `${item.chainName}: ${(item.chainName!=='FIO')?item.accountName:item.address}`,
               value: item,
             }))}

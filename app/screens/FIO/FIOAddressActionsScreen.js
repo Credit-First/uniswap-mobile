@@ -99,6 +99,14 @@ const FIOAddressActionsScreen = props => {
     setConnectedAccounts(newConnectedAccounts);
   };
 
+  const appendAccountToConnectedList = (account) => {
+    if (connectedHeader == '') {
+      setConnectedHeader('Connected accounts to this address:');
+    }
+    var newConnectedAccounts = [...connectedAccounts, account];
+    setConnectedAccounts(newConnectedAccounts);
+  }
+
   const addAccountToFilteredList = (account) => {
     var newFilteredAccounts = [...initialFilteredAccounts , account ];
     initialFilteredAccounts.push(account);
@@ -137,6 +145,7 @@ const FIOAddressActionsScreen = props => {
     try {
       setLoading(true);
       setFilteredAccounts(filteredAccounts.filter(function(item) { return item != account; }));
+      appendAccountToConnectedList(account);
       if (account.chainName==='ALGO') {
         const res = await fioAddExternalAddress(fioAccount, 'ALGO', account.account.addr, fioFee);
         if (res && res.transaction_id) {

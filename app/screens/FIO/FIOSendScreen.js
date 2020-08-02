@@ -13,6 +13,7 @@ import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
+import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import {
   supportedChains,
@@ -42,8 +43,11 @@ const FIOSendScreen = props => {
     return value.chainName === 'FIO';
   });
 
-  const importedAccounts = accounts.filter((value, index, array) => {
-    return value.chainName !== 'FIO' && array.indexOf(value) === index;
+  var importedChains = [];
+  accounts.map((chain, index, self) => {
+    if (importedChains.indexOf(chain.chainName) < 0) {
+      importedChains.push(chain.chainName);
+    }
   });
 
   const _handleFromAccountChange = value => {
@@ -78,6 +82,10 @@ const FIOSendScreen = props => {
       setAddressInvalidMessage('Error validating address');
     }
   };
+
+  const _callback = (txid) => {
+    Alert.alert('Transfer completed: '+txid);
+  }
 
   const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     const chain = getChain(chainName);
@@ -144,8 +152,21 @@ const FIOSendScreen = props => {
       Alert.alert('Invalid transfer amount '+floatAmount);
       return;
     }
-    submitAlgoTransaction(fromAccount, toAccountPubkey, floatAmount, memo);
-    Alert.alert('Transfer completed!');
+    submitAlgoTransaction(fromAccount, toAccountPubkey, floatAmount, memo, _callback);
+  };
+
+  const doFIOTransfer = async  (toAccountPubkey, fromAccountPubkey) => {
+    const floatAmount = parseFloat(amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount '+floatAmount);
+      return;
+    }
+    try {
+      await sendFioTransfer(fromAccount, toAccountPubkey, floatAmount, memo, _callback);
+    } catch(err) {
+      Alert.alert('Transfer failed: '+err);
+      log({ description: 'doFIOTransfer', cause: err, location: 'FIOSendScreen'});
+    }
   };
 
   const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
@@ -153,6 +174,8 @@ const FIOSendScreen = props => {
         setLoading(true);
         if (chainName === 'ALGO') {
           doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
+        } else if (chainName === 'FIO') {
+          doFIOTransfer(toAccountPubkey, fromAccountPubkey);
         } else { // Any of EOSIO based chains:
           doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
         }
@@ -248,9 +271,9 @@ const FIOSendScreen = props => {
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KSelect
             label={'Coin to send'}
-            items={importedAccounts.map(item => ({
-              label: `${item.chainName}`,
-              value: `${item.chainName}`,
+            items={importedChains.map(name => ({
+              label: `${name}`,
+              value: `${name}`,
             }))}
             onValueChange={setChainName}
             containerStyle={styles.inputContainer}
