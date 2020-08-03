@@ -85,11 +85,22 @@ const FIOSendScreen = props => {
 
   const _callback = (txid) => {
     Alert.alert('Transfer completed: '+txid);
+    goBack();
   }
 
   const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     const chain = getChain(chainName);
+    if (!chain) {
+      Alert.alert('Unknown EOSIO chain '+chainName);
+      setLoading(false);
+      return;
+    }
     // To EOSIO Account record:
+    if (!toAccountPubkey) {
+      Alert.alert('Empty to account pubkey');
+      setLoading(false);
+      return;
+    }
     const [toActor, toPubkey] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
@@ -97,6 +108,11 @@ const FIOSendScreen = props => {
       return;
     }
     // From EOSIO Account record:
+    if (!fromAccountPubkey) {
+      Alert.alert('Empty fromPubkey account pubkey');
+      setLoading(false);
+      return;
+    }
     const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
@@ -109,6 +125,7 @@ const FIOSendScreen = props => {
     });
     if (activeAccounts.length === 0) {
       Alert.alert('Could not find matching account to send transfer from in this wallet');
+      setLoading(false);
       return;
     }
     const fromAccount = activeAccounts[0];
@@ -116,10 +133,12 @@ const FIOSendScreen = props => {
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
       Alert.alert('Invalid transfer amount '+floatAmount);
+      setLoading(false);
       return;
     }
     // Now do transfer
     try {
+      setLoading(true);
       const res = await transfer(toActor,
         floatAmount,
         memo,
@@ -130,9 +149,11 @@ const FIOSendScreen = props => {
         } else {
     			Alert.alert("Something went wrong: "+res.message);
     		}
+      setLoading(false);
     } catch(err) {
       Alert.alert('Transfer failed: '+err);
       log({ description: 'doEOSIOTransfer', cause: err, location: 'FIOSendScreen'});
+      setLoading(false);
     }
   };
 
@@ -141,8 +162,9 @@ const FIOSendScreen = props => {
     const activeAccounts = accounts.filter((value, index, array) => {
       return value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey;
     });
-    if (activeAccounts.lnegth === 0) {
+    if (activeAccounts.length === 0) {
       Alert.alert('Could not find imported Algo account to pubkey '+fromAccountPubkey);
+      setLoading(false);
       return;
     }
     const fromAccount = activeAccounts[0];
@@ -150,6 +172,7 @@ const FIOSendScreen = props => {
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
       Alert.alert('Invalid transfer amount '+floatAmount);
+      setLoading(false);
       return;
     }
     submitAlgoTransaction(fromAccount, toAccountPubkey, floatAmount, memo, _callback);
@@ -159,6 +182,7 @@ const FIOSendScreen = props => {
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
       Alert.alert('Invalid transfer amount '+floatAmount);
+      setLoading(false);
       return;
     }
     try {
@@ -170,6 +194,16 @@ const FIOSendScreen = props => {
   };
 
   const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    if (!fromAccountPubkey) {
+      Alert.alert('No valid '+chainName+' public address found for '+fromAccount.address);
+      setLoading(false);
+      return;
+    }
+    if (!toAccountPubkey) {
+      Alert.alert('No '+chainCode+' public address found for '+validToAccount);
+      setLoading(false);
+      return;
+    }
     try {
         setLoading(true);
         if (chainName === 'ALGO') {
@@ -187,6 +221,12 @@ const FIOSendScreen = props => {
   };
 
   const handleToAccountAddress = async (toAccountPubkey) => {
+    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+    if (!toAccountPubkey) {
+      Alert.alert('No '+chainCode+' public address found for '+validToAccount);
+      setLoading(false);
+      return;
+    }
     try {
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
         method: 'POST',
@@ -196,13 +236,13 @@ const FIOSendScreen = props => {
         },
         body: JSON.stringify({
           "fio_address": fromAccount.address,
-          "chain_code": chainName,
-          "token_code": chainName
+          "chain_code": chainCode,
+          "token_code": chainCode
         }),
       })
       .then(response => response.json())
       .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address))
-      .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
+      .catch(error => Alert.alert('Error fetching payer public address for '+chainCode));
     } catch (err) {
       Alert.alert('Error: '+err);
       log({ description: '_handleSubmit', cause: err, location: 'FIOSendScreen'});
@@ -215,6 +255,8 @@ const FIOSendScreen = props => {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
+    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+    setLoading(true);
     // Load toAccount actor,publicKey:
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
@@ -224,13 +266,13 @@ const FIOSendScreen = props => {
       },
       body: JSON.stringify({
         "fio_address": validToAccount,
-        "chain_code": chainName,
-        "token_code": chainName
+        "chain_code": chainCode,
+        "token_code": chainCode
       }),
     })
     .then(response => response.json())
     .then(json => handleToAccountAddress(json.public_address))
-    .catch(error => Alert.alert('Error fetching payee public address for '+chainName));
+    .catch(error => Alert.alert('Error fetching payee public address for '+chainCode));
   };
 
   return (

@@ -252,7 +252,8 @@ const ViewFIORequestScreen = props => {
 
   const _handleTransferAndAccept = async () => {
     const chainName = decryptedContent.chain_code.toUpperCase();
-    const toFioAddress = decryptedContent.payee_public_address;
+    const toFioPubkey = decryptedContent.payee_public_address;
+    const toFioAddress = fioRequest.payee_fio_address;
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {

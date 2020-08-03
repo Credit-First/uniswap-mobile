@@ -153,6 +153,7 @@ if(chain && chain.name == "Algorand") {
             value={mnemonic}
             multiline={true}
             onChangeText={setMnemonic}
+            onPasteHandler={setMnemonic}
             containerStyle={styles.inputContainer}
           />
           <View style={styles.spacer} />
@@ -206,6 +207,7 @@ if(chain && chain.name == "Algorand") {
             secureTextEntry
             value={privateKey}
             onChangeText={setPrivateKey}
+            onPasteHandler={setPrivateKey}
             containerStyle={styles.inputContainer}
           />
           <View style={styles.spacer} />

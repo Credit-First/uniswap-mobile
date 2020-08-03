@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 import { log } from '../logger/logger';
+import { Alert } from 'react-native';
 
 const algo_endpoint = 'https://algo.eostribe.io';
 const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
@@ -37,18 +38,33 @@ const Buffer = require("buffer").Buffer;
         cause: tx,
         location: 'algo'
       });
+      Alert.alert('Failed to prepare Algorand transaction');
     }
   };
 
   const submitAlgoTransaction = async (sender, receiver, amount, memo, callback) => {
-      fetch(algo_endpoint+'/v1/transactions/params')
+    if (!receiver) {
+      log({
+        description: 'submitAlgoTransaction error',
+        cause: 'Empty Algo receiver passed',
+        location: 'algo'
+      });
+      Alert.alert('No receiver set for Algo transfer!');
+      return;
+    }
+    fetch(algo_endpoint+'/v1/transactions/params')
         .then((response) => response.json())
         .then((json) => {
           makeTransactionWithParams(sender, receiver, amount, memo, json, callback);
         })
         .catch((error) => {
-          console.error(error);
-      });
+          log({
+            description: 'submitAlgoTransaction error',
+            cause: error,
+            location: 'algo'
+          });
+          Alert.alert('Failed to submit Algorand transfer');
+        });
   };
 
   export {
