@@ -120,7 +120,7 @@ const ViewFIORequestScreen = props => {
         decryptedContent.memo,
         fee);
       Alert.alert("FIO Request processed!");
-      goBack();
+      navigate('Accounts');
     } catch(err) {
       Alert.alert(err.message);
       log({ description: 'markFIORequestCompleted', cause: err, location: 'ViewFIORequestScreen'});
@@ -284,7 +284,7 @@ const ViewFIORequestScreen = props => {
         memo,
         fee);
       Alert.alert("Request processed!");
-      goBack();
+      navigate('Accounts');
     } catch(err) {
       Alert.alert(err.message);
       log({ description: '_handleExternalAccept', cause: err.message, location: 'ViewFIORequestScreen'});
@@ -295,7 +295,7 @@ const ViewFIORequestScreen = props => {
     try {
       const res = await rejectFundsRequest(fioAccount, fioRequest.fio_request_id, fee);
       Alert.alert("Request rejected!");
-      goBack();
+      navigate('Accounts');
     } catch(err) {
       Alert.alert(err.message);
       log({ description: '_handleReject', cause: err.message, location: 'ViewFIORequestScreen'});
