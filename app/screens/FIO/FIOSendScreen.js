@@ -207,11 +207,11 @@ const FIOSendScreen = props => {
     try {
         setLoading(true);
         if (chainName === 'ALGO') {
-          doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
+          await doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
         } else if (chainName === 'FIO') {
-          doFIOTransfer(toAccountPubkey, fromAccountPubkey);
+          await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
         } else { // Any of EOSIO based chains:
-          doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
+          await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
         }
         setLoading(false);
       } catch (e) {

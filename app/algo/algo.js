@@ -6,6 +6,7 @@ const algo_endpoint = 'https://algo.eostribe.io';
 const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
 const Buffer = require("buffer").Buffer;
 
+const algoDivider = 1000000;
 
   const makeTransactionWithParams = async (sender, receiver, amount, memo, params, callback) => {
     let algoAmount = amount * 1000000;
@@ -42,14 +43,9 @@ const Buffer = require("buffer").Buffer;
     }
   };
 
-  const submitAlgoTransaction = async (sender, receiver, amount, memo, callback) => {
-    if (!receiver) {
-      log({
-        description: 'submitAlgoTransaction error',
-        cause: 'Empty Algo receiver passed',
-        location: 'algo'
-      });
-      Alert.alert('No receiver set for Algo transfer!');
+  const processAlgoTransaction = async (sender, receiver, amount, memo, balance, callback) => {
+    if (amount > balance) {
+      Alert.alert('Insufficient balance '+balance+' ALGO for transfer');
       return;
     }
     fetch(algo_endpoint+'/v1/transactions/params')
@@ -65,6 +61,40 @@ const Buffer = require("buffer").Buffer;
           });
           Alert.alert('Failed to submit Algorand transfer');
         });
+  };
+
+  const submitAlgoTransaction = async (sender, receiver, amount, memo, callback) => {
+    if (!receiver) {
+      log({
+        description: 'submitAlgoTransaction error',
+        cause: 'Empty Algo receiver passed',
+        location: 'algo'
+      });
+      Alert.alert('No receiver set for Algo transfer!');
+      return;
+    }
+    try {
+      const addr = sender.account.addr;
+      console.log('Check balance for '+addr);
+      fetch('http://algo.eostribe.io/v1/account/'+addr, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(json => processAlgoTransaction(sender, receiver, amount, memo, parseFloat(json.amount)/algoDivider, callback))
+        .catch(error => log({
+          description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
+          cause: error,
+          location: 'AccountListItem'
+        })
+      );
+    } catch (err) {
+      log({ description: 'submitAlgoTransaction', cause: err, location: 'algo'});
+      return;
+    }
   };
 
   export {

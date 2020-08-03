@@ -14,6 +14,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
+import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
@@ -184,7 +185,7 @@ const ViewFIORequestScreen = props => {
     const activeAccounts = accounts.filter((value, index, array) => {
       return value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey;
     });
-    if (activeAccounts.lnegth === 0) {
+    if (activeAccounts.length === 0) {
       Alert.alert('Could not find imported Algo account to pubkey '+fromAccountPubkey);
       return;
     }
@@ -210,13 +211,41 @@ const ViewFIORequestScreen = props => {
     return;
   };
 
+  const doFIOTransfer = async  (toAccountPubkey, fromAccountPubkey) => {
+    // Find imported matching from account:
+    const activeAccounts = accounts.filter((value, index, array) => {
+      const accountHash = Fio.accountHash(fromAccountPubkey);
+      return value.chainName === 'FIO' && value.accountName === accountHash;
+    });
+    if (activeAccounts.length === 0) {
+      Alert.alert('Could not find imported FIO account with pubkey '+fromAccountPubkey);
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(decryptedContent.amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount '+floatAmount);
+      setLoading(false);
+      return;
+    }
+    try {
+      await sendFioTransfer(fromAccount, toAccountPubkey, floatAmount, memo, markFIORequestCompleted);
+    } catch(err) {
+      Alert.alert('Transfer failed: '+err);
+      log({ description: 'doFIOTransfer', cause: err, location: 'FIOSendScreen'});
+    }
+  };
+
   const handleFromToAccountTransfer = async (chainName, toActorPubkey, fromActorPubkey) => {
     try {
         setLoading(true);
         if (chainName === 'ALGO') {
-          doAlgoTransfer(toActorPubkey, fromActorPubkey);
+          await doAlgoTransfer(toActorPubkey, fromActorPubkey);
+        } else if(chainName === 'FIO') {
+          await doFIOTransfer(toActorPubkey, fromActorPubkey);
         } else { // Any of EOSIO based chains:
-          doEOSIOTransfer(chainName, toActorPubkey, fromActorPubkey);
+          await doEOSIOTransfer(chainName, toActorPubkey, fromActorPubkey);
         }
         setLoading(false);
       } catch (err) {
@@ -252,8 +281,8 @@ const ViewFIORequestScreen = props => {
 
   const _handleTransferAndAccept = async () => {
     const chainName = decryptedContent.chain_code.toUpperCase();
-    const toFioPubkey = decryptedContent.payee_public_address;
     const toFioAddress = fioRequest.payee_fio_address;
+    setLoading(true);
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
