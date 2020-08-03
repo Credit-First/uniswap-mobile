@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
-import QRCode from 'react-native-qrcode-svg';
 import {
   Image,
   SafeAreaView,
@@ -88,8 +87,9 @@ const ViewFIORequestScreen = props => {
 
   let chain = null;
   if(decryptedContent != null) {
-    chain = getChain(decryptedContent.chain_code);
-    if(!chain && decryptedContent.chain_code === 'ALGO') {
+    var chainCode = decryptedContent.chain_code.toUpperCase();
+    chain = getChain(chainCode);
+    if(!chain && chainCode === 'ALGO') {
       chain = { name: 'ALGO', symbol: 'ALGO' };
     }
   }
@@ -109,10 +109,11 @@ const ViewFIORequestScreen = props => {
 
   const markFIORequestCompleted = async (transferId) => {
     try {
+      var chainCode = decryptedContent.chain_code.toUpperCase();
       const res = await recordObtData(fioAccount,
         fioRequest.payee_fio_address,
         fioRequest.payee_fio_public_key,
-        decryptedContent.chain_code,
+        chainCode,
         decryptedContent.amount,
         fioRequest.fio_request_id,
         transferId,
@@ -250,7 +251,7 @@ const ViewFIORequestScreen = props => {
   };
 
   const _handleTransferAndAccept = async () => {
-    const chainName = decryptedContent.chain_code
+    const chainName = decryptedContent.chain_code.toUpperCase();
     const toFioAddress = decryptedContent.payee_public_address;
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
@@ -271,10 +272,11 @@ const ViewFIORequestScreen = props => {
 
   const _handleExternalAccept = async () => {
     try {
+      const chainCode = decryptedContent.chain_code.toUpperCase();
       const res = await recordObtData(fioAccount,
         fioRequest.payee_fio_address,
         fioRequest.payee_fio_public_key,
-        decryptedContent.chain_code,
+        chainCode,
         decryptedContent.amount,
         fioRequest.fio_request_id,
         transactionId,
@@ -317,7 +319,7 @@ const ViewFIORequestScreen = props => {
         <KText>Amount: {decryptedContent.amount} {decryptedContent.token_code}</KText>
         <KText>Memo: {decryptedContent.memo}</KText>
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
-        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
+        <KText>Address: {decryptedContent.payee_public_address}</KText>
         <View style={styles.spacer} />
         <KButton
           title={'Pay and accept'}
@@ -356,11 +358,7 @@ const ViewFIORequestScreen = props => {
         <KText>Amount: {decryptedContent.amount} {decryptedContent.token_code}</KText>
         <KText>Memo: {decryptedContent.memo}</KText>
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
-        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
-        <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.payee_public_address} size={200}/>
-        </View>
-        <View style={styles.spacer} />
+        <KText>Address: {decryptedContent.payee_public_address}</KText>
         <KText style={styles.errorMessage}>You have no imported {decryptedContent.chain_code} accounts to pay.</KText>
         <KButton
           title={'Connect account'}
@@ -398,10 +396,7 @@ const ViewFIORequestScreen = props => {
         <KHeader title={title} subTitle={getRequestTitle()} style={styles.header} />
         <KText>Amount: {decryptedContent.amount} {decryptedContent.token_code}</KText>
         <KText>Memo: {decryptedContent.memo}</KText>
-        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
-        <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.payee_public_address} size={150}/>
-        </View>
+        <KText>Address: {decryptedContent.payee_public_address}</KText>
         <KText style={styles.errorMessage}>This wallet does not support {decryptedContent.chain_code} accounts.</KText>
         <KText>You can send transfer to above address from any other wallet and mark request as paid (or reject).</KText>
         <KInput
@@ -458,11 +453,7 @@ const ViewFIORequestScreen = props => {
         <KText>Memo: {decryptedContent.memo}</KText>
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>Status: {fioRequest.status}</KText>
-        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
-        <View style={styles.spacer} />
-        <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.memo} size={200}/>
-        </View>
+        <KText>Address: {decryptedContent.payee_public_address}</KText>
       </View>
     </SafeAreaView>
     );
@@ -485,11 +476,7 @@ const ViewFIORequestScreen = props => {
         <KText>Memo: {decryptedContent.memo}</KText>
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>Status: {fioRequest.status}</KText>
-        <KText>{decryptedContent.chain_code} Address: {decryptedContent.payee_public_address}</KText>
-        <View style={styles.spacer} />
-        <View style={styles.qrcode}>
-          <QRCode value={decryptedContent.memo} size={200}/>
-        </View>
+        <KText>Address: {decryptedContent.payee_public_address}</KText>
       </View>
     </SafeAreaView>
     );

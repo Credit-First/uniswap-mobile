@@ -20,8 +20,6 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
-  const promoText = "Promotion: Register FREE FIO address and link to your new Algorand account and send FIO Request to promo@tribe for 100 ALGO. Include a link to a social media post about your experience with TRIBE Wallet in memo field. We will grant first 10 unique requests.";
-
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
 
@@ -166,7 +164,6 @@ const AccountsScreen = props => {
         source={require('../../../assets/logo/tribe-logo.png')}
         resizeMode="contain"
       />
-      <Text style={styles.promo}>{promoText}</Text>
       {optionalButtons}
       <KButton
           title={'Import accounts'}

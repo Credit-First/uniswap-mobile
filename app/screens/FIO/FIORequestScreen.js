@@ -46,6 +46,10 @@ const FIORequestScreen = props => {
     getFee(value.address);
   };
 
+  const _handleSetCoin = value => {
+    setCoin(value.toUpperCase());
+  }
+
   const getFee = async address => {
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
@@ -142,6 +146,7 @@ const FIORequestScreen = props => {
         fioFee);
       setLoading(false);
       Alert.alert("FIO Request sent!");
+      goBack();
     } catch (err) {
       setLoading(false);
       Alert.alert(err.message);
@@ -193,7 +198,7 @@ const FIORequestScreen = props => {
             label={'Coin requested'}
             placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
             value={coin}
-            onChangeText={setCoin}
+            onChangeText={_handleSetCoin}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
           />
