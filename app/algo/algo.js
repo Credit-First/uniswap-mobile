@@ -9,19 +9,19 @@ const Buffer = require("buffer").Buffer;
 const algoDivider = 1000000;
 
   const makeTransactionWithParams = async (sender, receiver, amount, memo, params, callback) => {
-    let algoAmount = amount * 1000000;
+    let algoAmount = amount * algoDivider;
     let base64Memo = new Buffer(memo).toString("base64");
-    let transaction = algosdk.makePaymentTxn(
-          sender.account.addr, /* sender */
-          receiver, /* receiver */
-          params.minFee, /* fee */
-          algoAmount, /* amount */
-          undefined, /*closeRemainderTo*/
-          params.lastRound, /* firstRound */
-          params.lastRound + 1000, /* lastRound */
-          new Uint8Array(Buffer.from(base64Memo, "base64")), /* memo */
-          params.genesishashb64,
-          params.genesisID);
+    params.genesisHash = params.genesishashb64;
+    params.firstRound = params.lastRound;
+    params.lastRound = params.lastRound + 1000;
+    let transaction = algosdk.makePaymentTxnWithSuggestedParams(
+      sender.account.addr /* sender */,
+      receiver /* receiver */,
+      algoAmount /* amount */,
+      undefined /*closeRemainderTo*/,
+      new Uint8Array(Buffer.from(base64Memo, "base64")) /* memo */,
+      params
+    );
     let txns = [transaction];
     let txgroup = algosdk.assignGroupID(txns);
     let myAccount = algosdk.mnemonicToSecretKey(sender.mnemonic);
@@ -55,7 +55,7 @@ const algoDivider = 1000000;
         })
         .catch((error) => {
           log({
-            description: 'submitAlgoTransaction error',
+            description: 'processAlgoTransaction error',
             cause: error,
             location: 'algo'
           });
@@ -75,7 +75,6 @@ const algoDivider = 1000000;
     }
     try {
       const addr = sender.account.addr;
-      console.log('Check balance for '+addr);
       fetch('http://algo.eostribe.io/v1/account/'+addr, {
         method: 'GET',
         headers: {
@@ -86,9 +85,9 @@ const algoDivider = 1000000;
         .then(response => response.json())
         .then(json => processAlgoTransaction(sender, receiver, amount, memo, parseFloat(json.amount)/algoDivider, callback))
         .catch(error => log({
-          description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
+          description: 'submitAlgoTransaction - fetch https://algo.eostribe.io/v1/account/'+addr,
           cause: error,
-          location: 'AccountListItem'
+          location: 'algo'
         })
       );
     } catch (err) {

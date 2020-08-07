@@ -31,7 +31,7 @@ const TransferScreen = props => {
 
   const processToPubkeyUpdate = async (toAccountPubkey) => {
     const chain = getChain(fromAccount.chainName);
-    if(chain.name === 'FIO') {
+    if(chain && chain.name === 'FIO') {
       setToActor('');
       setToPubkey(toAccountPubkey);
     } else if(chain) { // EOSIO chain
@@ -99,6 +99,7 @@ const TransferScreen = props => {
       setAddressInvalidMessage('');
       loadToPubkey(address);
     } else if (error) {
+      console.log(error);
       setToPubkey('');
       setAddressInvalidMessage('Error validating FIO address');
       log({
@@ -182,7 +183,7 @@ const TransferScreen = props => {
     // From account validation
     try {
       if(fromAccount.chainName === 'ALGO') {
-        await submitAlgoTransaction(fromAccount, toAccountName, floatAmount, memo, _callback);
+        await submitAlgoTransaction(fromAccount, toPubkey, floatAmount, memo, _callback);
       } else if(fromAccount.chainName === 'FIO') {
         await sendFioTransfer(fromAccount, toPubkey, floatAmount, memo, _callback);
       } else if(chain) { // Any of supported EOSIO chains:
