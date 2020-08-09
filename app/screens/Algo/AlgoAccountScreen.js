@@ -5,6 +5,7 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Clipboard,
   Image,
   Text,
   Linking,
@@ -18,6 +19,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import algosdk from 'algosdk';
+import { getEndpoint } from '../../eos/chains';
 import { log } from '../../logger/logger';
 
 
@@ -25,6 +27,10 @@ const AlgoAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
   const [rewards, setRewards] = useState();
   const [accountStatus, setAccountStatus] = useState();
+  const [connectedHeader, setConnectedHeader] = useState('');
+  var initialConnectedAccounts = [];
+  const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
+  const [loaded, setLoaded] = useState(false);
 
   const {
     navigation: { navigate, goBack },
@@ -36,14 +42,69 @@ const AlgoAccountScreen = props => {
   } = props;
 
   const divider = 1000000;
+  const fioEndpoint = getEndpoint('FIO');
+  var runOnce = 0;
+
+  const copyToClipboard = () => {
+  	Clipboard.setString(account.account.addr);
+    Alert.alert('Address copied to Clipboard');
+  }
+
+  const addAccountToConnectedList = (account) => {
+    if (connectedHeader == '') {
+      setConnectedHeader('Connected to FIO address:');
+    }
+    var newConnectedAccounts = [...initialConnectedAccounts , account ];
+    initialConnectedAccounts.push(account);
+    setConnectedAccounts(newConnectedAccounts);
+  };
+
+  const checkAlgoAddress = (fioaccount, algoAddress) => {
+    if (algoAddress === account.account.addr) {
+      addAccountToConnectedList(fioaccount);
+    }
+  };
+
+  const checkConnectedFIOAccounts = async () => {
+    if (loaded) return;
+    // Check if connected to any local FIO address:
+    accounts.map((value, index, self) => {
+      if (value.chainName === 'FIO' && value.address) {
+        setLoaded(true);
+        fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            "fio_address": value.address,
+            "chain_code": "ALGO",
+            "token_code": "ALGO"
+          }),
+        })
+        .then(response => response.json())
+        .then(json => checkAlgoAddress(value, json.public_address))
+        .catch(error => log({
+            description: 'checkConnectedFIOAccounts - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+            cause: error,
+            location: 'AlgoAccountScreen'
+          })
+        );
+      }
+    });
+  };
 
   const setAccountStats = (json) => {
     setAccountBalance(parseFloat(json.amount)/divider);
     setRewards(parseFloat(json.rewards)/divider);
     setAccountStatus(json.status);
+    checkConnectedFIOAccounts();
   };
 
+
   const loadAlgoAccountBalance = async (account) => {
+    if(loaded) return;
     try {
       const addr = account.account.addr;
       fetch('http://algo.eostribe.io/v1/account/'+addr, {
@@ -94,13 +155,15 @@ const AlgoAccountScreen = props => {
     navigate('PrivateKeyBackup', { account });
   };
 
+  const _handlePressAccount = index => {
+    const account = connectedAccounts[index];
+    navigate('FIOAddressActions', { account });
+  };
+
   loadAlgoAccountBalance(account);
 
   return (
     <SafeAreaView style={styles.container}>
-     <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContentContainer}
-      enableOnAndroid>
       <View style={styles.inner}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <MaterialIcon
@@ -112,18 +175,18 @@ const AlgoAccountScreen = props => {
         <KHeader title={account.accountName} style={styles.header} />
         <KText>Balance: {accountBalance} ALGO</KText>
         <KText>Rewards: {rewards} ALGO</KText>
-        <KInput
-          label={'Account address'}
-          value={account.account.addr}
-          containerStyle={styles.inputContainer}
-          multiline={true}
-          editable={false}
-        />
-        <View style={styles.spacer} />
+        <Text style={styles.link} onPress={copyToClipboard}>{account.account.addr}</Text>
         <View style={styles.qrcode}>
-          <QRCode value={account.account.addr} size={150}/>
+          <QRCode value={account.account.addr} size={200}/>
         </View>
-        <View style={styles.spacer} />
+        <KText>{connectedHeader}</KText>
+        <FlatList
+          data={connectedAccounts}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item, index }) => (
+            <Text style={styles.link} onPress={() => _handlePressAccount(index)}>{item.address}</Text>
+          )}
+        />
         <KButton
             title={'Backup private key'}
             theme={'primary'}
@@ -144,7 +207,6 @@ const AlgoAccountScreen = props => {
             onPress={_handleRemoveAccount}
           />
       </View>
-     </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

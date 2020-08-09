@@ -83,7 +83,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateAccountLists(account, json))
       .catch(error => log({
-        description: 'checkRegPubkey - fetch http://fio.greymass.com/v1/chain/get_pub_address',
+        description: 'checkRegPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })

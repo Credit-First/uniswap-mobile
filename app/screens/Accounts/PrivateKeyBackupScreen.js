@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'react-native-qrcode-svg';
-import { Text, Image, SafeAreaView, View, TouchableOpacity, Clipboard } from 'react-native';
+import { Text, Image, SafeAreaView, View, TouchableOpacity, Clipboard, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KHeader, KButton } from '../../components';
@@ -26,6 +26,7 @@ var privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.priva
 
 const copyToClipboard = () => {
 	Clipboard.setString(privateKey);
+	Alert.alert('Private key copied to Clipboard');
 }
 
 return (
