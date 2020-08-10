@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DeviceInfo from 'react-native-device-info';
 import { Image, View, FlatList, SafeAreaView, Linking, Text } from 'react-native';
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
@@ -139,6 +140,10 @@ const AccountsScreen = props => {
     }
   };
 
+  const getAppVersion = () => {
+    return "Version " + DeviceInfo.getVersion() + ", Build " + DeviceInfo.getBuildNumber();
+  }
+
 
   var optionalButtons = <View style={styles.spacer} />;
   if (!hasPendingFIOAddress()) {
@@ -177,6 +182,7 @@ const AccountsScreen = props => {
               />
             )}
             />
+      <Text style={styles.version}>{getAppVersion()}</Text>
      </SafeAreaView>
     );
   } else {
@@ -213,6 +219,7 @@ const AccountsScreen = props => {
           />
         )}
       />
+      <Text style={styles.version}>{getAppVersion()}</Text>
      </SafeAreaView>
     );
   }

@@ -184,7 +184,7 @@ const TransferScreen = props => {
     try {
       if(fromAccount.chainName === 'ALGO') {
         let receiver = (toPubkey) ? toPubkey : toAccountName;
-        await submitAlgoTransaction(fromAccount, receiver, floatAmount, memo, _callback);
+        await submitAlgoTransaction(fromAccount, toPubkey, floatAmount, memo, _callback);
       } else if(fromAccount.chainName === 'FIO') {
         await sendFioTransfer(fromAccount, toPubkey, floatAmount, memo, _callback);
       } else if(chain) { // Any of supported EOSIO chains:

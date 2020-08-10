@@ -54,9 +54,14 @@ const AlgoAccountScreen = props => {
     if (connectedHeader == '') {
       setConnectedHeader('Connected to FIO address:');
     }
-    var newConnectedAccounts = [...initialConnectedAccounts , account ];
-    initialConnectedAccounts.push(account);
-    setConnectedAccounts(newConnectedAccounts);
+    if(!initialConnectedAccounts.includes(account)) {
+      var newConnectedAccounts = [...initialConnectedAccounts , account ];
+      initialConnectedAccounts.push(account);
+      setConnectedAccounts(newConnectedAccounts);
+      if(newConnectedAccounts.length > 1) {
+        setConnectedHeader('Connected to FIO addresses:');
+      }
+    }
   };
 
   const checkAlgoAddress = (fioaccount, algoAddress) => {
@@ -156,8 +161,12 @@ const AlgoAccountScreen = props => {
   };
 
   const _handlePressAccount = index => {
-    const account = connectedAccounts[index];
-    navigate('FIOAddressActions', { account });
+    const fioAccount = connectedAccounts[index];
+    navigate('FIOAddressActions', { fioAccount });
+  };
+
+  const _handleTransfer = () => {
+    navigate('Transfer', { account });
   };
 
   loadAlgoAccountBalance(account);

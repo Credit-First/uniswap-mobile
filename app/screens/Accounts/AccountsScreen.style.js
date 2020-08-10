@@ -41,6 +41,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
+  version: {
+    alignSelf: 'center',
+    color: 'black',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 10,
+  },
   listItem: {
     marginTop: 10,
     marginHorizontal: 20,
