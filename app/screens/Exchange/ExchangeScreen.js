@@ -27,7 +27,7 @@ const ExchangeScreen = props => {
   } = props;
 
   const filteredAccounts = accounts.filter((value, index, array) => {
-    return value.chainName !== 'FIO' || value.chainName !== 'ALGO';
+    return value.chainName !== 'FIO' && value.chainName !== 'ALGO';
   });
 
   const _handleSubmit = async () => {
