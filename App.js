@@ -67,6 +67,10 @@ const AccountsStackScreen = () => {
         component={VoteScreen}
       />
       <AccountsStack.Screen
+        name="Exchange"
+        component={ExchangeScreen}
+      />
+      <AccountsStack.Screen
         name="PrivateKeyBackup"
         component={PrivateKeyBackupScreen}
       />
