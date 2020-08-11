@@ -90,13 +90,6 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
     return (
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
-          <CheckBox
-            value={true}
-            disabled={false}
-            onClick={onCheck}
-            isChecked={checked}
-            checkBoxColor={PRIMARY_BLUE}
-          />
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
           </View>
@@ -108,31 +101,6 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
     return (
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
-          <CheckBox
-            value={true}
-            disabled={false}
-            onClick={onCheck}
-            isChecked={checked}
-            checkBoxColor={PRIMARY_BLUE}
-          />
-          <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  } else if (onCheck) {
-    loadAccountBalance(account, setAccountBalance);
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <View style={[styles.container, props.style]}>
-          <CheckBox
-            value={true}
-            disabled={false}
-            onClick={onCheck}
-            isChecked={checked}
-            checkBoxColor={PRIMARY_BLUE}
-          />
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
           </View>
@@ -140,16 +108,17 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
       </TouchableOpacity>
     );
   } else {
+    loadAccountBalance(account, setAccountBalance);
     return (
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>{account.chainName} : {account.accountName}</KText>
+            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
           </View>
         </View>
       </TouchableOpacity>
     );
-  }
+  } 
 };
 
 const styles = StyleSheet.create({

@@ -134,7 +134,6 @@ const TransferScreen = props => {
 
   const _callback = (txid) => {
     Alert.alert('Transfer completed: '+txid);
-    navigate('Transactions');
   }
 
   const _handleTransfer = async () => {

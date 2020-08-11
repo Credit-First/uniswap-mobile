@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { SafeAreaView, View, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
@@ -183,6 +183,11 @@ const AccountDetailsScreen = props => {
     }
   };
 
+  const _handleDeleteAccount = (index) => {
+    deleteAccount(index);
+    goBack();
+  }
+
   const _handleRemoveAccount = () => {
     const index = findIndex(
       accounts,
@@ -199,11 +204,10 @@ const AccountDetailsScreen = props => {
           onPress: () => console.log('Delete account cancelled'),
           style: 'cancel'
         },
-        { text: 'OK', onPress: () => deleteAccount(index) }
+        { text: 'OK', onPress: () => _handleDeleteAccount(index) }
       ],
       { cancelable: false }
     );
-    goBack();
   };
 
   const _handleBackupKey = () => {
@@ -225,7 +229,11 @@ const AccountDetailsScreen = props => {
       ramQuota: ramQuota,
     };
     navigate('ResourceManagement', { account, params });
-  }
+  };
+
+  const _handleVoteBP = () => {
+    navigate('Vote', { account });
+  };
 
   loadAccount();
 
@@ -284,6 +292,12 @@ const AccountDetailsScreen = props => {
             theme={'primary'}
             style={styles.button}
             onPress={_handleManageResources}
+          />
+          <KButton
+            title={'Vote for Block Producers'}
+            theme={'primary'}
+            style={styles.button}
+            onPress={_handleVoteBP}
           />
           <KButton
             title={'Backup private key'}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Linking, FlatList, Text } from 'react-native';
+import { SafeAreaView, TouchableOpacity, View, Linking, FlatList, Text } from 'react-native';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { get } from 'lodash';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
@@ -15,15 +16,17 @@ import {
 } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import ProducerListItem from './components/ProducerListItem';
-import BalanceItem from './components/BalanceItem';
+import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
 
 const VoteScreen = props => {
   const {
     connectAccount,
-    navigation: { navigate },
-    accountsState: { accounts, activeAccountIndex },
+    navigation: { navigate, goBack },
+    route: {
+      params: { account },
+    }
   } = props;
 
   const [producers, setProducers] = useState([]);
@@ -37,12 +40,11 @@ const VoteScreen = props => {
 
   useEffect(() => {
     const fetchProducers = async () => {
-      const activeAccount = accounts[activeAccountIndex];
-      if (!activeAccount) {
+      if (!account) {
         return;
       }
 
-      const chain = getChain(activeAccount.chainName);
+      const chain = getChain(account.chainName);
       if (!chain) {
         return;
       }
@@ -52,24 +54,24 @@ const VoteScreen = props => {
         setProducers(res.rows);
         setTotalProducerVoteWeight(res.total_producer_vote_weight);
 
-        const account = await getAccount(activeAccount.accountName, chain);
-        const vProducers = get(account, 'voter_info.producers', []);
+        const accountInfo = await getAccount(account.accountName, chain);
+        const vProducers = get(accountInfo, 'voter_info.producers', []);
         setVotedProducers(vProducers);
-        setLiquidBalance(account.core_liquid_balance.split(' ')[0]);
-        if (account.self_delegated_bandwidth) {
+        setLiquidBalance(accountInfo.core_liquid_balance.split(' ')[0]);
+        if (accountInfo.self_delegated_bandwidth) {
           setTotalStaked(
             sumAmount(
-              account.self_delegated_bandwidth.cpu_weight,
-              account.self_delegated_bandwidth.net_weight,
+              accountInfo.self_delegated_bandwidth.cpu_weight,
+              accountInfo.self_delegated_bandwidth.net_weight,
             ),
           );
         }
 
-        if (account.refund_request) {
+        if (accountInfo.refund_request) {
           setRefundingBalance(
             sumAmount(
-              account.refund_request.cpu_amount,
-              account.refund_request.net_amount,
+              accountInfo.refund_request.cpu_amount,
+              accountInfo.refund_request.net_amount,
             ),
           );
         }
@@ -82,7 +84,7 @@ const VoteScreen = props => {
       }
     };
     fetchProducers();
-  }, [accounts, activeAccountIndex]);
+  }, [account]);
 
   const _handleChangeVote = item => {
     let res = [];
@@ -97,12 +99,11 @@ const VoteScreen = props => {
   };
 
   const _handleVote = async () => {
-    const activeAccount = accounts[activeAccountIndex];
-    if (!activeAccount) {
+    if (!account) {
       return;
     }
 
-    const chain = getChain(activeAccount.chainName);
+    const chain = getChain(account.chainName);
     if (!chain) {
       return;
     }
@@ -122,39 +123,26 @@ const VoteScreen = props => {
   };
 
   const getSubtitle = () => {
-    return activeAccount.chainName + " " + activeAccount.accountName;
+    return account.chainName + " " + account.accountName;
   }
 
-  // Extra wallet actions:
-  const _handleRegisterAddress = () => {
-    navigate('RegisterAddress');
-  };
-
-  const _handleCreateAlgorandAccount = () => {
-    var account = algosdk.generateAccount();
-    var address = account.addr;
-    var accountName = address.substring(0, 4) + ".." + address.substring(address.length - 4, address.length);
-    var mnemonic = algosdk.secretKeyToMnemonic(account.sk);
-    var algoAccount = { accountName, mnemonic, chainName: "ALGO", account: account };
-    connectAccount(algoAccount);
-    navigate('Accounts');
-  };
-
-  const loadFioAccount = (account) => {
-    navigate('FIOAddressActions', { account });
-  };
-
-  const _handleConnectExternalAccount = () => {
-    navigate('FIORegisterExternal');
+  const getTitle = () => {
+    return "Vote for " + account.chainName + " Block Producers";
   }
 
-  const activeAccount = accounts[activeAccountIndex];
-  if (activeAccount && getChain(activeAccount.chainName) && activeAccount.chainName !== 'FIO') {
-    return (
+
+  return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <MaterialIcon
+          name={'keyboard-backspace'}
+          size={24}
+          color={PRIMARY_BLUE}
+        />
+      </TouchableOpacity>
         <KHeader
-          title={'Vote for Block Producers'}
+          title={getTitle()}
           subTitle={getSubtitle()}
           style={styles.header}
         />
@@ -188,29 +176,6 @@ const VoteScreen = props => {
       </View>
     </SafeAreaView>
     );
-  } else {
-    return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.inner}>
-        <KHeader title={'Available wallet actions'} style={styles.header}/>
-        <View style={styles.spacer} />
-        <KButton title={'Register [address]@tribe'} theme={'brown'}
-        style={styles.button} icon={'add'}
-        onPress={_handleRegisterAddress}/>
-        <KButton title={'Register external account'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={_handleConnectExternalAccount}/>
-        <KButton title={'Create Algorand account'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-        <KButton
-          title={'Import Accounts'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={() => navigate('ConnectAccount')}
-        />
-      </View>
-    </SafeAreaView>
-    );
-  }
 
 };
 

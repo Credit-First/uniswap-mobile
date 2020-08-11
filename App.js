@@ -41,6 +41,7 @@ import {
   TransactionsScreen,
   TransactionDetailScreen,
   VoteScreen,
+  MenuScreen,
   ExchangeScreen,
   PinCodeScreen,
 } from './app/screens';
@@ -60,6 +61,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="ResourceManagement"
         component={ResourceManagementScreen}
+      />
+      <AccountsStack.Screen
+        name="Vote"
+        component={VoteScreen}
       />
       <AccountsStack.Screen
         name="PrivateKeyBackup"
@@ -101,13 +106,6 @@ const AccountsStackScreen = () => {
         name="AlgoAccount"
         component={AlgoAccountScreen}
       />
-    </AccountsStack.Navigator>
-  );
-};
-
-const TransactionsStackScreen = () => {
-  return (
-    <TransactionsStack.Navigator headerMode={'none'}>
       <TransactionsStack.Screen
         name="Transactions"
         component={TransactionsScreen}
@@ -116,9 +114,10 @@ const TransactionsStackScreen = () => {
         name="TransactionDetail"
         component={TransactionDetailScreen}
       />
-    </TransactionsStack.Navigator>
+    </AccountsStack.Navigator>
   );
 };
+
 
 const tabScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => {
@@ -127,14 +126,9 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('./assets/icons/accounts.png');
     } else if (route.name === 'Transfer') {
       icon = require('./assets/icons/transfer.png');
-    } else if (route.name === 'Vote') {
-      icon = require('./assets/icons/vote.png');
-    } else if (route.name === 'Transactions') {
-      icon = require('./assets/icons/transactions.png');
-    } else if (route.name === 'Exchange') {
-      icon = require('./assets/icons/coins.png');
+    } else if (route.name === 'Menu') {
+      icon = require('./assets/icons/menu.png');
     }
-
     return <Image source={icon} style={{ tintColor: color }} />;
   },
 });
@@ -148,10 +142,7 @@ const MainTabScreen = () => {
       }}>
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferScreen} />
-      <MainTab.Screen name={'Transactions'} component={TransactionsStackScreen} />
-      <MainTab.Screen name={'Vote'} component={VoteScreen} />
-      <MainTab.Screen name={'Exchange'} component={ExchangeScreen} />
-
+      <MainTab.Screen name={'Menu'} component={MenuScreen} />
     </MainTab.Navigator>
   );
 };

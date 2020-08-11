@@ -11,27 +11,27 @@ import { log } from '../../logger/logger';
 
 const TransactionsScreen = props => {
   const {
-    navigation,
-    accountsState: { accounts, activeAccountIndex },
+    navigation: { navigate, goBack },
+    route: {
+      params: { account },
+    }
   } = props;
 
   const [transactions, setTransactions] = useState([]);
 
-  const activeAccount = accounts[activeAccountIndex];
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      if (!activeAccount) {
+      if (!account) {
         return;
       }
 
-      const chain = getChain(activeAccount.chainName);
+      const chain = getChain(account.chainName);
       if (!chain) {
         return;
       }
 
       try {
-        const res = await getActions(activeAccount.accountName, chain);
+        const res = await getActions(account.accountName, chain);
         setTransactions(res.actions);
       } catch (err) {
         setTransactions([]);
@@ -40,7 +40,7 @@ const TransactionsScreen = props => {
     });
 
     return unsubscribe;
-  }, [navigation, accounts, activeAccountIndex]);
+  }, [account]);
 
   const _handlePressTransaction = action => {
     const { navigate } = navigation;
@@ -94,8 +94,7 @@ const TransactionsScreen = props => {
     }
   }
 
-  if (activeAccount) {
-    return (
+  return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader
@@ -116,27 +115,14 @@ const TransactionsScreen = props => {
             <TransactionItem
               onPress={() => _handlePressTransaction(item)}
               action={item}
-              activeAccount={accounts[activeAccountIndex]}
+              activeAccount={account}
             />
           )}
           keyExtractor={(item, index) => `${index}`}
         />
       </View>
     </SafeAreaView>
-    );
-  } else {
-    return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.inner}>
-        <KHeader
-          title={'Transactions'}
-          subTitle={'No active account to view transactions for'}
-          style={styles.header}
-        />
-        </View>
-      </SafeAreaView>
-    );
-  }
+  );
 
 };
 

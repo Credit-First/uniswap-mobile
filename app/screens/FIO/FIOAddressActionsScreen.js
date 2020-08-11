@@ -431,6 +431,11 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
+  const _handleDeleteAccount = (index) => {
+    deleteAccount(index);
+    goBack();
+  }
+
   const _handleRemoveAccount = () => {
     const index = findIndex(
       accounts,
@@ -447,11 +452,10 @@ const FIOAddressActionsScreen = props => {
           onPress: () => console.log('Delete account cancelled'),
           style: 'cancel'
         },
-        { text: 'OK', onPress: () => deleteAccount(index) }
+        { text: 'OK', onPress: () => _handleDeleteAccount(index) }
       ],
       { cancelable: false }
     );
-    goBack();
   };
 
   const _handlePressAccount = index => {

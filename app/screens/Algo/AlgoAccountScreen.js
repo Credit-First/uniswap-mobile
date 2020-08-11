@@ -28,8 +28,7 @@ const AlgoAccountScreen = props => {
   const [rewards, setRewards] = useState();
   const [accountStatus, setAccountStatus] = useState();
   const [connectedHeader, setConnectedHeader] = useState('');
-  var initialConnectedAccounts = [];
-  const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
+  const [connectedAddress, setConnectedAddress] = useState('');
   const [loaded, setLoaded] = useState(false);
 
   const {
@@ -50,23 +49,16 @@ const AlgoAccountScreen = props => {
     Alert.alert('Address copied to Clipboard');
   }
 
-  const addAccountToConnectedList = (account) => {
-    if (connectedHeader == '') {
-      setConnectedHeader('Connected to FIO address:');
-    }
-    if(!initialConnectedAccounts.includes(account)) {
-      var newConnectedAccounts = [...initialConnectedAccounts , account ];
-      initialConnectedAccounts.push(account);
-      setConnectedAccounts(newConnectedAccounts);
-      if(newConnectedAccounts.length > 1) {
-        setConnectedHeader('Connected to FIO addresses:');
-      }
-    }
-  };
 
   const checkAlgoAddress = (fioaccount, algoAddress) => {
+    if (loaded) return;
     if (algoAddress === account.account.addr) {
-      addAccountToConnectedList(fioaccount);
+      if (connectedHeader === '') {
+        setConnectedHeader('Connected to FIO address:');
+      }
+      if (connectedAddress === '') {
+        setConnectedAddress(fioaccount.address);
+      }
     }
   };
 
@@ -133,6 +125,11 @@ const AlgoAccountScreen = props => {
     }
   };
 
+  const _handleDeleteAccount = (index) => {
+    deleteAccount(index);
+    goBack();
+  }
+
   const _handleRemoveAccount = () => {
     const index = findIndex(
       accounts,
@@ -149,11 +146,10 @@ const AlgoAccountScreen = props => {
           onPress: () => console.log('Delete account cancelled'),
           style: 'cancel'
         },
-        { text: 'OK', onPress: () => deleteAccount(index) }
+        { text: 'OK', onPress: () => _handleDeleteAccount(index) }
       ],
       { cancelable: false }
     );
-    goBack();
   };
 
   const _handleBackupKey = () => {
@@ -189,13 +185,8 @@ const AlgoAccountScreen = props => {
           <QRCode value={account.account.addr} size={200}/>
         </View>
         <KText>{connectedHeader}</KText>
-        <FlatList
-          data={connectedAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <Text style={styles.link} onPress={() => _handlePressAccount(index)}>{item.address}</Text>
-          )}
-        />
+        <KText>{connectedAddress}</KText>
+        <FlatList/>
         <KButton
             title={'Backup private key'}
             theme={'primary'}
