@@ -18,7 +18,6 @@ import createStore from './app/redux/store';
 const store = createStore();
 
 const AccountsStack = createStackNavigator();
-const TransactionsStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 const MainStack = createStackNavigator();
 
@@ -37,6 +36,8 @@ import {
   FIOSendScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
+  AddressBookScreen,
+  AddAddressScreen,
   TransferScreen,
   TransactionsScreen,
   TransactionDetailScreen,
@@ -110,11 +111,19 @@ const AccountsStackScreen = () => {
         name="AlgoAccount"
         component={AlgoAccountScreen}
       />
-      <TransactionsStack.Screen
+      <AccountsStack.Screen
+        name="AddressBook"
+        component={AddressBookScreen}
+      />
+      <AccountsStack.Screen
+        name="AddAddress"
+        component={AddAddressScreen}
+      />
+      <AccountsStack.Screen
         name="Transactions"
         component={TransactionsScreen}
       />
-      <TransactionsStack.Screen
+      <AccountsStack.Screen
         name="TransactionDetail"
         component={TransactionDetailScreen}
       />
