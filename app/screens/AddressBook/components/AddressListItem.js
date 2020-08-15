@@ -17,7 +17,7 @@ const AddressListItem = ({ address, onPress, ...props }) => {
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
-            <KText style={styles.address}>{address.address}</KText>
+            <KText style={styles.address}>{address.name} &lt;{address.address}&gt;</KText>
           </View>
         </View>
       </TouchableOpacity>

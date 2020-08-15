@@ -12,18 +12,6 @@ const MenuScreen = props => {
     navigation: { navigate },
   } = props;
 
-  // Extra wallet actions:
-  const _handleRegisterAddress = () => {
-    navigate('RegisterAddress');
-  };
-
-  const _handleConnectExternalAccount = () => {
-    navigate('FIORegisterExternal');
-  }
-
-  const _handleExchange = () => {
-    navigate('Exchange');
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,16 +19,11 @@ const MenuScreen = props => {
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
         <KButton title={'Register [address]@tribe'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        style={styles.button} icon={'add'} onPress={() => navigate('RegisterAddress')}/>
         <KButton title={'Register external account'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={_handleConnectExternalAccount}/>
-        <KButton
-          title={'Import Accounts'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={() => navigate('ConnectAccount')}
-        />
-        <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={_handleExchange}/>
+        style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
+        <KButton title={'Address Book'} style={styles.button} onPress={() => navigate('AddressBook')}/>
+        <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
       </View>
     </SafeAreaView>
     );
