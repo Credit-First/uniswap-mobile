@@ -77,8 +77,6 @@ target 'KryptoWallet' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  pod 'react-native-bubble-select', :path => '../node_modules/react-native-bubble-select'
-
   target 'KryptoWalletTests' do
     inherit! :complete
     # Pods for testing
