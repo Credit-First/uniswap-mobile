@@ -26,15 +26,9 @@ const styles = StyleSheet.create({
     height: 18,
     tintColor: '#FFF',
   },
-  qrcode: {
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  promo: {
-    padding: 20,
-    color: '#D17B00',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 16,
+  errorMessage: {
+    color: '#FF0000',
+    fontSize: 14,
   },
   link: {
     color: 'blue',

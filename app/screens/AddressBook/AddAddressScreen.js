@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { Image, View, FlatList, TouchableOpacity, SafeAreaView, Linking, Text } from 'react-native';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { Image,
+  View,
+  FlatList,
+  TouchableOpacity,
+  SafeAreaView,
+  Alert,
+  Text } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KInput, KButton, KHeader } from '../../components';
+import { KInput, KButton, KHeader, KText } from '../../components';
 import styles from './AddressBookScreen.style';
 import { connectAddresses } from '../../redux';
 import { log } from '../../logger/logger'
+import { getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
@@ -16,16 +24,100 @@ const AddAddressScreen = props => {
   } = props;
 
   const [name, setName] = useState('');
-  const [newAddress, setNewAddress] = useState('');
+  const [address, setAddress] = useState();
+  const [fioAddress, setFioAddress] = useState('');
+  const [isValidAddress, setIsValidAddress] = useState(false);
+  const [actor, setActor] = useState();
+  const [publicKey, setPublicKey] = useState();
+  const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
-  console.log(addresses);
+  const fioEndpoint = getEndpoint('FIO');
 
-  const _handleAddAddress = (address) => {
-    let addressJson = {address: newAddress, name: name}
-    console.log(addressJson);
-    addAddress(addressJson);
-    goBack();
+  const _validateAddress = (address) => {
+    if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
+      fetch(fioEndpoint + '/v1/chain/avail_check', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fio_name: address,
+        }),
+      })
+        .then(response => response.json())
+        .then(json => updateAvailableState(json.is_registered, address))
+        .catch(error => updateAvailableState(-1, address, error));
+    }
+  };
+
+  const updateAvailableState = (regcount, address, error) => {
+    if (regcount === 0) {
+      setAddressInvalidMessage('Invalid FIO address!');
+      setIsValidAddress(false);
+      setFioAddress('');
+      setActor('');
+      setPublicKey('');
+    } else if (regcount === 1) {
+      setAddressInvalidMessage('');
+      setIsValidAddress(true);
+      setFioAddress(address);
+      loadToPubkey(address);
+    } else if (error) {
+      console.log(error);
+      setAddressInvalidMessage('Error validating FIO address');
+      setIsValidAddress(false);
+      setFioAddress('');
+      setActor('');
+      setPublicKey('');
+      log({
+        description: '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
+        cause: error,
+        location: 'TransferScreen'
+      });
+    }
+  };
+
+  const loadToPubkey = async address => {
+    fetch(fioEndpoint + '/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": address,
+        "chain_code": "FIO",
+        "token_code": "FIO",
+      }),
+    })
+      .then(response => response.json())
+      .then(json => processToPubkeyUpdate(json.public_address))
+      .catch(error => log({
+        description: 'loadToPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+        cause: error,
+        location: 'AddAddressScreen'
+      })
+    );
+  };
+
+  const processToPubkeyUpdate = async (publicKey) => {
+    setPublicKey(publicKey);
+    const accountHash = Fio.accountHash(publicKey);
+    setActor(accountHash);
   }
+
+
+  const _handleAddAddress = () => {
+    if(fioAddress && publicKey) {
+      let addressJson = { name: name, address: fioAddress, actor: actor, publicKey: publicKey };
+      console.log(addressJson);
+      addAddress(addressJson);
+      goBack();
+    } else {
+      Alert.alert('Failed to load FIO address public key!');
+    }
+  };
 
   return (
      <SafeAreaView style={styles.container}>
@@ -41,10 +133,11 @@ const AddAddressScreen = props => {
         <KInput
           label={'FIO Address'}
           placeholder={'name@tribe'}
-          value={newAddress}
-          onChangeText={setNewAddress}
+          value={address}
+          onChangeText={_validateAddress}
           containerStyle={styles.inputContainer}
           autoCapitalize={'none'} />
+        <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
         <KInput
           label={'Name'}
           placeholder={'Optional name for the address'}
@@ -56,6 +149,7 @@ const AddAddressScreen = props => {
           title={'Save'}
           theme={'brown'}
           style={styles.button}
+          isLoading={!isValidAddress}
           onPress={_handleAddAddress}
           icon={'add'} />
       </View>
