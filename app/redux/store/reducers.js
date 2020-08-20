@@ -4,7 +4,7 @@ import { persistCombineReducers } from 'redux-persist';
 import createSensitiveStorage from 'redux-persist-sensitive-storage';
 
 import { LOGOUT } from '../modules/sharedActions';
-import { accountsState, addressesState, resetReducer } from '../modules';
+import { accountsState, resetReducer } from '../modules';
 
 const storage = createSensitiveStorage({
   keychainService: 'kwalletKeyChain',
@@ -19,7 +19,6 @@ const config = {
 
 const appReducer = persistCombineReducers(config, {
   accountsState,
-  addressesState,
 });
 
 export default function rootReducer(state, action) {

@@ -3,13 +3,10 @@
 const accountsState = {
   accounts: [],
   activeAccountIndex: -1,
+  addresses: []
 };
 
-const addressesState = {
-  addresses: [],
-};
 
 export const defaultReducers = {
-  accountsState,
-  addressesState,
+  accountsState
 };

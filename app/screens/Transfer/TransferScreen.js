@@ -9,7 +9,7 @@ import {
   KSelect,
   KText,
 } from '../../components';
-import { connectAccounts, connectAddresses } from '../../redux';
+import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
@@ -30,10 +30,11 @@ const TransferScreen = props => {
 
   const {
     navigation: { navigate },
-    accountsState: { accounts, activeAccountIndex },
-    addressesState: { addresses },
+    accountsState: { accounts, activeAccountIndex, addresses },
   } = props;
 
+  console.log("Transfer");
+  console.log(accounts);
   console.log(addresses);
 
   const fioEndpoint = getEndpoint('FIO');

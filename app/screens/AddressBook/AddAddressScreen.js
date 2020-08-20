@@ -10,7 +10,7 @@ import { Image,
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KButton, KHeader, KText } from '../../components';
 import styles from './AddressBookScreen.style';
-import { connectAddresses } from '../../redux';
+import { connectAccounts } from '../../redux';
 import { log } from '../../logger/logger'
 import { getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -19,7 +19,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const AddAddressScreen = props => {
   const {
     addAddress,
-    addressesState: { addresses },
+    accountsState: { accounts, activeAccountIndex, addresses },
     navigation: { navigate, goBack }
   } = props;
 
@@ -158,4 +158,4 @@ const AddAddressScreen = props => {
 
 };
 
-export default connectAddresses()(AddAddressScreen);
+export default connectAccounts()(AddAddressScreen);

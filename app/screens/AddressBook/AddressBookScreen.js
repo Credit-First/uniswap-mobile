@@ -4,7 +4,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KButton, KHeader } from '../../components';
 import AddressListItem from './components/AddressListItem';
 import styles from './AddressBookScreen.style';
-import { connectAddresses } from '../../redux';
+import { connectAccounts } from '../../redux';
 import { log } from '../../logger/logger'
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -12,7 +12,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const AddressBookScreen = props => {
   const {
     navigation: { navigate, goBack },
-    addressesState: { addresses },
+    accountsState: { accounts, activeAccountIndex, addresses },
   } = props;
 
   const [toAccount, setToAccount] = useState();
@@ -50,4 +50,4 @@ const AddressBookScreen = props => {
 
 };
 
-export default connectAddresses()(AddressBookScreen);
+export default connectAccounts()(AddressBookScreen);
