@@ -74,6 +74,8 @@ const RegisterAddressScreen = props => {
       connectAccount(fioAccount);
       Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
     } else {
+      json.method = 'connectFioAccount';
+      json.address = fioAccount.address;
       reportError(json);
     }
   };

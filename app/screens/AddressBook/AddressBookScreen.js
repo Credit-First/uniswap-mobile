@@ -15,6 +15,8 @@ const AddressBookScreen = props => {
     addressesState: { addresses },
   } = props;
 
+  const [toAccount, setToAccount] = useState();
+
   const _handlePressAddress = (index) => {
     let address = addresses[index];
     console.log(address);

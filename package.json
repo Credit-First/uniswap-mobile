@@ -40,6 +40,7 @@
     "querystring-es3": "~0.2.0",
     "react": "16.11.0",
     "react-native": "0.62.2",
+    "react-native-autocomplete-input": "^4.2.0",
     "react-native-chart-kit": "^5.6.0",
     "react-native-check-box": "^2.1.7",
     "react-native-crypto": "^2.2.0",

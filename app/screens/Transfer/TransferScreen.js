@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
-import { connectAccounts } from '../../redux';
+import {
+  KHeader,
+  KButton,
+  KInput,
+  KSelect,
+  KText,
+} from '../../components';
+import { connectAccounts, connectAddresses } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
@@ -23,9 +29,12 @@ const TransferScreen = props => {
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
   const {
-    accountsState: { accounts, activeAccountIndex },
     navigation: { navigate },
+    accountsState: { accounts, activeAccountIndex },
+    addressesState: { addresses },
   } = props;
+
+  console.log(addresses);
 
   const fioEndpoint = getEndpoint('FIO');
 

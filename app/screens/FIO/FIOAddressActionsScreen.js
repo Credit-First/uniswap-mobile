@@ -114,7 +114,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const updateAccountLists = (account, json) => {
-    log(json);
     let accountPubkeyEntry = json.public_address;
     var accPubkey = '';
     if (account.chainName==='ALGO') {
@@ -187,7 +186,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateFioRegistration(json))
       .catch(error => log({
-        description: 'checkRegistration - fetch http://fio.greymass.com/v1/chain/get_fio_names',
+        description: 'checkRegistration - fetch '+fioEndpoint+'/v1/chain/get_fio_names',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -211,7 +210,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updatePendingFioRequests(json.requests))
       .catch(error => log({
-        description: 'getPendingFioRequests - fetch https://fio.greymass.com/v1/chain/get_pending_fio_requests',
+        description: 'getPendingFioRequests - fetch '+fioEndpoint+'/v1/chain/get_pending_fio_requests',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -235,7 +234,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateSentFioRequests(json.requests))
       .catch(error => log({
-        description: 'getSentFioRequests - fetch https://fio.greymass.com/v1/chain/get_sent_fio_requests',
+        description: 'getSentFioRequests - fetch '+fioEndpoint+'/v1/chain/get_sent_fio_requests',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -257,7 +256,7 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => setFioBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) : 0)))
       .catch(error => log({
-        description: 'getFioBalance - fetch http://fio.greymass.com/v1/chain/get_fio_balance',
+        description: 'getFioBalance - fetch '+fioEndpoint+'/v1/chain/get_fio_balance',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
@@ -280,18 +279,11 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
       .catch(error => log({
-        description: 'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
+        description: 'getFee - fetch '+fioEndpoint+'/v1/chain/get_fee',
         cause: error,
         location: 'FIOAddressActionsScreen'
       })
     );
-  };
-
-  const updateActor = actor => {
-    if (!fioAccount.accountName) {
-      fioAccount.accountName = actor;
-    }
-    setActor(actor);
   };
 
   const updatePendingFioRequests = requests => {
@@ -338,34 +330,12 @@ const FIOAddressActionsScreen = props => {
       .then(response => response.json())
       .then(json => updateExternalAccounts(value.chain_code, json.public_address))
       .catch(error => log({
-          description: 'loadExternalAccounts - fetch http://fio.greymass.com/v1/chain/get_pub_address',
+          description: 'loadExternalAccounts - fetch '+fioEndpoint+'/v1/chain/get_pub_address',
           cause: error,
           location: 'FIOAddressActionsScreen'
         })
       );
     });
-  };
-
-  const loadActor = async pubkey => {
-
-    fetch(fioEndpoint+'/v1/chain/get_actor', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updateActor(json.actor))
-      .catch(error => log({
-          description: 'loadActor - fetch http://fio.greymass.com/v1/chain/get_actor',
-          cause: error,
-          location: 'FIOAddressActionsScreen'
-        })
-      );
   };
 
   const registerFioAddress = () => {
@@ -407,7 +377,7 @@ const FIOAddressActionsScreen = props => {
       getFee(fioAccount.address);
       getPendingFioRequests(fioKey);
       getSentFioRequests(fioKey);
-      loadActor(fioKey);
+      setActor(Fio.accountHash(fioKey));
       loadExternalAccounts();
       accounts.map((value, index, array) => {
           if (value.chainName !== 'FIO')  {

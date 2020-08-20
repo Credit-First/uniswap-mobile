@@ -339,6 +339,50 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   return json;
 };
 
+const fioSendMessage = async (fromFioAccount,
+  toFioAddress,
+  toPublicKey,
+  message) => {
+
+  const fromFioAddress = fromFioAccount.address;
+  const fromActor = fromFioAccount.accountName;
+  const fromPrivateKey = fromFioAccount.privateKey;
+  const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
+  const toActor = Fio.accountHash(toPublicKey);
+
+  const fioMessage = {
+    from: fromFioAddress,
+    to: toFioAddress,
+    message: message
+  };
+
+  const cipher = Fio.createSharedCipher({
+    privateKey: fromPrivateKey,
+    publicKey: toPublicKey,
+    textEncoder: new TextEncoder(),
+    textDecoder: new TextDecoder()}
+  );
+  const encryptedMessage = cipher.encrypt('fio_message', fioMessage);
+
+  const fioMessageRequest = {
+    fromActor: fromActor,
+    toActor: toActor,
+    encryptedMessage: encryptedMessage
+  };
+
+  var pushResult = await fetch('https://fiochat.eostribe.io/push_message', { body: JSON.stringify(fioMessageRequest), method: 'POST', });
+
+  const json = await pushResult.json();
+  if (!json.processed) {
+    log({
+      description: 'fioSendMessage error',
+      cause: json,
+      location: 'fio'
+    });
+  }
+  return json;
+};
+
 const fioNewFundsRequest = async (fromFioAccount,
   toFioAddress,
   toPublicKey,
@@ -583,6 +627,7 @@ export {
   fioAddExternalAddress,
   fioNewFundsRequest,
   fioDelegateSecretRequest,
+  fioSendMessage,
   recordObtData,
   rejectFundsRequest
 };
