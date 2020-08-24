@@ -21,6 +21,7 @@ const InputSend = ({onPress}) => {
 
   const _handlePressSend = () => {
     onPress(message);
+    setMessage('');
   };
 
   return (

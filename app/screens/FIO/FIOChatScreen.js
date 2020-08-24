@@ -64,14 +64,15 @@ const FIOChatScreen = props => {
     textDecoder: new TextDecoder()
   });
 
-  const processEncryptedMessages = (json) => {
+  const processEncryptedMessages = (json, pendingMessage) => {
     var messages = [];
     for(var i in json) {
       let item = json[i];
       try {
         let decryptedMessage = cipher.decrypt('record_obt_data_content', item.message);
         item.message = decryptedMessage.memo;
-        console.log(item);
+        item.fromAddress = decryptedMessage.hash;
+        item.toAddress = decryptedMessage.offline_url;
         messages.push(item);
       } catch(err) {
         let errJson = { cause: err, item: item, description: 'Error decrypting message' };
@@ -82,10 +83,14 @@ const FIOChatScreen = props => {
         });
       }
     }
+    if(pendingMessage) {
+      messages.push(pendingMessage);
+    }
+    messages.push({"reload": true});
     setMessageList(messages);
   };
 
-  const loadMessages = (from, to) => {
+  const loadMessages = (from, to, pendingMessage) => {
     let endpoint = chatEndpoint+'/'+from+'/'+to;
     try {
       fetch(endpoint, {
@@ -96,7 +101,7 @@ const FIOChatScreen = props => {
         },
       })
         .then(response => response.json())
-        .then(json => processEncryptedMessages(json))
+        .then(json => processEncryptedMessages(json, pendingMessage))
         .catch(error => log({
           description: 'loadMessages - fetch '+endpoint,
           cause: error,
@@ -109,6 +114,10 @@ const FIOChatScreen = props => {
     }
   };
 
+  const refreshMessages = () => {
+    loadMessages(fromActor, toActor);
+  };
+
   if(runCount < 1) {
     setRunCount(1);
     loadMessages(fromActor, toActor);
@@ -119,8 +128,18 @@ const FIOChatScreen = props => {
   };
 
   const _handleSubmit = async (message) => {
+    if(!message) return;
     try {
       await fioSendMessage(fromAccount, fioAddress.address, fioAddress.publicKey, message);
+      let pendingMessage = {
+        "created": "Now",
+        "from": fromActor,
+        "fromAddress": fromAccount.address,
+        "message": message,
+        "to": toActor,
+        "toAddress": fioAddress.address
+      };
+      loadMessages(fromActor, toActor, pendingMessage);
     } catch (err) {
       Alert.alert(err.message);
       log({
@@ -146,7 +165,7 @@ const FIOChatScreen = props => {
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
               renderItem={({ item, index }) => (
-                <MessageListItem item={item} style={styles.listItem} />
+                <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
               )}
               />
           <InputSend onPress={_handleSubmit}/>
