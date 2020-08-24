@@ -345,15 +345,23 @@ const fioSendMessage = async (fromFioAccount,
   message) => {
 
   const fromFioAddress = fromFioAccount.address;
-  const fromActor = fromFioAccount.accountName;
   const fromPrivateKey = fromFioAccount.privateKey;
   const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
+  const fromActor = Fio.accountHash(fromPublicKey);
   const toActor = Fio.accountHash(toPublicKey);
+  const id = fromActor+'-'+toActor;
 
-  const fioMessage = {
-    from: fromFioAddress,
-    to: toFioAddress,
-    message: message
+  const obtContent = {
+    payer_public_address: fromPublicKey,
+    payee_public_address: toPublicKey,
+    amount: '0',
+    chain_code: 'FIO',
+    token_code: 'FIO',
+    status: 'message',
+    obt_id: id,
+    memo: message,
+    hash: fromFioAddress,
+    offline_url: toFioAddress
   };
 
   const cipher = Fio.createSharedCipher({
@@ -362,7 +370,7 @@ const fioSendMessage = async (fromFioAccount,
     textEncoder: new TextEncoder(),
     textDecoder: new TextDecoder()}
   );
-  const encryptedMessage = cipher.encrypt('fio_message', fioMessage);
+  const encryptedMessage = cipher.encrypt('record_obt_data_content', obtContent);
 
   const fioMessageRequest = {
     fromActor: fromActor,
@@ -370,17 +378,34 @@ const fioSendMessage = async (fromFioAccount,
     encryptedMessage: encryptedMessage
   };
 
-  var pushResult = await fetch('https://fiochat.eostribe.io/push_message', { body: JSON.stringify(fioMessageRequest), method: 'POST', });
+  const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fioMessageRequest)
+  };
 
-  const json = await pushResult.json();
-  if (!json.processed) {
+  try {
+    // 'https://fiochat.eostribe.io/messages'
+    fetch('http://localhost:3000/messages', requestOptions)
+        .then(response => response.json())
+        .then(data => _handleMessageSent(data));
+  } catch(err) {
     log({
-      description: 'fioSendMessage error',
-      cause: json,
+      description: 'fioSendMessage error sending message',
+      cause: err,
       location: 'fio'
     });
   }
-  return json;
+};
+
+const _handleMessageSent = (data) => {
+  if(!data.processed) {
+    log({
+      description: 'fioSendMessage:_handleMessageSent error',
+      cause: data,
+      location: 'fio'
+    });
+  }
 };
 
 const fioNewFundsRequest = async (fromFioAccount,

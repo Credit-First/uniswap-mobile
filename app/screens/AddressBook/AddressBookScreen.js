@@ -18,8 +18,8 @@ const AddressBookScreen = props => {
   const [toAccount, setToAccount] = useState();
 
   const _handlePressAddress = (index) => {
-    let address = addresses[index];
-    console.log(address);
+    let fioAddress = addresses[index];
+    navigate('FIOChat', { fioAddress });
   }
 
   return (

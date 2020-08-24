@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
@@ -22,6 +23,7 @@ const TransferScreen = props => {
   const [toAccountName, setToAccountName] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
+  const [toFioAddress, setToFioAddress] = useState();
   const [isFioAddress, setIsFioAddress] = useState(false);
   const [toActor, setToActor] = useState('');
   const [toPubkey, setToPubkey] = useState('');
@@ -29,13 +31,11 @@ const TransferScreen = props => {
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
   const {
+    addAddress,
     navigation: { navigate },
     accountsState: { accounts, activeAccountIndex, addresses },
   } = props;
 
-  console.log("Transfer");
-  console.log(accounts);
-  console.log(addresses);
 
   const fioEndpoint = getEndpoint('FIO');
 
@@ -109,7 +109,6 @@ const TransferScreen = props => {
       setAddressInvalidMessage('');
       loadToPubkey(address);
     } else if (error) {
-      console.log(error);
       setToPubkey('');
       setAddressInvalidMessage('Error validating FIO address');
       log({
@@ -132,9 +131,11 @@ const TransferScreen = props => {
     if (fromAccount.chainName==='FIO') {
       _validateAddress(value);
       setIsFioAddress(true);
+      setToFioAddress(value);
     } else if(value.indexOf('@') > 1) {
       _validateAddress(value);
       setIsFioAddress(true);
+      setToFioAddress(value);
     } else {
       setIsFioAddress(false);
       setAddressInvalidMessage('');
@@ -144,7 +145,26 @@ const TransferScreen = props => {
 
   const _callback = (txid) => {
     Alert.alert('Transfer completed: '+txid);
+    navigate('Accounts');
   }
+
+  const addFIOAddressToAddressbook = () => {
+    if(toFioAddress && toPubkey) {
+      let accountHash = Fio.accountHash(toPubkey);
+      let name = toFioAddress.split('@')[0];
+      let addressJson = { name: name, address: toFioAddress, actor: accountHash, publicKey: toPubkey };
+      let matchingAddresses = addresses.filter((item, index) => item.address === toFioAddress);
+      if(matchingAddresses.length == 0) {
+        addAddress(addressJson);
+      }
+    } else {
+      log({
+        description: 'addFIOAddressToAddressbook: Failed to load To FIO address and public key',
+        cause: 'Failed to load To FIO address and public key',
+        location: 'TransferScreen'
+      });
+    }
+  };
 
   const _handleTransfer = async () => {
     if(!fromAccount || !toAccountName || !amount) {
@@ -171,6 +191,8 @@ const TransferScreen = props => {
         Alert.alert('Could not determine receiver public key for '+fromAccount.chainName+' registered to '+toAccountName);
         return;
       }
+      // Add FIO address to addressbook:
+      addFIOAddressToAddressbook();
     }
 
     // EOSIO to actor name validation:

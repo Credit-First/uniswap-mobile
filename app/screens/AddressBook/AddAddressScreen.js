@@ -111,9 +111,13 @@ const AddAddressScreen = props => {
   const _handleAddAddress = () => {
     if(fioAddress && publicKey) {
       let addressJson = { name: name, address: fioAddress, actor: actor, publicKey: publicKey };
-      console.log(addressJson);
-      addAddress(addressJson);
-      goBack();
+      let matchingAddresses = addresses.filter((item, index) => item.address === toFioAddress);
+      if(matchingAddresses.length == 0) {
+        addAddress(addressJson);
+        goBack();
+      } else {
+        Alert.alert('This address already exists in the Address Book!');
+      }
     } else {
       Alert.alert('Failed to load FIO address public key!');
     }

@@ -34,6 +34,7 @@ import {
   ListFIORequestsScreen,
   ViewFIORequestScreen,
   FIOSendScreen,
+  FIOChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
   AddressBookScreen,
@@ -106,6 +107,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="FIOSend"
         component={FIOSendScreen}
+      />
+      <AccountsStack.Screen
+        name="FIOChat"
+        component={FIOChatScreen}
       />
       <AccountsStack.Screen
         name="AlgoAccount"
