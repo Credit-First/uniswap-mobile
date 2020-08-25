@@ -7,6 +7,12 @@ import { getEndpoint } from './chains';
 import { log } from '../logger/logger';
 import { Alert } from 'react-native';
 
+
+const getFioChatEndpoint = () => {
+  // 'https://fiochat.eostribe.io/messages'
+  return 'http://localhost:3000/messages';
+};
+
 const sendFioTransfer = async (fromFioAccount,
   toPublicKey, amount, memo, callback) => {
   const privateKeys = [fromFioAccount.privateKey];
@@ -385,8 +391,7 @@ const fioSendMessage = async (fromFioAccount,
   };
 
   try {
-    // 'https://fiochat.eostribe.io/messages'
-    fetch('http://localhost:3000/messages', requestOptions)
+    fetch(getFioChatEndpoint(), requestOptions)
         .then(response => response.json())
         .then(data => _handleMessageSent(data));
   } catch(err) {
@@ -654,5 +659,6 @@ export {
   fioDelegateSecretRequest,
   fioSendMessage,
   recordObtData,
-  rejectFundsRequest
+  rejectFundsRequest,
+  getFioChatEndpoint
 };

@@ -8,7 +8,7 @@ import {
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
-import { fioSendMessage } from '../../eos/fio';
+import { fioSendMessage, getFioChatEndpoint } from '../../eos/fio';
 import ecc from 'eosjs-ecc-rn';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText, InputSend } from '../../components';
@@ -38,7 +38,7 @@ const FIOChatScreen = props => {
   const [messageList, setMessageList] = useState([]);
 
   const fioEndpoint = getEndpoint('FIO');
-  const chatEndpoint = 'http://localhost:3000/messages';
+  const chatEndpoint = getFioChatEndpoint();
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName == 'FIO';
