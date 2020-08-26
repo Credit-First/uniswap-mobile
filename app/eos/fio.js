@@ -9,8 +9,7 @@ import { Alert } from 'react-native';
 
 
 const getFioChatEndpoint = () => {
-  // 'https://fiochat.eostribe.io/messages'
-  return 'http://localhost:3000/messages';
+  return 'https://fiochat.eostribe.io/messages';
 };
 
 const sendFioTransfer = async (fromFioAccount,
@@ -391,7 +390,8 @@ const fioSendMessage = async (fromFioAccount,
   };
 
   try {
-    fetch(getFioChatEndpoint(), requestOptions)
+    let fioChatEndpoint = getFioChatEndpoint();
+    fetch(fioChatEndpoint, requestOptions)
         .then(response => response.json())
         .then(data => _handleMessageSent(data));
   } catch(err) {
@@ -444,7 +444,6 @@ const fioNewFundsRequest = async (fromFioAccount,
     hash: null,
     offline_url: null
   };
-  console.log(newFundsContent);
 
   const fromPrivateKey = fromFioAccount.privateKey;
   const cipher = Fio.createSharedCipher({

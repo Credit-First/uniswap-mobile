@@ -24,7 +24,6 @@ const AddressListItem = ({ address, fromactor, onPress, ...props }) => {
 
   const loadMessageCount = (from, to) => {
     let endpoint = chatEndpoint+'/'+from+'/'+to+'/count';
-    console.log(endpoint);
     try {
       fetch(endpoint, {
         method: 'GET',

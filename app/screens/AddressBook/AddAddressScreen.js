@@ -111,7 +111,7 @@ const AddAddressScreen = props => {
   const _handleAddAddress = () => {
     if(fioAddress && publicKey) {
       let addressJson = { name: name, address: fioAddress, actor: actor, publicKey: publicKey };
-      let matchingAddresses = addresses.filter((item, index) => item.address === toFioAddress);
+      let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
       if(matchingAddresses.length == 0) {
         addAddress(addressJson);
         goBack();

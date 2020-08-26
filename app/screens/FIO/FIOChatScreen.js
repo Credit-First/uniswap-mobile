@@ -10,7 +10,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { fioSendMessage, getFioChatEndpoint } from '../../eos/fio';
 import ecc from 'eosjs-ecc-rn';
-import styles from './FIORequestSend.style';
+import styles from './FIOChat.style';
 import { KHeader, KButton, KInput, KSelect, KText, InputSend } from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { TextEncoder, TextDecoder } from 'text-encoding';
@@ -124,7 +124,11 @@ const FIOChatScreen = props => {
   }
 
   const getTitle = () => {
-    return 'Chat with ' + fioAddress.address;
+    return 'FIO Chat';
+  };
+
+  const getSubtitle = () => {
+    return fromAccount.address + ' to ' + fioAddress.address;
   };
 
   const _handleSubmit = async (message) => {
@@ -159,7 +163,7 @@ const FIOChatScreen = props => {
               color={PRIMARY_BLUE}
               />
           </TouchableOpacity>
-          <KHeader title={getTitle()} style={styles.header}/>
+          <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
           <View style={styles.spacer} />
           <FlatList
               data={messageList}
