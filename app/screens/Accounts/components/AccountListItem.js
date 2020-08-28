@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
-import { getChain } from '../../../eos/chains';
+import { getChain, getEndpoint } from '../../../eos/chains';
 import { getAccount } from '../../../eos/eos';
 import { log } from '../../../logger/logger';
 import {
@@ -14,6 +14,8 @@ import {
 
 const fioDivider = 1000000000;
 const algoDivider = 1000000;
+
+const fioEndpoint = getEndpoint('FIO');
 
 const loadAccountBalance = async (account, setAccountBalance) => {
   const chain = getChain(account.chainName);
@@ -32,7 +34,7 @@ const loadAccountBalance = async (account, setAccountBalance) => {
 const loadFioAccountBalance = async (account, setAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
-    fetch('http://fio.greymass.com/v1/chain/get_fio_balance', {
+    fetch(fioEndpoint+'/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -45,7 +47,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       .then(response => response.json())
       .then(json => setAccountBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) + ' FIO' : 'validate')))
       .catch(error => log({
-        description: 'loadFioAccountBalance - fetch http://fio.greymass.com/v1/chain/get_fio_balance',
+        description: 'loadFioAccountBalance - fetch '+fioEndpoint+'/v1/chain/get_fio_balance',
         cause: error,
         location: 'AccountListItem'
       })
@@ -79,8 +81,6 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
     return;
   }
 };
-
-const _blank = () => {};
 
 const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
@@ -118,7 +118,7 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
         </View>
       </TouchableOpacity>
     );
-  } 
+  }
 };
 
 const styles = StyleSheet.create({

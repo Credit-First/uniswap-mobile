@@ -31,8 +31,9 @@ const FIORequestScreen = props => {
   const [fioPubkey, setFioPubkey] = useState(); // payee public key
   const [loading, setLoading] = useState(false);
   const {
+    addAddress,
     navigation: { navigate, goBack },
-    accountsState: { accounts },
+    accountsState: { accounts, activeAccountIndex, addresses },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -86,14 +87,25 @@ const FIORequestScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => setFioPubkey(json.public_address))
+      .then(json => addFIOAddressToAddressbook(json.public_address, address))
       .catch(error => log({
         description: 'getFioPubkey - fetch ' + fioEndpoint+'/v1/chain/get_pub_address',
         cause: error,
         location: 'FIORequestScreen'
       })
     );
-  }
+  };
+
+  const addFIOAddressToAddressbook = (fioPubKey, fioAddress) => {
+    setFioPubkey(fioPubKey)
+    let accountHash = Fio.accountHash(fioPubKey);
+    let name = fioAddress.split('@')[0];
+    let addressJson = { name: name, address: fioAddress, actor: accountHash, publicKey: fioPubKey };
+    let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
+    if(matchingAddresses.length === 0) {
+      addAddress(addressJson);
+    }
+  };
 
   const _validateAddress = async address => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {

@@ -23,6 +23,7 @@ export {
 } from './FIO/FIORegisterExternalScreen';
 export { default as FIORequestScreen } from './FIO/FIORequestScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
+export { default as FIOChatScreen } from './FIO/FIOChatScreen';
 export { default as ListFIORequestsScreen } from './FIO/ListFIORequestsScreen';
 export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
 export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
@@ -39,3 +40,5 @@ export {
 export { default as VoteScreen } from './Vote/VoteScreen';
 export { default as MenuScreen } from './Menu/MenuScreen';
 export { default as ExchangeScreen } from './Exchange/ExchangeScreen';
+export { default as AddressBookScreen } from './AddressBook/AddressBookScreen';
+export { default as AddAddressScreen } from './AddressBook/AddAddressScreen';

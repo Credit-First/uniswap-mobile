@@ -7,6 +7,11 @@ import { getEndpoint } from './chains';
 import { log } from '../logger/logger';
 import { Alert } from 'react-native';
 
+
+const getFioChatEndpoint = () => {
+  return 'https://fiochat.eostribe.io/messages';
+};
+
 const sendFioTransfer = async (fromFioAccount,
   toPublicKey, amount, memo, callback) => {
   const privateKeys = [fromFioAccount.privateKey];
@@ -339,6 +344,75 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   return json;
 };
 
+const fioSendMessage = async (fromFioAccount,
+  toFioAddress,
+  toPublicKey,
+  message) => {
+
+  const fromFioAddress = fromFioAccount.address;
+  const fromPrivateKey = fromFioAccount.privateKey;
+  const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
+  const fromActor = Fio.accountHash(fromPublicKey);
+  const toActor = Fio.accountHash(toPublicKey);
+  const id = fromActor+'-'+toActor;
+
+  const obtContent = {
+    payer_public_address: fromPublicKey,
+    payee_public_address: toPublicKey,
+    amount: '0',
+    chain_code: 'FIO',
+    token_code: 'FIO',
+    status: 'message',
+    obt_id: id,
+    memo: message,
+    hash: fromFioAddress,
+    offline_url: toFioAddress
+  };
+
+  const cipher = Fio.createSharedCipher({
+    privateKey: fromPrivateKey,
+    publicKey: toPublicKey,
+    textEncoder: new TextEncoder(),
+    textDecoder: new TextDecoder()}
+  );
+  const encryptedMessage = cipher.encrypt('record_obt_data_content', obtContent);
+
+  const fioMessageRequest = {
+    fromActor: fromActor,
+    toActor: toActor,
+    encryptedMessage: encryptedMessage
+  };
+
+  const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fioMessageRequest)
+  };
+
+  try {
+    let fioChatEndpoint = getFioChatEndpoint();
+    fetch(fioChatEndpoint, requestOptions)
+        .then(response => response.json())
+        .then(data => _handleMessageSent(data));
+  } catch(err) {
+    log({
+      description: 'fioSendMessage error sending message',
+      cause: err,
+      location: 'fio'
+    });
+  }
+};
+
+const _handleMessageSent = (data) => {
+  if(!data.processed) {
+    log({
+      description: 'fioSendMessage:_handleMessageSent error',
+      cause: data,
+      location: 'fio'
+    });
+  }
+};
+
 const fioNewFundsRequest = async (fromFioAccount,
   toFioAddress,
   toPublicKey,
@@ -370,7 +444,6 @@ const fioNewFundsRequest = async (fromFioAccount,
     hash: null,
     offline_url: null
   };
-  console.log(newFundsContent);
 
   const fromPrivateKey = fromFioAccount.privateKey;
   const cipher = Fio.createSharedCipher({
@@ -583,6 +656,8 @@ export {
   fioAddExternalAddress,
   fioNewFundsRequest,
   fioDelegateSecretRequest,
+  fioSendMessage,
   recordObtData,
-  rejectFundsRequest
+  rejectFundsRequest,
+  getFioChatEndpoint
 };

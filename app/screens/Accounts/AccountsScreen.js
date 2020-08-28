@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
-import { Image, View, FlatList, SafeAreaView, Linking, Text } from 'react-native';
+import { Image,
+  View,
+  FlatList,
+  SafeAreaView,
+  Linking,
+  Text,
+  Alert } from 'react-native';
 import { KButton } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
@@ -23,6 +29,7 @@ const AccountsScreen = props => {
 
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
+  const [runCount, setRunCount] = useState(0);
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'FIO';
@@ -68,7 +75,6 @@ const AccountsScreen = props => {
   };
 
   const updateFioRegistration = (json, account) => {
-    console.log(json);
     let fioAddresses = json.fio_addresses;
     if (fioAddresses) {
       fioAddresses.map(function(item) {
@@ -140,10 +146,118 @@ const AccountsScreen = props => {
     }
   };
 
-  const getAppVersion = () => {
-    return "Version " + DeviceInfo.getVersion() + ", Build " + DeviceInfo.getBuildNumber();
-  }
+const getAppVersion = () => {
+  return "Version " + DeviceInfo.getVersion() + ", Build " + DeviceInfo.getBuildNumber();
+}
 
+const goToAppStore = () => {
+  Linking.openURL('https://apps.apple.com/us/app/id1521532252');
+};
+
+const parseIOSVersion = (html) => {
+  let pattern = 'data-test-version-number>Version ';
+    let index = html.indexOf(pattern);
+    if(index > 0) {
+      let startPos = index + pattern.length;
+      let endPos = startPos + 3;
+      var version = html.substring(startPos, endPos);
+      let appVersion = DeviceInfo.getVersion();
+      console.log('App Store Version '+version+' vs. App Version'+appVersion);
+      if(appVersion !== version) {
+        Alert.alert(
+          'New version available!',
+          'Download latest version '+version+' of TRIBE Wallet from App Store.',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Update wallet cancelled'),
+              style: 'cancel'
+            },
+            { text: 'OK', onPress: () => goToAppStore() }
+          ],
+          { cancelable: true }
+        );
+      }
+    }
+};
+
+const checkLatestIOSVersion = () => {
+  let storeUrl = 'https://apps.apple.com/us/app/id1521532252';
+  try {
+    fetch(storeUrl, { method: 'GET' })
+      .then(response => response.text())
+      .then(text => parseIOSVersion(text))
+      .catch(error => log({
+        description: 'checkLatestIOSVersion - fetch ' + storeUrl,
+        cause: error,
+        location: 'AccountsScreen'
+      })
+    );
+  } catch (err) {
+    log({ description: 'checkLatestIOSVersion', cause: err, location: 'AccountsScreen'});
+  }
+};
+
+const parseAndroidVersion = (html) => {
+  let pattern = 'Current Version</div>';
+    let index = html.indexOf(pattern);
+    if(index > 0) {
+      let startPos = index + pattern.length;
+      var secondHalf = html.substring(startPos);
+      let endPos = secondHalf.indexOf('</span>');
+      startPos = endPos - 4;
+      let version = secondHalf.substring(startPos, endPos);
+      let appVersion = DeviceInfo.getVersion();
+      console.log('Play Store Version '+version+' vs. App Version'+appVersion);
+      if(appVersion !== version) {
+        Alert.alert(
+          'New version available!',
+          'Download latest version '+version+' of TRIBE Wallet from Play Store.',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Update wallet cancelled'),
+              style: 'cancel'
+            },
+            { text: 'OK', onPress: () => goToAppStore() }
+          ],
+          { cancelable: true }
+        );
+      }
+    }
+};
+
+const checkLatestAndroidVersion = () => {
+  let storeUrl = 'https://play.google.com/store/apps/details?id=com.kryptowallet';
+  try {
+    fetch(storeUrl, { method: 'GET' })
+      .then(response => response.text())
+      .then(text => parseAndroidVersion(text))
+      .catch(error => log({
+        description: 'checkLatestAndroidVersion - fetch ' + storeUrl,
+        cause: error,
+        location: 'AccountsScreen'
+      })
+    );
+  } catch (err) {
+    log({ description: 'checkLatestAndroidVersion', cause: err, location: 'AccountsScreen'});
+  }
+};
+
+const checkOnLatestVersion = () => {
+  let brand = DeviceInfo.getBrand();
+  console.log("Device brand: "+brand);
+  if (brand == "Apple") { // Either iPhone device
+    checkLatestIOSVersion();
+  } else { // otherwise - Android
+    checkLatestAndroidVersion();
+  }
+};
+
+if (runCount == 0) {
+  setRunCount(1);
+  checkOnLatestVersion();
+}
 
   var optionalButtons = <View style={styles.spacer} />;
   if (!hasPendingFIOAddress()) {
