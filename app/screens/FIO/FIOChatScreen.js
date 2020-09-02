@@ -30,11 +30,12 @@ const FIOChatScreen = props => {
     route: {
       params: {
         fioAddress,
+        index,
       },
     },
   } = props;
 
-  const [runCount, setRunCount] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(-1);
   const [messageList, setMessageList] = useState([]);
 
   const fioEndpoint = getEndpoint('FIO');
@@ -118,8 +119,8 @@ const FIOChatScreen = props => {
     loadMessages(fromActor, toActor);
   };
 
-  if(runCount < 1) {
-    setRunCount(1);
+  if(index !== currentIndex) {
+    setCurrentIndex(index);
     loadMessages(fromActor, toActor);
   }
 
@@ -154,9 +155,13 @@ const FIOChatScreen = props => {
     }
   };
 
+  const _handleBack = () => {
+    navigate('AddressBook');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
             <MaterialIcon
               name={'keyboard-backspace'}
               size={24}
@@ -164,7 +169,7 @@ const FIOChatScreen = props => {
               />
           </TouchableOpacity>
           <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
-          <View style={styles.spacer} />
+          <InputSend onPress={_handleSubmit}/>
           <FlatList
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
@@ -172,7 +177,6 @@ const FIOChatScreen = props => {
                 <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
               )}
               />
-          <InputSend onPress={_handleSubmit}/>
     </SafeAreaView>
   );
 

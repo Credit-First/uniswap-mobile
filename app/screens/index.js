@@ -42,3 +42,4 @@ export { default as MenuScreen } from './Menu/MenuScreen';
 export { default as ExchangeScreen } from './Exchange/ExchangeScreen';
 export { default as AddressBookScreen } from './AddressBook/AddressBookScreen';
 export { default as AddAddressScreen } from './AddressBook/AddAddressScreen';
+export { default as EditAddressScreen } from './AddressBook/EditAddressScreen';

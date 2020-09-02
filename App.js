@@ -39,6 +39,7 @@ import {
   ConnectAccountScreen,
   AddressBookScreen,
   AddAddressScreen,
+  EditAddressScreen,
   TransferScreen,
   TransactionsScreen,
   TransactionDetailScreen,
@@ -125,6 +126,10 @@ const AccountsStackScreen = () => {
         component={AddAddressScreen}
       />
       <AccountsStack.Screen
+        name="EditAddress"
+        component={EditAddressScreen}
+      />
+      <AccountsStack.Screen
         name="Transactions"
         component={TransactionsScreen}
       />
@@ -144,6 +149,8 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('./assets/icons/accounts.png');
     } else if (route.name === 'Transfer') {
       icon = require('./assets/icons/transfer.png');
+    } else if (route.name === 'Chat') {
+      icon = require('./assets/icons/chat.png');
     } else if (route.name === 'Menu') {
       icon = require('./assets/icons/menu.png');
     }
@@ -160,6 +167,7 @@ const MainTabScreen = () => {
       }}>
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferScreen} />
+      <MainTab.Screen name={'Chat'} component={AddressBookScreen} />
       <MainTab.Screen name={'Menu'} component={MenuScreen} />
     </MainTab.Navigator>
   );
