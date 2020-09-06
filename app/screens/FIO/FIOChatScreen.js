@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   FlatList,
   View,
+  Image,
   Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -11,7 +12,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { fioSendMessage, getFioChatEndpoint } from '../../eos/fio';
 import ecc from 'eosjs-ecc-rn';
 import styles from './FIOChat.style';
-import { KHeader, KButton, KInput, KSelect, KText, InputSend } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, InputSend, RequestSendButtons } from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { connectAccounts } from '../../redux';
@@ -31,6 +32,7 @@ const FIOChatScreen = props => {
       params: {
         fioAddress,
         index,
+        fromFioAddress,
       },
     },
   } = props;
@@ -51,7 +53,7 @@ const FIOChatScreen = props => {
     return;
   }
 
-  const fromAccount = fioAccounts[0];
+  const fromAccount = (fromFioAddress != null) ? fromFioAddress : fioAccounts[0];
   const fromPrivateKey = fromAccount.privateKey;
   const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
@@ -122,6 +124,8 @@ const FIOChatScreen = props => {
   if(index !== currentIndex) {
     setCurrentIndex(index);
     loadMessages(fromActor, toActor);
+  } else if(fromFioAddress != null && messageList.length > 0) {
+    loadMessages(fromActor, toActor);
   }
 
   const getTitle = () => {
@@ -159,8 +163,61 @@ const FIOChatScreen = props => {
     navigate('AddressBook');
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
+  const _handleChangeFromAccount = (fromFioAddress) => {
+    navigate('FIOChat', { fioAddress, index, fromFioAddress });
+  };
+
+  const _handleFIORequest = () => {
+    navigate('FIORequest');
+  };
+
+  const _handleFIOSend = () => {
+    navigate('FIOSend');
+  };
+
+  if(fioAccounts.length > 1) {
+    return (
+      <SafeAreaView style={styles.container}>
+          <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+              />
+          </TouchableOpacity>
+          <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
+          <KSelect
+            items={fioAccounts.map(item => ({
+              label: `${item.address}`,
+              value: item,
+            }))}
+            onValueChange={_handleChangeFromAccount}
+            containerStyle={styles.inputContainer}
+          />
+          <InputSend onPress={_handleSubmit}/>
+          <FlatList
+              data={messageList}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item, index }) => (
+                <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
+              )}
+              />
+          <RequestSendButtons
+              style={styles.button}
+              onRequestPress={_handleFIORequest}
+              onSendPress={_handleFIOSend}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/transfer.png')}
+                  style={styles.buttonIcon}
+                  />
+              )}
+          />
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
           <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
             <MaterialIcon
               name={'keyboard-backspace'}
@@ -176,22 +233,23 @@ const FIOChatScreen = props => {
               renderItem={({ item, index }) => (
                 <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
               )}
-              />
-    </SafeAreaView>
-  );
+          />
+          <RequestSendButtons
+              style={styles.button}
+              onRequestPress={_handleFIORequest}
+              onSendPress={_handleFIOSend}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/transfer.png')}
+                  style={styles.buttonIcon}
+                  />
+              )}
+          />
+      </SafeAreaView>
+    );
+  }
 
 };
 
-/*
-<KSelect
-  label={'Using my FIO address'}
-  items={fioAccounts.map(item => ({
-    label: `${item.address}`,
-    value: item,
-  }))}
-  onValueChange={setFromAccount}
-  containerStyle={styles.inputContainer}
-/>
-*/
 
 export default connectAccounts()(FIOChatScreen);
