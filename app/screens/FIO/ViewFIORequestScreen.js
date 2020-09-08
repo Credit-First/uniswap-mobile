@@ -332,10 +332,16 @@ const ViewFIORequestScreen = props => {
   };
 
   const _handleContact = () => {
-    let fioAddress = fioRequest.payee_fio_address;
-    let fromFioAddress = fioRequest.payer_fio_address;
     let index = 0;
-    navigate('FIOChat', { fioAddress, index, fromFioAddress });
+    if (payerRole) {
+      let fioAddress = fioRequest.payee_fio_address;
+      let fromFioAddress = fioRequest.payer_fio_address;
+      navigate('FIOChat', { fioAddress, index, fromFioAddress });
+    } else {
+      let fioAddress = fioRequest.payer_fio_address;
+      let fromFioAddress = fioRequest.payee_fio_address;
+      navigate('FIOChat', { fioAddress, index, fromFioAddress });
+    }
   };
 
   if(decryptedContent!=null && payerRole && chain && chainAccounts.length > 0) {

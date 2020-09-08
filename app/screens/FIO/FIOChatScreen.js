@@ -136,7 +136,7 @@ const FIOChatScreen = props => {
     return fromAccount.address + ' to ' + fioAddress.address;
   };
 
-  const _handleSubmit = async (message) => {
+  const _handleSendMessage = async (message) => {
     if(!message) return;
     try {
       await fioSendMessage(fromAccount, fioAddress.address, fioAddress.publicKey, message);
@@ -167,12 +167,10 @@ const FIOChatScreen = props => {
     navigate('FIOChat', { fioAddress, index, fromFioAddress });
   };
 
-  const _handleFIORequest = () => {
-    navigate('FIORequest');
-  };
-
-  const _handleFIOSend = () => {
-    navigate('FIOSend');
+  const _handleFIOSendCoin = () => {
+    const fromFioAccount = fromAccount;
+    const toFioAddress = fioAddress;
+    navigate('FIOSendDirect', { fromFioAccount, toFioAddress });
   };
 
   if(fioAccounts.length > 1) {
@@ -194,7 +192,8 @@ const FIOChatScreen = props => {
             onValueChange={_handleChangeFromAccount}
             containerStyle={styles.inputContainer}
           />
-          <InputSend onPress={_handleSubmit}/>
+          <InputSend onSendMessage={_handleSendMessage}
+                     onSendCoin={_handleFIOSendCoin}/>
           <FlatList
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
@@ -202,17 +201,6 @@ const FIOChatScreen = props => {
                 <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
               )}
               />
-          <RequestSendButtons
-              style={styles.button}
-              onRequestPress={_handleFIORequest}
-              onSendPress={_handleFIOSend}
-              renderIcon={() => (
-                <Image
-                  source={require('../../../assets/icons/transfer.png')}
-                  style={styles.buttonIcon}
-                  />
-              )}
-          />
       </SafeAreaView>
     );
   } else {
@@ -226,23 +214,13 @@ const FIOChatScreen = props => {
               />
           </TouchableOpacity>
           <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
-          <InputSend onPress={_handleSubmit}/>
+          <InputSend onSendMessage={_handleSendMessage}
+                     onSendCoin={_handleFIOSendCoin}/>
           <FlatList
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
               renderItem={({ item, index }) => (
                 <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
-              )}
-          />
-          <RequestSendButtons
-              style={styles.button}
-              onRequestPress={_handleFIORequest}
-              onSendPress={_handleFIOSend}
-              renderIcon={() => (
-                <Image
-                  source={require('../../../assets/icons/transfer.png')}
-                  style={styles.buttonIcon}
-                  />
               )}
           />
       </SafeAreaView>

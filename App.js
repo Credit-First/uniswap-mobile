@@ -34,9 +34,11 @@ import {
   FIOAddressActionsScreen,
   FIORegisterExternalScreen,
   FIORequestScreen,
+  FIORequestDirectScreen,
   ListFIORequestsScreen,
   ViewFIORequestScreen,
   FIOSendScreen,
+  FIOSendDirectScreen,
   FIOChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
@@ -101,6 +103,10 @@ const AccountsStackScreen = () => {
         component={FIORequestScreen}
       />
       <AccountsStack.Screen
+        name="FIORequestDirect"
+        component={FIORequestDirectScreen}
+      />
+      <AccountsStack.Screen
         name="ListFIORequests"
         component={ListFIORequestsScreen}
       />
@@ -111,6 +117,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="FIOSend"
         component={FIOSendScreen}
+      />
+      <AccountsStack.Screen
+        name="FIOSendDirect"
+        component={FIOSendDirectScreen}
       />
       <AccountsStack.Screen
         name="AlgoAccount"

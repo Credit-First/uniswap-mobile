@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View,
+  Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -11,17 +12,21 @@ import LinearGradient from 'react-native-linear-gradient';
 import Spinner from 'react-native-spinkit';
 
 const { height, width } = Dimensions.get('window');
-var inputWidth = width - 60;
+var inputWidth = width - 120;
 var buttonWidth = 40;
 
 
-const InputSend = ({onPress}) => {
+const InputSend = ({onSendMessage, onSendCoin}) => {
 
   const [message, setMessage] = useState();
 
-  const _handlePressSend = () => {
-    onPress(message);
+  const _handlePressSendMessage = () => {
+    onSendMessage(message);
     setMessage('');
+  };
+
+  const _handlePressSendCoin = () => {
+    onSendCoin();
   };
 
   return (
@@ -33,13 +38,25 @@ const InputSend = ({onPress}) => {
           onChangeText={setMessage}
           style={styles.input}
           />
-       <TouchableOpacity onPress={_handlePressSend}>
+       <TouchableOpacity onPress={_handlePressSendMessage}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           colors={['#6A63EE', '#59D4FC']}
           style={styles.button}>
           <Icon name={'send'} style={styles.icon} />
+        </LinearGradient>
+       </TouchableOpacity>
+       <TouchableOpacity onPress={_handlePressSendCoin}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#E06C39', '#DF8856']}
+          style={styles.button}>
+          <Image
+            source={require('../../assets/icons/coins.png')}
+            style={styles.buttonIcon}
+            />
         </LinearGradient>
        </TouchableOpacity>
       </View>
@@ -65,6 +82,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 18,
+    fontFamily: 'FontAwesome',
     color: '#FFF',
   },
   input: {
