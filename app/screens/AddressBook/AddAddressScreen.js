@@ -20,7 +20,7 @@ const AddAddressScreen = props => {
   const {
     addAddress,
     accountsState: { accounts, activeAccountIndex, addresses },
-    navigation: { navigate, goBack }
+    navigation: { navigate }
   } = props;
 
   const [name, setName] = useState('');
@@ -32,6 +32,10 @@ const AddAddressScreen = props => {
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
   const fioEndpoint = getEndpoint('FIO');
+
+  const _handleBack = () => {
+    navigate('AddressBook');
+  };
 
   const _validateAddress = (address) => {
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
@@ -114,7 +118,7 @@ const AddAddressScreen = props => {
       let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
       if(matchingAddresses.length == 0) {
         addAddress(addressJson);
-        goBack();
+        _handleBack();
       } else {
         Alert.alert('This address already exists in the Address Book!');
       }
@@ -126,7 +130,7 @@ const AddAddressScreen = props => {
   return (
      <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
           <MaterialIcon
             name={'keyboard-backspace'}
             size={24}

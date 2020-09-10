@@ -31,15 +31,21 @@ const AddressBookScreen = props => {
 
   const _handlePressAddress = (index) => {
     let fioAddress = addresses[index];
-    navigate('FIOChat', { fioAddress });
+    let count = 0;
+    navigate('FIOChat', { fioAddress, index });
   }
+
+  const _handleEditAddress = (index) => {
+    let fioAddress = addresses[index];
+    navigate('EditAddress', { fioAddress, index });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
      <View style={styles.inner}>
      <KHeader title={'Address Book'} style={styles.header} />
      <FlatList
-       data={addresses}
+       data={addresses.sort((a, b) => a.name.localeCompare(b.name))}
        keyExtractor={(item, index) => `${index}`}
        renderItem={({ item, index }) => (
          <AddressListItem
@@ -47,6 +53,7 @@ const AddressBookScreen = props => {
            fromactor={fromActor}
            style={styles.listItem}
            onPress={() => _handlePressAddress(index)}
+           onEdit={() => _handleEditAddress(index)}
          />
        )}
      />

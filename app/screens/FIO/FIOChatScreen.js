@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   FlatList,
   View,
+  Image,
   Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -11,7 +12,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { fioSendMessage, getFioChatEndpoint } from '../../eos/fio';
 import ecc from 'eosjs-ecc-rn';
 import styles from './FIOChat.style';
-import { KHeader, KButton, KInput, KSelect, KText, InputSend } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, InputSend, RequestSendButtons } from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { connectAccounts } from '../../redux';
@@ -30,11 +31,14 @@ const FIOChatScreen = props => {
     route: {
       params: {
         fioAddress,
+        index,
+        fromFioAddress,
       },
     },
   } = props;
 
-  const [runCount, setRunCount] = useState(0);
+
+  const [currentIndex, setCurrentIndex] = useState(-1);
   const [messageList, setMessageList] = useState([]);
 
   const fioEndpoint = getEndpoint('FIO');
@@ -50,12 +54,39 @@ const FIOChatScreen = props => {
     return;
   }
 
-  const fromAccount = fioAccounts[0];
+  let fromAccount = fioAccounts[0];
+  if (fromFioAddress != null) {
+    let matchingFioAccounts = fioAccounts.filter((value, index, array) => {
+      return value.address == fromFioAddress;
+    });
+    if (matchingFioAccounts.length > 0) {
+      fromAccount = matchingFioAccounts[0];
+    } else {
+      Alert.alert("Failed to find imported accounts for "+fromFioAddress);
+      return;
+    }
+  }
+
   const fromPrivateKey = fromAccount.privateKey;
   const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
-  const toActor = fioAddress.actor;
-  const toPublicKey = fioAddress.publicKey;
+  let toFioAddress = fioAddress;
+
+  if (!fioAddress.publicKey && fioAddress.indexOf('@') > 0) {
+    let matchingFioAddress = addresses.filter((value, index, array) => {
+      return value.address == fioAddress;
+    });
+    if(matchingFioAddress.length > 0) {
+      toFioAddress = matchingFioAddress[0];
+    } else {
+      Alert.alert('Can not find address ' + fioAddress + ' in addressbook');
+      return;
+    }
+  }
+  let toAddress = toFioAddress.address;
+  let toActor = toFioAddress.actor;
+  let toPublicKey = toFioAddress.publicKey;
+
 
   const cipher = Fio.createSharedCipher({
     privateKey: fromPrivateKey,
@@ -118,8 +149,10 @@ const FIOChatScreen = props => {
     loadMessages(fromActor, toActor);
   };
 
-  if(runCount < 1) {
-    setRunCount(1);
+  if(index !== currentIndex) {
+    setCurrentIndex(index);
+    loadMessages(fromActor, toActor);
+  } else if(fromFioAddress != null && messageList.length > 0) {
     loadMessages(fromActor, toActor);
   }
 
@@ -128,35 +161,49 @@ const FIOChatScreen = props => {
   };
 
   const getSubtitle = () => {
-    return fromAccount.address + ' to ' + fioAddress.address;
+    return fromAccount.address + ' to ' + toFioAddress.address;
   };
 
-  const _handleSubmit = async (message) => {
+  const _handleSendMessage = async (message) => {
     if(!message) return;
     try {
-      await fioSendMessage(fromAccount, fioAddress.address, fioAddress.publicKey, message);
+      await fioSendMessage(fromAccount, toFioAddress.address, toFioAddress.publicKey, message);
       let pendingMessage = {
         "created": "Now",
         "from": fromActor,
         "fromAddress": fromAccount.address,
         "message": message,
         "to": toActor,
-        "toAddress": fioAddress.address
+        "toAddress": toFioAddress.address
       };
       loadMessages(fromActor, toActor, pendingMessage);
     } catch (err) {
       Alert.alert(err.message);
       log({
-        description: '_handleSubmit - fioSendMessage',
+        description: '_handleSendMessage - fioSendMessage',
         cause: err,
         location: 'FIOChatScreen'
       });
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+  const _handleBack = () => {
+    goBack();
+  };
+
+  const _handleChangeFromAccount = (fromFioAddress) => {
+    navigate('FIOChat', { fioAddress, index, fromFioAddress });
+  };
+
+  const _handleFIOSendCoin = () => {
+    const fromFioAccount = fromAccount;
+    navigate('FIOSendDirect', { fromFioAccount, toFioAddress });
+  };
+
+  if(fioAccounts.length > 1) {
+    return (
+      <SafeAreaView style={styles.container}>
+          <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
             <MaterialIcon
               name={'keyboard-backspace'}
               size={24}
@@ -164,7 +211,16 @@ const FIOChatScreen = props => {
               />
           </TouchableOpacity>
           <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
-          <View style={styles.spacer} />
+          <KSelect
+            items={fioAccounts.map(item => ({
+              label: `${item.address}`,
+              value: item,
+            }))}
+            onValueChange={_handleChangeFromAccount}
+            containerStyle={styles.inputContainer}
+          />
+          <InputSend onSendMessage={_handleSendMessage}
+                     onSendCoin={_handleFIOSendCoin}/>
           <FlatList
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
@@ -172,22 +228,33 @@ const FIOChatScreen = props => {
                 <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
               )}
               />
-          <InputSend onPress={_handleSubmit}/>
-    </SafeAreaView>
-  );
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+          <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+              />
+          </TouchableOpacity>
+          <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
+          <InputSend onSendMessage={_handleSendMessage}
+                     onSendCoin={_handleFIOSendCoin}/>
+          <FlatList
+              data={messageList}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item, index }) => (
+                <MessageListItem item={item} myactor={fromActor} reloadAction={refreshMessages} style={styles.listItem} />
+              )}
+          />
+      </SafeAreaView>
+    );
+  }
 
 };
 
-/*
-<KSelect
-  label={'Using my FIO address'}
-  items={fioAccounts.map(item => ({
-    label: `${item.address}`,
-    value: item,
-  }))}
-  onValueChange={setFromAccount}
-  containerStyle={styles.inputContainer}
-/>
-*/
 
 export default connectAccounts()(FIOChatScreen);

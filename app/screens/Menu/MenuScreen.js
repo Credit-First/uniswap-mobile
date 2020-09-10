@@ -39,7 +39,6 @@ const MenuScreen = props => {
         />
         <KButton title={'Register external account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
-        <KButton title={'Address Book'} style={styles.button} onPress={() => navigate('AddressBook')}/>
         <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
       </View>
     </SafeAreaView>

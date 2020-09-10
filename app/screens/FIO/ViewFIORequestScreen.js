@@ -27,6 +27,7 @@ const ViewFIORequestScreen = props => {
   const [fee, setFee] = useState(0);
   const [loading, setLoading] = useState(false);
   const {
+    addAddress,
     navigation: { navigate, goBack },
     route: {
       params: {
@@ -35,7 +36,7 @@ const ViewFIORequestScreen = props => {
         title
       },
     },
-    accountsState: { accounts },
+    accountsState: { accounts, activeAccountIndex, addresses },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -102,10 +103,47 @@ const ViewFIORequestScreen = props => {
     });
   }
 
+  const getFioPubkey = async address => {
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": address,
+        "chain_code": "FIO",
+        "token_code": "FIO"
+      }),
+    })
+      .then(response => response.json())
+      .then(json => addFIOAddressToAddressbook(json.public_address, address))
+      .catch(error => log({
+        description: 'getFioPubkey - fetch ' + fioEndpoint+'/v1/chain/get_pub_address',
+        cause: error,
+        location: 'ViewFIORequestScreen'
+      })
+    );
+  };
+
+  const addFIOAddressToAddressbook = (fioPubKey, fioAddress) => {
+    let accountHash = Fio.accountHash(fioPubKey);
+    let name = fioAddress.split('@')[0];
+    let addressJson = { name: name, address: fioAddress, actor: accountHash, publicKey: fioPubKey };
+    let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
+    if(matchingAddresses.length === 0) {
+      addAddress(addressJson);
+      console.log("Adding address: " + fioAddress);
+    }
+  };
+
   var payerRole = false;
   if (fioAccount.address == fioRequest.payer_fio_address) {
     payerRole = true;
     getFee(fioAccount.address);
+    getFioPubkey(fioRequest.payee_fio_address);
+  } else {
+    getFioPubkey(fioRequest.payer_fio_address);
   }
 
   const markFIORequestCompleted = async (transferId) => {
@@ -331,6 +369,19 @@ const ViewFIORequestScreen = props => {
     }
   };
 
+  const _handleContact = () => {
+    let index = 0;
+    if (payerRole) {
+      let fioAddress = fioRequest.payee_fio_address;
+      let fromFioAddress = fioRequest.payer_fio_address;
+      navigate('FIOChat', { fioAddress, index, fromFioAddress });
+    } else {
+      let fioAddress = fioRequest.payer_fio_address;
+      let fromFioAddress = fioRequest.payee_fio_address;
+      navigate('FIOChat', { fioAddress, index, fromFioAddress });
+    }
+  };
+
   if(decryptedContent!=null && payerRole && chain && chainAccounts.length > 0) {
     return (
     <SafeAreaView style={styles.container}>
@@ -366,6 +417,14 @@ const ViewFIORequestScreen = props => {
           icon={'check'}
           isLoading={loading}
           onPress={_handleReject}
+        />
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
         />
       </View>
     </SafeAreaView>
@@ -408,6 +467,14 @@ const ViewFIORequestScreen = props => {
           style={styles.button}
           icon={'check'}
           onPress={_handleReject}
+        />
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
         />
       </View>
     </SafeAreaView>
@@ -461,6 +528,14 @@ const ViewFIORequestScreen = props => {
           icon={'check'}
           onPress={_handleReject}
         />
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
+        />
       </View>
     </SafeAreaView>
     );
@@ -484,6 +559,14 @@ const ViewFIORequestScreen = props => {
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>Status: {fioRequest.status}</KText>
         <KText>Address: {decryptedContent.payee_public_address}</KText>
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
+        />
       </View>
     </SafeAreaView>
     );
@@ -507,6 +590,14 @@ const ViewFIORequestScreen = props => {
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>Status: {fioRequest.status}</KText>
         <KText>Address: {decryptedContent.payee_public_address}</KText>
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
+        />
       </View>
     </SafeAreaView>
     );
@@ -528,6 +619,14 @@ const ViewFIORequestScreen = props => {
         <KText>Timestamp: {fioRequest.time_stamp}</KText>
         <KText>Status: {fioRequest.status}</KText>
         <KText>Error: Unable to decrypt FIO Request content!</KText>
+        <KButton
+          title={'FIO Chat'}
+          theme={'blue'}
+          style={styles.button}
+          icon={'check'}
+          isLoading={loading}
+          onPress={_handleContact}
+        />
       </View>
     </SafeAreaView>
     );

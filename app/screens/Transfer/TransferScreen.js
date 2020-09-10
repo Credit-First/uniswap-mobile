@@ -27,6 +27,7 @@ const TransferScreen = props => {
   const [isFioAddress, setIsFioAddress] = useState(false);
   const [toActor, setToActor] = useState('');
   const [toPubkey, setToPubkey] = useState('');
+  const [toFioPubkey, setToFioPubkey] = useState('');
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
@@ -76,11 +77,34 @@ const TransferScreen = props => {
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
       .catch(error => log({
-        description: 'loadToPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+        description: 'loadToPubkey - fetch [' + chainCode + '] ' + fioEndpoint + '/v1/chain/get_pub_address',
         cause: error,
         location: 'TransferScreen'
       })
     );
+    // Load FIO public key as well:
+    if (chainCode !== 'FIO') {
+      fetch(fioEndpoint + '/v1/chain/get_pub_address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "fio_address": address,
+          "chain_code": "FIO",
+          "token_code": "FIO",
+        }),
+      })
+        .then(response => response.json())
+        .then(json => setToFioPubkey(json.public_address))
+        .catch(error => log({
+          description: 'loadToPubkey - fetch [FIO] ' + fioEndpoint + '/v1/chain/get_pub_address',
+          cause: error,
+          location: 'TransferScreen'
+        })
+      );
+    }
   };
 
   const _validateAddress = address => {
@@ -149,10 +173,11 @@ const TransferScreen = props => {
   }
 
   const addFIOAddressToAddressbook = () => {
-    if(toFioAddress && toPubkey) {
-      let accountHash = Fio.accountHash(toPubkey);
+    if(toFioAddress && toFioPubkey) {
+      console.log(toFioPubkey);
+      let accountHash = Fio.accountHash(toFioPubkey);
       let name = toFioAddress.split('@')[0];
-      let addressJson = { name: name, address: toFioAddress, actor: accountHash, publicKey: toPubkey };
+      let addressJson = { name: name, address: toFioAddress, actor: accountHash, publicKey: toFioPubkey };
       let matchingAddresses = addresses.filter((item, index) => item.address === toFioAddress);
       if(matchingAddresses.length == 0) {
         addAddress(addressJson);

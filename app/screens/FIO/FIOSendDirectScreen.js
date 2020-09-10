@@ -23,17 +23,12 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
 
-const FIOSendScreen = props => {
-  const [fromAccount, setFromAccount] = useState();
-  const [toAccount, setToAccount] = useState();
-  const [validToAccount, setValidToAccount] = useState();
-  const [addressInvalidMessage, setAddressInvalidMessage] = useState();
+const FIOSendDirectScreen = props => {
   const [chainName, setChainName] = useState();
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(false);
   const {
-    addAddress,
     navigation: { navigate, goBack },
     accountsState: { accounts, activeAccountIndex, addresses },
     route: {
@@ -46,83 +41,12 @@ const FIOSendScreen = props => {
 
   const fioEndpoint = getEndpoint('FIO');
 
-  const fioAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'FIO';
-  });
-
   var importedChains = [];
   accounts.map((chain, index, self) => {
     if (importedChains.indexOf(chain.chainName) < 0) {
       importedChains.push(chain.chainName);
     }
   });
-
-  const _handleFromAccountChange = value => {
-    setFromAccount(value);
-  };
-
-  const _validateAddress = async address => {
-    if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
-      fetch(fioEndpoint+'/v1/chain/avail_check', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fio_name: address,
-        }),
-      })
-        .then(response => response.json())
-        .then(json => updateAvailableState(json.is_registered, address))
-        .catch(error => updateAvailableState(-1, address, error));
-    }
-  };
-
-  const addFIOAddressToAddressbook = (fioPubKey, fioAddress) => {
-      let accountHash = Fio.accountHash(fioPubKey);
-      let name = fioAddress.split('@')[0];
-      let addressJson = { name: name, address: fioAddress, actor: accountHash, publicKey: fioPubKey };
-      let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
-      if(matchingAddresses.length === 0) {
-        addAddress(addressJson);
-      }
-  };
-
-  const loadFIOPubkeyAndRegisterAddress = async (address) => {
-    fetch(fioEndpoint + '/v1/chain/get_pub_address', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "fio_address": address,
-        "chain_code": "FIO",
-        "token_code": "FIO",
-      }),
-    })
-      .then(response => response.json())
-      .then(json => addFIOAddressToAddressbook(json.public_address, address))
-      .catch(error => log({
-        description: 'loadFIOPubkeyAndRegisterAddress - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
-        cause: error,
-        location: 'FIOSendScreen'
-      })
-    );
-  };
-
-  const updateAvailableState = (regcount, address, error) => {
-    if (regcount === 0) {
-      setAddressInvalidMessage('Invalid address!');
-    } else if (regcount === 1) {
-      setAddressInvalidMessage('');
-      setValidToAccount(address);
-      loadFIOPubkeyAndRegisterAddress(address);
-    } else if (error) {
-      setAddressInvalidMessage('Error validating address');
-    }
-  };
 
   const _callback = (txid) => {
     Alert.alert('Transfer completed: '+txid);
@@ -169,7 +93,6 @@ const FIOSendScreen = props => {
       setLoading(false);
       return;
     }
-    const fromAccount = activeAccounts[0];
     // Check amount
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
@@ -183,7 +106,7 @@ const FIOSendScreen = props => {
       const res = await transfer(toActor,
         floatAmount,
         memo,
-        fromAccount,
+        fromFioAccount,
         chain);
         if (res && res.transaction_id) {
           Alert.alert("Transfer completed in tx "+res.transaction_id);
@@ -208,7 +131,6 @@ const FIOSendScreen = props => {
       setLoading(false);
       return;
     }
-    const fromAccount = activeAccounts[0];
     // Check amount
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
@@ -216,7 +138,7 @@ const FIOSendScreen = props => {
       setLoading(false);
       return;
     }
-    submitAlgoTransaction(fromAccount, toAccountPubkey, floatAmount, memo, _callback);
+    submitAlgoTransaction(fromFioAccount, toAccountPubkey, floatAmount, memo, _callback);
   };
 
   const doFIOTransfer = async  (toAccountPubkey, fromAccountPubkey) => {
@@ -227,7 +149,7 @@ const FIOSendScreen = props => {
       return;
     }
     try {
-      await sendFioTransfer(fromAccount, toAccountPubkey, floatAmount, memo, _callback);
+      await sendFioTransfer(fromFioAccount, toAccountPubkey, floatAmount, memo, _callback);
     } catch(err) {
       Alert.alert('Transfer failed: '+err);
       log({ description: 'doFIOTransfer', cause: err, location: 'FIOSendScreen'});
@@ -236,7 +158,7 @@ const FIOSendScreen = props => {
 
   const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     if (!fromAccountPubkey) {
-      Alert.alert('No valid '+chainName+' public address found for '+fromAccount.address);
+      Alert.alert('No valid '+chainName+' public address found for '+fromFioAccount.address);
       setLoading(false);
       return;
     }
@@ -276,7 +198,7 @@ const FIOSendScreen = props => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "fio_address": fromAccount.address,
+          "fio_address": fromFioAccount.address,
           "chain_code": chainCode,
           "token_code": chainCode
         }),
@@ -292,7 +214,7 @@ const FIOSendScreen = props => {
   };
 
   const _handleSubmit = async () => {
-    if (!fromAccount || !validToAccount || !chainName || !amount) {
+    if (!fromFioAccount || !toFioAddress || !chainName || !amount) {
       Alert.alert("Please fill all required fields including valid payee address!");
       return;
     }
@@ -306,7 +228,7 @@ const FIOSendScreen = props => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "fio_address": validToAccount,
+        "fio_address": toFioAddress.address,
         "chain_code": chainCode,
         "token_code": chainCode
       }),
@@ -314,6 +236,10 @@ const FIOSendScreen = props => {
     .then(response => response.json())
     .then(json => handleToAccountAddress(json.public_address))
     .catch(error => Alert.alert('Error fetching payee public address for '+chainCode));
+  };
+
+  const _handleFIORequest = () => {
+    navigate('FIORequestDirect', { fromFioAccount, toFioAddress });
   };
 
   return (
@@ -334,24 +260,8 @@ const FIOSendScreen = props => {
             subTitle={'Send payment to another FIO address'}
             style={styles.header}
           />
-          <KSelect
-            label={'From address'}
-            items={fioAccounts.map(item => ({
-              label: `${item.chainName}: ${item.address}`,
-              value: item,
-            }))}
-            onValueChange={_handleFromAccountChange}
-            containerStyle={styles.inputContainer}
-          />
-          <KInput
-            label={'To address'}
-            placeholder={'Enter FIO address'}
-            value={toAccount}
-            onChangeText={_validateAddress}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-          />
-          <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
+          <KText>From address: {fromFioAccount.address}</KText>
+          <KText>To address: {toFioAddress.address}</KText>
           <KSelect
             label={'Coin to send'}
             items={importedChains.map(name => ({
@@ -387,6 +297,14 @@ const FIOSendScreen = props => {
             isLoading={loading}
             onPress={_handleSubmit}
           />
+          <KButton
+            title={'FIO Request'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'check'}
+            isLoading={loading}
+            onPress={_handleFIORequest}
+          />
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -394,4 +312,4 @@ const FIOSendScreen = props => {
 
 };
 
-export default connectAccounts()(FIOSendScreen);
+export default connectAccounts()(FIOSendDirectScreen);

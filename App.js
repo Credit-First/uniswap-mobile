@@ -20,6 +20,9 @@ const store = createStore();
 const AccountsStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 const MainStack = createStackNavigator();
+const TransferStack = createStackNavigator();
+const AddressStack = createStackNavigator();
+const MenuStack = createStackNavigator();
 
 import {
   AccountsScreen,
@@ -31,14 +34,17 @@ import {
   FIOAddressActionsScreen,
   FIORegisterExternalScreen,
   FIORequestScreen,
+  FIORequestDirectScreen,
   ListFIORequestsScreen,
   ViewFIORequestScreen,
   FIOSendScreen,
+  FIOSendDirectScreen,
   FIOChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
   AddressBookScreen,
   AddAddressScreen,
+  EditAddressScreen,
   TransferScreen,
   TransactionsScreen,
   TransactionDetailScreen,
@@ -97,6 +103,10 @@ const AccountsStackScreen = () => {
         component={FIORequestScreen}
       />
       <AccountsStack.Screen
+        name="FIORequestDirect"
+        component={FIORequestDirectScreen}
+      />
+      <AccountsStack.Screen
         name="ListFIORequests"
         component={ListFIORequestsScreen}
       />
@@ -109,33 +119,70 @@ const AccountsStackScreen = () => {
         component={FIOSendScreen}
       />
       <AccountsStack.Screen
-        name="FIOChat"
-        component={FIOChatScreen}
+        name="FIOSendDirect"
+        component={FIOSendDirectScreen}
       />
       <AccountsStack.Screen
         name="AlgoAccount"
         component={AlgoAccountScreen}
       />
       <AccountsStack.Screen
-        name="AddressBook"
-        component={AddressBookScreen}
-      />
-      <AccountsStack.Screen
-        name="AddAddress"
-        component={AddAddressScreen}
-      />
-      <AccountsStack.Screen
-        name="Transactions"
-        component={TransactionsScreen}
-      />
-      <AccountsStack.Screen
-        name="TransactionDetail"
-        component={TransactionDetailScreen}
+        name="FIOChat"
+        component={FIOChatScreen}
       />
     </AccountsStack.Navigator>
   );
 };
 
+const TransferStackScreen = () => {
+  return (
+    <TransferStack.Navigator headerMode={'none'}>
+      <TransferStack.Screen
+        name="Transfer"
+        component={TransferScreen}
+      />
+      <TransferStack.Screen
+        name="Transactions"
+        component={TransactionsScreen}
+      />
+      <TransferStack.Screen
+        name="TransactionDetail"
+        component={TransactionDetailScreen}
+      />
+    </TransferStack.Navigator>
+  );
+};
+
+const AddressStackScreen = () => {
+  return (
+    <AddressStack.Navigator headerMode={'none'}>
+      <AddressStack.Screen
+        name="AddressBook"
+        component={AddressBookScreen}
+      />
+      <AddressStack.Screen
+        name="AddAddress"
+        component={AddAddressScreen}
+      />
+      <AddressStack.Screen
+        name="EditAddress"
+        component={EditAddressScreen}
+      />
+      <AddressStack.Screen
+        name="FIOChat"
+        component={FIOChatScreen}
+      />
+    </AddressStack.Navigator>
+  );
+};
+
+const MenuStackScreen = () => {
+  return (
+    <MenuStack.Navigator headerMode={'none'}>
+      <MenuStack.Screen name="Menu" component={MenuScreen} />
+    </MenuStack.Navigator>
+  );
+};
 
 const tabScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => {
@@ -144,6 +191,8 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('./assets/icons/accounts.png');
     } else if (route.name === 'Transfer') {
       icon = require('./assets/icons/transfer.png');
+    } else if (route.name === 'Chat') {
+      icon = require('./assets/icons/chat.png');
     } else if (route.name === 'Menu') {
       icon = require('./assets/icons/menu.png');
     }
@@ -159,7 +208,8 @@ const MainTabScreen = () => {
         showLabel: false,
       }}>
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
-      <MainTab.Screen name={'Transfer'} component={TransferScreen} />
+      <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
+      <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
       <MainTab.Screen name={'Menu'} component={MenuScreen} />
     </MainTab.Navigator>
   );
