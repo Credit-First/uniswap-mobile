@@ -126,6 +126,10 @@ const AccountsStackScreen = () => {
         name="AlgoAccount"
         component={AlgoAccountScreen}
       />
+      <AccountsStack.Screen
+        name="FIOChat"
+        component={FIOChatScreen}
+      />
     </AccountsStack.Navigator>
   );
 };

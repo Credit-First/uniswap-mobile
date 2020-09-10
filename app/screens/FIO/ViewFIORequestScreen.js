@@ -27,6 +27,7 @@ const ViewFIORequestScreen = props => {
   const [fee, setFee] = useState(0);
   const [loading, setLoading] = useState(false);
   const {
+    addAddress,
     navigation: { navigate, goBack },
     route: {
       params: {
@@ -102,10 +103,47 @@ const ViewFIORequestScreen = props => {
     });
   }
 
+  const getFioPubkey = async address => {
+    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "fio_address": address,
+        "chain_code": "FIO",
+        "token_code": "FIO"
+      }),
+    })
+      .then(response => response.json())
+      .then(json => addFIOAddressToAddressbook(json.public_address, address))
+      .catch(error => log({
+        description: 'getFioPubkey - fetch ' + fioEndpoint+'/v1/chain/get_pub_address',
+        cause: error,
+        location: 'ViewFIORequestScreen'
+      })
+    );
+  };
+
+  const addFIOAddressToAddressbook = (fioPubKey, fioAddress) => {
+    let accountHash = Fio.accountHash(fioPubKey);
+    let name = fioAddress.split('@')[0];
+    let addressJson = { name: name, address: fioAddress, actor: accountHash, publicKey: fioPubKey };
+    let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
+    if(matchingAddresses.length === 0) {
+      addAddress(addressJson);
+      console.log("Adding address: " + fioAddress);
+    }
+  };
+
   var payerRole = false;
   if (fioAccount.address == fioRequest.payer_fio_address) {
     payerRole = true;
     getFee(fioAccount.address);
+    getFioPubkey(fioRequest.payee_fio_address);
+  } else {
+    getFioPubkey(fioRequest.payer_fio_address);
   }
 
   const markFIORequestCompleted = async (transferId) => {

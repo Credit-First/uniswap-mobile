@@ -339,7 +339,7 @@ const parseAndroidVersion = (html) => {
       startPos = endPos - 4;
       let version = secondHalf.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      console.log('Play Store Version '+version+' vs. App Version'+appVersion);
+      //console.log('Play Store Version '+version+' vs. App Version '+appVersion);
       if(appVersion !== version) {
         Alert.alert(
           'New version available!',

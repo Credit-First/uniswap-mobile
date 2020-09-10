@@ -37,6 +37,7 @@ const FIOChatScreen = props => {
     },
   } = props;
 
+
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [messageList, setMessageList] = useState([]);
 
@@ -53,12 +54,39 @@ const FIOChatScreen = props => {
     return;
   }
 
-  const fromAccount = (fromFioAddress != null) ? fromFioAddress : fioAccounts[0];
+  let fromAccount = fioAccounts[0];
+  if (fromFioAddress != null) {
+    let matchingFioAccounts = fioAccounts.filter((value, index, array) => {
+      return value.address == fromFioAddress;
+    });
+    if (matchingFioAccounts.length > 0) {
+      fromAccount = matchingFioAccounts[0];
+    } else {
+      Alert.alert("Failed to find imported accounts for "+fromFioAddress);
+      return;
+    }
+  }
+
   const fromPrivateKey = fromAccount.privateKey;
   const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
-  const toActor = fioAddress.actor;
-  const toPublicKey = fioAddress.publicKey;
+  let toFioAddress = fioAddress;
+
+  if (!fioAddress.publicKey && fioAddress.indexOf('@') > 0) {
+    let matchingFioAddress = addresses.filter((value, index, array) => {
+      return value.address == fioAddress;
+    });
+    if(matchingFioAddress.length > 0) {
+      toFioAddress = matchingFioAddress[0];
+    } else {
+      Alert.alert('Can not find address ' + fioAddress + ' in addressbook');
+      return;
+    }
+  }
+  let toAddress = toFioAddress.address;
+  let toActor = toFioAddress.actor;
+  let toPublicKey = toFioAddress.publicKey;
+
 
   const cipher = Fio.createSharedCipher({
     privateKey: fromPrivateKey,
@@ -133,26 +161,26 @@ const FIOChatScreen = props => {
   };
 
   const getSubtitle = () => {
-    return fromAccount.address + ' to ' + fioAddress.address;
+    return fromAccount.address + ' to ' + toFioAddress.address;
   };
 
   const _handleSendMessage = async (message) => {
     if(!message) return;
     try {
-      await fioSendMessage(fromAccount, fioAddress.address, fioAddress.publicKey, message);
+      await fioSendMessage(fromAccount, toFioAddress.address, toFioAddress.publicKey, message);
       let pendingMessage = {
         "created": "Now",
         "from": fromActor,
         "fromAddress": fromAccount.address,
         "message": message,
         "to": toActor,
-        "toAddress": fioAddress.address
+        "toAddress": toFioAddress.address
       };
       loadMessages(fromActor, toActor, pendingMessage);
     } catch (err) {
       Alert.alert(err.message);
       log({
-        description: '_handleSubmit - fioSendMessage',
+        description: '_handleSendMessage - fioSendMessage',
         cause: err,
         location: 'FIOChatScreen'
       });
@@ -160,7 +188,7 @@ const FIOChatScreen = props => {
   };
 
   const _handleBack = () => {
-    navigate('AddressBook');
+    goBack();
   };
 
   const _handleChangeFromAccount = (fromFioAddress) => {
@@ -169,7 +197,6 @@ const FIOChatScreen = props => {
 
   const _handleFIOSendCoin = () => {
     const fromFioAccount = fromAccount;
-    const toFioAddress = fioAddress;
     navigate('FIOSendDirect', { fromFioAccount, toFioAddress });
   };
 
