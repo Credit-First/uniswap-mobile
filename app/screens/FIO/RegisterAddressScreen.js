@@ -17,6 +17,7 @@ import { getEndpoint } from '../../eos/chains';
 
 
 const RegisterAddressScreen = props => {
+  const [name, setName] = useState();
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,11 +30,16 @@ const RegisterAddressScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
   const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
 
-  const _checkAvailable = async address => {
-    setAddress(address);
+  const _checkAvailable = async name => {
+    if (name.indexOf('@') > 0) {
+      name = name.replace('@','');
+    }
+    setName(name);
     setAvailable(false);
-    if (address.length > 6 && address.endsWith('@tribe')) {
-      setCheckState('Checking address..');
+    let newAddress = name + '@tribe';
+    setAddress(newAddress);
+    if (name.length > 0) {
+      setCheckState('Checking '+newAddress+' address ..');
       fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
         headers: {
@@ -41,25 +47,23 @@ const RegisterAddressScreen = props => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fio_name: address
+          fio_name: newAddress
         }),
       })
         .then(response => response.json())
-        .then(json => updateAvailableState(json))
-        .catch(error => updateAvailableState({is_registered:-1}, error));
-    } else {
-      setCheckState('Incomplete address: [name]@tribe');
+        .then(json => updateAvailableState(json, undefined, newAddress))
+        .catch(error => updateAvailableState({is_registered:-1}, error, newAddress));
     }
   };
 
-  const updateAvailableState = (json, error) => {
+  const updateAvailableState = (json, error, newAddress) => {
     let regcount = json.is_registered;
     if (regcount === 0) {
       setAvailable(true);
-      setCheckState('Available');
+      setCheckState('Available: '+newAddress);
     } else if (regcount === 1) {
       setAvailable(false);
-      setCheckState('Not available');
+      setCheckState('Not available: '+newAddress);
     } else {
       setAvailable(false);
       setCheckState('Error');
@@ -95,6 +99,7 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
+      console.log(fioAccount);
       fetch('https://reg.fioprotocol.io/public-api/buy-address', {
         method: 'POST',
         headers: {
@@ -133,9 +138,9 @@ const RegisterAddressScreen = props => {
             style={styles.header}
           />
           <KInput
-            label={'Address'}
-            placeholder={'[name]@tribe'}
-            value={address}
+            label={'Name'}
+            placeholder={'Enter your name'}
+            value={name}
             onChangeText={_checkAvailable}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}

@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonIcon: {
     width: 18,
@@ -29,12 +29,6 @@ const styles = StyleSheet.create({
   qrcode: {
     alignSelf: 'center',
     marginBottom: 20,
-  },
-  promo: {
-    padding: 20,
-    color: '#D17B00',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 16,
   },
   link: {
     color: 'blue',
@@ -48,7 +42,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   listItem: {
-    marginTop: 10,
+    marginTop: 5,
     marginHorizontal: 20,
   },
   logo: {

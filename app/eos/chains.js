@@ -62,6 +62,7 @@ const supportedChains = [
 ];
 
 const getChain = chainName => {
+  chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
   return supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
 };
 

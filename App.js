@@ -42,6 +42,7 @@ import {
   FIOChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
+  CreateTelosAccountScreen,
   AddressBookScreen,
   AddAddressScreen,
   EditAddressScreen,
@@ -61,6 +62,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="ConnectAccount"
         component={ConnectAccountScreen}
+      />
+      <AccountsStack.Screen
+        name="CreateTelosAccount"
+        component={CreateTelosAccountScreen}
       />
       <AccountsStack.Screen
         name="AccountDetails"

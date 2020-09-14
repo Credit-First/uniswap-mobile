@@ -32,6 +32,9 @@ export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';
+export {
+  default as CreateTelosAccountScreen,
+} from './ConnectAccount/CreateTelosAccountScreen';
 export { default as TransferScreen } from './Transfer/TransferScreen';
 export {
   default as TransactionsScreen,

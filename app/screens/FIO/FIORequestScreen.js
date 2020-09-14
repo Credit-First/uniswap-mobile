@@ -108,6 +108,9 @@ const FIORequestScreen = props => {
   };
 
   const _validateAddress = async address => {
+    if (fioAccounts.length == 1 && !fromAccount) {
+      _handleFromAccountChange(fioAccounts[0]);
+    }
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
       fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
@@ -170,6 +173,74 @@ const FIORequestScreen = props => {
     }
   };
 
+if (fioAccounts.length == 1) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+              />
+          </TouchableOpacity>
+          <KHeader
+            title={'FIO Request'}
+            subTitle={'Request for payment from another FIO address'}
+            style={styles.header}
+          />
+          <KText>From FIO address: {fioAccounts[0].address}</KText>
+          <KInput
+            label={'To address'}
+            placeholder={'Enter FIO address'}
+            value={toAccount}
+            onChangeText={_validateAddress}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
+          <KInput
+            label={'Coin requested'}
+            placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
+            value={coin}
+            onChangeText={_handleSetCoin}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KInput
+            label={'Amount to request'}
+            placeholder={'Enter requested amount'}
+            value={amount}
+            onChangeText={setAmount}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KInput
+            label={'Memo'}
+            placeholder={'Enter memo'}
+            value={memo}
+            multiline={true}
+            onChangeText={setMemo}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KButton
+            title={'Submit'}
+            theme={'blue'}
+            style={styles.button}
+            icon={'check'}
+            isLoading={loading}
+            onPress={_handleSubmit}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+} else {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -244,6 +315,7 @@ const FIORequestScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
+}
 
 };
 

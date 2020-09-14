@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
+    padding: 5,
     width: width - 40,
     alignSelf: 'center',
   },
@@ -54,6 +55,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     left: 20,
+  },
+  error: {
+    padding: 5,
+    color: '#BF0F0F',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
+  message: {
+    padding: 5,
+    color: '#088B00',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
   },
   spacer: {
     flex: 1,
