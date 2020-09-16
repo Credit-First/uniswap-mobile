@@ -39,8 +39,7 @@ const CreateTelosAccountScreen = props => {
   const [availableState, setAvailableState] = useState('Use generated random name or enter your own.');
 
   const endpoint = getEndpoint('Telos');
-  //const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
-  const newAccountEndpoint = 'http://localhost:3000/create';
+  const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
 
   const validateName = (name) => {
     setAccountName(name);
@@ -78,8 +77,7 @@ const CreateTelosAccountScreen = props => {
     fetch(endpoint + '/v1/chain/get_account', {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: 'application/json','Content-Type': 'application/json',
       },
       body: JSON.stringify({
         "account_name":name
@@ -130,6 +128,7 @@ const CreateTelosAccountScreen = props => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
         },
         body: JSON.stringify(request),
       })
