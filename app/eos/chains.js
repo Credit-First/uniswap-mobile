@@ -100,6 +100,7 @@ const checkEndpoints = async (chain) => {
 };
 
 const getEndpoint = chainName => {
+  chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
   let chain = supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
   checkEndpoints(chain);
   return chain.endpoint;

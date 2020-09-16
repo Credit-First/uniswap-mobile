@@ -6,6 +6,9 @@ export {
   default as AccountDetailsScreen,
 } from './AccountDetails/AccountDetailsScreen';
 export {
+  default as TokenDetailsScreen,
+} from './AccountDetails/TokenDetailsScreen';
+export {
   default as ResourceManagementScreen,
 } from './AccountDetails/ResourceManagementScreen';
 export {

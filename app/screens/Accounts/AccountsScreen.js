@@ -16,6 +16,7 @@ import { getFioChatEndpoint } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
 import { getEndpoint } from '../../eos/chains';
+import { getTokens } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
 
@@ -29,6 +30,19 @@ const AccountsScreen = props => {
     accountsState: { accounts, activeAccountIndex, addresses },
     chooseActiveAccount,
   } = props;
+
+  var accountsAndTokens = [];
+  accounts.map((value, index, array) => {
+    var account = value;
+    var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
+    var chainToken = getTokens(chainName);
+    if (chainToken) {
+      account.token = chainToken;
+      accountsAndTokens.push(account);
+    } else {
+      accountsAndTokens.push(account);
+    }
+  });
 
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
@@ -203,7 +217,7 @@ const AccountsScreen = props => {
   };
 
   const _handlePressAccount = index => {
-    const account = accounts[index];
+    const account = accountsAndTokens[index];
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
@@ -212,6 +226,12 @@ const AccountsScreen = props => {
       navigate('AccountDetails', { account });
     }
   };
+
+  const _handlePressToken = index => {
+    const account = accountsAndTokens[index];
+    navigate('TokenDetails', { account });
+  };
+
 
 const getAppVersion = () => {
   return "Version " + DeviceInfo.getVersion() + ", Build " + DeviceInfo.getBuildNumber();
@@ -327,16 +347,33 @@ if (runCount == 0) {
 }
 
   var optionalButtons = <View style={styles.spacer} />;
-  if(algoAccounts.length == 0 && fioAccounts.length == 0) {
+  if(algoAccounts.length == 0 && fioAccounts.length == 0 && telosAccounts.length == 0) {
       optionalButtons = <View>
           <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
           <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
           <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
-  } else if(fioAccounts.length == 0) {
-      optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
+  } else if(fioAccounts.length == 0 && telosAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+      </View>;
+  } else if(algoAccounts.length == 0 && fioAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+      </View>;
+  } else if(algoAccounts.length == 0 && telosAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+      </View>;
   } else if(algoAccounts.length == 0) {
-      optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
+    optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
+  } else if(fioAccounts.length == 0) {
+    optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
+  } else if(telosAccounts.length == 0) {
+    optionalButtons = <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>;
   }
 
 
@@ -373,15 +410,14 @@ if (runCount == 0) {
         resizeMode="contain"
       />
       <FlatList
-        data={accounts}
+        data={accountsAndTokens}
         keyExtractor={(item, index) => `${index}`}
         renderItem={({ item, index }) => (
           <AccountListItem
             account={item}
             style={styles.listItem}
-            onCheck={() => _handleCheckAccount(index)}
             onPress={() => _handlePressAccount(index)}
-            checked={index === activeAccountIndex}
+            onTokenPress={() => _handlePressToken(index)}
           />
         )}
       />
