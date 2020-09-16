@@ -94,6 +94,8 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
 const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
   const [tokenBalance, setTokenBalance] = useState(0);
+  const [count, setCount] = useState(0);
+
 
   const handleTokenBalance = (jsonArray) => {
     if(jsonArray && jsonArray.length > 0) {
@@ -103,10 +105,40 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
     }
   }
 
+  const refreshBalances = () => {
+    //console.log('Refreshing balances');
+    if (account.chainName === 'FIO') {
+      loadFioAccountBalance(account, setAccountBalance);
+    } else if (account.chainName === 'ALGO') {
+      loadAlgoAccountBalance(account, setAccountBalance);
+    } else {
+      loadAccountBalance(account, setAccountBalance);
+      if(account.token) {
+        loadTokenBalance(account, handleTokenBalance);
+      }
+    }
+    setCount(1);
+  };
+
+  const handleOnTokenPress = (index) => {
+    setCount(0);
+    refreshBalances();
+    onTokenPress(index);
+  }
+
+  const handleOnPress = (index) => {
+    setCount(0);
+    refreshBalances();
+    onPress(index);
+  }
+
+  if(count === 0) {
+    refreshBalances();
+  }
+
   if (account.chainName === 'FIO') {
-    loadFioAccountBalance(account, setAccountBalance);
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
@@ -115,9 +147,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       </TouchableOpacity>
     );
   } else if (account.chainName === 'ALGO') {
-    loadAlgoAccountBalance(account, setAccountBalance);
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
@@ -126,19 +157,17 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       </TouchableOpacity>
     );
   } else {
-    loadAccountBalance(account, setAccountBalance);
     if(account.token) {
-      loadTokenBalance(account, handleTokenBalance);
       return (
-        <View>
-        <TouchableOpacity onPress={onPress}>
+        <View onFocus={refreshBalances}>
+        <TouchableOpacity onPress={handleOnPress}>
           <View style={[styles.container, props.style]}>
             <View style={styles.contentContainer}>
               <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
             </View>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onTokenPress}>
+        <TouchableOpacity onPress={handleOnTokenPress}>
           <View style={[styles.container, props.style]}>
             <View style={styles.contentContainer}>
               <KText style={styles.tokenName}> + {account.token.name} : {account.accountName}, {tokenBalance}</KText>
@@ -149,7 +178,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       );
     } else {
       return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
           <View style={[styles.container, props.style]}>
             <View style={styles.contentContainer}>
               <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
@@ -183,7 +212,7 @@ const styles = StyleSheet.create({
   },
   tokenName: {
     fontSize: 15,
-    color: PRIMARY_BLACK,
+    color: PRIMARY_BLUE,
   },
   accountName: {
     fontSize: 16,
