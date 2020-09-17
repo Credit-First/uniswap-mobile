@@ -4,6 +4,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
 import { getChain, getEndpoint } from '../../../eos/chains';
+import { getBalance } from '../../../eos/tokens';
 import { getAccount } from '../../../eos/eos';
 import { log } from '../../../logger/logger';
 import {
@@ -24,11 +25,19 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   }
   try {
     const accountInfo = await getAccount(account.accountName, chain);
-    setAccountBalance(accountInfo.core_liquid_balance);
+    if(accountInfo.core_liquid_balance) {
+      setAccountBalance(accountInfo.core_liquid_balance);
+    } else {
+      setAccountBalance('0 '+chain.symbol);
+    }
   } catch (err) {
     log({ description: 'loadAccountBalance', cause: err, location: 'AccountListItem'});
     return;
   }
+};
+
+const loadTokenBalance = async (account, setTokenBalance) => {
+  getBalance(account.accountName, account.token, setTokenBalance);
 };
 
 const loadFioAccountBalance = async (account, setAccountBalance) => {
@@ -82,13 +91,54 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
-const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
+const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [count, setCount] = useState(0);
+
+
+  const handleTokenBalance = (jsonArray) => {
+    if(jsonArray && jsonArray.length > 0) {
+      setTokenBalance(jsonArray[0]);
+    } else if(account.token) {
+      setTokenBalance('0 '+account.token.name);
+    }
+  }
+
+  const refreshBalances = () => {
+    //console.log('Refreshing balances');
+    if (account.chainName === 'FIO') {
+      loadFioAccountBalance(account, setAccountBalance);
+    } else if (account.chainName === 'ALGO') {
+      loadAlgoAccountBalance(account, setAccountBalance);
+    } else {
+      loadAccountBalance(account, setAccountBalance);
+      if(account.token) {
+        loadTokenBalance(account, handleTokenBalance);
+      }
+    }
+    setCount(1);
+  };
+
+  const handleOnTokenPress = (index) => {
+    setCount(0);
+    refreshBalances();
+    onTokenPress(index);
+  }
+
+  const handleOnPress = (index) => {
+    setCount(0);
+    refreshBalances();
+    onPress(index);
+  }
+
+  if(count === 0) {
+    refreshBalances();
+  }
 
   if (account.chainName === 'FIO') {
-    loadFioAccountBalance(account, setAccountBalance);
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
@@ -97,9 +147,8 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
       </TouchableOpacity>
     );
   } else if (account.chainName === 'ALGO') {
-    loadAlgoAccountBalance(account, setAccountBalance);
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
         <View style={[styles.container, props.style]}>
           <View style={styles.contentContainer}>
             <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
@@ -108,16 +157,36 @@ const AccountListItem = ({ account, onPress, onCheck, checked, ...props }) => {
       </TouchableOpacity>
     );
   } else {
-    loadAccountBalance(account, setAccountBalance);
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <View style={[styles.container, props.style]}>
-          <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+    if(account.token) {
+      return (
+        <View onFocus={refreshBalances}>
+        <TouchableOpacity onPress={handleOnPress}>
+          <View style={[styles.container, props.style]}>
+            <View style={styles.contentContainer}>
+              <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+            </View>
           </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleOnTokenPress}>
+          <View style={[styles.container, props.style]}>
+            <View style={styles.contentContainer}>
+              <KText style={styles.tokenName}> + {account.token.name} : {account.accountName}, {tokenBalance}</KText>
+            </View>
+          </View>
+        </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-    );
+      );
+    } else {
+      return (
+        <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
+          <View style={[styles.container, props.style]}>
+            <View style={styles.contentContainer}>
+              <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
+    }
   }
 };
 
@@ -140,6 +209,10 @@ const styles = StyleSheet.create({
   chainName: {
     fontSize: 16,
     color: PRIMARY_BLACK,
+  },
+  tokenName: {
+    fontSize: 15,
+    color: PRIMARY_BLUE,
   },
   accountName: {
     fontSize: 16,

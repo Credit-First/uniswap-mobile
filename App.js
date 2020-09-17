@@ -27,6 +27,7 @@ const MenuStack = createStackNavigator();
 import {
   AccountsScreen,
   AccountDetailsScreen,
+  TokenDetailsScreen,
   ResourceManagementScreen,
   PrivateKeyBackupScreen,
   PrivateKeyDelegateScreen,
@@ -42,6 +43,7 @@ import {
   FIOChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
+  CreateTelosAccountScreen,
   AddressBookScreen,
   AddAddressScreen,
   EditAddressScreen,
@@ -63,8 +65,16 @@ const AccountsStackScreen = () => {
         component={ConnectAccountScreen}
       />
       <AccountsStack.Screen
+        name="CreateTelosAccount"
+        component={CreateTelosAccountScreen}
+      />
+      <AccountsStack.Screen
         name="AccountDetails"
         component={AccountDetailsScreen}
+      />
+      <AccountsStack.Screen
+        name="TokenDetails"
+        component={TokenDetailsScreen}
       />
       <AccountsStack.Screen
         name="ResourceManagement"

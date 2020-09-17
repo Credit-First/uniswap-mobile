@@ -92,8 +92,9 @@ const rejectFundsRequest = async (payerFioAccount,
   fioRequestId,
   fee) => {
 
-  const payerActor = payerFioAccount.accountName;
   const payerPrivateKey = payerFioAccount.privateKey;
+  const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
+  const payerActor = Fio.accountHash(payerPublicKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -165,9 +166,9 @@ const recordObtData = async (payerFioAccount,
   fee) => {
 
     const payerFioAddress = payerFioAccount.address;
-    const payerActor = payerFioAccount.accountName;
     const payerPrivateKey = payerFioAccount.privateKey;
     const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
+    const payerActor = Fio.accountHash(payerPublicKey);
 
     const fioEndpoint = getEndpoint('FIO');
     const rpc = new JsonRpc(fioEndpoint);
@@ -261,8 +262,8 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   fee) => {
 
   const fromFioAddress = fromFioAccount.address;
-  const fromActor = fromFioAccount.accountName;
   const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
+  const fromActor = Fio.accountHash(fromPublicKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -422,8 +423,8 @@ const fioNewFundsRequest = async (fromFioAccount,
   fee) => {
 
   const fromFioAddress = fromFioAccount.address;
-  const fromActor = fromFioAccount.accountName;
   const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
+  const fromActor = Fio.accountHash(fromPublicKey);
 
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
@@ -522,9 +523,15 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   if(chainName == "Telos") {
     chainName = "TLOS";
   }
+
+  // account is EOSIO (Not FIO account):
   const accPubkey = ecc.privateToPublic(account.privateKey);
   const accName = account.accountName;
   const accIdentifier = accName + ',' + accPubkey;
+
+  const fioAddress = fioAccount.address;
+  const fioPublicKey = Ecc.privateToPublic(fioAccount.privateKey);
+  const fioActor = Fio.accountHash(fioPublicKey);
 
   const transaction = {
     expiration,
@@ -534,11 +541,11 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       account: 'fio.address',
       name: 'addaddress',
       authorization: [{
-        actor: fioAccount.accountName,
+        actor: fioActor,
         permission: 'active',
       }],
       data: {
-        fio_address: fioAccount.address,
+        fio_address: fioAddress,
         public_addresses: [{
           chain_code: chainName,
           token_code: chainName,
@@ -546,7 +553,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
         }],
         max_fee: fee,
         tpid: 'crypto@tribe',
-        actor: fioAccount.accountName,
+        actor: fioActor,
       },
     }]
   };

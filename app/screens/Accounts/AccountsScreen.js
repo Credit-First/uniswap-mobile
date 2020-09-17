@@ -16,6 +16,7 @@ import { getFioChatEndpoint } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
 import { getEndpoint } from '../../eos/chains';
+import { getTokens } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
 
@@ -29,6 +30,19 @@ const AccountsScreen = props => {
     accountsState: { accounts, activeAccountIndex, addresses },
     chooseActiveAccount,
   } = props;
+
+  var accountsAndTokens = [];
+  accounts.map((value, index, array) => {
+    var account = value;
+    var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
+    var chainToken = getTokens(chainName);
+    if (chainToken) {
+      account.token = chainToken;
+      accountsAndTokens.push(account);
+    } else {
+      accountsAndTokens.push(account);
+    }
+  });
 
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
@@ -170,6 +184,10 @@ const AccountsScreen = props => {
     return value.chainName === 'ALGO';
   });
 
+  const telosAccounts = accounts.filter((value, index, array) => {
+    return value.chainName === 'Telos';
+  });
+
   const updateAccountLists = (account) => {
       var newConnectedAccounts = [...initialConnectedAccounts , account ];
       initialConnectedAccounts.push(account);
@@ -190,84 +208,16 @@ const AccountsScreen = props => {
     navigate('RegisterAddress');
   };
 
-  const replacePendingFioAddress = (fioAddress, fioAccount) => {
-    const privateKey = fioAccount.privateKey;
-    // Delete old pending FIO account:
-    const index = findIndex(
-      accounts,
-      el =>
-        el.address === fioAccount.address &&
-        el.chainName === fioAccount.chainName,
-    );
-    deleteAccount(index);
-    // Connect new FIO account:
-    let account = { address: fioAddress, privateKey: privateKey, chainName: 'FIO' };
-    connectAccount(account);
+  const _handleCreateTelosAccount = () => {
+    navigate('CreateTelosAccount');
   };
-
-  const updateFioRegistration = (json, account) => {
-    let fioAddresses = json.fio_addresses;
-    if (fioAddresses) {
-      fioAddresses.map(function(item) {
-        replacePendingFioAddress(item.fio_address, account);
-      });
-    } else {
-      log({
-        description: 'updateFioRegistration - missing registration info',
-        cause: json,
-        location: 'ActionsScreen'
-      })
-    }
-  };
-
-  const checkPendingFIOAddressRegistration = (account) => {
-    const privateKey = account.privateKey;
-    if (!privateKey) {
-      log({
-        description: 'checkPendingFIOAddressRegistration',
-        cause: 'Pending FIO account with missing privateKey',
-        location: 'ActionsScreen'
-      });
-      return;
-    }
-    const publicKey = Ecc.privateToPublic(privateKey);
-    fetch('http://fio.greymass.com/v1/chain/get_fio_names', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: publicKey,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updateFioRegistration(json, account))
-      .catch(error => log({
-        description: 'checkPendingFIOAddressRegistration - fetch http://fio.greymass.com/v1/chain/get_fio_names ['+publicKey+']',
-        cause: error,
-        location: 'ActionsScreen'
-      })
-    );
-  };
-
-  const hasPendingFIOAddress = () => {
-    let ret = false;
-    fioAccounts.map((value, index, array) => {
-      if (value.address === 'pending@tribe') {
-        ret = true;
-        checkPendingFIOAddressRegistration(value);
-      }
-    });
-    return ret;
-  }
 
   const _handleCheckAccount = index => {
     chooseActiveAccount(index);
   };
 
   const _handlePressAccount = index => {
-    const account = accounts[index];
+    const account = accountsAndTokens[index];
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
@@ -276,6 +226,12 @@ const AccountsScreen = props => {
       navigate('AccountDetails', { account });
     }
   };
+
+  const _handlePressToken = index => {
+    const account = accountsAndTokens[index];
+    navigate('TokenDetails', { account });
+  };
+
 
 const getAppVersion = () => {
   return "Version " + DeviceInfo.getVersion() + ", Build " + DeviceInfo.getBuildNumber();
@@ -293,7 +249,7 @@ const parseIOSVersion = (html) => {
       let endPos = startPos + 3;
       var version = html.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      console.log('App Store Version '+version+' vs. App Version'+appVersion);
+      console.log('App Store Version '+version+' vs. App Version '+appVersion);
       if(appVersion !== version) {
         Alert.alert(
           'New version available!',
@@ -391,20 +347,35 @@ if (runCount == 0) {
 }
 
   var optionalButtons = <View style={styles.spacer} />;
-  if (!hasPendingFIOAddress()) {
-    if(algoAccounts.length == 0 && fioAccounts.length == 0) {
+  if(algoAccounts.length == 0 && fioAccounts.length == 0 && telosAccounts.length == 0) {
       optionalButtons = <View>
           <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
           <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>;
-    } else if(fioAccounts.length == 0) {
-      optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
-    } else if(algoAccounts.length == 0) {
-      optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
-    }
+  } else if(fioAccounts.length == 0 && telosAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+      </View>;
+  } else if(algoAccounts.length == 0 && fioAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+      </View>;
+  } else if(algoAccounts.length == 0 && telosAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+      </View>;
   } else if(algoAccounts.length == 0) {
     optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
+  } else if(fioAccounts.length == 0) {
+    optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
+  } else if(telosAccounts.length == 0) {
+    optionalButtons = <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>;
   }
+
 
   if(accounts.length == 0) {
     return (
@@ -439,15 +410,14 @@ if (runCount == 0) {
         resizeMode="contain"
       />
       <FlatList
-        data={accounts}
+        data={accountsAndTokens}
         keyExtractor={(item, index) => `${index}`}
         renderItem={({ item, index }) => (
           <AccountListItem
             account={item}
             style={styles.listItem}
-            onCheck={() => _handleCheckAccount(index)}
             onPress={() => _handlePressAccount(index)}
-            checked={index === activeAccountIndex}
+            onTokenPress={() => _handlePressToken(index)}
           />
         )}
       />

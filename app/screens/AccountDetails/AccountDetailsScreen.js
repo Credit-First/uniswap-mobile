@@ -107,6 +107,9 @@ const AccountDetailsScreen = props => {
       selfUnstaked = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
       setLiquidBalance(accountInfo.core_liquid_balance);
       setLiquidNumber(selfUnstaked);
+    } else {
+      setLiquidBalance('0 '+token);
+      setLiquidNumber(0);
     }
     // Calculate self stakes:
     var selfCpuStaked = 0;

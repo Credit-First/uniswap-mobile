@@ -89,7 +89,7 @@ const ViewFIORequestScreen = props => {
 
   let chain = null;
   if(decryptedContent != null) {
-    var chainCode = decryptedContent.chain_code.toUpperCase();
+    var chainCode = decryptedContent.chain_code.toUpperCase().trim();
     chain = getChain(chainCode);
     if(!chain && chainCode === 'ALGO') {
       chain = { name: 'ALGO', symbol: 'ALGO' };

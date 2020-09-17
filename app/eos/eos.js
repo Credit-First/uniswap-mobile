@@ -1,26 +1,30 @@
 import { JsonRpc, Api } from 'eosjs-rn';
 import { JsSignatureProvider } from 'eosjs-rn/dist/eosjs-jssig';
 import { TextEncoder, TextDecoder } from 'text-encoding';
-import { getChain } from './chains';
+import { getChain, getEndpoint } from './chains';
 import { getNewdexSymbol } from './exchange';
 
 const getAccount = (accountName, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   return rpc.get_account(accountName);
 };
 
 const getActions = (accountName, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   return rpc.history_get_actions(accountName);
 };
 
 const getProducers = chain => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   return rpc.get_producers(true, '', 100);
 };
 
 const stake = (account, cpuAmount, netAmount, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   const signatureProvider = new JsSignatureProvider([account.privateKey]);
 
   const api = new Api({
@@ -60,7 +64,8 @@ const stake = (account, cpuAmount, netAmount, chain) => {
 };
 
 const buyram = (account, amount, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   const signatureProvider = new JsSignatureProvider([account.privateKey]);
 
   const api = new Api({
@@ -98,7 +103,8 @@ const buyram = (account, amount, chain) => {
 };
 
 const transfer = (toAccountName, amount, memo, fromAccount, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
 
   const api = new Api({
@@ -140,7 +146,8 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
   const fromChain = getChain(fromAccount.chainName);
   const toChain = getChain(toAccount.chainName);
 
-  const rpc = new JsonRpc(fromChain.endpoint);
+  const fromEndpoint = getEndpoint(fromChain.name);
+  const rpc = new JsonRpc(fromEndpoint);
   const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
 
   const api = new Api({
@@ -216,7 +223,8 @@ const newdexTransfer = (amount, fromAccount, toAccount) => {
 };
 
 const voteProducers = (producers, fromAccount, chain) => {
-  const rpc = new JsonRpc(chain.endpoint);
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
   const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
 
   const api = new Api({
