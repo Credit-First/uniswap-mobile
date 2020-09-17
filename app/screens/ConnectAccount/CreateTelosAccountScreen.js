@@ -33,7 +33,7 @@ const CreateTelosAccountScreen = props => {
     navigation: { goBack },
   } = props;
 
-  const [accountName, setAccountName] = useState(randomName());
+  const [accountName, setAccountName] = useState('');
   const [available, setAvailable] = useState(false);
   const [checkState, setCheckState] = useState();
   const [availableState, setAvailableState] = useState('Use generated random name or enter your own.');
@@ -161,6 +161,7 @@ const CreateTelosAccountScreen = props => {
           <KInput
             label={'Account name'}
             value={accountName}
+            placeholder={'Enter 12 chars name [a-z,1-5] or generate random.'}
             onChangeText={validateName}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
