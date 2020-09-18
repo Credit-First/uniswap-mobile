@@ -26,6 +26,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
   },
+  request_send_button: {
+    marginTop: 8,
+  },
   buttonIcon: {
     width: 18,
     height: 18,
@@ -37,6 +40,10 @@ const styles = StyleSheet.create({
   spacer: {
     marginTop: 10,
   },
+  errorMessage: {
+    color: '#FF0000',
+    fontSize: 14,
+  }
 });
 
 export default styles;

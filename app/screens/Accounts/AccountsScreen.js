@@ -333,7 +333,7 @@ const checkLatestAndroidVersion = () => {
 
 const checkOnLatestVersion = () => {
   let brand = DeviceInfo.getBrand();
-  console.log("Device brand: "+brand);
+  //console.log("Device brand: "+brand);
   if (brand == "Apple") { // Either iPhone device
     checkLatestIOSVersion();
   } else { // otherwise - Android

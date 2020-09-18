@@ -157,7 +157,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       </TouchableOpacity>
     );
   } else {
-    if(account.token) {
+    if(account.token && tokenBalance) {
       return (
         <View onFocus={refreshBalances}>
         <TouchableOpacity onPress={handleOnPress}>
@@ -170,7 +170,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
         <TouchableOpacity onPress={handleOnTokenPress}>
           <View style={[styles.container, props.style]}>
             <View style={styles.contentContainer}>
-              <KText style={styles.tokenName}> + {account.token.name} : {account.accountName}, {tokenBalance}</KText>
+              <KText style={styles.tokenName}> + {tokenBalance}</KText>
             </View>
           </View>
         </TouchableOpacity>

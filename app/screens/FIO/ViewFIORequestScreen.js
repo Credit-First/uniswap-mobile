@@ -16,7 +16,11 @@ import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { getChain, getEndpoint } from '../../eos/chains';
+import { getChain,
+  getEndpoint } from '../../eos/chains';
+import { getTokens,
+  getTokenByName,
+  transferToken } from '../../eos/tokens';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
 import { log } from '../../logger/logger';
 
@@ -52,6 +56,14 @@ const ViewFIORequestScreen = props => {
     textDecoder: new TextDecoder()
   });
 
+  var tokenChainMap = [];
+  accounts.map((chain, index, self) => {
+    let chainName = (chain.chainName == "Telos") ? "TLOS" : chain.chainName;
+    let token = getTokens(chainName);
+    if (token) {
+      tokenChainMap[token.name] = chainName;
+    }
+  });
 
   let decryptedContent = null;
   try {
@@ -93,6 +105,9 @@ const ViewFIORequestScreen = props => {
     chain = getChain(chainCode);
     if(!chain && chainCode === 'ALGO') {
       chain = { name: 'ALGO', symbol: 'ALGO' };
+    } else if(tokenChainMap[chainCode]) {
+      let chainName = tokenChainMap[chainCode];
+      chain = getChain(chainName);
     }
   }
 
@@ -166,13 +181,18 @@ const ViewFIORequestScreen = props => {
     }
   };
 
-  const doEOSIOTransfer = async (chainName, toAccountPubkey, fromAccountPubkey) => {
-    const chain = getChain(chainName);
+  const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey, chainCode, tokenName) => {
+    const chain = getChain(chainCode);
+    if (!chain) {
+      Alert.alert('Unknown EOSIO chain '+chainCode);
+      setLoading(false);
+      return;
+    }
     // To EOSIO Account record:
     const [toActor, toPubkey] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
-      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
+      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainCode);
       return;
     }
     // From EOSIO Account record:
@@ -180,10 +200,11 @@ const ViewFIORequestScreen = props => {
     // Load account info:
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
-      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
+      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainCode);
       return;
     }
     const activeAccounts = accounts.filter((value, index, array) => {
+      let chainName = (chainCode === 'TLOS') ? 'Telos' : chainCode;
       return value.accountName === fromActor && value.chainName === chainName;
     });
     if (activeAccounts.length === 0) {
@@ -197,23 +218,33 @@ const ViewFIORequestScreen = props => {
       Alert.alert('Invalid transfer amount ' + decryptedContent.amount);
       return;
     }
-    setLoading(true);
     try {
-      const res = await transfer(toAccountName,
-        floatAmount,
-        decryptedContent.memo,
-        fromAccount,
-        chain);
-      if (res && res.transaction_id) {
-        markFIORequestCompleted(res.transaction_id);
-      } else {
-  			Alert.alert("Something went wrong: " + res.message);
-  		}
+      setLoading(true);
+      if (chainCode === tokenName) {
+        const res = await transfer(toAccountName,
+          floatAmount,
+          decryptedContent.memo,
+          fromAccount,
+          chain);
+          if (res && res.transaction_id) {
+            markFIORequestCompleted(res.transaction_id);
+          } else {
+  			    Alert.alert("Something went wrong: " + res.message);
+  		    }
+      } else { // Token transfer on chain:
+        let token = getTokenByName(tokenName);
+        const res = await transferToken(toActor, floatAmount, memo, fromAccount, token);
+        if (res && res.transaction_id) {
+          markFIORequestCompleted(res.transaction_id);
+        } else {
+          Alert.alert("Something went wrong: " + res.message);
+        }
+      }
       setLoading(false);
     } catch (err) {
+      Alert.alert('Transfer failed: '+err);
+      log({ description: 'doEOSIOTransfer', cause: err, location: 'ViewFIORequestScreen'});
       setLoading(false);
-      Alert.alert(err.message);
-      log({ description: 'doEOSIOTransfer', cause: err.message, location: 'ViewFIORequestScreen'});
     }
     return;
   };
@@ -275,15 +306,20 @@ const ViewFIORequestScreen = props => {
     }
   };
 
-  const handleFromToAccountTransfer = async (chainName, toActorPubkey, fromActorPubkey) => {
+  const handleFromToAccountTransfer = async (toActorPubkey, fromActorPubkey, chainCode, tokenName) => {
+    if (!fromActorPubkey) {
+      Alert.alert('No valid '+chainCode+' public address found');
+      setLoading(false);
+      return;
+    }
     try {
         setLoading(true);
-        if (chainName === 'ALGO') {
+        if (chainCode === 'ALGO') {
           await doAlgoTransfer(toActorPubkey, fromActorPubkey);
-        } else if(chainName === 'FIO') {
+        } else if(chainCode === 'FIO') {
           await doFIOTransfer(toActorPubkey, fromActorPubkey);
         } else { // Any of EOSIO based chains:
-          await doEOSIOTransfer(chainName, toActorPubkey, fromActorPubkey);
+          await doEOSIOTransfer(toActorPubkey, fromActorPubkey, chainCode, tokenName);
         }
         setLoading(false);
       } catch (err) {
@@ -293,7 +329,15 @@ const ViewFIORequestScreen = props => {
       }
   };
 
-  const handleToAccountAddress = async (chainName, toActorPubkey) => {
+  const handleToAccountAddress = async (toActorPubkey, chainCode, tokenName) => {
+    if (!toActorPubkey) {
+      Alert.alert('No '+chainCode+' public address found');
+      setLoading(false);
+      return;
+    }
+    if(tokenName == 'Telos') {
+      tokenName = 'TLOS';
+    }
     try {
       // Now load corresponding from account
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
@@ -304,13 +348,13 @@ const ViewFIORequestScreen = props => {
         },
         body: JSON.stringify({
           "fio_address": fioAccount.address,
-          "chain_code": chainName,
-          "token_code": chainName
+          "chain_code": chainCode,
+          "token_code": chainCode
         }),
       })
       .then(response => response.json())
-      .then(json => handleFromToAccountTransfer(chainName, toActorPubkey, json.public_address))
-      .catch(error => Alert.alert('Error fetching payer public address for '+chainName));
+      .then(json => handleFromToAccountTransfer(toActorPubkey, json.public_address, chainCode, tokenName))
+      .catch(error => Alert.alert('Error fetching payer public address for '+chainCode));
     } catch (e) {
       Alert.alert('Error: '+e);
       return;
@@ -320,6 +364,10 @@ const ViewFIORequestScreen = props => {
   const _handleTransferAndAccept = async () => {
     const chainName = decryptedContent.chain_code.toUpperCase();
     const toFioAddress = fioRequest.payee_fio_address;
+    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+    if(tokenChainMap[chainName]) {
+      chainCode = tokenChainMap[chainName];
+    }
     setLoading(true);
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
       method: 'POST',
@@ -329,13 +377,13 @@ const ViewFIORequestScreen = props => {
       },
       body: JSON.stringify({
         "fio_address": toFioAddress,
-        "chain_code": chainName,
-        "token_code": chainName
+        "chain_code": chainCode,
+        "token_code": chainCode
       }),
     })
     .then(response => response.json())
-    .then(json => handleToAccountAddress(chainName, json.public_address))
-    .catch(error => Alert.alert('Error fetching payee public address for '+chainName));
+    .then(json => handleToAccountAddress(json.public_address, chainCode, chainName))
+    .catch(error => Alert.alert('Error fetching payee public address for '+chainCode));
   };
 
   const _handleExternalAccept = async () => {

@@ -77,7 +77,7 @@ const TransferScreen = props => {
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
       .catch(error => log({
-        description: 'loadToPubkey - fetch [' + chainCode + '] ' + fioEndpoint + '/v1/chain/get_pub_address',
+        description: 'loadToPubkey - fetch [' + chainCode + '] ' + fioEndpoint + '/v1/chain/get_pub_address ['+address+']',
         cause: error,
         location: 'TransferScreen'
       })
@@ -99,7 +99,7 @@ const TransferScreen = props => {
         .then(response => response.json())
         .then(json => setToFioPubkey(json.public_address))
         .catch(error => log({
-          description: 'loadToPubkey - fetch [FIO] ' + fioEndpoint + '/v1/chain/get_pub_address',
+          description: 'loadToPubkey - fetch [FIO] ' + fioEndpoint + '/v1/chain/get_pub_address ['+address+']',
           cause: error,
           location: 'TransferScreen'
         })
@@ -156,7 +156,7 @@ const TransferScreen = props => {
       _validateAddress(value);
       setIsFioAddress(true);
       setToFioAddress(value);
-    } else if(value.indexOf('@') > 1) {
+    } else if(value.indexOf('@') > 0) {
       _validateAddress(value);
       setIsFioAddress(true);
       setToFioAddress(value);

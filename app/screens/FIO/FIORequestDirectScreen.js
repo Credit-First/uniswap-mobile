@@ -121,7 +121,7 @@ const FIORequestDirectScreen = props => {
           <KText>From address: {fromFioAccount.address}</KText>
           <KText>To address: {toFioAddress.address}</KText>
           <KInput
-            label={'Coin requested'}
+            label={'Coin/token requested'}
             placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
             value={coin}
             onChangeText={_handleSetCoin}

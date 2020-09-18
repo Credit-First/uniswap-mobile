@@ -36,7 +36,7 @@ const EditAddressScreen = props => {
 
   const _handleEditAddress = () => {
     let newAddress = { name: newName, address: fioAddress.address, actor: fioAddress.actor, publicKey: fioAddress.publicKey };
-    console.log(newAddress);
+    //console.log(newAddress);
     deleteAddress(index);
     addAddress(newAddress);
     _handleBack();

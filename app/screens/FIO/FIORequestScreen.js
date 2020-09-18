@@ -203,7 +203,7 @@ if (fioAccounts.length == 1) {
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KInput
-            label={'Coin requested'}
+            label={'Coin/token requested'}
             placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
             value={coin}
             onChangeText={_handleSetCoin}
@@ -278,7 +278,7 @@ if (fioAccounts.length == 1) {
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KInput
-            label={'Coin requested'}
+            label={'Coin/token requested'}
             placeholder={'Enter requested coin: EOS, BTC, ETH, etc'}
             value={coin}
             onChangeText={_handleSetCoin}

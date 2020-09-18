@@ -5,6 +5,11 @@ import { getEndpoint } from './chains';
 
 const tokens = [
   {
+    name: 'USDT',
+    chain: 'EOS',
+    contract: 'tethertether',
+  },
+  {
     name: 'ECOIN',
     chain: 'TLOS',
     contract: 'ecoin1nation',
@@ -14,6 +19,10 @@ const tokens = [
 const getTokens = chainName => {
   chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
   return tokens.find(item => (item.chain === chainName));
+};
+
+const getTokenByName = tokenName => {
+  return tokens.find(item => (item.name === tokenName));
 };
 
 const getBalance = async (accountName, token, handler) => {
@@ -41,13 +50,10 @@ const getBalance = async (accountName, token, handler) => {
   );
 };
 
-const transfer = (toAccountName, amount, memo, fromAccount, token) => {
+const transferToken = (toAccountName, amount, memo, fromAccount, token) => {
   const endpoint = getEndpoint(token.chain);
   const rpc = new JsonRpc(endpoint);
   const signatureProvider = new JsSignatureProvider([fromAccount.privateKey]);
-
-  console.log(amount);
-  console.log(amount.toFixed(4));
 
   const api = new Api({
     rpc,
@@ -84,4 +90,4 @@ const transfer = (toAccountName, amount, memo, fromAccount, token) => {
   );
 };
 
-export { getTokens, getBalance, transfer };
+export { getTokens, getTokenByName, getBalance, transferToken };

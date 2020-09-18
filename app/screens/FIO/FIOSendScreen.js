@@ -19,6 +19,9 @@ import {
   supportedChains,
   getChain,
   getEndpoint } from '../../eos/chains';
+import { getTokens,
+  getTokenByName,
+  transferToken } from '../../eos/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -36,12 +39,6 @@ const FIOSendScreen = props => {
     addAddress,
     navigation: { navigate, goBack },
     accountsState: { accounts, activeAccountIndex, addresses },
-    route: {
-      params: {
-        fromFioAccount,
-        toFioAddress,
-      },
-    },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -50,10 +47,17 @@ const FIOSendScreen = props => {
     return value.chainName === 'FIO';
   });
 
+  var tokenChainMap = [];
   var importedChains = [];
   accounts.map((chain, index, self) => {
     if (importedChains.indexOf(chain.chainName) < 0) {
       importedChains.push(chain.chainName);
+      let chainName = (chain.chainName == "Telos") ? "TLOS" : chain.chainName;
+      var token = getTokens(chainName);
+      if (token) {
+        importedChains.push(token.name);
+        tokenChainMap[token.name] = chainName;
+      }
     }
   });
 
@@ -62,6 +66,9 @@ const FIOSendScreen = props => {
   };
 
   const _validateAddress = async address => {
+    if (fioAccounts.length == 1 && !fromAccount) {
+      _handleFromAccountChange(fioAccounts[0]);
+    }
     if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
       fetch(fioEndpoint+'/v1/chain/avail_check', {
         method: 'POST',
@@ -129,10 +136,10 @@ const FIOSendScreen = props => {
     goBack();
   }
 
-  const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
-    const chain = getChain(chainName);
+  const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey, chainCode, tokenName) => {
+    const chain = getChain(chainCode);
     if (!chain) {
-      Alert.alert('Unknown EOSIO chain '+chainName);
+      Alert.alert('Unknown EOSIO chain '+chainCode);
       setLoading(false);
       return;
     }
@@ -145,7 +152,7 @@ const FIOSendScreen = props => {
     const [toActor, toPubkey] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
-      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
+      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainCode);
       return;
     }
     // From EOSIO Account record:
@@ -157,11 +164,12 @@ const FIOSendScreen = props => {
     const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
-      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
+      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainCode);
       return;
     }
     // Find matching active account:
     const activeAccounts = accounts.filter((value, index, array) => {
+      let chainName = (chainCode === 'TLOS') ? 'Telos' : chainCode;
       return value.accountName === fromActor && value.chainName === chainName;
     });
     if (activeAccounts.length === 0) {
@@ -180,17 +188,28 @@ const FIOSendScreen = props => {
     // Now do transfer
     try {
       setLoading(true);
-      const res = await transfer(toActor,
-        floatAmount,
-        memo,
-        fromAccount,
-        chain);
+      if (chainCode === tokenName) {
+        const res = await transfer(toActor,
+          floatAmount,
+          memo,
+          fromAccount,
+          chain);
+          if (res && res.transaction_id) {
+            Alert.alert("Transfer completed in tx "+res.transaction_id);
+          } else {
+    			  Alert.alert("Something went wrong: "+res.message);
+    		  }
+      } else { // Token transfer on chain:
+        let token = getTokenByName(tokenName);
+        const res = await transferToken(toActor, floatAmount, memo, fromAccount, token);
         if (res && res.transaction_id) {
-          Alert.alert("Transfer completed in tx "+res.transaction_id);
+          Alert.alert('Completed transfer of '+floatAmount+' '+tokenName+' in tx '+res.transaction_id);
         } else {
-    			Alert.alert("Something went wrong: "+res.message);
-    		}
+          Alert.alert("Something went wrong: "+res.message);
+        }
+      }
       setLoading(false);
+      goBack();
     } catch(err) {
       Alert.alert('Transfer failed: '+err);
       log({ description: 'doEOSIOTransfer', cause: err, location: 'FIOSendScreen'});
@@ -234,9 +253,9 @@ const FIOSendScreen = props => {
     }
   };
 
-  const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+  const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey, chainCode, tokenName) => {
     if (!fromAccountPubkey) {
-      Alert.alert('No valid '+chainName+' public address found for '+fromAccount.address);
+      Alert.alert('No valid '+chainCode+' public address found for '+fromAccount.address);
       setLoading(false);
       return;
     }
@@ -247,12 +266,12 @@ const FIOSendScreen = props => {
     }
     try {
         setLoading(true);
-        if (chainName === 'ALGO') {
+        if (chainCode === 'ALGO') {
           await doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
-        } else if (chainName === 'FIO') {
+        } else if (chainCode === 'FIO') {
           await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
-        } else { // Any of EOSIO based chains:
-          await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
+        } else { // Any of EOSIO based transfer:
+          await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey, chainCode, tokenName);
         }
         setLoading(false);
       } catch (e) {
@@ -261,12 +280,14 @@ const FIOSendScreen = props => {
       }
   };
 
-  const handleToAccountAddress = async (toAccountPubkey) => {
-    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+  const handleToAccountAddress = async (toAccountPubkey, chainCode, tokenName) => {
     if (!toAccountPubkey) {
       Alert.alert('No '+chainCode+' public address found for '+validToAccount);
       setLoading(false);
       return;
+    }
+    if(tokenName == 'Telos') {
+      tokenName = 'TLOS';
     }
     try {
       fetch(fioEndpoint+'/v1/chain/get_pub_address', {
@@ -282,7 +303,7 @@ const FIOSendScreen = props => {
         }),
       })
       .then(response => response.json())
-      .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address))
+      .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address, chainCode, tokenName))
       .catch(error => Alert.alert('Error fetching payer public address for '+chainCode));
     } catch (err) {
       Alert.alert('Error: '+err);
@@ -297,6 +318,9 @@ const FIOSendScreen = props => {
       return;
     }
     let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+    if(tokenChainMap[chainName]) {
+      chainCode = tokenChainMap[chainName];
+    }
     setLoading(true);
     // Load toAccount actor,publicKey:
     fetch(fioEndpoint+'/v1/chain/get_pub_address', {
@@ -312,10 +336,11 @@ const FIOSendScreen = props => {
       }),
     })
     .then(response => response.json())
-    .then(json => handleToAccountAddress(json.public_address))
+    .then(json => handleToAccountAddress(json.public_address, chainCode, chainName))
     .catch(error => Alert.alert('Error fetching payee public address for '+chainCode));
   };
 
+if (fioAccounts.length == 1) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -334,15 +359,7 @@ const FIOSendScreen = props => {
             subTitle={'Send payment to another FIO address'}
             style={styles.header}
           />
-          <KSelect
-            label={'From address'}
-            items={fioAccounts.map(item => ({
-              label: `${item.chainName}: ${item.address}`,
-              value: item,
-            }))}
-            onValueChange={_handleFromAccountChange}
-            containerStyle={styles.inputContainer}
-          />
+          <KText>From FIO address: {fioAccounts[0].address}</KText>
           <KInput
             label={'To address'}
             placeholder={'Enter FIO address'}
@@ -353,7 +370,7 @@ const FIOSendScreen = props => {
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KSelect
-            label={'Coin to send'}
+            label={'Coin/token to send'}
             items={importedChains.map(name => ({
               label: `${name}`,
               value: `${name}`,
@@ -391,6 +408,83 @@ const FIOSendScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
+} else {
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+              />
+          </TouchableOpacity>
+          <KHeader
+            title={'FIO Send payment'}
+            subTitle={'Send payment to another FIO address'}
+            style={styles.header}
+          />
+          <KSelect
+            label={'From address'}
+            items={fioAccounts.map(item => ({
+              label: `${item.chainName}: ${item.address}`,
+              value: item,
+            }))}
+            onValueChange={_handleFromAccountChange}
+            containerStyle={styles.inputContainer}
+          />
+          <KInput
+            label={'To address'}
+            placeholder={'Enter FIO address'}
+            value={toAccount}
+            onChangeText={_validateAddress}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
+          <KSelect
+            label={'Coin/token to send'}
+            items={importedChains.map(name => ({
+              label: `${name}`,
+              value: `${name}`,
+            }))}
+            onValueChange={setChainName}
+            containerStyle={styles.inputContainer}
+          />
+          <KInput
+            label={'Amount to send'}
+            placeholder={'Enter requested amount'}
+            value={amount}
+            onChangeText={setAmount}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KInput
+            label={'Memo'}
+            placeholder={'Enter memo'}
+            value={memo}
+            multiline={true}
+            onChangeText={setMemo}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KButton
+            title={'Submit'}
+            theme={'blue'}
+            style={styles.button}
+            icon={'check'}
+            isLoading={loading}
+            onPress={_handleSubmit}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+}
 
 };
 

@@ -263,7 +263,7 @@ const FIOSendDirectScreen = props => {
           <KText>From address: {fromFioAccount.address}</KText>
           <KText>To address: {toFioAddress.address}</KText>
           <KSelect
-            label={'Coin to send'}
+            label={'Coin/token to send'}
             items={importedChains.map(name => ({
               label: `${name}`,
               value: `${name}`,
