@@ -165,6 +165,10 @@ const TokenDetailsScreen = props => {
     }
   };
 
+  const getTransferFormLabel = () => {
+    return 'Transfer '+account.token.name+' tokens: ';
+  };
+
   getBalance(account.accountName, account.token, handleTokenBalance);
 
   return (
@@ -178,11 +182,10 @@ const TokenDetailsScreen = props => {
           />
         </TouchableOpacity>
         <KHeader title={account.accountName} subTitle={getSubtitle()} style={styles.header} />
-        <View style={styles.spacer} />
         <KText>Balance: {tokenBalance}</KText>
         <KInput
-          label={'Sending tokens to'}
-          placeholder={'Enter account name'}
+          label={getTransferFormLabel()}
+          placeholder={'Enter receiver account name'}
           value={toAccountName}
           onChangeText={_handleToAccountChange}
           containerStyle={styles.inputContainer}
@@ -190,7 +193,6 @@ const TokenDetailsScreen = props => {
         />
         <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
         <KInput
-          label={'Amount to send to'}
           placeholder={'Enter amount to send'}
           value={amount}
           onChangeText={setAmount}
@@ -199,14 +201,12 @@ const TokenDetailsScreen = props => {
           keyboardType={'numeric'}
         />
         <KInput
-          label={'Personal note'}
-          placeholder={'Enter your message'}
+          placeholder={'Optional message'}
           value={memo}
           onChangeText={setMemo}
           containerStyle={styles.inputContainer}
           autoCapitalize={'none'}
         />
-        <View style={styles.spacer} />
         <KButton
           title={'Submit transfer'}
           theme={'blue'}
@@ -219,7 +219,6 @@ const TokenDetailsScreen = props => {
             />
           )}
         />
-        <FlatList/>
         <RequestSendButtons
             style={styles.request_send_button}
             onRequestPress={_handleFIORequest}

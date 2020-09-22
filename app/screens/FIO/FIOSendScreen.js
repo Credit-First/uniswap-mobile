@@ -307,7 +307,7 @@ const FIOSendScreen = props => {
       .catch(error => Alert.alert('Error fetching payer public address for '+chainCode));
     } catch (err) {
       Alert.alert('Error: '+err);
-      log({ description: '_handleSubmit', cause: err, location: 'FIOSendScreen'});
+      log({ description: 'handleToAccountAddress', cause: err, location: 'FIOSendScreen'});
       return;
     }
   };

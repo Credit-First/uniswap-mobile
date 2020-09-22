@@ -24,10 +24,10 @@ const styles = StyleSheet.create({
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   request_send_button: {
-    marginTop: 8,
+    marginTop: 5,
   },
   buttonIcon: {
     width: 18,
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     tintColor: '#FFF',
   },
   inputContainer: {
-    marginTop: 10,
+    marginTop: 8,
   },
   spacer: {
     marginTop: 10,
