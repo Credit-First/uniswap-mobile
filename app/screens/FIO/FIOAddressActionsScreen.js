@@ -264,7 +264,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const getFee = async address => {
-
     fetch(fioEndpoint+'/v1/chain/get_fee', {
       method: 'POST',
       headers: {

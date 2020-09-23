@@ -11,6 +11,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KInput, KText } from '../../components';
+import { fioAddPublicAddress } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -31,15 +32,48 @@ const CreateTelosAccountScreen = props => {
   const {
     connectAccount,
     navigation: { goBack },
+    accountsState: { accounts },
   } = props;
 
   const [accountName, setAccountName] = useState('');
   const [available, setAvailable] = useState(false);
   const [checkState, setCheckState] = useState();
   const [availableState, setAvailableState] = useState('Use generated random name or enter your own.');
+  const [fioFee, setFioFee] = useState(0);
 
+  const fioEndpoint = getEndpoint('FIO');
   const endpoint = getEndpoint('Telos');
   const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+
+  const getFee = async address => {
+    fetch(fioEndpoint+'/v1/chain/get_fee', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        end_point: 'add_pub_address',
+        fio_address: address,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => setFioFee(json.fee))
+      .catch(error => log({
+        description: 'getFee - fetch '+fioEndpoint+'/v1/chain/get_fee',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
+  };
+
+
+  const fioAccounts = accounts.filter((value, index, array) => {
+    if (value.chainName === 'FIO' && fioFee == 0) {
+      getFee(value.address);
+    }
+    return value.chainName === 'FIO';
+  });
 
   const validateName = (name) => {
     setAccountName(name);
@@ -101,6 +135,10 @@ const CreateTelosAccountScreen = props => {
   const addAccount = (json, account) => {
     if (json && json.transaction_id) {
       connectAccount(account);
+      // Connect Telos account to a single FIO address:
+      if( fioAccounts.length === 1 ) {
+        fioAddPublicAddress(fioAccounts[0], account, fioFee);
+      }
       Alert.alert('Account registered on chain: '+json.transaction_id);
       goBack();
     } else {

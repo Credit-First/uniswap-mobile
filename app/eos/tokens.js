@@ -17,8 +17,8 @@ const tokens = [
 ];
 
 const getTokens = chainName => {
-  chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
-  return tokens.find(item => (item.chain === chainName));
+  let name = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
+  return tokens.find(item => (item.chain === name));
 };
 
 const getTokenByName = tokenName => {

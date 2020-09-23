@@ -9,7 +9,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import ecc from 'eosjs-ecc-rn';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import styles from './RegisterAddress.style';
-import { KHeader, KInput, KText, KButton } from '../../components';
+import { KHeader, KInput, KText, KButton, InputAddress } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
@@ -53,6 +53,9 @@ const RegisterAddressScreen = props => {
         .then(response => response.json())
         .then(json => updateAvailableState(json, undefined, newAddress))
         .catch(error => updateAvailableState({is_registered:-1}, error, newAddress));
+    } else {
+      setAvailable(false);
+      setCheckState('');
     }
   };
 
@@ -77,6 +80,7 @@ const RegisterAddressScreen = props => {
     if(json.success) {
       connectAccount(fioAccount);
       Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
+      goBack();
     } else {
       json.method = 'connectFioAccount';
       json.address = fioAccount.address;
@@ -137,14 +141,7 @@ const RegisterAddressScreen = props => {
             subTitle={'Register new FIO address under @tribe domain'}
             style={styles.header}
           />
-          <KInput
-            label={'Name'}
-            placeholder={'Enter your name'}
-            value={name}
-            onChangeText={_checkAvailable}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-          />
+          <InputAddress onChange={_checkAvailable}/>
           <KText style={styles.errorMessage}>{checkState}</KText>
           <KButton
             title={'Register address'}

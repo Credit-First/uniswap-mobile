@@ -145,6 +145,9 @@ const TransferScreen = props => {
 
   const _handleFromAccountChange = value => {
     setFromAccount(value);
+    if(value.chainName!=='FIO') {
+      setAddressInvalidMessage('');
+    }
   };
 
   const _handleToAccountChange = value => {
@@ -153,9 +156,14 @@ const TransferScreen = props => {
       return;
     }
     if (fromAccount.chainName==='FIO') {
-      _validateAddress(value);
-      setIsFioAddress(true);
-      setToFioAddress(value);
+      if(value && value.indexOf('@') > 0) {
+        _validateAddress(value);
+        setIsFioAddress(true);
+        setToFioAddress(value);
+      } else {
+        setIsFioAddress(false);
+        setAddressInvalidMessage('Must be FIO address for FIO transfer!');
+      }
     } else if(value.indexOf('@') > 0) {
       _validateAddress(value);
       setIsFioAddress(true);
@@ -174,7 +182,6 @@ const TransferScreen = props => {
 
   const addFIOAddressToAddressbook = () => {
     if(toFioAddress && toFioPubkey) {
-      console.log(toFioPubkey);
       let accountHash = Fio.accountHash(toFioPubkey);
       let name = toFioAddress.split('@')[0];
       let addressJson = { name: name, address: toFioAddress, actor: accountHash, publicKey: toFioPubkey };
@@ -291,7 +298,7 @@ const TransferScreen = props => {
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
           <KInput
-            label={'Amount to send to'}
+            label={'Amount to send'}
             placeholder={'Enter amount to send'}
             value={amount}
             onChangeText={setAmount}
