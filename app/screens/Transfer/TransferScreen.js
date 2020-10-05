@@ -145,7 +145,7 @@ const TransferScreen = props => {
 
   const _handleFromAccountChange = value => {
     setFromAccount(value);
-    if(value.chainName!=='FIO') {
+    if(value && value.chainName !== 'FIO') {
       setAddressInvalidMessage('');
     }
   };
@@ -160,6 +160,9 @@ const TransferScreen = props => {
         _validateAddress(value);
         setIsFioAddress(true);
         setToFioAddress(value);
+      } else if (value && value.startsWith('FIO') && value.length > 10) {
+        setIsFioAddress(false);
+        setToPubkey(value);
       } else {
         setIsFioAddress(false);
         setAddressInvalidMessage('Must be FIO address for FIO transfer!');

@@ -191,7 +191,8 @@ const FIOChatScreen = props => {
     goBack();
   };
 
-  const _handleChangeFromAccount = (fromFioAddress) => {
+  const _handleChangeFromAccount = (value, index) => {
+    const fromFioAddress = value.address;
     navigate('FIOChat', { fioAddress, index, fromFioAddress });
   };
 
@@ -212,7 +213,7 @@ const FIOChatScreen = props => {
           </TouchableOpacity>
           <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
           <KSelect
-            items={fioAccounts.map(item => ({
+            items={fioAccounts.map((item, index, self) => ({
               label: `${item.address}`,
               value: item,
             }))}

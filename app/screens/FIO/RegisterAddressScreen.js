@@ -79,6 +79,12 @@ const RegisterAddressScreen = props => {
     setLoading(false);
     if(json.success) {
       connectAccount(fioAccount);
+      log({
+        description: 'New FIO address registration',
+        address: fioAccount.address,
+        transaction: json.account_id,
+        location: 'RegisterAddressScreen'
+      });
       Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
       goBack();
     } else {
@@ -95,7 +101,7 @@ const RegisterAddressScreen = props => {
       description: 'FIO address registration error',
       cause: error,
       location: 'RegisterAddressScreen'
-    })
+    });
   };
 
   const _nextRegister = async () => {
@@ -103,7 +109,7 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
-      console.log(fioAccount);
+      //console.log(fioAccount);
       fetch('https://reg.fioprotocol.io/public-api/buy-address', {
         method: 'POST',
         headers: {

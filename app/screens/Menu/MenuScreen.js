@@ -41,7 +41,6 @@ const MenuScreen = props => {
             />
             )}
         />
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
         <KButton title={'Register external account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
         <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
