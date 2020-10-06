@@ -29,6 +29,14 @@ const copyToClipboard = () => {
 	Alert.alert('Private key copied to Clipboard');
 }
 
+const getTitle = () => {
+	if (account.chainName === 'FIO') {
+		return account.address;
+	} else {
+		return account.accountName;
+	}
+};
+
 return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -43,7 +51,7 @@ return (
             />
           </TouchableOpacity>
           <KHeader
-            title={account.accountName}
+            title={getTitle()}
             subTitle={account.chainName}
             style={styles.header}
           />

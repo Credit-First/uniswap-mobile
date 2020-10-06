@@ -347,35 +347,11 @@ if (runCount == 0) {
 }
 
   var optionalButtons = <View style={styles.spacer} />;
-  if(algoAccounts.length == 0 && fioAccounts.length == 0 && telosAccounts.length == 0) {
-      optionalButtons = <View>
-          <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-        </View>;
-  } else if(fioAccounts.length == 0 && telosAccounts.length == 0) {
+  if(fioAccounts.length == 0) {
     optionalButtons = <View>
         <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
       </View>;
-  } else if(algoAccounts.length == 0 && fioAccounts.length == 0) {
-    optionalButtons = <View>
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-      </View>;
-  } else if(algoAccounts.length == 0 && telosAccounts.length == 0) {
-    optionalButtons = <View>
-        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-      </View>;
-  } else if(algoAccounts.length == 0) {
-    optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
-  } else if(fioAccounts.length == 0) {
-    optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
-  } else if(telosAccounts.length == 0) {
-    optionalButtons = <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>;
   }
-
 
   if(accounts.length == 0) {
     return (

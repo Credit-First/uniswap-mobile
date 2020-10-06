@@ -10,11 +10,21 @@ import ecc from 'eosjs-ecc-rn';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import styles from './RegisterAddress.style';
 import { KHeader, KInput, KText, KButton, InputAddress } from '../../components';
-import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { log } from '../../logger/logger';
+import { fioAddPublicAddress } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
+import { connectAccounts } from '../../redux';
+import { getAccount } from '../../eos/eos';
+import { log } from '../../logger/logger';
 
+
+const chars = '12345abcdefghijklmnopqrstuvwxyz';
+
+function randomName() {
+    var result = '';
+    for (var i = 12; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+    return result;
+}
 
 const RegisterAddressScreen = props => {
   const [name, setName] = useState();
@@ -22,13 +32,19 @@ const RegisterAddressScreen = props => {
   const [available, setAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [checkState, setCheckState] = useState('');
+  const [fioAccount, setFioAccount] = useState();
+  const [fioFee, setFioFee] = useState(0);
   const {
     connectAccount,
     navigation: { goBack },
   } = props;
-
+  // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
   const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
+  // Telos endpoint:
+  const endpoint = getEndpoint('Telos');
+  const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+
 
   const _checkAvailable = async name => {
     if (name.indexOf('@') > 0) {
@@ -74,8 +90,54 @@ const RegisterAddressScreen = props => {
     }
   };
 
+  const addTelosAccount = (json, account, fioAccount) => {
+    if (json && json.transaction_id) {
+      connectAccount(account);
+      // Connect Telos account to a FIO address:
+      fioAddPublicAddress(fioAccount, account, fioFee);
+      goBack();
+    } else {
+      log({
+        description: 'Failed to add account: ' + account.accountName,
+        cause: json,
+        location: 'CreateTelosAccountScreen'
+      });
+      setCheckState('Failed to register account: ' + account.accountName);
+    }
+  };
+
+  const createRandomTelosAccount = async (fioAccount) => {
+    const accountName = randomName();
+    ecc.randomKey().then(privateKey => {
+      const publicKey = ecc.privateToPublic(privateKey);
+      const account = { accountName, privateKey, chainName: 'Telos' };
+      const request = {
+        name: accountName,
+        owner_public_key: publicKey,
+        active_public_key: publicKey
+      };
+      // Call new account service:
+      fetch(newAccountEndpoint, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
+        },
+        body: JSON.stringify(request),
+      })
+        .then(response => response.json())
+        .then(json => addTelosAccount(json, account, fioAccount))
+        .catch(error => log({
+          description: '_handleCreateAccount - fetch ' + newAccountEndpoint + ' POST: [' + accountName + ']',
+          cause: error,
+          location: 'CreateTelosAccountScreen'
+        })
+      );
+    });
+  };
+
   const connectFioAccount = (json, fioAccount) => {
-    //console.log(json);
     setLoading(false);
     if(json.success) {
       connectAccount(fioAccount);
@@ -85,8 +147,9 @@ const RegisterAddressScreen = props => {
         transaction: json.account_id,
         location: 'RegisterAddressScreen'
       });
-      Alert.alert('Registered '+fioAccount.address+' in TX '+json.account_id);
-      goBack();
+      Alert.alert('Registered '+fioAccount.address+' address. Please backup your account private keys!');
+      createRandomTelosAccount(fioAccount);
+      //goBack();
     } else {
       json.method = 'connectFioAccount';
       json.address = fioAccount.address;
@@ -109,7 +172,6 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
-      //console.log(fioAccount);
       fetch('https://reg.fioprotocol.io/public-api/buy-address', {
         method: 'POST',
         headers: {

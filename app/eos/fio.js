@@ -508,7 +508,6 @@ const fioNewFundsRequest = async (fromFioAccount,
 
 // Used to add EOSIO accounts to FIO Address
 const fioAddPublicAddress = async (fioAccount, account, fee) => {
-
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
