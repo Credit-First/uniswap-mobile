@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import DeviceInfo from 'react-native-device-info';
 import { SafeAreaView,
   View,
   TouchableOpacity,
   Alert,
+  FlatList,
+  Image,
+  Text,
   Linking } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -34,9 +38,10 @@ const RegisterAddressScreen = props => {
   const [checkState, setCheckState] = useState('');
   const [fioAccount, setFioAccount] = useState();
   const [fioFee, setFioFee] = useState(0);
+  const [registeredAddresses, setRegisteredAddresses] = useState();
   const {
     connectAccount,
-    navigation: { goBack },
+    navigation: { navigate, goBack },
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
@@ -44,7 +49,35 @@ const RegisterAddressScreen = props => {
   // Telos endpoint:
   const endpoint = getEndpoint('Telos');
   const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+  // Check device registrations endpint:
+  const checkDeviceEndpoint = 'https://wallet.eostribe.io/getfiobyuid?uid='+DeviceInfo.getUniqueId();
 
+  const processRegisteredAddresses = (json) => {
+    if (json.fioAccounts) {
+      setRegisteredAddresses(json.fioAccounts)
+    } else if(json.length > 0) {
+      setRegisteredAddresses(json);
+    } else {
+      setRegisteredAddresses([]);
+    }
+  };
+
+  if(!registeredAddresses) {
+    try {
+      fetch(checkDeviceEndpoint, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(json => processRegisteredAddresses(json))
+      .catch(error => console.log(error));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const _checkAvailable = async name => {
     if (name.indexOf('@') > 0) {
@@ -191,8 +224,48 @@ const RegisterAddressScreen = props => {
     });
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
+  if (registeredAddresses && registeredAddresses.length > 0) {
+    return (
+     <SafeAreaView style={styles.container}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader
+            title={'Already registered'}
+            subTitle={'This device already registered addresses:'}
+            style={styles.header}
+          />
+          <View style={styles.spacer} />
+          <FlatList
+            data={registeredAddresses}
+            keyExtractor={(item, index) => `${index}`}
+            renderItem={({ item, index }) => (
+              <Text>{item}</Text>
+            )}
+          />
+          <View style={styles.spacer} />
+          <Text>You can re-import them using backed up private key:</Text>
+          <KButton
+            title={'Import accounts'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={() => navigate('ConnectAccount')}
+            renderIcon={() => (
+              <Image
+                source={require('../../../assets/icons/accounts.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+          />
+      </SafeAreaView>
+    );
+  } else {
+    return (
+     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContentContainer}
         enableOnAndroid>
@@ -221,8 +294,11 @@ const RegisterAddressScreen = props => {
           />
         </View>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
-  );
+     </SafeAreaView>
+    );
+  }
+
+
 };
 
 export default connectAccounts()(RegisterAddressScreen);

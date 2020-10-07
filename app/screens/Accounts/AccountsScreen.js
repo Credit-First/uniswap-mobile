@@ -12,7 +12,7 @@ import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
-import { getFioChatEndpoint } from '../../eos/fio';
+import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
 import { getEndpoint } from '../../eos/chains';
@@ -22,6 +22,8 @@ import { log } from '../../logger/logger'
 
 
 const AccountsScreen = props => {
+  const [telosLinked, setTelosLinked] = useState(false);
+
   const {
     connectAccount,
     deleteAccount,
@@ -146,8 +148,8 @@ const AccountsScreen = props => {
     }
   };
 
-  const loadIncomingMessages = (fioaccount) => {
-    const publicKey = Ecc.privateToPublic(fioaccount.privateKey);
+  const loadIncomingMessages = (fioAccount) => {
+    const publicKey = Ecc.privateToPublic(fioAccount.privateKey);
     const actor = Fio.accountHash(publicKey);
     let baseUrl = chatEndpoint.replace('messages','incoming_messages');
     let endpoint = baseUrl+'/'+actor+'/counts';
@@ -173,19 +175,72 @@ const AccountsScreen = props => {
     }
   };
 
+  const compareTelosRegistration = (fioAccount, telosAccount, json) => {
+    let accountPubkeyEntry = json.public_address;
+    let telosPubkey = ecc.privateToPublic(telosAccount.privateKey);
+    if (accountPubkeyEntry) {
+      var [actor, regPubkey] =  accountPubkeyEntry.split(',');
+      if (telosPubkey !== regPubkey) { // Different key registered
+        // Connect Telos account to a FIO address:
+        fioAddPublicAddress(fioAccount, telosAccount, 0);
+      } else {
+        setTelosLinked(true);
+      }
+    } else { // Not registered:
+      // Connect Telos account to a FIO address:
+      fioAddPublicAddress(fioAccount, telosAccount, 0);
+    }
+  };
+
+  const checkTelosLinking = (fioAccount) => {
+    if (telosAccounts.length > 0) {
+      const telosAccount = telosAccounts[0];
+      fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "fio_address": fioAccount.address,
+          "chain_code": "TLOS",
+          "token_code": "TLOS"
+        }),
+      })
+        .then(response => response.json())
+        .then(json => compareTelosRegistration(fioAccount, telosAccount, json))
+        .catch(error => log({
+          description: 'checkTelosLinking - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+          cause: error,
+          address: fioAccount.address,
+          telos: telosAccount.accountName,
+          location: 'AccountsScreen'
+        })
+      );
+    } else {
+      log({
+        description: 'checkTelosLinking - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+        cause: 'No telos account to link to FIO address',
+        address: fioAccount.address,
+        location: 'AccountsScreen'
+      })
+    }
+  };
+
+  const telosAccounts = accounts.filter((value, index, array) => {
+    return value.chainName === 'Telos';
+  });
+
   const fioAccounts = accounts.filter((value, index, array) => {
     if (value.chainName === 'FIO') {
-      loadIncomingMessages(value);
+      checkTelosLinking(value);
+      //loadIncomingMessages(value);
     }
     return value.chainName === 'FIO';
   });
 
   const algoAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'ALGO';
-  });
-
-  const telosAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'Telos';
   });
 
   const updateAccountLists = (account) => {
@@ -253,7 +308,7 @@ const parseIOSVersion = (html) => {
       let endPos = startPos + 3;
       var version = html.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      console.log('App Store Version '+version+' vs. App Version '+appVersion);
+      //console.log('App Store Version '+version+' vs. App Version '+appVersion);
       if(appVersion !== version) {
         Alert.alert(
           'New version available!',
@@ -348,6 +403,11 @@ const checkOnLatestVersion = () => {
 if (runCount == 0) {
   setRunCount(1);
   checkOnLatestVersion();
+}
+
+if (!telosLinked && fioAccounts && fioAccounts.length > 0 && telosAccounts && telosAccounts.length > 0) {
+  let fioAccount = fioAccounts[0];
+  checkTelosLinking(fioAccount);
 }
 
   var optionalButtons = <View style={styles.spacer} />;
