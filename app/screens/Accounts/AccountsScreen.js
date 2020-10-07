@@ -241,6 +241,10 @@ const goToAppStore = () => {
   Linking.openURL('https://apps.apple.com/us/app/id1521532252');
 };
 
+const goToPlayStore = () => {
+  Linking.openURL('https://play.google.com/store/apps/details?id=com.kryptowallet');
+};
+
 const parseIOSVersion = (html) => {
   let pattern = 'data-test-version-number>Version ';
     let index = html.indexOf(pattern);
@@ -306,7 +310,7 @@ const parseAndroidVersion = (html) => {
               onPress: () => console.log('Update wallet cancelled'),
               style: 'cancel'
             },
-            { text: 'OK', onPress: () => goToAppStore() }
+            { text: 'OK', onPress: () => goToPlayStore() }
           ],
           { cancelable: true }
         );
