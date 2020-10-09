@@ -463,6 +463,18 @@ if (!telosLinked && fioAccounts && fioAccounts.length > 0 && telosAccounts && te
       />
       {optionalButtons}
       <KButton
+        title={'Backup All Keys!'}
+        theme={'brown'}
+        style={styles.button}
+        onPress={() => navigate('BackupAllKeys')}
+        renderIcon={() => (
+          <Image
+            source={require('../../../assets/icons/accounts.png')}
+            style={styles.buttonIcon}
+          />
+        )}
+      />
+      <KButton
         title={'Import accounts'}
         theme={'blue'}
         style={styles.button}

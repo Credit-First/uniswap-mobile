@@ -224,7 +224,7 @@ const RegisterAddressScreen = props => {
     });
   };
 
-  if (registeredAddresses && registeredAddresses.length > 0) {
+  if (registeredAddresses && registeredAddresses.length > 1) {
     return (
      <SafeAreaView style={styles.container}>
           <TouchableOpacity style={styles.backButton} onPress={goBack}>
@@ -263,6 +263,43 @@ const RegisterAddressScreen = props => {
           />
       </SafeAreaView>
     );
+  } else if (registeredAddresses && registeredAddresses.length == 1) {
+    let registeredAddress = registeredAddresses[0];
+    return (
+     <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader
+            title={'Register new address'}
+            subTitle={'Register new FIO address under @tribe domain'}
+            style={styles.header}
+          />
+          <InputAddress onChange={_checkAvailable}/>
+          <KText>{checkState}</KText>
+          <KButton
+            title={'Register address'}
+            theme={'blue'}
+            style={styles.button}
+            icon={'check'}
+            onPress={_nextRegister}
+            isLoading={loading}
+          />
+          <KText style={styles.validation}>Our records indicate one address already registered "{registeredAddress}" on this device.</KText>
+          <KText style={styles.validation}>We will allow only one more address registration.</KText>
+          <KText style={styles.validation}>Please backup your new address private keys.</KText>
+        </View>
+      </KeyboardAwareScrollView>
+     </SafeAreaView>
+    );
   } else {
     return (
      <SafeAreaView style={styles.container}>
@@ -283,7 +320,7 @@ const RegisterAddressScreen = props => {
             style={styles.header}
           />
           <InputAddress onChange={_checkAvailable}/>
-          <KText style={styles.errorMessage}>{checkState}</KText>
+          <KText>{checkState}</KText>
           <KButton
             title={'Register address'}
             theme={'blue'}

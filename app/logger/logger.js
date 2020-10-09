@@ -24,6 +24,7 @@ const log = async (error) => {
         },
         body: JSON.stringify({
           device: deviceInfo,
+          wallet: 'TRIBE',
           error: error,
         }),
       });

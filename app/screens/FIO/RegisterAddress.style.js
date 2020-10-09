@@ -33,6 +33,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
+  validation: {
+    padding: 2,
+    color: '#BF0F0F',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   button: {
     marginTop: 8,
   },

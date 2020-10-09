@@ -564,26 +564,44 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const chainId = info.chain_id;
   var privateKeys = [fioAccount.privateKey];
 
-  const tx = await Fio.prepareTransaction({
-    transaction,
-    chainId,
-    privateKeys,
-    abiMap,
-    textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
-  });
-
-  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
-  const json = await pushResult.json();
-  if (!json.processed) {
+  try {
     log({
-      description: 'fioAddPublicAddress error',
-      cause: json,
+      description: 'FIO Add Public Key',
+      address: fioAddress,
+      transaction: transaction,
+      location: 'fio'
+    });
+
+    const tx = await Fio.prepareTransaction({
+      transaction,
+      chainId,
+      privateKeys,
+      abiMap,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder()
+    });
+
+    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+    const json = await pushResult.json();
+
+    log({
+      description: 'FIO Add Public Key',
+      address: fioAddress,
+      transaction: transaction,
+      result: json,
+      location: 'fio'
+    });
+
+    return json;
+  } catch(err) {
+    log({
+      description: 'FIO Add Public Key Error',
+      address: fioAddress,
+      transaction: transaction,
+      cause: err,
       location: 'fio'
     });
   }
-  return json;
 };
 
 // Used to add external accounts (BTC, ETH, etc) pubkey to FIO address
