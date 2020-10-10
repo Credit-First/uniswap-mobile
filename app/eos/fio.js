@@ -7,6 +7,7 @@ import { getEndpoint } from './chains';
 import { log } from '../logger/logger';
 import { Alert } from 'react-native';
 
+const expirationPeriod = 100000; // 100 secs from now
 
 const getFioChatEndpoint = () => {
   return 'https://fiochat.eostribe.io/messages';
@@ -25,7 +26,7 @@ const sendFioTransfer = async (fromFioAccount,
   const chainId = info.chain_id;
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -67,15 +68,20 @@ const sendFioTransfer = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
+  var sendtime = (new Date()).getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
     body: JSON.stringify(tx),
     method: 'POST',
   });
+  const json = await pushResult.json();
+  var calltime = (new Date()).getTime() - sendtime;
 
-  const json = await pushResult.json()
   if (!json.processed) {
     log({
       description: 'sendFioTransfer error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
       cause: json,
       location: 'fio'
     });
@@ -102,7 +108,7 @@ const rejectFundsRequest = async (payerFioAccount,
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -142,12 +148,17 @@ const rejectFundsRequest = async (payerFioAccount,
     textEncoder: new TextEncoder()
   });
 
+  var sendtime = (new Date()).getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
   const json = await pushResult.json();
+  var calltime = (new Date()).getTime() - sendtime;
+
   if (!json.processed) {
     log({
       description: 'rejectFundsRequest error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
       cause: json,
       location: 'fio'
     });
@@ -176,7 +187,7 @@ const recordObtData = async (payerFioAccount,
     const info = await rpc.get_info();
     const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
     const currentDate = new Date();
-    const timePlusTen = currentDate.getTime() + 10000;
+    const timePlusTen = currentDate.getTime() + expirationPeriod;
     const timeInISOString = (new Date(timePlusTen)).toISOString();
     const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -240,12 +251,17 @@ const recordObtData = async (payerFioAccount,
       textEncoder: new TextEncoder()
     });
 
+    var sendtime = (new Date()).getTime();
     var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
     const json = await pushResult.json();
+    var calltime = (new Date()).getTime() - sendtime;
+
     if (!json.processed) {
       log({
         description: 'recordObtData error',
+        transaction: transaction,
+        endpoint: fioEndpoint,
+        calltime: calltime,
         cause: json,
         location: 'fio'
       });
@@ -271,7 +287,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -332,12 +348,17 @@ const fioDelegateSecretRequest = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
+  var sendtime = (new Date()).getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
   const json = await pushResult.json();
+  var calltime = (new Date()).getTime() - sendtime;
+
   if (!json.processed) {
     log({
       description: 'fioDelegateSecretRequest error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
       cause: json,
       location: 'fio'
     });
@@ -432,7 +453,7 @@ const fioNewFundsRequest = async (fromFioAccount,
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -493,12 +514,17 @@ const fioNewFundsRequest = async (fromFioAccount,
     textEncoder: new TextEncoder()
   });
 
+  var sendtime = (new Date()).getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
   const json = await pushResult.json();
+  var calltime = (new Date()).getTime() - sendtime;
+
   if (!json.processed) {
     log({
       description: 'fioNewFundsRequest error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
       cause: json,
       location: 'fio'
     });
@@ -514,7 +540,7 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -565,13 +591,6 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   var privateKeys = [fioAccount.privateKey];
 
   try {
-    log({
-      description: 'FIO Add Public Key',
-      address: fioAddress,
-      transaction: transaction,
-      location: 'fio'
-    });
-
     const tx = await Fio.prepareTransaction({
       transaction,
       chainId,
@@ -581,17 +600,22 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       textEncoder: new TextEncoder()
     });
 
+    var sendtime = (new Date()).getTime();
     var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
     const json = await pushResult.json();
+    var calltime = (new Date()).getTime() - sendtime;
 
-    log({
-      description: 'FIO Add Public Key',
-      address: fioAddress,
-      transaction: transaction,
-      result: json,
-      location: 'fio'
-    });
-
+    if (!json.processed) {
+      log({
+        description: 'FIO Add Public Key',
+        address: fioAddress,
+        transaction: transaction,
+        endpoint: fioEndpoint,
+        calltime: calltime,
+        result: json,
+        location: 'fio'
+      });
+    }
     return json;
   } catch(err) {
     log({
@@ -613,7 +637,7 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
   const info = await rpc.get_info();
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
-  const timePlusTen = currentDate.getTime() + 10000;
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
   const timeInISOString = (new Date(timePlusTen)).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
@@ -661,12 +685,17 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
     textEncoder: new TextEncoder()
   });
 
+  var sendtime = (new Date()).getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-
   const json = await pushResult.json();
+  var calltime = (new Date()).getTime() - sendtime;
+
   if (!json.processed) {
     log({
       description: 'fioAddExternalAddress error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
       cause: json,
       location: 'fio'
     });

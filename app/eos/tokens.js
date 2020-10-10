@@ -85,7 +85,7 @@ const transferToken = (toAccountName, amount, memo, fromAccount, token) => {
     },
     {
       blocksBehind: 3,
-      expireSeconds: 30,
+      expireSeconds: 100,
     },
   );
 };
