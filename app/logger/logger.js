@@ -30,6 +30,23 @@ const log = async (error) => {
       });
 };
 
+const report = async (message) => {
+  //console.log(message);
+  fetch('http://wallet.eostribe.io/logger', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device: deviceInfo,
+          wallet: 'TRIBE',
+          message: message,
+        }),
+      });
+};
+
 export {
-  log
+  log,
+  report,
 };

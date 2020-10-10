@@ -150,14 +150,34 @@ const FIOAddressActionsScreen = props => {
         if (res && res.transaction_id) {
           Alert.alert("Successfully added in tx "+res.transaction_id);
         } else {
-    			Alert.alert("Something went wrong: "+res.message);
+          let error = {
+            description: 'Failed _handleConnectAccountToAddress',
+            method: 'fioAddExternalAddress',
+            location: 'FIOAddressActionsScreen',
+            cause: res,
+            fioAccount: fioAccount.address,
+            account: account.account.addr,
+            fioFee: fioFee
+          };
+          log(error);
+          Alert.alert("Failed to link ALGO account to FIO address.");
     		}
       } else {
         const res = await fioAddPublicAddress(fioAccount, account, fioFee);
         if (res && res.transaction_id) {
           Alert.alert("Successfully added in tx "+res.transaction_id);
         } else {
-    			Alert.alert("Something went wrong: "+res.message);
+          let error = {
+            description: 'Failed _handleConnectAccountToAddress',
+            method: 'fioAddPublicAddress',
+            location: 'FIOAddressActionsScreen',
+            cause: res,
+            fioAccount: fioAccount.address,
+            account: account.accountName,
+            fioFee: fioFee
+          };
+          log(error);
+          Alert.alert("Failed to link account to FIO address.");
     		}
       }
       setLoading(false);

@@ -197,7 +197,18 @@ const FIOSendScreen = props => {
           if (res && res.transaction_id) {
             Alert.alert("Transfer completed in tx "+res.transaction_id);
           } else {
-    			  Alert.alert("Something went wrong: "+res.message);
+            let error = {
+              description: 'Failed doEOSIOTransfer',
+              method: 'transfer',
+              location: 'FIOSendScreen',
+              cause: res,
+              fromAccount: fromAccount.accountName,
+              toAccount: toActor,
+              amount: floatAmount,
+              chain: chain
+            };
+            log(error);
+  			    Alert.alert("FIO Send: transfer failed.");
     		  }
       } else { // Token transfer on chain:
         let token = getTokenByName(tokenName);
@@ -205,7 +216,18 @@ const FIOSendScreen = props => {
         if (res && res.transaction_id) {
           Alert.alert('Completed transfer of '+floatAmount+' '+tokenName+' in tx '+res.transaction_id);
         } else {
-          Alert.alert("Something went wrong: "+res.message);
+          let error = {
+            description: 'Failed doEOSIOTransfer',
+            method: 'transferToken',
+            location: 'FIOSendScreen',
+            cause: res,
+            fromAccount: fromAccount.accountName,
+            toAccount: toActor,
+            amount: floatAmount,
+            token: token
+          };
+          log(error);
+          Alert.alert("FIO Send: token transfer failed.");
         }
       }
       setLoading(false);

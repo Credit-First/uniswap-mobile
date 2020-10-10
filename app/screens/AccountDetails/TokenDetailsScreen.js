@@ -161,7 +161,18 @@ const TokenDetailsScreen = props => {
       Alert.alert('Token transfer sent in tx '+res.transaction_id);
       goBack();
     } else {
-      Alert.alert("Something went wrong: " + res.message);
+      let error = {
+        description: 'Failed _handleTransfer',
+        method: 'transferToken',
+        location: 'TokenDetailsScreen',
+        cause: res,
+        fromAccount: account.accountName,
+        toAccount: toAccount,
+        amount: parseFloat(amount),
+        token: account.token
+      };
+      log(error);
+      Alert.alert("Token transfer failed.");
     }
   };
 
