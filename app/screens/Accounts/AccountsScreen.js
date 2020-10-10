@@ -437,7 +437,9 @@ if (!telosLinked && fioAccounts && fioAccounts.length > 0 && telosAccounts && te
               style={styles.buttonIcon}
               />
             )}
-            />
+      />
+      <KButton title={'Create Algorand account'} theme={'brown'}
+            style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
       <Text style={styles.version}>{getAppVersion()}</Text>
      </SafeAreaView>
     );
