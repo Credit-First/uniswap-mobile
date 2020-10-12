@@ -111,7 +111,19 @@ const FIOSendDirectScreen = props => {
         if (res && res.transaction_id) {
           Alert.alert("Transfer completed in tx "+res.transaction_id);
         } else {
-    			Alert.alert("Something went wrong: "+res.message);
+          let fromAccountName = (fromFioAccount.address) ? fromFioAccount.address : fromFioAccount.accountName;
+          let error = {
+            description: 'Failed doEOSIOTransfer',
+            method: 'transfer',
+            location: 'FIOSendDirectScreen',
+            cause: res,
+            fromAccount: fromAccountName,
+            toAccount: toActor,
+            amount: floatAmount,
+            chain: chain
+          };
+          log(error);
+          Alert.alert("FIO Send: transfer failed.");
     		}
       setLoading(false);
     } catch(err) {

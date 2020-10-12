@@ -229,7 +229,18 @@ const ViewFIORequestScreen = props => {
           if (res && res.transaction_id) {
             markFIORequestCompleted(res.transaction_id);
           } else {
-  			    Alert.alert("Something went wrong: " + res.message);
+            let error = {
+              description: 'Failed doEOSIOTransfer',
+              method: 'transfer',
+              location: 'ViewFIORequestScreen',
+              cause: res,
+              fromAccount: fromAccount.accountName,
+              toAccount: toAccountName,
+              amount: floatAmount,
+              chain: chain
+            };
+            log(error);
+  			    Alert.alert("Transfer failed.");
   		    }
       } else { // Token transfer on chain:
         let token = getTokenByName(tokenName);
@@ -237,7 +248,18 @@ const ViewFIORequestScreen = props => {
         if (res && res.transaction_id) {
           markFIORequestCompleted(res.transaction_id);
         } else {
-          Alert.alert("Something went wrong: " + res.message);
+          let error = {
+            description: 'Failed doEOSIOTransfer',
+            method: 'transferToken',
+            location: 'ViewFIORequestScreen',
+            cause: res,
+            fromAccount: fromAccount.accountName,
+            toAccount: toActor,
+            amount: floatAmount,
+            token: token
+          };
+          log(error);
+          Alert.alert("Token transfer failed.");
         }
       }
       setLoading(false);

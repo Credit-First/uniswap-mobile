@@ -9,33 +9,27 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
 
-const PrivateKeyBackupScreen = props => {
+const BackupAllKeysScreen = props => {
 
 	const {
     navigation: { navigate, goBack },
-    route: {
-      params: { account },
-    },
+		accountsState: { accounts },
   } = props;
 
-const _handleDelegateKey = () => {
-	navigate('PrivateKeyDelegate', { account });
-}
 
-var privateKey = (account.chainName==='ALGO') ? account.mnemonic : account.privateKey;
+	var privateKeys = '';
+	accounts.map((value, index, array) => {
+    var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
+		var accountName = (chainName==='FIO') ? value.address : value.accountName;
+    var privateKey = (chainName==='ALGO') ? value.mnemonic : value.privateKey;
+		privateKeys += accountName+':'+privateKey+',';
+  });
 
 const copyToClipboard = () => {
-	Clipboard.setString(privateKey);
-	Alert.alert('Private key copied to Clipboard');
+	Clipboard.setString(privateKeys);
+	Alert.alert('Private keys copied to Clipboard');
 }
 
-const getTitle = () => {
-	if (account.chainName === 'FIO') {
-		return account.address;
-	} else {
-		return account.accountName;
-	}
-};
 
 return (
     <SafeAreaView style={styles.container}>
@@ -50,15 +44,11 @@ return (
               color={PRIMARY_BLUE}
             />
           </TouchableOpacity>
-          <KHeader
-            title={getTitle()}
-            subTitle={account.chainName}
-            style={styles.header}
-          />
-						<Text style={styles.link} onPress={copyToClipboard}>{privateKey}</Text>
+          <KHeader  title={'Backup all accounts private keys'}  style={styles.header}/>
+						<Text style={styles.link} onPress={copyToClipboard}>{privateKeys}</Text>
 						<View style={styles.spacer} />
             <View style={styles.qrcode}>
-            	<QRCode value={privateKey} size={200}/>
+            	<QRCode value={privateKeys} size={200}/>
             </View>
 						<KButton
             	title={'Copy to Clipboard'}
@@ -66,16 +56,10 @@ return (
             	style={styles.button}
             	onPress={copyToClipboard}
           	/>
-            <KButton
-            	title={'Delegate to guardians'}
-            	theme={'primary'}
-            	style={styles.button}
-            	onPress={_handleDelegateKey}
-          	/>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
 
-export default connectAccounts()(PrivateKeyBackupScreen);
+export default connectAccounts()(BackupAllKeysScreen);

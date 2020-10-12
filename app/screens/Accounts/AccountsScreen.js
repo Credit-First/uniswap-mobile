@@ -12,16 +12,19 @@ import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
-import { getFioChatEndpoint } from '../../eos/fio';
+import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
-import { getEndpoint } from '../../eos/chains';
+import { getAccount } from '../../eos/eos';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { getTokens } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
 
 
 const AccountsScreen = props => {
+  const [telosLinked, setTelosLinked] = useState(false);
+
   const {
     connectAccount,
     deleteAccount,
@@ -31,10 +34,61 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
+  const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+
+  const validateTelosAccount = async (account) => {
+    let chain = getChain(account.chainName);
+    try {
+        await getAccount(account.accountName, chain);
+    } catch (err) {
+        log({
+          description: 'validateTelosAccount - Telos account does not exist: ' + account.accountName,
+          cause: err,
+          location: 'AccountsScreen'
+        });
+        // Account does not exist - create:
+        const publicKey = ecc.privateToPublic(account.privateKey);
+        const request = {
+          name: account.accountName,
+          owner_public_key: publicKey,
+          active_public_key: publicKey
+        };
+        // Call new account service:
+        fetch(newAccountEndpoint, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
+          },
+          body: JSON.stringify(request),
+        })
+          .then(response => response.json())
+          .then(json => log({
+            description: 'validateTelosAccount - create new account: ' + newAccountEndpoint + ' POST: [' + account.accountName + ']',
+            response: json,
+            request: request,
+            status: 'success',
+            location: 'AccountsScreen'
+          }))
+          .catch(error => log({
+            description: 'validateTelosAccount - create new account: ' + newAccountEndpoint + ' POST: [' + account.accountName + ']',
+            cause: error,
+            request: request,
+            status: 'fail',
+            location: 'AccountsScreen'
+          })
+        );
+    }
+  };
+
   var accountsAndTokens = [];
   accounts.map((value, index, array) => {
     var account = value;
     var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
+    if (chainName === "TLOS") {
+      validateTelosAccount(account);
+    }
     var chainToken = getTokens(chainName);
     if (chainToken) {
       account.token = chainToken;
@@ -146,8 +200,8 @@ const AccountsScreen = props => {
     }
   };
 
-  const loadIncomingMessages = (fioaccount) => {
-    const publicKey = Ecc.privateToPublic(fioaccount.privateKey);
+  const loadIncomingMessages = (fioAccount) => {
+    const publicKey = Ecc.privateToPublic(fioAccount.privateKey);
     const actor = Fio.accountHash(publicKey);
     let baseUrl = chatEndpoint.replace('messages','incoming_messages');
     let endpoint = baseUrl+'/'+actor+'/counts';
@@ -173,19 +227,72 @@ const AccountsScreen = props => {
     }
   };
 
+  const compareTelosRegistration = (fioAccount, telosAccount, json) => {
+    let accountPubkeyEntry = json.public_address;
+    let telosPubkey = ecc.privateToPublic(telosAccount.privateKey);
+    if (accountPubkeyEntry) {
+      var [actor, regPubkey] =  accountPubkeyEntry.split(',');
+      if (telosPubkey !== regPubkey) { // Different key registered
+        // Connect Telos account to a FIO address:
+        fioAddPublicAddress(fioAccount, telosAccount, 0);
+      } else {
+        setTelosLinked(true);
+      }
+    } else { // Not registered:
+      // Connect Telos account to a FIO address:
+      fioAddPublicAddress(fioAccount, telosAccount, 0);
+    }
+  };
+
+  const checkTelosLinking = (fioAccount) => {
+    if (telosAccounts.length > 0) {
+      const telosAccount = telosAccounts[0];
+      fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "fio_address": fioAccount.address,
+          "chain_code": "TLOS",
+          "token_code": "TLOS"
+        }),
+      })
+        .then(response => response.json())
+        .then(json => compareTelosRegistration(fioAccount, telosAccount, json))
+        .catch(error => log({
+          description: 'checkTelosLinking - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+          cause: error,
+          address: fioAccount.address,
+          telos: telosAccount.accountName,
+          location: 'AccountsScreen'
+        })
+      );
+    } else {
+      log({
+        description: 'checkTelosLinking - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+        cause: 'No telos account to link to FIO address',
+        address: fioAccount.address,
+        location: 'AccountsScreen'
+      })
+    }
+  };
+
+  const telosAccounts = accounts.filter((value, index, array) => {
+    return value.chainName === 'Telos';
+  });
+
   const fioAccounts = accounts.filter((value, index, array) => {
     if (value.chainName === 'FIO') {
-      loadIncomingMessages(value);
+      checkTelosLinking(value);
+      //loadIncomingMessages(value);
     }
     return value.chainName === 'FIO';
   });
 
   const algoAccounts = accounts.filter((value, index, array) => {
     return value.chainName === 'ALGO';
-  });
-
-  const telosAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'Telos';
   });
 
   const updateAccountLists = (account) => {
@@ -241,6 +348,10 @@ const goToAppStore = () => {
   Linking.openURL('https://apps.apple.com/us/app/id1521532252');
 };
 
+const goToPlayStore = () => {
+  Linking.openURL('https://play.google.com/store/apps/details?id=com.kryptowallet');
+};
+
 const parseIOSVersion = (html) => {
   let pattern = 'data-test-version-number>Version ';
     let index = html.indexOf(pattern);
@@ -249,7 +360,7 @@ const parseIOSVersion = (html) => {
       let endPos = startPos + 3;
       var version = html.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      console.log('App Store Version '+version+' vs. App Version '+appVersion);
+      //console.log('App Store Version '+version+' vs. App Version '+appVersion);
       if(appVersion !== version) {
         Alert.alert(
           'New version available!',
@@ -306,7 +417,7 @@ const parseAndroidVersion = (html) => {
               onPress: () => console.log('Update wallet cancelled'),
               style: 'cancel'
             },
-            { text: 'OK', onPress: () => goToAppStore() }
+            { text: 'OK', onPress: () => goToPlayStore() }
           ],
           { cancelable: true }
         );
@@ -346,36 +457,17 @@ if (runCount == 0) {
   checkOnLatestVersion();
 }
 
-  var optionalButtons = <View style={styles.spacer} />;
-  if(algoAccounts.length == 0 && fioAccounts.length == 0 && telosAccounts.length == 0) {
-      optionalButtons = <View>
-          <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-        </View>;
-  } else if(fioAccounts.length == 0 && telosAccounts.length == 0) {
-    optionalButtons = <View>
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-      </View>;
-  } else if(algoAccounts.length == 0 && fioAccounts.length == 0) {
-    optionalButtons = <View>
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-      </View>;
-  } else if(algoAccounts.length == 0 && telosAccounts.length == 0) {
-    optionalButtons = <View>
-        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-      </View>;
-  } else if(algoAccounts.length == 0) {
-    optionalButtons = <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>;
-  } else if(fioAccounts.length == 0) {
-    optionalButtons = <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>;
-  } else if(telosAccounts.length == 0) {
-    optionalButtons = <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>;
-  }
+if (!telosLinked && fioAccounts && fioAccounts.length > 0 && telosAccounts && telosAccounts.length > 0) {
+  let fioAccount = fioAccounts[0];
+  checkTelosLinking(fioAccount);
+}
 
+  var optionalButtons = <View style={styles.spacer} />;
+  if(fioAccounts.length == 0) {
+    optionalButtons = <View>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+      </View>;
+  }
 
   if(accounts.length == 0) {
     return (
@@ -397,7 +489,9 @@ if (runCount == 0) {
               style={styles.buttonIcon}
               />
             )}
-            />
+      />
+      <KButton title={'Create Algorand account'} theme={'brown'}
+            style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
       <Text style={styles.version}>{getAppVersion()}</Text>
      </SafeAreaView>
     );
@@ -422,6 +516,18 @@ if (runCount == 0) {
         )}
       />
       {optionalButtons}
+      <KButton
+        title={'Backup All Keys!'}
+        theme={'brown'}
+        style={styles.button}
+        onPress={() => navigate('BackupAllKeys')}
+        renderIcon={() => (
+          <Image
+            source={require('../../../assets/icons/accounts.png')}
+            style={styles.buttonIcon}
+          />
+        )}
+      />
       <KButton
         title={'Import accounts'}
         theme={'blue'}

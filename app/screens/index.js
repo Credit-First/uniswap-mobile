@@ -12,6 +12,9 @@ export {
   default as ResourceManagementScreen,
 } from './AccountDetails/ResourceManagementScreen';
 export {
+  default as BackupAllKeysScreen,
+} from './Accounts/BackupAllKeysScreen';
+export {
   default as PrivateKeyBackupScreen,
 } from './Accounts/PrivateKeyBackupScreen';
 export {

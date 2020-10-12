@@ -128,11 +128,35 @@ const _delegateKey = async () => {
 			if (res2 && res2.transaction_id) {
 				Alert.alert("Private key encrypted, segmented and delegated!");
 			} else {
-				Alert.alert("Something went wrong on second segment delegation: "+res2.message);
+				let error = {
+					description: 'Failed _handleConnectAccountToAddress - segment 2',
+					method: 'fioDelegateSecretRequest',
+					location: 'PrivateKeyDelegateScreen',
+					cause: res,
+					fromAccount: fromAccount.accountName,
+					guardian2: guardian2,
+					guardian2Pubkey: guardian2Pubkey,
+					chainName: account.chainName,
+					email: email
+				};
+				log(error);
+				Alert.alert("Failed to delegate key");
 			}
 		} else {
 			setLoading(false);
-			Alert.alert("Something went wrong on first segment delegation: "+res1.message);
+			let error = {
+				description: 'Failed _handleConnectAccountToAddress - segment 1',
+				method: 'fioDelegateSecretRequest',
+				location: 'PrivateKeyDelegateScreen',
+				cause: res,
+				fromAccount: fromAccount.accountName,
+				guardian1: guardian1,
+				guardian1Pubkey: guardian1Pubkey,
+				chainName: account.chainName,
+				email: email
+			};
+			log(error);
+			Alert.alert("Failed to delegate key");
 		}
 	} catch (err) {
 		setLoading(false);

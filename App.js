@@ -29,6 +29,7 @@ import {
   AccountDetailsScreen,
   TokenDetailsScreen,
   ResourceManagementScreen,
+  BackupAllKeysScreen,
   PrivateKeyBackupScreen,
   PrivateKeyDelegateScreen,
   RegisterAddressScreen,
@@ -87,6 +88,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="Exchange"
         component={ExchangeScreen}
+      />
+      <AccountsStack.Screen
+        name="BackupAllKeys"
+        component={BackupAllKeysScreen}
       />
       <AccountsStack.Screen
         name="PrivateKeyBackup"
