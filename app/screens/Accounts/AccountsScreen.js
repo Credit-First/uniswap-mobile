@@ -15,7 +15,8 @@ import ecc from 'eosjs-ecc-rn';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import algosdk from 'algosdk';
-import { getEndpoint } from '../../eos/chains';
+import { getAccount } from '../../eos/eos';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { getTokens } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
@@ -33,10 +34,61 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
+  const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+
+  const validateTelosAccount = async (account) => {
+    let chain = getChain(account.chainName);
+    try {
+        await getAccount(account.accountName, chain);
+    } catch (err) {
+        log({
+          description: 'validateTelosAccount - Telos account does not exist: ' + account.accountName,
+          cause: err,
+          location: 'AccountsScreen'
+        });
+        // Account does not exist - create:
+        const publicKey = ecc.privateToPublic(account.privateKey);
+        const request = {
+          name: account.accountName,
+          owner_public_key: publicKey,
+          active_public_key: publicKey
+        };
+        // Call new account service:
+        fetch(newAccountEndpoint, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
+          },
+          body: JSON.stringify(request),
+        })
+          .then(response => response.json())
+          .then(json => log({
+            description: 'validateTelosAccount - create new account: ' + newAccountEndpoint + ' POST: [' + account.accountName + ']',
+            response: json,
+            request: request,
+            status: 'success',
+            location: 'AccountsScreen'
+          }))
+          .catch(error => log({
+            description: 'validateTelosAccount - create new account: ' + newAccountEndpoint + ' POST: [' + account.accountName + ']',
+            cause: error,
+            request: request,
+            status: 'fail',
+            location: 'AccountsScreen'
+          })
+        );
+    }
+  };
+
   var accountsAndTokens = [];
   accounts.map((value, index, array) => {
     var account = value;
     var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
+    if (chainName === "TLOS") {
+      validateTelosAccount(account);
+    }
     var chainToken = getTokens(chainName);
     if (chainToken) {
       account.token = chainToken;

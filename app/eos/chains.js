@@ -1,4 +1,4 @@
-const supportedChains = [
+var supportedChains = [
   {
     name: 'EOS',
     symbol: 'EOS',
