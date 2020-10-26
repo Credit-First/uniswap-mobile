@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
@@ -17,6 +18,9 @@ const fioDivider = 1000000000;
 const algoDivider = 1000000;
 
 const fioEndpoint = getEndpoint('FIO');
+
+const { height, width } = Dimensions.get('window');
+var chainWidth = width - 80;
 
 const loadAccountBalance = async (account, setAccountBalance) => {
   const chain = getChain(account.chainName);
@@ -36,9 +40,6 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
-const loadTokenBalance = async (account, setTokenBalance) => {
-  getBalance(account.accountName, account.token, setTokenBalance);
-};
 
 const loadFioAccountBalance = async (account, setAccountBalance) => {
   try {
@@ -93,17 +94,7 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
 
 const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
-  const [tokenBalance, setTokenBalance] = useState(0);
   const [count, setCount] = useState(0);
-
-
-  const handleTokenBalance = (jsonArray) => {
-    if(jsonArray && jsonArray.length > 0) {
-      setTokenBalance(jsonArray[0]);
-    } else if(account.token) {
-      setTokenBalance('0 '+account.token.name);
-    }
-  }
 
   const refreshBalances = () => {
     //console.log('Refreshing balances');
@@ -113,16 +104,12 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       loadAlgoAccountBalance(account, setAccountBalance);
     } else {
       loadAccountBalance(account, setAccountBalance);
-      if(account.token) {
-        loadTokenBalance(account, handleTokenBalance);
-      }
     }
     setCount(1);
   };
 
-  const handleOnTokenPress = (index) => {
+  const handleOnTokensPress = (index) => {
     setCount(0);
-    refreshBalances();
     onTokenPress(index);
   }
 
@@ -138,59 +125,77 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
 
   if (account.chainName === 'FIO') {
     return (
-      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
+      <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-          <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
-          </View>
+        <TouchableOpacity onPress={handleOnPress}>
+          <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={refreshBalances}>
+          <Icon name={'refresh'} size={25} color="#000000" />
+        </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   } else if (account.chainName === 'ALGO') {
     return (
-      <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
+      <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-          <View style={styles.contentContainer}>
-            <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
-          </View>
+        <TouchableOpacity onPress={handleOnPress}>
+          <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={refreshBalances}>
+          <Icon name={'refresh'} size={25} color="#000000" />
+        </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   } else {
-    if(account.token && tokenBalance) {
+    if(account.tokens && account.tokens.length > 0) {
       return (
-        <View onFocus={refreshBalances}>
-        <TouchableOpacity onPress={handleOnPress}>
-          <View style={[styles.container, props.style]}>
-            <View style={styles.contentContainer}>
-              <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+        <View>
+          <View onFocus={refreshBalances} style={styles.rowContainer}>
+            <View style={[styles.container, props.style]}>
+              <TouchableOpacity onPress={handleOnPress}>
+                <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={refreshBalances}>
+                <Icon name={'refresh'} size={25} color="#000000" />
+              </TouchableOpacity>
             </View>
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleOnTokenPress}>
-          <View style={[styles.container, props.style]}>
-            <View style={styles.contentContainer}>
-              <KText style={styles.tokenName}> + {tokenBalance}</KText>
+          <TouchableOpacity onPress={handleOnTokensPress}>
+            <View style={[styles.container, props.style]}>
+              <View style={styles.contentContainer}>
+                <KText style={styles.tokenName}> + {account.tokens.length} Tokens</KText>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
         </View>
       );
     } else {
       return (
-        <TouchableOpacity onPress={handleOnPress} onFocus={refreshBalances}>
+        <View onFocus={refreshBalances} style={styles.rowContainer}>
           <View style={[styles.container, props.style]}>
-            <View style={styles.contentContainer}>
+            <TouchableOpacity onPress={handleOnPress}>
               <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={refreshBalances}>
+              <Icon name={'refresh'} size={25} color="#000000" />
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       );
     }
   }
 };
 
 const styles = StyleSheet.create({
+  rowContainer: {
+    marginTop: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,6 +212,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   chainName: {
+    width: chainWidth,
     fontSize: 16,
     color: PRIMARY_BLACK,
   },

@@ -32,7 +32,10 @@ const TokenDetailsScreen = props => {
   const {
     navigation: { navigate, goBack },
     route: {
-      params: { account: account },
+      params: {
+        account: account,
+        token: token,
+       },
     },
     accountsState: { accounts },
   } = props;
@@ -43,8 +46,8 @@ const TokenDetailsScreen = props => {
   const handleTokenBalance = (jsonArray) => {
     if(jsonArray && jsonArray.length > 0) {
       setTokenBalance(jsonArray[0]);
-    } else if(account.token) {
-      setTokenBalance('0 '+account.token.name);
+    } else {
+      setTokenBalance('0 ' + token.name);
     }
   }
 
@@ -133,7 +136,7 @@ const TokenDetailsScreen = props => {
   };
 
   const getSubtitle = () => {
-    return account.token.name + ' on ' + account.chainName;
+    return token.name + ' on ' + account.chainName + ': ' + token.contract;
   };
 
   const _handleFIORequest = () => {
@@ -156,7 +159,7 @@ const TokenDetailsScreen = props => {
         return;
       }
     }
-    const res = await transferToken(toAccount, parseFloat(amount), memo, account, account.token);
+    const res = await transferToken(toAccount, parseFloat(amount), memo, account, token);
     if (res && res.transaction_id) {
       Alert.alert('Token transfer sent in tx '+res.transaction_id);
       goBack();
@@ -169,7 +172,7 @@ const TokenDetailsScreen = props => {
         fromAccount: account.accountName,
         toAccount: toAccount,
         amount: parseFloat(amount),
-        token: account.token
+        token: token
       };
       log(error);
       Alert.alert("Token transfer failed.");
@@ -177,10 +180,10 @@ const TokenDetailsScreen = props => {
   };
 
   const getTransferFormLabel = () => {
-    return 'Transfer '+account.token.name+' tokens: ';
+    return 'Transfer '+token.name+' tokens: ';
   };
 
-  getBalance(account.accountName, account.token, handleTokenBalance);
+  getBalance(account.accountName, token, handleTokenBalance);
 
   return (
     <SafeAreaView style={styles.container}>

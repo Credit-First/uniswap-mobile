@@ -148,7 +148,6 @@ const ViewFIORequestScreen = props => {
     let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
     if(matchingAddresses.length === 0) {
       addAddress(addressJson);
-      console.log("Adding address: " + fioAddress);
     }
   };
 

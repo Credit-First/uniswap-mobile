@@ -2,6 +2,7 @@ export { default as SetPinCodeScreen } from './PinCode/PinCodeScreen';
 export { default as PinCodeScreen } from './PinCode/PinCodeScreen';
 
 export { default as AccountsScreen } from './Accounts/AccountsScreen';
+export { default as TokensScreen } from './Accounts/TokensScreen';
 export {
   default as AccountDetailsScreen,
 } from './AccountDetails/AccountDetailsScreen';

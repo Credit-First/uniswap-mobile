@@ -27,6 +27,7 @@ const MenuStack = createStackNavigator();
 import {
   AccountsScreen,
   AccountDetailsScreen,
+  TokensScreen,
   TokenDetailsScreen,
   ResourceManagementScreen,
   BackupAllKeysScreen,
@@ -61,6 +62,7 @@ const AccountsStackScreen = () => {
   return (
     <AccountsStack.Navigator headerMode={'none'}>
       <AccountsStack.Screen name="Accounts" component={AccountsScreen} />
+      <AccountsStack.Screen name="Tokens" component={TokensScreen} />
       <AccountsStack.Screen
         name="ConnectAccount"
         component={ConnectAccountScreen}
