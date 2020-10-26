@@ -123,53 +123,6 @@ const RegisterAddressScreen = props => {
     }
   };
 
-  const addTelosAccount = (json, account, fioAccount) => {
-    if (json && json.transaction_id) {
-      connectAccount(account);
-      // Connect Telos account to a FIO address:
-      fioAddPublicAddress(fioAccount, account, fioFee);
-      goBack();
-    } else {
-      log({
-        description: 'Failed to add account: ' + account.accountName,
-        cause: json,
-        location: 'CreateTelosAccountScreen'
-      });
-      setCheckState('Failed to register account: ' + account.accountName);
-    }
-  };
-
-  const createRandomTelosAccount = async (fioAccount) => {
-    const accountName = randomName();
-    ecc.randomKey().then(privateKey => {
-      const publicKey = ecc.privateToPublic(privateKey);
-      const account = { accountName, privateKey, chainName: 'Telos' };
-      const request = {
-        name: accountName,
-        owner_public_key: publicKey,
-        active_public_key: publicKey
-      };
-      // Call new account service:
-      fetch(newAccountEndpoint, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
-        },
-        body: JSON.stringify(request),
-      })
-        .then(response => response.json())
-        .then(json => addTelosAccount(json, account, fioAccount))
-        .catch(error => log({
-          description: '_handleCreateAccount - fetch ' + newAccountEndpoint + ' POST: [' + accountName + ']',
-          cause: error,
-          location: 'CreateTelosAccountScreen'
-        })
-      );
-    });
-  };
-
   const connectFioAccount = (json, fioAccount) => {
     setLoading(false);
     if(json.success) {
@@ -181,8 +134,6 @@ const RegisterAddressScreen = props => {
         location: 'RegisterAddressScreen'
       });
       Alert.alert('Registered '+fioAccount.address+' address. Please backup your account private keys!');
-      createRandomTelosAccount(fioAccount);
-      //goBack();
     } else {
       json.method = 'connectFioAccount';
       json.address = fioAccount.address;
