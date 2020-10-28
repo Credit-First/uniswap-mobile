@@ -283,7 +283,8 @@ var tokens = [
 ];
 
 const getTokens = chainName => {
-  let name = (chainName && chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
+  var name = (chainName && chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
+  name = (name === 'Telos') ? 'TLOS' : name;
   var chainTokens = [];
   for (let token of tokens) {
     if (token.chain === name) {

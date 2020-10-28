@@ -5,7 +5,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
 import { KText } from '../../../components';
 import { getChain, getEndpoint } from '../../../eos/chains';
-import { getBalance } from '../../../eos/tokens';
+import { getBalance, getTokens } from '../../../eos/tokens';
 import { getAccount } from '../../../eos/eos';
 import { log } from '../../../logger/logger';
 import {
@@ -150,7 +150,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
       </View>
     );
   } else {
-    if(account.tokens && account.tokens.length > 0) {
+    let tokens = getTokens(account.chainName);
+    if(tokens.length > 0) {
       return (
         <View>
           <View onFocus={refreshBalances} style={styles.rowContainer}>
@@ -166,7 +167,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
           <TouchableOpacity onPress={handleOnTokensPress}>
             <View style={[styles.container, props.style]}>
               <View style={styles.contentContainer}>
-                <KText style={styles.tokenName}> + {account.tokens.length} Tokens</KText>
+                <KText style={styles.tokenName}> + {tokens.length} Tokens</KText>
               </View>
             </View>
           </TouchableOpacity>

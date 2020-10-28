@@ -16,7 +16,6 @@ import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
 import { getChain, getEndpoint } from '../../eos/chains';
-import { getTokens } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
 
@@ -31,19 +30,6 @@ const AccountsScreen = props => {
     accountsState: { accounts, activeAccountIndex, addresses },
     chooseActiveAccount,
   } = props;
-  
-  var accountsAndTokens = [];
-  accounts.map((value, index, array) => {
-    var account = value;
-    var chainName = (value.chainName  == "Telos") ? "TLOS" : value.chainName;
-    var chainTokens = getTokens(chainName);
-    if (chainTokens.length > 0) {
-      account.tokens = chainTokens;
-      accountsAndTokens.push(account);
-    } else {
-      accountsAndTokens.push(account);
-    }
-  });
 
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
@@ -200,7 +186,7 @@ const AccountsScreen = props => {
   };
 
   const _handlePressAccount = index => {
-    const account = accountsAndTokens[index];
+    const account = accounts[index];
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
@@ -211,7 +197,7 @@ const AccountsScreen = props => {
   };
 
   const _handlePressTokenList = index => {
-    const account = accountsAndTokens[index];
+    const account = accounts[index];
     navigate('Tokens', { account });
   };
 
@@ -373,7 +359,7 @@ if(fioAccounts.length == 0) {
         resizeMode="contain"
       />
       <FlatList
-        data={accountsAndTokens}
+        data={accounts}
         keyExtractor={(item, index) => `${index}`}
         renderItem={({ item, index }) => (
           <AccountListItem

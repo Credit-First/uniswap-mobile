@@ -44,12 +44,9 @@ return (
               color={PRIMARY_BLUE}
             />
           </TouchableOpacity>
-          <KHeader  title={'Backup all accounts private keys'}  style={styles.header}/>
+          <KHeader  title={'Backup all private keys'}  style={styles.header}/>
 						<Text style={styles.link} onPress={copyToClipboard}>{privateKeys}</Text>
 						<View style={styles.spacer} />
-            <View style={styles.qrcode}>
-            	<QRCode value={privateKeys} size={200}/>
-            </View>
 						<KButton
             	title={'Copy to Clipboard'}
             	theme={'brown'}

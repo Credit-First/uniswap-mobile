@@ -38,7 +38,6 @@ const TokenListItem = ({ account, token, onPress, ...props }) => {
     refreshBalances();
   }
 
-
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
       <View style={[styles.container, props.style]}>

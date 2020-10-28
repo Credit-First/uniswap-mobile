@@ -165,7 +165,7 @@ const TransferScreen = props => {
         setToPubkey(value);
       } else {
         setIsFioAddress(false);
-        setAddressInvalidMessage('Must be FIO address for FIO transfer!');
+        setAddressInvalidMessage('Must be FIO address or public key for FIO transfer!');
       }
     } else if(value.indexOf('@') > 0) {
       _validateAddress(value);
