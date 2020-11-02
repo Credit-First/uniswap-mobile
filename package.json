@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "patch-package",
+    "postinstall": "rn-nodeify --hack --install --yarn & patch-package",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -47,6 +47,7 @@
     "react-native-device-info": "^5.6.2",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.1",
+    "react-native-keychain": "^5.0.1",
     "react-native-level-fs": "^3.0.0",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-os": "^1.0.1",
