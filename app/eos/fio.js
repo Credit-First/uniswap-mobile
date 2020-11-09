@@ -32,7 +32,7 @@ const sendFioTransfer = async (fromFioAccount,
 
   //(1 FIO token = 1,000,000,000 SUFs)
   const sufsAmount = (amount * 1000000000);
-  const maxFee = 700000000;
+  const maxFee = 1500000000;
 
   const transaction = {
     expiration,

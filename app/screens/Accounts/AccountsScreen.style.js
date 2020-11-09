@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: 'black',
     fontFamily: 'Nunito-Bold',
-    fontSize: 10,
+    fontSize: 12,
   },
   listItem: {
     marginTop: 5,

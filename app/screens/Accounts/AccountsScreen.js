@@ -37,6 +37,7 @@ const AccountsScreen = props => {
   var initialConnectedAccounts = accounts;
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
   const [runCount, setRunCount] = useState(0);
+  const [newMessageCount, setNewMessageCount] = useState(0);
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -49,7 +50,7 @@ const AccountsScreen = props => {
           let matchingAddresses = addresses.filter((item, index) => item.address === address);
           if(matchingAddresses.length == 0) {
             addAddress(addressJson);
-            Alert.alert('Incoming messages from new address '+address);
+            setNewMessageCount(newMessageCount+1);
           }
         } else {
           log({ description: 'addAddressesToAddressbook - failed to parse address|publicKey for actor: '+actor, cause: json, location: 'AccountsScreen'});
@@ -395,7 +396,7 @@ if(fioAccounts.length == 0) {
           />
         )}
       />
-      <Text style={styles.version}>{getAppVersion()}</Text>
+      <Text style={styles.version}>New messages: {newMessageCount}, {getAppVersion()}</Text>
      </SafeAreaView>
     );
   }

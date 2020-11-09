@@ -163,6 +163,7 @@ const TransferScreen = props => {
       } else if (value && value.startsWith('FIO') && value.length > 10) {
         setIsFioAddress(false);
         setToPubkey(value);
+        setAddressInvalidMessage('');
       } else {
         setIsFioAddress(false);
         setAddressInvalidMessage('Must be FIO address or public key for FIO transfer!');
@@ -297,6 +298,7 @@ const TransferScreen = props => {
             value={toAccountName}
             onChangeText={_handleToAccountChange}
             containerStyle={styles.inputContainer}
+            onPasteHandler={_handleToAccountChange}
             autoCapitalize={'none'}
           />
           <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>

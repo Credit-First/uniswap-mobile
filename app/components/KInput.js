@@ -17,13 +17,14 @@ const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
     if(props.value) {
       setShowText(!showText);
     } else if(props.onPasteHandler) {
+      props.value = '';
       props.value = await Clipboard.getString();
       props.onPasteHandler(props.value);
     }
   }
 
   const getHideShowPasteText = () => {
-    if(props.value) {
+    if(secureTextEntry && props.value) {
       return showText ? 'Hide' : 'Show';
     } else if(props.onPasteHandler) {
       return 'Paste';
@@ -41,7 +42,7 @@ const KInput = ({ label, secureTextEntry, containerStyle, ...props }) => {
         underlineColorAndroid={'transparent'}
         style={styles.input}
       />
-      {!!secureTextEntry && (
+      {!!props.onPasteHandler && (
         <TouchableOpacity
           style={styles.showButton}
           onPress={() => handlePressLabel()}>
