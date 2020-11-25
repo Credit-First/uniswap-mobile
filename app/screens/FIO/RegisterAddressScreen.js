@@ -13,12 +13,15 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import ecc from 'eosjs-ecc-rn';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import styles from './RegisterAddress.style';
-import { KHeader, KInput, KText, KButton, InputAddress } from '../../components';
+import { KHeader,
+  KInput,
+  KText,
+  KButton,
+  InputAddress,
+  EmailCodeSend } from '../../components';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { fioAddPublicAddress } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
-import { getAccount } from '../../eos/eos';
 import { log } from '../../logger/logger';
 
 
@@ -31,6 +34,8 @@ function randomName() {
 }
 
 const RegisterAddressScreen = props => {
+  const [email, setEmail] = useState();
+  const [code, setCode] = useState();
   const [name, setName] = useState();
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
@@ -45,14 +50,36 @@ const RegisterAddressScreen = props => {
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
-  const apiToken = 'YCDPh0ni7MMwrAXa1eerq3JBBFWHDjgd6RbflXVAg653Zh0';
+  const fioRegistrationUrl = 'https://fioregistration.eostribe.io/fioreg';
   // Telos endpoint:
   const endpoint = getEndpoint('Telos');
   const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
   // Check device registrations endpint:
-  const checkDeviceEndpoint = 'https://wallet.eostribe.io/getfiobyuid?uid='+DeviceInfo.getUniqueId();
+  const deviceId = DeviceInfo.getUniqueId();
+  const checkDeviceEndpoint = 'https://wallet.eostribe.io/getfiobyuid?uid='+deviceId;
 
-  const processRegisteredAddresses = (json) => {
+  const _sendEmailCode = (email) => {
+    fetch(fioRegistrationUrl + "/send_code", {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "email": email,
+        "device_id": deviceId
+      }),
+    })
+      .then(response => response.text())
+      .then(text => Alert.alert(text))
+      .catch(error => reportError(error));
+  };
+
+  const processRegisteredAddresses = (response) => {
+    if(response.status !== 200) {
+      return;
+    }
+    let json = response.json();
     if (json.fioAccounts) {
       setRegisteredAddresses(json.fioAccounts)
     } else if(json.length > 0) {
@@ -71,11 +98,10 @@ const RegisterAddressScreen = props => {
           'Content-Type': 'application/json',
         },
       })
-      .then(response => response.json())
-      .then(json => processRegisteredAddresses(json))
-      .catch(error => console.log(error));
+      .then(response => processRegisteredAddresses(response))
+      .catch(error => console.log('Device id check error', error));
     } catch (error) {
-      console.log(error);
+      console.log('Check device by id call error', error);
     }
   }
 
@@ -143,9 +169,9 @@ const RegisterAddressScreen = props => {
 
   const reportError = (error) => {
     setLoading(false);
-    Alert.alert('Failed to register FIO address with error '+error.error);
+    Alert.alert('Register FIO service call error '+error.error);
     log({
-      description: 'FIO address registration error',
+      description: 'Register FIO service call error',
       cause: error,
       location: 'RegisterAddressScreen'
     });
@@ -156,17 +182,18 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
-      fetch('https://reg.fioprotocol.io/public-api/buy-address', {
+      fetch(fioRegistrationUrl+'/register', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "referralCode":"tribe",
-          "publicKey":fioPubkey,
-          "address":address,
-          "apiToken":apiToken
+          "email":email,
+          "code":code,
+          "device_id":deviceId,
+          "fio_address":address,
+          "public_key":fioPubkey
         }),
       })
         .then(response => response.json())
@@ -175,7 +202,7 @@ const RegisterAddressScreen = props => {
     });
   };
 
-  if (registeredAddresses && registeredAddresses.length > 1) {
+  if (registeredAddresses && registeredAddresses.length > 0) {
     return (
      <SafeAreaView style={styles.container}>
           <TouchableOpacity style={styles.backButton} onPress={goBack}>
@@ -214,8 +241,7 @@ const RegisterAddressScreen = props => {
           />
       </SafeAreaView>
     );
-  } else if (registeredAddresses && registeredAddresses.length == 1) {
-    let registeredAddress = registeredAddresses[0];
+  } else if(code && code.length == 6) {
     return (
      <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -230,9 +256,17 @@ const RegisterAddressScreen = props => {
             />
           </TouchableOpacity>
           <KHeader
-            title={'Register new address'}
+            title={'Register FIO address'}
             subTitle={'Register new FIO address under @tribe domain'}
             style={styles.header}
+          />
+          <KText>Email: {email}</KText>
+          <KInput
+            placeholder={'Enter code from email'}
+            value={code}
+            onChangeText={setCode}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
           />
           <InputAddress onChange={_checkAvailable}/>
           <KText>{checkState}</KText>
@@ -244,9 +278,6 @@ const RegisterAddressScreen = props => {
             onPress={_nextRegister}
             isLoading={loading}
           />
-          <KText style={styles.validation}>Our records indicate one address already registered "{registeredAddress}" on this device.</KText>
-          <KText style={styles.validation}>We will allow only one more address registration.</KText>
-          <KText style={styles.validation}>Please backup your new address private keys.</KText>
         </View>
       </KeyboardAwareScrollView>
      </SafeAreaView>
@@ -266,19 +297,17 @@ const RegisterAddressScreen = props => {
             />
           </TouchableOpacity>
           <KHeader
-            title={'Register new address'}
-            subTitle={'Register new FIO address under @tribe domain'}
+            title={'Register FIO address'}
+            subTitle={'Request registration code on email first'}
             style={styles.header}
           />
-          <InputAddress onChange={_checkAvailable}/>
-          <KText>{checkState}</KText>
-          <KButton
-            title={'Register address'}
-            theme={'blue'}
-            style={styles.button}
-            icon={'check'}
-            onPress={_nextRegister}
-            isLoading={loading}
+          <EmailCodeSend onChange={setEmail} onSendCode={_sendEmailCode}/>
+          <KInput
+            placeholder={'Enter code from email'}
+            value={code}
+            onChangeText={setCode}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
           />
         </View>
       </KeyboardAwareScrollView>

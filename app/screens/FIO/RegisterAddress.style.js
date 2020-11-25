@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   inputContainer: {
-    marginTop: 10,
+    marginTop: 5,
   },
   balanceItem: {
     flex: 1,

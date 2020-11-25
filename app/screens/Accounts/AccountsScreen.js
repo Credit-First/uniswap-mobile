@@ -269,8 +269,16 @@ const parseAndroidVersion = (html) => {
       startPos = endPos - 4;
       let version = secondHalf.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      //console.log('Play Store Version '+version+' vs. App Version '+appVersion);
-      if(appVersion !== version) {
+      let versionFloat = 0.0;
+      let appVersionFloat = 0.0;
+      console.log('Play Store Version '+version+' vs. App Version '+appVersion);
+      try {
+        versionFloat = parseFloat(version);
+        appVersionFloat = parseFloat(appVersion);
+      } catch(err) {
+        console.log('Failed to parse float versions', err);
+      }
+      if(versionFloat > appVersionFloat) {
         Alert.alert(
           'New version available!',
           'Download latest version '+version+' of TRIBE Wallet from Play Store.',
