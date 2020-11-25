@@ -28,8 +28,8 @@ const [email, setEmail] = useState();
 const [password, setPassword] = useState();
 const [guardian1, setGuardian1] = useState('admin@tribe');
 const [guardian1Pubkey, setGuardian1Pubkey] = useState('FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5');
-const [guardian2, setGuardian2] = useState('lostkeys@eosusa');
-const [guardian2Pubkey, setGuardian2Pubkey] = useState('FIO5EHH7qRJrWTVimhWrECApz1JNW9tnqzHKxb7aAQoo8SoT5r8hV');
+const [guardian2, setGuardian2] = useState('lostkeys@tribe');
+const [guardian2Pubkey, setGuardian2Pubkey] = useState('FIO8mHmb3E7Rni7PUTrDKJMVWPdVP5yC31jUgSowERsJADwYysATB');
 const [loading, setLoading] = useState(false);
 
 let privateKey = account.privateKey;

@@ -6,3 +6,4 @@ export { default as KSelect } from './KSelect';
 export { default as RequestSendButtons } from './RequestSendButtons';
 export { default as InputSend } from './InputSend';
 export { default as InputAddress } from './InputAddress';
+export { default as EmailCodeSend } from './EmailCodeSend';
