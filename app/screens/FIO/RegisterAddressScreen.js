@@ -70,12 +70,16 @@ const RegisterAddressScreen = props => {
         "device_id": deviceId
       }),
     })
-      .then(response => response.json())
-      .then(json => Alert.alert(json))
+      .then(response => response.text())
+      .then(text => Alert.alert(text))
       .catch(error => reportError(error));
   };
 
-  const processRegisteredAddresses = (json) => {
+  const processRegisteredAddresses = (response) => {
+    if(response.status !== 200) {
+      return;
+    }
+    let json = response.json();
     if (json.fioAccounts) {
       setRegisteredAddresses(json.fioAccounts)
     } else if(json.length > 0) {
@@ -94,11 +98,10 @@ const RegisterAddressScreen = props => {
           'Content-Type': 'application/json',
         },
       })
-      .then(response => response.json())
-      .then(json => processRegisteredAddresses(json))
-      .catch(error => console.log(error));
+      .then(response => processRegisteredAddresses(response))
+      .catch(error => console.log('Device id check error', error));
     } catch (error) {
-      console.log(error);
+      console.log('Check device by id call error', error);
     }
   }
 
