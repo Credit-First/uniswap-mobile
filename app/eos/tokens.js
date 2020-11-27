@@ -317,14 +317,14 @@ const getBalance = async (accountName, token, handler) => {
       .then(response => response.json())
       .then(json => handler(json))
       .catch(error => log({
-        description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token+']',
+        description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token.name+', '+token.contract+']',
         cause: error,
         location: 'tokens.js'
       })
     );
   } catch(err) {
     log({
-      description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token+']',
+      description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token.name+', '+token.contract+']',
       cause: error,
       location: 'tokens.js'
     });

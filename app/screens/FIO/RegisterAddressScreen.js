@@ -59,20 +59,21 @@ const RegisterAddressScreen = props => {
   const checkDeviceEndpoint = 'https://wallet.eostribe.io/getfiobyuid?uid='+deviceId;
 
   const _sendEmailCode = (email) => {
+    let request = {
+      "email": email,
+      "device_id": deviceId
+    };
     fetch(fioRegistrationUrl + "/send_code", {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        "email": email,
-        "device_id": deviceId
-      }),
+      body: JSON.stringify(request),
     })
       .then(response => response.text())
       .then(text => Alert.alert(text))
-      .catch(error => reportError(error));
+      .catch(error => reportError(error, request));
   };
 
   const processRegisteredAddresses = (response) => {
@@ -99,9 +100,14 @@ const RegisterAddressScreen = props => {
         },
       })
       .then(response => processRegisteredAddresses(response))
-      .catch(error => console.log('Device id check error', error));
-    } catch (error) {
-      console.log('Check device by id call error', error);
+      .catch(error => log({ description: 'Check device by id call error',
+        cause: error,
+        location: 'RegisterAddressScreen'})
+      );
+    } catch (err) {
+      log({ description: 'Check device by id call error',
+        cause: err,
+        location: 'RegisterAddressScreen'});
     }
   }
 
@@ -145,7 +151,11 @@ const RegisterAddressScreen = props => {
     } else {
       setAvailable(false);
       setCheckState('Error');
-      log({ description: 'updateAvailableState', cause: error, location: 'RegisterAddressScreen'});
+      log({ description: 'updateAvailableState',
+        cause: error,
+        response: json,
+        address: newAddress,
+        location: 'RegisterAddressScreen'});
     }
   };
 
@@ -167,12 +177,13 @@ const RegisterAddressScreen = props => {
     }
   };
 
-  const reportError = (error) => {
+  const reportError = (error, request) => {
     setLoading(false);
     Alert.alert('Register FIO service call error '+error.error);
     log({
       description: 'Register FIO service call error',
       cause: error,
+      request: request,
       location: 'RegisterAddressScreen'
     });
   };
@@ -182,23 +193,24 @@ const RegisterAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       const fioAccount = { address, privateKey, chainName: 'FIO' };
+      const request = {
+        "email":email,
+        "code":code,
+        "device_id":deviceId,
+        "fio_address":address,
+        "public_key":fioPubkey
+      };
       fetch(fioRegistrationUrl+'/register', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          "email":email,
-          "code":code,
-          "device_id":deviceId,
-          "fio_address":address,
-          "public_key":fioPubkey
-        }),
+        body: JSON.stringify(request),
       })
         .then(response => response.json())
         .then(json => connectFioAccount(json, fioAccount))
-        .catch(error => reportError(error));
+        .catch(error => reportError(error, request));
     });
   };
 

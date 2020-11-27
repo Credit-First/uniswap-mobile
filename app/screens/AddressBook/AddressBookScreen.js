@@ -31,7 +31,6 @@ const AddressBookScreen = props => {
 
   const _handlePressAddress = (index) => {
     let fioAddress = addresses[index];
-    let count = 0;
     navigate('FIOChat', { fioAddress, index });
   }
 
@@ -56,6 +55,11 @@ const AddressBookScreen = props => {
            onEdit={() => _handleEditAddress(index)}
          />
        )}
+     />
+     <KButton
+       title={'Group chat'}
+       style={styles.button}
+       onPress={() => navigate('GroupChat')}
      />
       <KButton
         title={'Add address'}

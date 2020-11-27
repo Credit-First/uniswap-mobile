@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BackHandler } from 'react-native';
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode';
 import { useFocusEffect } from '@react-navigation/native';
+import { log } from '../../logger/logger';
 
 const pinCodeKeychainName = 'keychain-wallet-pincode';
 
@@ -17,11 +18,16 @@ const PinCodeScreen = ({ navigation }) => {
     } catch (err) {
       setStatus('choose');
       setLoading(false);
+      log({
+        description: 'checkHasPinCode',
+        cause: err,
+        location: 'PinCodeScreen'
+      });
     }
   };
 
   const handleSuccess = () => {
-    navigation.goBack();
+    navigation.navigate('Accounts');
   };
 
   const onBackPress = () => {

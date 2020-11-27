@@ -24,6 +24,7 @@ const TransferStack = createStackNavigator();
 const AddressStack = createStackNavigator();
 const MenuStack = createStackNavigator();
 
+
 import {
   AccountsScreen,
   AccountDetailsScreen,
@@ -43,6 +44,7 @@ import {
   FIOSendScreen,
   FIOSendDirectScreen,
   FIOChatScreen,
+  GroupChatScreen,
   AlgoAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
@@ -147,6 +149,10 @@ const AccountsStackScreen = () => {
         name="FIOChat"
         component={FIOChatScreen}
       />
+      <AccountsStack.Screen
+        name="GroupChat"
+        component={GroupChatScreen}
+      />
     </AccountsStack.Navigator>
   );
 };
@@ -235,6 +241,9 @@ const MainTabScreen = () => {
 const App = () => {
   const navigationRef = useRef(null);
 
+  const timeoutPeriod = 5 * 60 * 1000; // 5 mins
+  var lastUnlocked;
+
   useEffect(() => {
     AppState.addEventListener('change', _handleAppStateChange);
     navigationRef.current.navigate('PinCode');
@@ -246,7 +255,15 @@ const App = () => {
 
   const _handleAppStateChange = nextAppState => {
     console.log('App state changed to', nextAppState);
+    if (lastUnlocked) {
+      let period = new Date().getTime() - lastUnlocked;
+      if (period < timeoutPeriod) {
+        console.log('Unlock not yet expired', period);
+        return;
+      }
+    }
     if (nextAppState === 'active') {
+      lastUnlocked = new Date().getTime();
       navigationRef.current.navigate('PinCode');
     }
   };

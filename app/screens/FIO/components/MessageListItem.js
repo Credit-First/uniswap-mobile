@@ -9,10 +9,14 @@ import {
 } from '../../../theme/colors';
 
 
-const MessageListItem = ({ item, myactor, reloadAction, ...props }) => {
+const MessageListItem = ({ item, myactor, reloadAction, onPress, ...props }) => {
 
-  const _handleOnPress = () => {
-    reloadAction();
+  const _handleOnPress = (item) => {
+    if(item.reload) {
+      reloadAction();
+    } else if (onPress) {
+      onPress(item);
+    }
   };
 
   const formatDate = (date) => {

@@ -33,6 +33,7 @@ export { default as FIORequestDirectScreen } from './FIO/FIORequestDirectScreen'
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
 export { default as FIOSendDirectScreen } from './FIO/FIOSendDirectScreen';
 export { default as FIOChatScreen } from './FIO/FIOChatScreen';
+export { default as GroupChatScreen } from './FIO/GroupChatScreen';
 export { default as ListFIORequestsScreen } from './FIO/ListFIORequestsScreen';
 export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
 export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';

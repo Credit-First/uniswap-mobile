@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 6,
   },
   buttonIcon: {
     width: 18,
