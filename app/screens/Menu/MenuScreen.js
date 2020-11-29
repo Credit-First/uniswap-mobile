@@ -20,7 +20,12 @@ const MenuScreen = props => {
   const {
     connectAccount,
     navigation: { navigate },
+    accountsState: { accounts },
   } = props;
+
+  const telosAccounts = accounts.filter((value, index, array) => {
+    return value.chainName === 'Telos';
+  });
 
   const _handleFIORequest = () => {
     navigate('FIORequest');
@@ -48,8 +53,9 @@ const MenuScreen = props => {
     navigate('CreateTelosAccount');
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
+  if(telosAccounts.length == 0) {
+    return (
+     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
@@ -61,6 +67,20 @@ const MenuScreen = props => {
       </View>
     </SafeAreaView>
     );
+  } else {
+    return (
+     <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <KHeader title={'Menu actions'} style={styles.header}/>
+        <View style={styles.spacer} />
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+        <KButton title={'Register external account'} theme={'brown'}
+        style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
+        <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
+      </View>
+    </SafeAreaView>
+    );
+  }
 
 };
 

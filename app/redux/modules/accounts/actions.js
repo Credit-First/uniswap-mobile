@@ -15,6 +15,8 @@ export const FETCH_ADDRESSES = 'accounts/FETCH_ADDRESSES';
 export const ADD_ADDRESS = 'accounts/ADD_ADDRESS';
 export const DELETE_ADDRESS = 'accounts/DELETE_ADDRESS';
 
+export const FETCH_KEYS = 'accounts/FETCH_KEYS';
+export const ADD_KEY = 'accounts/ADD_KEY';
 
 /**
  * Action Creators
@@ -26,5 +28,7 @@ export const accountsActionCreators = {
   chooseActiveAccount: createAction(CHOOSE_ACTIVE_ACCOUNT),
   fetchAddresses: createAction(FETCH_ADDRESSES),
   addAddress: createAction(ADD_ADDRESS),
-  deleteAddress: createAction(DELETE_ADDRESS)
+  deleteAddress: createAction(DELETE_ADDRESS),
+  fetchKeys: createAction(FETCH_KEYS),
+  addKey: createAction(ADD_KEY)
 };

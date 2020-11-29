@@ -3,7 +3,8 @@
 const accountsState = {
   accounts: [],
   activeAccountIndex: -1,
-  addresses: []
+  addresses: [],
+  keys: []
 };
 
 

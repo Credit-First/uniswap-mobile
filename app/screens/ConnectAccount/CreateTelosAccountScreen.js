@@ -11,7 +11,9 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KInput, KText } from '../../components';
-import { fioAddPublicAddress } from '../../eos/fio';
+import {
+  fioAddPublicAddress,
+  fioBackupEncryptedKey } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -30,9 +32,10 @@ function randomName() {
 
 const CreateTelosAccountScreen = props => {
   const {
+    addKey,
     connectAccount,
     navigation: { goBack },
-    accountsState: { accounts },
+    accountsState: { accounts, activeAccountIndex, addresses, keys },
   } = props;
 
   const [accountName, setAccountName] = useState('');
@@ -138,6 +141,8 @@ const CreateTelosAccountScreen = props => {
       // Connect Telos account to a single FIO address:
       if( fioAccounts.length === 1 ) {
         fioAddPublicAddress(fioAccounts[0], account, fioFee);
+        // Backup encrypted Telos account:
+        fioBackupEncryptedKey(fioAccounts[0], account.accountName, account.chainName, account.privateKey);
       }
       Alert.alert('Account registered on chain: '+json.transaction_id);
       goBack();
@@ -154,6 +159,7 @@ const CreateTelosAccountScreen = props => {
   const _handleCreateAccount = async () => {
     ecc.randomKey().then(privateKey => {
       const publicKey = ecc.privateToPublic(privateKey);
+      addKey({ private: privateKey, public: publicKey });
       const account = { accountName, privateKey, chainName: 'Telos' };
       const request = {
         name: accountName,

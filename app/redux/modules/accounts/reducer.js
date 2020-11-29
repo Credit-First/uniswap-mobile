@@ -8,6 +8,8 @@ import {
   FETCH_ADDRESSES,
   ADD_ADDRESS,
   DELETE_ADDRESS,
+  FETCH_KEYS,
+  ADD_KEY,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
 
@@ -22,6 +24,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         accounts: state.accounts.concat([payload]),
         activeAccountIndex: state.accounts.length,
         addresses: state.addresses,
+        keys: state.keys,
       };
     case DELETE_ACCOUNT:
       return deleteAccount(state, payload);
@@ -36,11 +39,21 @@ export default function accountsState(state = DEFAULT, action = {}) {
       return {
         accounts: state.accounts,
         activeAccountIndex: state.accounts.length,
-        addresses: state.addresses.concat([payload])
+        addresses: state.addresses.concat([payload]),
+        keys: state.keys,
       };
     case DELETE_ADDRESS:
       return deleteAddress(state, payload);
     case FETCH_ADDRESSES:
+      break;
+    case ADD_KEY:
+      return {
+        accounts: state.accounts,
+        activeAccountIndex: state.accounts.length,
+        addresses: state.addresses,
+        keys: state.keys.concat([payload]),
+      };
+    case FETCH_KEYS:
       break;
     default:
       return state;
@@ -59,11 +72,12 @@ function deleteAccount(state, payload) {
     activeAccountIndex = accounts.length - 1;
   }
   let addresses = state.addresses;
-
+  let keys = state.keys;
   return {
     accounts,
     activeAccountIndex,
-    addresses
+    addresses,
+    keys
   };
 }
 
@@ -71,9 +85,11 @@ function deleteAddress(state, payload) {
   let accounts = state.accounts;
   let activeAccountIndex = state.activeAccountIndex;
   let addresses = state.addresses.filter((_address, index) => index !== payload);
+  let keys = state.keys;
   return {
     accounts,
     activeAccountIndex,
-    addresses
+    addresses,
+    keys
   };
 }

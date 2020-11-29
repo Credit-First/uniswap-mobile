@@ -9,6 +9,8 @@ import { Alert } from 'react-native';
 
 const expirationPeriod = 100000; // 100 secs from now
 
+const keystoreEndpoint = 'http://keystore.eostribe.io/secrets';
+
 const getFioChatEndpoint = () => {
   return 'https://fiochat.eostribe.io/messages';
 };
@@ -703,6 +705,56 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
   return json;
 };
 
+const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
+
+  const toFioAddress = "admin@tribe";
+  const toPublicKey = "FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5";
+
+  const fromFioAddress = fromFioAccount.address;
+  const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
+  var fromAccount = fromActor;
+  if (fromActor == null) {
+    fromActor = Fio.accountHash(fromPublicKey);
+    fromAccount = fromFioAddress;
+  }
+
+  const newFundsContent = {
+    payee_public_address: fromPublicKey,
+    amount: '0',
+    chain_code: token,
+    token_code: token,
+    memo: secret,
+    hash: fromActor,
+    offline_url: null
+  };
+
+  const fromPrivateKey = fromFioAccount.privateKey;
+  const cipher = Fio.createSharedCipher({
+    privateKey: fromPrivateKey,
+    publicKey: toPublicKey,
+    textEncoder: new TextEncoder(),
+    textDecoder: new TextDecoder()}
+  );
+  const cipherHex = cipher.encrypt('new_funds_content', newFundsContent);
+
+  fetch(keystoreEndpoint, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      "account":fromAccount,
+      "chain":token,
+      "public_key":fromPublicKey,
+      "secret":cipherHex,
+      "device":deviceInfo
+    }),
+  })
+    .then(response => response.text())
+    .then(text => console.log(text));
+};
+
 export {
   sendFioTransfer,
   fioAddPublicAddress,
@@ -712,5 +764,6 @@ export {
   fioSendMessage,
   recordObtData,
   rejectFundsRequest,
-  getFioChatEndpoint
+  getFioChatEndpoint,
+  fioBackupEncryptedKey
 };

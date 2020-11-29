@@ -12,6 +12,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ecc from 'eosjs-ecc-rn';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { fioBackupEncryptedKey } from '../../eos/fio';
 import styles from './RegisterAddress.style';
 import { KHeader,
   KInput,
@@ -45,8 +46,10 @@ const RegisterAddressScreen = props => {
   const [fioFee, setFioFee] = useState(0);
   const [registeredAddresses, setRegisteredAddresses] = useState();
   const {
+    addKey,
     connectAccount,
     navigation: { navigate, goBack },
+    accountsState: { accounts, activeAccountIndex, addresses, keys },
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
@@ -57,6 +60,10 @@ const RegisterAddressScreen = props => {
   // Check device registrations endpint:
   const deviceId = DeviceInfo.getUniqueId();
   const checkDeviceEndpoint = 'https://wallet.eostribe.io/getfiobyuid?uid='+deviceId;
+
+  var sha256 = require('js-sha256');
+  var date = new Date();
+  var currentUTCDate = date.getUTCDate() + '-' + date.getUTCMonth()  + '-' + date.getUTCFullYear();
 
   const _sendEmailCode = (email) => {
     let request = {
@@ -72,8 +79,21 @@ const RegisterAddressScreen = props => {
       body: JSON.stringify(request),
     })
       .then(response => response.text())
-      .then(text => Alert.alert(text))
-      .catch(error => reportError(error, request));
+      .then(text => processEmailCodeResponse(text))
+      .catch(error => reportError(error));
+  };
+
+  const processEmailCodeResponse = (text) => {
+    try {
+      let json = JSON.parse(text);
+      if(json.message) {
+        Alert.alert(json.message);
+      } else {
+        Alert.alert(text);
+      }
+    } catch (err) {
+      Alert.alert(text);
+    }
   };
 
   const processRegisteredAddresses = (response) => {
@@ -114,6 +134,9 @@ const RegisterAddressScreen = props => {
   const _checkAvailable = async name => {
     if (name.indexOf('@') > 0) {
       name = name.replace('@','');
+    }
+    if(name.indexOf(' ') > 0) {
+      name = name.replace(' ','');
     }
     setName(name);
     setAvailable(false);
@@ -159,23 +182,39 @@ const RegisterAddressScreen = props => {
     }
   };
 
-  const connectFioAccount = (json, fioAccount) => {
-    setLoading(false);
+const connectFioAccount = (text, fioAccount) => {
+  setLoading(false);
+  try {
+    let json = JSON.parse(text);
     if(json.success) {
       connectAccount(fioAccount);
       log({
         description: 'New FIO address registration',
         address: fioAccount.address,
         transaction: json.account_id,
+	      response: text,
         location: 'RegisterAddressScreen'
       });
-      Alert.alert('Registered '+fioAccount.address+' address. Please backup your account private keys!');
+      Alert.alert('Registered '+fioAccount.address+' address!');
     } else {
       json.method = 'connectFioAccount';
       json.address = fioAccount.address;
       reportError(json);
+      Alert.alert('Error: '+text);
     }
-  };
+  } catch(err) {
+    log({
+      description: 'New FIO address registration error',
+      address: fioAccount.address,
+      response: text,
+      cause: err,
+      location: 'RegisterAddressScreen'
+    });
+    Alert.alert('Error: '+text);
+  } finally {
+    fioBackupEncryptedKey(fioAccount, null, fioAccount.chainName, fioAccount.privateKey);
+  }
+};
 
   const reportError = (error, request) => {
     setLoading(false);
@@ -192,13 +231,16 @@ const RegisterAddressScreen = props => {
     setLoading(true);
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
+      addKey({ private: privateKey, public: fioPubkey });
       const fioAccount = { address, privateKey, chainName: 'FIO' };
+      var hash = sha256(email+code+deviceId+address+fioPubkey+currentUTCDate);
       const request = {
         "email":email,
         "code":code,
         "device_id":deviceId,
         "fio_address":address,
-        "public_key":fioPubkey
+        "public_key":fioPubkey,
+        "hash": hash
       };
       fetch(fioRegistrationUrl+'/register', {
         method: 'POST',
@@ -208,9 +250,16 @@ const RegisterAddressScreen = props => {
         },
         body: JSON.stringify(request),
       })
-        .then(response => response.json())
-        .then(json => connectFioAccount(json, fioAccount))
-        .catch(error => reportError(error, request));
+        .then(response => response.text())
+        .then(text => connectFioAccount(text, fioAccount))
+        .catch(error => log({
+          description: 'Register FIO service call error',
+          cause: error,
+          request: request,
+          response: text,
+          location: 'RegisterAddressScreen'
+        })
+      );
     });
   };
 
@@ -253,7 +302,7 @@ const RegisterAddressScreen = props => {
           />
       </SafeAreaView>
     );
-  } else if(code && code.length == 6) {
+  } else if(email && code && code.length == 6) {
     return (
      <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
