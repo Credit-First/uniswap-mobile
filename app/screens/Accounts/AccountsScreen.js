@@ -26,8 +26,9 @@ const AccountsScreen = props => {
     connectAccount,
     deleteAccount,
     addAddress,
+    addKey,
     navigation: { navigate },
-    accountsState: { accounts, activeAccountIndex, addresses },
+    accountsState: { accounts, activeAccountIndex, addresses, keys },
     chooseActiveAccount,
   } = props;
 
@@ -38,6 +39,7 @@ const AccountsScreen = props => {
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
   const [runCount, setRunCount] = useState(0);
   const [newMessageCount, setNewMessageCount] = useState(0);
+
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -323,9 +325,47 @@ const checkOnLatestVersion = () => {
   }
 };
 
+const addKeysIfMissing = () => {
+  accounts.map(function(account) {
+    if(account.chainName == "EOS" ||
+       account.chainName == "Telos" ||
+       account.chainName == "BOS" ||
+       account.chainName == "WAX" ||
+      account.chainName == "MEET.ONE") {
+        const privateKey = account.privateKey;
+        const publicKey = ecc.privateToPublic(account.privateKey);
+        const foundKeys = keys.filter((value, index, array) => {
+          return value.public === publicKey;
+        });
+        if(foundKeys.length == 0) {
+          addKey({ private: privateKey, public: publicKey });
+        }
+    } else if(account.chainName == "FIO") {
+      const privateKey = account.privateKey;
+      const publicKey = Ecc.privateToPublic(account.privateKey);
+      const foundKeys = keys.filter((value, index, array) => {
+        return value.public === publicKey;
+      });
+      if(foundKeys.length == 0) {
+        addKey({ private: privateKey, public: publicKey });
+      }
+    } else if(account.chainName == "ALGO") {
+      const publicKey = account.account.addr;
+      const privateKey = account.mnemonic;
+      const foundKeys = keys.filter((value, index, array) => {
+        return value.public === publicKey;
+      });
+      if(foundKeys.length == 0) {
+        addKey({ private: privateKey, public: publicKey });
+      }
+    }
+  });
+};
+
 if (runCount == 0) {
   setRunCount(1);
   checkOnLatestVersion();
+  addKeysIfMissing();
 }
 
 var optionalButtons = <View style={styles.spacer} />;

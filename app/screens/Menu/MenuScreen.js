@@ -27,6 +27,10 @@ const MenuScreen = props => {
     return value.chainName === 'Telos';
   });
 
+  const adminAccount = accounts.filter((value, index, array) => {
+    return (value.chainName === 'FIO' && value.address === 'admin@tribe');
+  });
+
   const _handleFIORequest = () => {
     navigate('FIORequest');
   };
@@ -53,6 +57,32 @@ const MenuScreen = props => {
     navigate('CreateTelosAccount');
   };
 
+  var displayExchange = false;
+  if (accounts.length > 1) {
+    var eosPresent = false;
+    var anotherValidChain = false;
+    accounts.map(function(account) {
+      if (account.chainName === 'EOS') {
+        eosPresent = true;
+      } else if (account.chainName !== 'EOS'
+        && account.chainName !== 'FIO'
+        && account.chainName !== 'ALGO') {
+        anotherValidChain = true;
+      }
+    });
+    displayExchange = eosPresent && anotherValidChain;
+  }
+
+  var exchangeButton = <View style={styles.spacer} />;
+  if(displayExchange) {
+      exchangeButton = <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>;
+  }
+
+  var adminButton = <View style={styles.spacer} />;
+  if(adminAccount.length > 0) {
+    adminButton = <KButton title={'Admin'} style={styles.button} onPress={() => navigate('Admin')}/>;
+  }
+
   if(telosAccounts.length == 0) {
     return (
      <SafeAreaView style={styles.container}>
@@ -63,7 +93,9 @@ const MenuScreen = props => {
         <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         <KButton title={'Register external account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
-        <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
+        <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
+        {exchangeButton}
+        {adminButton}
       </View>
     </SafeAreaView>
     );
@@ -76,7 +108,9 @@ const MenuScreen = props => {
         <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         <KButton title={'Register external account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
-        <KButton title={'EOSIO NewDex Exchange'} style={styles.button} onPress={() => navigate('Exchange')}/>
+        <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
+        {exchangeButton}
+        {adminButton}
       </View>
     </SafeAreaView>
     );

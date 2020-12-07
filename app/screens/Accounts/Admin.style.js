@@ -9,12 +9,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
-  rowContainer: {
-    marginTop: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   inner: {
     flex: 1,
     padding: 10,
@@ -25,42 +19,17 @@ const styles = StyleSheet.create({
   button: {
     width: width - 40,
     alignSelf: 'center',
-    marginBottom: 10,
   },
   buttonIcon: {
     width: 18,
     height: 18,
     tintColor: '#FFF',
   },
-  qrcode: {
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  link: {
-    color: 'blue',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 16,
-  },
-  version: {
-    alignSelf: 'center',
-    color: 'black',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 12,
-  },
-  listItem: {
-    marginTop: 5,
-    marginHorizontal: 20,
-  },
-  logo: {
-    flex: 1,
-    height: undefined,
-    width: undefined,
-  },
-  spacer: {
-    marginTop: 10,
-  },
   inputContainer: {
     marginTop: 10,
+  },
+  spacer: {
+    flex: 1,
   },
   error: {
     color: '#FF0000',

@@ -1,3 +1,4 @@
+import DeviceInfo from 'react-native-device-info';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { Api } from '@fioprotocol/fiojs/dist/chain-api';
@@ -6,6 +7,8 @@ import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getEndpoint } from './chains';
 import { log } from '../logger/logger';
 import { Alert } from 'react-native';
+
+const deviceId = DeviceInfo.getUniqueId();
 
 const expirationPeriod = 100000; // 100 secs from now
 
@@ -748,11 +751,74 @@ const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
       "chain":token,
       "public_key":fromPublicKey,
       "secret":cipherHex,
-      "device":deviceInfo
+      "device":deviceId
     }),
   })
     .then(response => response.text())
     .then(text => console.log(text));
+};
+
+const processAccountSecret = (text, adminPrivateKey, callback) => {
+  try {
+    let json = JSON.parse(text);
+    let secret = json.secret;
+    let publicKey = json.public_key;
+
+    const cipher = Fio.createSharedCipher({
+      privateKey: adminPrivateKey,
+      publicKey: publicKey,
+      textEncoder: new TextEncoder(),
+      textDecoder: new TextDecoder()}
+    );
+
+    let decryptedSecret = cipher.decrypt('new_funds_content', secret);
+    if(callback) {
+      callback(decryptedSecret);
+    }
+  } catch (error) {
+    Alert.alert(JSON.stringify(error))
+  }
+};
+
+const loadAccountSecret = (adminFioAccount, accountName, callback) => {
+
+  const onePublicKey = "FIO66LLrG3KnxMwcCdxJgtf7yy1Zy8qcNNsBSoCBYrFX6zs82kA7z";
+
+  const content = {
+    payee_public_address: accountName,
+    amount: '0',
+    chain_code: 'FIO',
+    token_code: 'FIO',
+    memo: new Date().getTime(),
+    hash: deviceId,
+    offline_url: null
+  };
+
+  const cipher = Fio.createSharedCipher({
+    privateKey: adminFioAccount.privateKey,
+    publicKey: onePublicKey,
+    textEncoder: new TextEncoder(),
+    textDecoder: new TextDecoder()}
+  );
+  const cipherHex = cipher.encrypt('new_funds_content', content);
+  try {
+    let endpoint = keystoreEndpoint+'/admin';
+    fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "secret":cipherHex,
+        "device":deviceId
+      }),
+    })
+    .then(response => response.text())
+    .then(text => processAccountSecret(text, adminFioAccount.privateKey, callback));
+  } catch(err) {
+    Alert.alert(JSON.stringify(err));
+  }
 };
 
 export {
@@ -765,5 +831,6 @@ export {
   recordObtData,
   rejectFundsRequest,
   getFioChatEndpoint,
-  fioBackupEncryptedKey
+  fioBackupEncryptedKey,
+  loadAccountSecret
 };

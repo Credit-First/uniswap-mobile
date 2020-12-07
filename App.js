@@ -56,6 +56,8 @@ import {
   TransactionDetailScreen,
   VoteScreen,
   MenuScreen,
+  AdminScreen,
+  KeyListScreen,
   ExchangeScreen,
   PinCodeScreen,
 } from './app/screens';
@@ -65,6 +67,7 @@ const AccountsStackScreen = () => {
     <AccountsStack.Navigator headerMode={'none'}>
       <AccountsStack.Screen name="Accounts" component={AccountsScreen} />
       <AccountsStack.Screen name="Tokens" component={TokensScreen} />
+      <AccountsStack.Screen name="Admin" component={AdminScreen} />
       <AccountsStack.Screen
         name="ConnectAccount"
         component={ConnectAccountScreen}
@@ -152,6 +155,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="GroupChat"
         component={GroupChatScreen}
+      />
+      <AccountsStack.Screen
+        name="KeyList"
+        component={KeyListScreen}
       />
     </AccountsStack.Navigator>
   );

@@ -65,6 +65,7 @@ const RegisterAddressScreen = props => {
   var date = new Date();
   var currentUTCDate = date.getUTCDate() + '-' + date.getUTCMonth()  + '-' + date.getUTCFullYear();
 
+
   const _sendEmailCode = (email) => {
     let request = {
       "email": email,
@@ -137,6 +138,9 @@ const RegisterAddressScreen = props => {
     }
     if(name.indexOf(' ') > 0) {
       name = name.replace(' ','');
+    }
+    if(name.indexOf('.') > 0) {
+      name = name.replace('.','');
     }
     setName(name);
     setAvailable(false);
@@ -262,6 +266,7 @@ const connectFioAccount = (text, fioAccount) => {
       );
     });
   };
+
 
   if (registeredAddresses && registeredAddresses.length > 0) {
     return (

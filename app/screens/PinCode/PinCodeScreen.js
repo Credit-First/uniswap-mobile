@@ -9,6 +9,7 @@ const pinCodeKeychainName = 'keychain-wallet-pincode';
 const PinCodeScreen = ({ navigation }) => {
   const [isLoading, setLoading] = useState(true);
   const [status, setStatus] = useState();
+  const [supported, setSupported] = useState(true);
 
   const checkHasPinCode = async () => {
     try {
@@ -16,13 +17,25 @@ const PinCodeScreen = ({ navigation }) => {
       setStatus(hasCode ? 'enter' : 'choose');
       setLoading(false);
     } catch (err) {
-      setStatus('choose');
-      setLoading(false);
-      log({
-        description: 'checkHasPinCode',
-        cause: err,
-        location: 'PinCodeScreen'
-      });
+      // In case if Android fails - mark 'Pin Code' unsupported and unlock:
+      if (err.code == "E_CRYPTO_FAILED") {
+        setSupported(false);
+        setStatus('enter');
+        setLoading(false);
+        log({
+          description: 'checkHasPinCode: Allow entry without pin code (not supported)',
+          cause: err,
+          location: 'PinCodeScreen'
+        });
+      } else {
+        setStatus('choose');
+        setLoading(false);
+        log({
+          description: 'checkHasPinCode: Error',
+          cause: err,
+          location: 'PinCodeScreen'
+        });
+      }
     }
   };
 
