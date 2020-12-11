@@ -269,6 +269,8 @@ const TransferScreen = props => {
         cause: err.message,
         location: 'ViewFIORequestScreen'
       });
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -16,6 +16,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import KeyItem from './components/KeyItem';
 import { getAccount } from '../../eos/eos';
 import { log } from '../../logger/logger';
 
@@ -28,7 +29,8 @@ const AdminScreen = props => {
   } = props;
 
   const [accountName, setAccountName] = useState('');
-  const [key, setKey] = useState();
+  const [privateKey, setPrivateKey] = useState();
+  const [publicKey, setPublicKey] = useState();
   const [chainName, setChainName] = useState();
   const [error, setError] = useState();
 
@@ -38,8 +40,17 @@ const AdminScreen = props => {
 
   const processSecret = (json) => {
     if (json) {
-      setKey(json.memo);
-      setChainName(json.chain_code);
+      let key = json.memo;
+      setPrivateKey(key);
+      let chain = json.chain_code;
+      setChainName(chain);
+      if (chain == 'FIO') {
+        let publicKey = Ecc.privateToPublic(key);
+        setPublicKey(publicKey);
+      } else {
+        let publicKey = ecc.privateToPublic(key);
+        setPublicKey(publicKey);
+      }
     } else {
       setError('No response:'+json);
     }
@@ -77,8 +88,7 @@ if (adminAccount.length > 0) {
           <View style={styles.spacer} />
           <KText>{chainName}</KText>
           <View style={styles.spacer} />
-          <KText>{key}</KText>
-          <View style={styles.spacer} />
+          <KeyItem publicKey={publicKey} privateKey={privateKey} style={styles.listItem}/>
           <KText style={styles.error}>{error}</KText>
           <View style={styles.spacer} />
           <KButton

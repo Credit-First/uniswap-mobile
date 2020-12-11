@@ -280,6 +280,16 @@ var tokens = [
     chain: 'EOS',
     contract: 'publytoken11',
   },
+  {
+    name: 'TLOSD',
+    chain: 'TLOS',
+    contract: 'tokens.swaps',
+  },
+  {
+    name: 'PBTC',
+    chain: 'TLOS',
+    contract: 'btc.ptokens',
+  },
 ];
 
 const getTokens = chainName => {

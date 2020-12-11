@@ -25,6 +25,10 @@ const styles = StyleSheet.create({
     height: 18,
     tintColor: '#FFF',
   },
+  listItem: {
+    marginTop: 5,
+    marginHorizontal: 20,
+  },
   inputContainer: {
     marginTop: 10,
   },
