@@ -3,7 +3,6 @@ var supportedChains = [
     name: 'EOS',
     symbol: 'EOS',
     icon: require('../../assets/chains/eos.png'),
-    fastest: '',
     endpoint: 'https://api.eosrio.io',
     endpoint1: 'https://api.eosrio.io',
     endpoint2: 'https://eos.greymass.com',
@@ -14,7 +13,6 @@ var supportedChains = [
     name: 'BOS',
     symbol: 'BOS',
     icon: require('../../assets/chains/eos.png'),
-    fastest: '',
     endpoint: 'https://api.bos.eostribe.io',
     endpoint1: 'https://api.bos.eostribe.io',
     endpoint2: 'https://bos.cryptolions.io',
@@ -25,7 +23,6 @@ var supportedChains = [
     name: 'Telos',
     symbol: 'TLOS',
     icon: require('../../assets/chains/eos.png'),
-    fastest: '',
     endpoint: 'https://api-za.eostribe.io',
     endpoint1: 'https://api.telos.eostribe.io',
     endpoint2: 'https://telos.greymass.com',
@@ -36,7 +33,6 @@ var supportedChains = [
     name: 'WAX',
     symbol: 'WAX',
     icon: require('../../assets/chains/eos.png'),
-    fastest: '',
     endpoint: 'https://wax.greymass.com',
     endpoint1: 'https://wax.greymass.com',
     endpoint2: 'http://api.wax.alohaeos.com',
@@ -44,126 +40,73 @@ var supportedChains = [
     newdexAccount: 'newdex',
   },
   {
-    name: 'MEET.ONE',
-    symbol: 'MEETONE',
-    icon: require('../../assets/chains/eos.png'),
-    fastest: '',
-    endpoint: 'https://api.meetone.eostribe.io',
-    endpoint1: 'https://api.meetone.eostribe.io',
-    endpoint2: 'https://api.meetsweden.org',
-    endpoint3: 'https://api.meetone.alohaeos.com',
-    newdexAccount: 'newdex',
-  },
-  {
     name: 'FIO',
     symbol: 'FIO',
     icon: require('../../assets/chains/eos.png'),
-    fastest: '',
     endpoint: 'https://fio-za.eostribe.io',
     endpoint1: 'https://fio.eosphere.io',
     endpoint2: 'https://fio.genereos.io',
-    endpoint3: 'https://fioapi.nodeone.io',
-    endpoint4: 'https://api.fio.eosdetroit.io',
-    endpoint5: 'https://fio.greymass.com',
+    endpoint3: 'https://fio.greymass.com',
     newdexAccount: null,
   },
 ];
+
+var fastestEndpoint = [];
+var fastestTime = [];
 
 const getChain = chainName => {
   chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
   return supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
 };
 
-const findFastestEndpoints = async (chain) => {
-  try {
-    var endpointTimes = [];
-    // default endpoint:
-    if (chain.endpoint) {
-      let endpoint = chain.endpoint;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
+const selectFastest = (chain, endpoint, json, sendtime) => {
+  if(json && json.chain_id) {
+    var calltime = (new Date()).getTime() - sendtime;
+    if (!fastestTime[chain.name]) {
+      fastestTime[chain.name] = calltime;
+      fastestEndpoint[chain.name] = endpoint;
+    } else if(fastestTime[chain.name] > calltime) {
+      fastestTime[chain.name] = calltime;
+      fastestEndpoint[chain.name] = endpoint;
     }
-    // endpoint1:
-    if (chain.endpoint1) {
-      let endpoint = chain.endpoint1;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
-    }
-    // endpoint2:
-    if (chain.endpoint2) {
-      let endpoint = chain.endpoint2;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
-    }
-    // endpoint3:
-    if (chain.endpoint3) {
-      let endpoint = chain.endpoint3;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
-    }
-    // endpoint4:
-    if (chain.endpoint4) {
-      let endpoint = chain.endpoint4;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
-    }
-    // endpoint5:
-    if (chain.endpoint5) {
-      let endpoint = chain.endpoint5;
-      var sendtime = (new Date()).getTime();
-      var result = await fetch(endpoint + '/v1/chain/get_info', { method: 'GET' });
-      var calltime = (new Date()).getTime() - sendtime;
-      if (result.status === 200) {
-        endpointTimes[calltime] = endpoint;
-      }
-    }
-    var smallestTime = 0;
-    var fastestEndpoint;
-    for (var key in endpointTimes) {
-      let time = parseInt(key);
-      if(smallestTime == 0) {
-        smallestTime = time;
-        fastestEndpoint = endpointTimes[key];
-      } else if(time < smallestTime) {
-        smallestTime = time;
-        fastestEndpoint = endpointTimes[key];
-      }
-    }
-    chain.fastest = fastestEndpoint;
-  } catch(err) {
-    console.log(err);
   }
 };
 
+const checkEndpoint = async (chain, endpoint) => {
+  try {
+    var sendtime = (new Date()).getTime();
+    fetch(endpoint + '/v1/chain/get_info', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(json => selectFastest(chain, endpoint, json, sendtime))
+      .catch(error => console.log(error));
+  } catch (err) {
+    console.log(endpoint, err);
+  }
+};
+
+const findFastestEndpoints = async (chain) => {
+  if (chain.endpoint)  { checkEndpoint(chain, chain.endpoint); }
+  if (chain.endpoint1) { checkEndpoint(chain, chain.endpoint1); }
+  if (chain.endpoint2) { checkEndpoint(chain, chain.endpoint2); }
+  if (chain.endpoint3) { checkEndpoint(chain, chain.endpoint3); }
+};
+
 supportedChains.map((chain) => {
-  findFastestEndpoints(chain);
+  if(!fastestEndpoint[chain.name]) {
+    findFastestEndpoints(chain);
+  }
 });
 
 const getEndpoint = chainName => {
   chainName = (chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
   let chain = supportedChains.find(item => (item.name === chainName || item.symbol === chainName));
-  findFastestEndpoints(chain);
-  let endpoint = (chain.fastest) ? chain.fastest : chain.endpoint;
+  let endpoint = (fastestEndpoint[chain.name]) ? fastestEndpoint[chain.name] : chain.endpoint;
   return endpoint;
 };
 
