@@ -22,7 +22,7 @@ export {
 export {
   default as PrivateKeyDelegateScreen,
 } from './Accounts/PrivateKeyDelegateScreen';
-export { default as RegisterAddressScreen } from './FIO/RegisterAddressScreen';
+export { default as RegisterFIOAddressScreen } from './FIO/RegisterFIOAddressScreen';
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';

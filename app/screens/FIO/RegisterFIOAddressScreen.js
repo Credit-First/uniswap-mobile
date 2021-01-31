@@ -34,12 +34,14 @@ function randomName() {
     return result;
 }
 
-const RegisterAddressScreen = props => {
+const RegisterFIOAddressScreen = props => {
   const [email, setEmail] = useState();
   const [code, setCode] = useState();
   const [name, setName] = useState();
+  const [answer, setAnswer] = useState();
   const [address, setAddress] = useState();
   const [available, setAvailable] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [checkState, setCheckState] = useState('');
   const [fioAccount, setFioAccount] = useState();
@@ -65,6 +67,9 @@ const RegisterAddressScreen = props => {
   var date = new Date();
   var currentUTCDate = date.getUTCDate() + '-' + date.getUTCMonth()  + '-' + date.getUTCFullYear();
 
+  const getCaptchaUrl = () => {
+    return fioRegistrationUrl + '/captcha/' + email;
+  };
 
   const _sendEmailCode = (email) => {
     let request = {
@@ -97,6 +102,46 @@ const RegisterAddressScreen = props => {
     }
   };
 
+  const processCodeValidateResponse = (text) => {
+    console.log(text);
+    try {
+      let json = JSON.parse(text);
+      if(json.code_match) {
+        setValidated(true);
+      } else {
+        Alert.alert(text);
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert(text);
+    }
+  };
+
+  const _nextValidate = () => {
+    if (email && code && code.length == 6) {
+      let request = {
+        "email": email,
+        "code": code,
+        "device_id": deviceId
+      };
+      fetch(fioRegistrationUrl + "/validate", {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      })
+        .then(response => response.text())
+        .then(text => processCodeValidateResponse(text))
+        .catch(error => reportError(error));
+    } else if(!email) {
+      Alert.alert("Enter correct email!");
+    } else if (!code || code.length < 6) {
+      Alert.alert("Please enter 6 digits code from email!");
+    }
+  };
+
   const processRegisteredAddresses = (response) => {
     if(response.status !== 200) {
       return;
@@ -123,12 +168,12 @@ const RegisterAddressScreen = props => {
       .then(response => processRegisteredAddresses(response))
       .catch(error => log({ description: 'Check device by id call error',
         cause: error,
-        location: 'RegisterAddressScreen'})
+        location: 'RegisterFIOAddressScreen'})
       );
     } catch (err) {
       log({ description: 'Check device by id call error',
         cause: err,
-        location: 'RegisterAddressScreen'});
+        location: 'RegisterFIOAddressScreen'});
     }
   }
 
@@ -182,7 +227,7 @@ const RegisterAddressScreen = props => {
         cause: error,
         response: json,
         address: newAddress,
-        location: 'RegisterAddressScreen'});
+        location: 'RegisterFIOAddressScreen'});
     }
   };
 
@@ -197,7 +242,7 @@ const connectFioAccount = (text, fioAccount) => {
         address: fioAccount.address,
         transaction: json.account_id,
 	      response: text,
-        location: 'RegisterAddressScreen'
+        location: 'RegisterFIOAddressScreen'
       });
       Alert.alert('Registered '+fioAccount.address+' address!');
     } else {
@@ -212,7 +257,7 @@ const connectFioAccount = (text, fioAccount) => {
       address: fioAccount.address,
       response: text,
       cause: err,
-      location: 'RegisterAddressScreen'
+      location: 'RegisterFIOAddressScreen'
     });
     Alert.alert('Error: '+text);
   } finally {
@@ -227,7 +272,7 @@ const connectFioAccount = (text, fioAccount) => {
       description: 'Register FIO service call error',
       cause: error,
       request: request,
-      location: 'RegisterAddressScreen'
+      location: 'RegisterFIOAddressScreen'
     });
   };
 
@@ -237,10 +282,11 @@ const connectFioAccount = (text, fioAccount) => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       addKey({ private: privateKey, public: fioPubkey });
       const fioAccount = { address, privateKey, chainName: 'FIO' };
-      var hash = sha256(email+code+deviceId+address+fioPubkey+currentUTCDate);
+      var hash = sha256(email+code+answer+deviceId+address+fioPubkey+currentUTCDate);
       const request = {
         "email":email,
         "code":code,
+        "answer":answer,
         "device_id":deviceId,
         "fio_address":address,
         "public_key":fioPubkey,
@@ -261,7 +307,7 @@ const connectFioAccount = (text, fioAccount) => {
           cause: error,
           request: request,
           response: text,
-          location: 'RegisterAddressScreen'
+          location: 'RegisterFIOAddressScreen'
         })
       );
     });
@@ -307,7 +353,7 @@ const connectFioAccount = (text, fioAccount) => {
           />
       </SafeAreaView>
     );
-  } else if(email && code && code.length == 6) {
+  } else if(validated) {
     return (
      <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -327,15 +373,21 @@ const connectFioAccount = (text, fioAccount) => {
             style={styles.header}
           />
           <KText>Email: {email}</KText>
+          <KText>Code: {code}</KText>
+          <InputAddress onChange={_checkAvailable}/>
+          <KText>{checkState}</KText>
+          <KText>Solve equation:</KText>
+          <Image
+            style={{alignSelf: 'center', marginTop: 10, width: 200, height: 50}}
+            source={{uri: getCaptchaUrl()}}
+          />
           <KInput
-            placeholder={'Enter code from email'}
-            value={code}
-            onChangeText={setCode}
+            placeholder={'Enter answer to the formula above'}
+            value={answer}
+            onChangeText={setAnswer}
             containerStyle={styles.inputContainer}
             autoCapitalize={'none'}
           />
-          <InputAddress onChange={_checkAvailable}/>
-          <KText>{checkState}</KText>
           <KButton
             title={'Register address'}
             theme={'blue'}
@@ -363,8 +415,8 @@ const connectFioAccount = (text, fioAccount) => {
             />
           </TouchableOpacity>
           <KHeader
-            title={'Register FIO address'}
-            subTitle={'Request registration code on email first'}
+            title={'Validate your email address'}
+            subTitle={'Click Send Code and wait for email'}
             style={styles.header}
           />
           <EmailCodeSend onChange={setEmail} onSendCode={_sendEmailCode}/>
@@ -373,7 +425,12 @@ const connectFioAccount = (text, fioAccount) => {
             value={code}
             onChangeText={setCode}
             containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
+          />
+          <KButton
+            title={'Validate code'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={_nextValidate}
           />
         </View>
       </KeyboardAwareScrollView>
@@ -384,4 +441,4 @@ const connectFioAccount = (text, fioAccount) => {
 
 };
 
-export default connectAccounts()(RegisterAddressScreen);
+export default connectAccounts()(RegisterFIOAddressScreen);

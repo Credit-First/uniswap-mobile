@@ -144,6 +144,7 @@ const GroupChatScreen = props => {
           <FlatList
               data={messageList}
               keyExtractor={(item, index) => `${index}`}
+              inverted={true}
               renderItem={({ item, index }) => (
                 <MessageListItem item={item}
                   myactor={myAccount.address}

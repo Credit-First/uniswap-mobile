@@ -39,8 +39,8 @@ const MenuScreen = props => {
     navigate('FIOSend');
   };
 
-  const _handleRegisterAddress = () => {
-    navigate('RegisterAddress');
+  const _handleRegisterFIOAddress = () => {
+    navigate('RegisterFIOAddress');
   };
 
   const _handleCreateAlgorandAccount = () => {

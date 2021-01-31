@@ -20,8 +20,9 @@ const EmailCodeSend = ({onChange, onSendCode}) => {
   const [email, setEmail] = useState();
 
   const _handleChangeEmail = (value) => {
-    setEmail(value);
-    onChange(value);
+    let lcv = (value)?value.toLowerCase():'';
+    setEmail(lcv);
+    onChange(lcv);
   };
 
   const _handlePressSendCode = () => {

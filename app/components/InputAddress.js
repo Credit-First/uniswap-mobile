@@ -29,7 +29,7 @@ const InputAddress = ({onChange}) => {
       <View style={styles.rowContainer}>
         <TextInput
           label={'Name'}
-          autoCapitalize={false}
+          autoCapitalize={'none'}
           placeholder={'Enter your name'}
           value={name}
           onChangeText={_handleChangeName}

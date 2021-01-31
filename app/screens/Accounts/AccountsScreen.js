@@ -184,10 +184,6 @@ const AccountsScreen = props => {
       setConnectedAccounts(newConnectedAccounts);
   };
 
-  const _handleRegisterAddress = () => {
-    navigate('RegisterAddress');
-  };
-
   const _handlePressAccount = index => {
     const account = accounts[index];
     if (account.chainName === 'FIO') {
@@ -368,10 +364,11 @@ if (runCount == 0) {
   addKeysIfMissing();
 }
 
+
 var optionalButtons = <View style={styles.spacer} />;
 if(fioAccounts.length == 0) {
     optionalButtons = <View>
-        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleRegisterAddress}/>
+        <KButton title={'Register [address]@tribe'} theme={'brown'} style={styles.button} icon={'add'} onPress={()=>navigate('RegisterFIOAddress')}/>
       </View>;
 }
 

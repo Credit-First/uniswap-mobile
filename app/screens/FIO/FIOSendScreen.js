@@ -96,7 +96,7 @@ const FIOSendScreen = props => {
       }
   };
 
-  const loadFIOPubkeyAndRegisterAddress = async (address) => {
+  const loadFIOPubkeyAndRegisterFIOAddress = async (address) => {
     fetch(fioEndpoint + '/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
@@ -112,7 +112,7 @@ const FIOSendScreen = props => {
       .then(response => response.json())
       .then(json => addFIOAddressToAddressbook(json.public_address, address))
       .catch(error => log({
-        description: 'loadFIOPubkeyAndRegisterAddress - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+        description: 'loadFIOPubkeyAndRegisterFIOAddress - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
         cause: error,
         location: 'FIOSendScreen'
       })
@@ -125,7 +125,7 @@ const FIOSendScreen = props => {
     } else if (regcount === 1) {
       setAddressInvalidMessage('');
       setValidToAccount(address);
-      loadFIOPubkeyAndRegisterAddress(address);
+      loadFIOPubkeyAndRegisterFIOAddress(address);
     } else if (error) {
       setAddressInvalidMessage('Error validating address');
     }
