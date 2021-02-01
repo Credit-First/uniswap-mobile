@@ -167,7 +167,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
           <TouchableOpacity onPress={handleOnTokensPress}>
             <View style={[styles.container, props.style]}>
               <View style={styles.contentContainer}>
-                <KText style={styles.tokenName}> + {tokens.length} Tokens</KText>
+                <KText style={styles.tokenName}> + View Tokens</KText>
               </View>
             </View>
           </TouchableOpacity>

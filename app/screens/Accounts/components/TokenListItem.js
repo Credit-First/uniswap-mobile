@@ -16,11 +16,13 @@ var tokenWidth = width - 60;
 const TokenListItem = ({ account, token, onPress, ...props }) => {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [count, setCount] = useState(0);
+  const [zero, setZero] = useState(false);
 
   const handleTokenBalance = (jsonArray) => {
     if(jsonArray && jsonArray.length > 0) {
       setTokenBalance(jsonArray[0]);
     } else {
+      setZero(true);
       setTokenBalance('0 ' + token.name);
     }
   };
@@ -38,6 +40,9 @@ const TokenListItem = ({ account, token, onPress, ...props }) => {
     refreshBalances();
   }
 
+if (zero) {
+  return null;
+} else {
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
       <View style={[styles.container, props.style]}>
@@ -50,6 +55,7 @@ const TokenListItem = ({ account, token, onPress, ...props }) => {
       </View>
     </View>
   );
+}
 
 };
 
