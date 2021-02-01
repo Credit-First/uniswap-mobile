@@ -314,8 +314,8 @@ const TransferScreen = props => {
             keyboardType={'numeric'}
           />
           <KInput
-            label={'Personal note'}
-            placeholder={'Enter your message'}
+            label={'Memo'}
+            placeholder={'Optional memo'}
             value={memo}
             onChangeText={setMemo}
             containerStyle={styles.inputContainer}

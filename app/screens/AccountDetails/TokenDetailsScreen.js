@@ -4,6 +4,7 @@ import { SafeAreaView,
   TouchableOpacity,
   Dimensions,
   Image,
+  Linking,
   FlatList,
   Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -11,6 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
 import { KHeader, KButton, KText, KInput, RequestSendButtons } from '../../components';
 import styles from './AccountDetailsScreen.style';
+import TransactionListItem from './components/TransactionListItem';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
 import { getChain, getEndpoint } from '../../eos/chains';
@@ -23,6 +25,9 @@ import { log } from '../../logger/logger'
 const TokenDetailsScreen = props => {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [toAccountName, setToAccountName] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
   const [toActor, setToActor] = useState('');
@@ -135,6 +140,72 @@ const TokenDetailsScreen = props => {
     }
   };
 
+  const processHistoryData = (json) => {
+  if(json.actions) {
+    let trans = [];
+    json.actions.forEach((item) => {
+      let trxid = item.action_trace.trx_id;
+      let type = item.action_trace.act.name;
+      if(type == 'transfer') {
+        let from = item.action_trace.act.data.from;
+        let to = item.action_trace.act.data.to;
+        let quantity = item.action_trace.act.data.quantity;
+        if (quantity.indexOf(token.name) > 0) {
+          let transaction = {
+            'id': trxid,
+            'type': type,
+            'from': from,
+            'to': to,
+            'quantity': quantity,
+          };
+          trans.push(transaction);
+        }
+      }
+    });
+    setTransactions(trans);
+  }
+};
+
+const loadAccountHistory = () => {
+  if (account.chainName == 'Telos') {
+    fetch('https://telos.greymass.com/v1/history/get_actions', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "account_name": account.accountName
+      }),
+    })
+      .then(response => response.json())
+      .then(json => processHistoryData(json))
+      .catch(error => log({
+        description: 'loadAccountHistory - fetch https://telos.greymass.com/v1/history/get_actions',
+        cause: error,
+        telos: account.accountName,
+        location: 'TokenDetailsScreen'
+      })
+    );
+  }
+};
+
+if(!loaded) {
+  if (account.chainName == 'Telos') {
+    loadAccountHistory();
+  } else {
+    setShowTransfer(true);
+  }
+  getBalance(account.accountName, token, handleTokenBalance);
+  setLoaded(true);
+}
+
+const _handlePressTransaction = (trans) => {
+  if (account.chainName == 'Telos') {
+    Linking.openURL('https://telos.bloks.io/transaction/'+trans.id);
+  }
+};
+
   const getSubtitle = () => {
     return token.name + ' on ' + account.chainName + ': ' + token.contract;
   };
@@ -145,6 +216,10 @@ const TokenDetailsScreen = props => {
 
   const _handleFIOSend = () => {
     navigate('FIOSend');
+  };
+
+  const goToTransfer = () => {
+    navigate('Transfer', { token });
   };
 
   const _handleTransfer = async () => {
@@ -181,10 +256,10 @@ const TokenDetailsScreen = props => {
 
   const getTransferFormLabel = () => {
     return 'Transfer '+token.name+' tokens: ';
-  };
+  }
 
-  getBalance(account.accountName, token, handleTokenBalance);
 
+if (showTransfer) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -207,6 +282,7 @@ const TokenDetailsScreen = props => {
         />
         <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
         <KInput
+          label={'Amount to send'}
           placeholder={'Enter amount to send'}
           value={amount}
           onChangeText={setAmount}
@@ -215,17 +291,69 @@ const TokenDetailsScreen = props => {
           keyboardType={'numeric'}
         />
         <KInput
-          placeholder={'Optional message'}
+          label={'Memo'}
+          placeholder={'Optional memo'}
           value={memo}
           onChangeText={setMemo}
           containerStyle={styles.inputContainer}
           autoCapitalize={'none'}
-        />
+          />
+          <KButton
+            title={'Submit transfer'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={_handleTransfer}
+            renderIcon={() => (
+               <Image
+                 source={require('../../../assets/icons/transfer.png')}
+                 style={styles.buttonIcon}
+               />
+             )}
+           />
         <KButton
-          title={'Submit transfer'}
+          title={'Show transactions'}
           theme={'blue'}
           style={styles.button}
-          onPress={_handleTransfer}
+          onPress={()=>setShowTransfer(false)}
+          renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/transactions.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+        />
+      </View>
+    </SafeAreaView>
+  );
+} else {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
+          />
+        </TouchableOpacity>
+        <KHeader title={account.accountName} subTitle={getSubtitle()} style={styles.header} />
+        <KText>Balance: {tokenBalance}</KText>
+        <FlatList
+          data={transactions}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item, index }) => (
+            <TransactionListItem
+              transaction={item}
+              style={styles.listItem}
+              onPress={() => _handlePressTransaction(item)}
+            />
+          )}
+        />
+        <KButton
+          title={'Start transfer'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={()=>setShowTransfer(true)}
           renderIcon={() => (
             <Image
               source={require('../../../assets/icons/transfer.png')}
@@ -247,6 +375,8 @@ const TokenDetailsScreen = props => {
       </View>
     </SafeAreaView>
   );
+}
+
 };
 
 export default connectAccounts()(TokenDetailsScreen);
