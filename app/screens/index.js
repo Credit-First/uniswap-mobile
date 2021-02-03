@@ -4,6 +4,7 @@ export { default as AdminScreen } from './Accounts/AdminScreen';
 export { default as AccountsScreen } from './Accounts/AccountsScreen';
 export { default as TokensScreen } from './Accounts/TokensScreen';
 export { default as KeyListScreen } from './Accounts/KeyListScreen';
+export { default as SettingsScreen } from './Settings/SettingsScreen';
 export {
   default as AccountDetailsScreen,
 } from './AccountDetails/AccountDetailsScreen';
@@ -48,9 +49,6 @@ export { default as TransferScreen } from './Transfer/TransferScreen';
 export {
   default as TransactionsScreen,
 } from './Transactions/TransactionsScreen';
-export {
-  default as TransactionDetailScreen,
-} from './TransactionDetail/TransactionDetailScreen';
 export { default as VoteScreen } from './Vote/VoteScreen';
 export { default as MenuScreen } from './Menu/MenuScreen';
 export { default as ExchangeScreen } from './Exchange/ExchangeScreen';

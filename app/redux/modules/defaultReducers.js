@@ -2,9 +2,13 @@
 
 const accountsState = {
   accounts: [],
-  activeAccountIndex: -1,
   addresses: [],
-  keys: []
+  keys: [],
+  config: {
+    usePinCode: false,
+    simpleUX: true,
+    showAllTokens: false,
+  }
 };
 
 

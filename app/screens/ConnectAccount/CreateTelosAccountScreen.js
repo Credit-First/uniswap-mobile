@@ -35,7 +35,7 @@ const CreateTelosAccountScreen = props => {
     addKey,
     connectAccount,
     navigation: { goBack },
-    accountsState: { accounts, activeAccountIndex, addresses, keys },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const [accountName, setAccountName] = useState('');

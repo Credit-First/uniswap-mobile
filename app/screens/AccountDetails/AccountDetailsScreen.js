@@ -36,7 +36,7 @@ const AccountDetailsScreen = props => {
       params: { account },
     },
     deleteAccount,
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const maxRatio = 0.95;
@@ -240,6 +240,8 @@ const AccountDetailsScreen = props => {
 
   loadAccount();
 
+
+if(config.simpleUX) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -261,7 +263,64 @@ const AccountDetailsScreen = props => {
           <View style={styles.spacer} />
           <KText>Available: {liquidBalance}</KText>
           <KText>Total balance: {totalBalance}</KText>
-          <KText>Refund balance: {refundBalance}</KText>
+          <View style={styles.spacer} />
+          <KText>Resources usage: </KText>
+          <ProgressChart
+            data={resourceData}
+            width={screenWidth}
+            height={220}
+            strokeWidth={16}
+            radius={32}
+            chartConfig={chartConfig}
+            hideLegend={false}
+          />
+          <KText style={styles.alert}>{resourcesWarning}</KText>
+          <KButton
+            title={'Backup private key'}
+            theme={'primary'}
+            style={styles.button}
+            onPress={_handleBackupKey}
+            renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+            />
+            )}
+          />
+          <KButton
+            title={'Remove account'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            onPress={_handleRemoveAccount}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+    );
+  } else {
+    return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader
+            title={account.accountName}
+            subTitle={account.chainName}
+            style={styles.header}
+          />
+          <View style={styles.spacer} />
+          <KText>Available: {liquidBalance}</KText>
+          <KText>Total balance: {totalBalance}</KText>
+          <KText>Refunding balance: {refundBalance}</KText>
           <KText>CPU Staked: {cpuStaked}</KText>
           <KText>NET Staked: {netStaked}</KText>
           <KText>
@@ -324,7 +383,9 @@ const AccountDetailsScreen = props => {
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
-  );
+    );
+  }
+
 };
 
 export default connectAccounts()(AccountDetailsScreen);

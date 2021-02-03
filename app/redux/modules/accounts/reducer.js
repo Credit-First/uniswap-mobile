@@ -4,12 +4,13 @@ import {
   CONNECT_ACCOUNT,
   DELETE_ACCOUNT,
   FETCH_ACCOUNTS,
-  CHOOSE_ACTIVE_ACCOUNT,
   FETCH_ADDRESSES,
   ADD_ADDRESS,
   DELETE_ADDRESS,
   FETCH_KEYS,
   ADD_KEY,
+  SET_CONFIG,
+  GET_CONFIG
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
 
@@ -22,25 +23,20 @@ export default function accountsState(state = DEFAULT, action = {}) {
     case CONNECT_ACCOUNT:
       return {
         accounts: state.accounts.concat([payload]),
-        activeAccountIndex: state.accounts.length,
         addresses: state.addresses,
         keys: state.keys,
+        config: state.config,
       };
     case DELETE_ACCOUNT:
       return deleteAccount(state, payload);
     case FETCH_ACCOUNTS:
       break;
-    case CHOOSE_ACTIVE_ACCOUNT:
-      return {
-        ...state,
-        activeAccountIndex: payload,
-      };
     case ADD_ADDRESS:
       return {
         accounts: state.accounts,
-        activeAccountIndex: state.accounts.length,
         addresses: state.addresses.concat([payload]),
         keys: state.keys,
+        config: state.config,
       };
     case DELETE_ADDRESS:
       return deleteAddress(state, payload);
@@ -49,11 +45,20 @@ export default function accountsState(state = DEFAULT, action = {}) {
     case ADD_KEY:
       return {
         accounts: state.accounts,
-        activeAccountIndex: state.accounts.length,
         addresses: state.addresses,
         keys: state.keys.concat([payload]),
+        config: state.config,
       };
     case FETCH_KEYS:
+      break;
+    case SET_CONFIG:
+      return {
+        accounts: state.accounts,
+        addresses: state.addresses,
+        keys: state.keys,
+        config: payload,
+      };
+    case GET_CONFIG:
       break;
     default:
       return state;
@@ -63,33 +68,24 @@ export default function accountsState(state = DEFAULT, action = {}) {
 function deleteAccount(state, payload) {
   let accounts = state.accounts.filter((_account, index) => index !== payload);
 
-  let activeAccountIndex;
-  if (accounts.length === 0) {
-    activeAccountIndex = -1;
-  }
-
-  if (accounts.length === state.activeAccountIndex) {
-    activeAccountIndex = accounts.length - 1;
-  }
   let addresses = state.addresses;
   let keys = state.keys;
   return {
     accounts,
-    activeAccountIndex,
     addresses,
-    keys
+    keys,
+    config,
   };
 }
 
 function deleteAddress(state, payload) {
   let accounts = state.accounts;
-  let activeAccountIndex = state.activeAccountIndex;
   let addresses = state.addresses.filter((_address, index) => index !== payload);
   let keys = state.keys;
   return {
     accounts,
-    activeAccountIndex,
     addresses,
-    keys
+    keys,
+    config,
   };
 }

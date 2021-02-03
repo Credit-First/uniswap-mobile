@@ -16,6 +16,7 @@ const PrivateKeyBackupScreen = props => {
     route: {
       params: { account },
     },
+		accountsState: { accounts, addresses, keys, config },
   } = props;
 
 const _handleDelegateKey = () => {
@@ -37,7 +38,42 @@ const getTitle = () => {
 	}
 };
 
-return (
+if(config.simpleUX) {
+	return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader
+            title={getTitle()}
+            subTitle={account.chainName}
+            style={styles.header}
+          />
+						<Text style={styles.link} onPress={copyToClipboard}>{privateKey}</Text>
+						<View style={styles.spacer} />
+            <View style={styles.qrcode}>
+            	<QRCode value={privateKey} size={200}/>
+            </View>
+						<KButton
+            	title={'Copy to Clipboard'}
+            	theme={'brown'}
+            	style={styles.button}
+            	onPress={copyToClipboard}
+          	/>
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+} else {
+	return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContentContainer}
@@ -75,7 +111,8 @@ return (
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
-  );
+  	);
+	}
 };
 
 export default connectAccounts()(PrivateKeyBackupScreen);

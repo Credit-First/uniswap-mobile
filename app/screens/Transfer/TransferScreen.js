@@ -34,7 +34,7 @@ const TransferScreen = props => {
   const {
     addAddress,
     navigation: { navigate },
-    accountsState: { accounts, activeAccountIndex, addresses },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
 

@@ -19,7 +19,7 @@ import { log } from '../../logger/logger'
 const KeyListScreen = props => {
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, activeAccountIndex, addresses, keys },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const validKeys = keys.filter((value, index, array) => {

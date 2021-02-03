@@ -25,7 +25,7 @@ const AdminScreen = props => {
   const {
     connectAccount,
     navigation: { goBack },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const [accountName, setAccountName] = useState('');

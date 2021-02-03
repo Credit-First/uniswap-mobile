@@ -28,9 +28,11 @@ const AccountsScreen = props => {
     addAddress,
     addKey,
     navigation: { navigate },
-    accountsState: { accounts, activeAccountIndex, addresses, keys },
+    accountsState: { accounts, addresses, keys, config },
     chooseActiveAccount,
   } = props;
+
+  GLOBAL.config = config;
 
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();

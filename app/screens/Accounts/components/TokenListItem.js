@@ -13,7 +13,7 @@ import {
 const { height, width } = Dimensions.get('window');
 var tokenWidth = width - 60;
 
-const TokenListItem = ({ account, token, onPress, ...props }) => {
+const TokenListItem = ({ account, token, onPress, showAllTokens, ...props }) => {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [count, setCount] = useState(0);
   const [zero, setZero] = useState(false);
@@ -40,7 +40,7 @@ const TokenListItem = ({ account, token, onPress, ...props }) => {
     refreshBalances();
   }
 
-if (zero) {
+if (zero && showAllTokens === false) {
   return null;
 } else {
   return (

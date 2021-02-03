@@ -13,7 +13,7 @@ const BackupAllKeysScreen = props => {
 
 	const {
     navigation: { navigate, goBack },
-		accountsState: { accounts },
+		accountsState: { accounts, addresses, keys, config },
   } = props;
 
 

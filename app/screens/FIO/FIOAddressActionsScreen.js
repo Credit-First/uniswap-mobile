@@ -53,7 +53,7 @@ const FIOAddressActionsScreen = props => {
     route: {
       params: { account: fioAccount },
     },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const fioDivider = 1000000000;

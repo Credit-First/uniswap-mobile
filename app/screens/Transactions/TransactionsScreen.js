@@ -44,7 +44,7 @@ const TransactionsScreen = props => {
 
   const _handlePressTransaction = action => {
     const { navigate } = navigation;
-    navigate('TransactionDetail', { action });
+    //FIXME: Implement view transaction details
   };
 
   const _loadBloksHistory = () => {

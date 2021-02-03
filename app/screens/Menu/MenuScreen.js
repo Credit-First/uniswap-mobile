@@ -5,14 +5,7 @@ import styles from './MenuScreen.style';
 import { KHeader, KButton, KText, RequestSendButtons } from '../../components';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import algosdk from 'algosdk';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
-import ecc from 'eosjs-ecc-rn';
-import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import { connectAccounts } from '../../redux';
-import { getAccount } from '../../eos/eos';
-import { getChain, getEndpoint } from '../../eos/chains';
-import { getTokens } from '../../eos/tokens';
-import { findIndex } from 'lodash';
 import { log } from '../../logger/logger';
 
 
@@ -20,7 +13,7 @@ const MenuScreen = props => {
   const {
     connectAccount,
     navigation: { navigate },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const telosAccounts = accounts.filter((value, index, array) => {
@@ -31,26 +24,22 @@ const MenuScreen = props => {
     return (value.chainName === 'FIO' && value.address === 'admin@tribe');
   });
 
-  const _handleFIORequest = () => {
-    navigate('FIORequest');
-  };
-
-  const _handleFIOSend = () => {
-    navigate('FIOSend');
-  };
-
-  const _handleRegisterFIOAddress = () => {
-    navigate('RegisterFIOAddress');
-  };
-
   const _handleCreateAlgorandAccount = () => {
-    var account = algosdk.generateAccount();
-    var address = account.addr;
-    var accountName = address.substring(0, 4) + ".." + address.substring(address.length - 4, address.length);
-    var mnemonic = algosdk.secretKeyToMnemonic(account.sk);
-    var algoAccount = { accountName, mnemonic, chainName: "ALGO", account: account };
-    connectAccount(algoAccount);
-    navigate('Accounts');
+    try {
+      var account = algosdk.generateAccount();
+      var address = account.addr;
+      var accountName = address.substring(0, 4) + ".." + address.substring(address.length - 4, address.length);
+      var mnemonic = algosdk.secretKeyToMnemonic(account.sk);
+      var algoAccount = { accountName, mnemonic, chainName: "ALGO", account: account };
+      connectAccount(algoAccount);
+      navigate('Accounts');
+    } catch(err) {
+      log({
+        description: 'Error create/add Algorand account',
+        cause: error,
+        location: 'MenuScreen'
+      });
+    }
   };
 
   const _handleCreateTelosAccount = () => {
@@ -84,18 +73,44 @@ const MenuScreen = props => {
   }
 
   if(telosAccounts.length == 0) {
+    if(config.simpleUX) {
+      return (
+       <SafeAreaView style={styles.container}>
+        <View style={styles.inner}>
+          <KHeader title={'Menu actions'} style={styles.header}/>
+          <View style={styles.spacer} />
+          <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
+          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+        </View>
+      </SafeAreaView>
+      );
+    } else {
+      return (
+       <SafeAreaView style={styles.container}>
+        <View style={styles.inner}>
+          <KHeader title={'Menu actions'} style={styles.header}/>
+          <View style={styles.spacer} />
+          <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
+          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+          <KButton title={'Register external account'} theme={'brown'}
+          style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
+          <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
+          {exchangeButton}
+          {adminButton}
+        </View>
+      </SafeAreaView>
+      );
+    }
+  } else if(config.simpleUX) {
     return (
      <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
-        <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+        <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
         <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-        <KButton title={'Register external account'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
-        <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
-        {exchangeButton}
-        {adminButton}
       </View>
     </SafeAreaView>
     );
@@ -105,6 +120,7 @@ const MenuScreen = props => {
       <View style={styles.inner}>
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
+        <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
         <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         <KButton title={'Register external account'} theme={'brown'}
         style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>

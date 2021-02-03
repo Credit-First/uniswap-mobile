@@ -19,7 +19,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const AddAddressScreen = props => {
   const {
     addAddress,
-    accountsState: { accounts, activeAccountIndex, addresses },
+    accountsState: { accounts, addresses, keys, config },
     navigation: { navigate }
   } = props;
 

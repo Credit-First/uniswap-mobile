@@ -24,7 +24,7 @@ const ListFIORequestsScreen = props => {
         title,
       },
     },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const _handleViewFIORequest = (fioRequest) => {

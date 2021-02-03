@@ -9,12 +9,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
-  content: {
+  inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   header: {
-    marginTop: 40,
+    marginTop: 20,
   },
   button: {
     width: width - 40,
@@ -26,13 +26,15 @@ const styles = StyleSheet.create({
     tintColor: '#FFF',
   },
   inputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
-  backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
+  spacer: {
+    flex: 1,
   },
+  errorMessage: {
+    color: '#FF0000',
+    fontSize: 14,
+  }
 });
 
 export default styles;

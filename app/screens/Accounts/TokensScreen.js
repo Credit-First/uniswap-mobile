@@ -24,7 +24,7 @@ const TokensScreen = props => {
     route: {
       params: { account: account },
     },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const tokens = getTokens(account.chainName);
@@ -59,6 +59,7 @@ const TokensScreen = props => {
            token={item}
            style={styles.listItem}
            onPress={() => _handlePressToken(index)}
+           showAllTokens={config.showAllTokens}
          />
        )}
      />

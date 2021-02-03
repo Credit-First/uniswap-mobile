@@ -40,7 +40,7 @@ const ViewFIORequestScreen = props => {
         title
       },
     },
-    accountsState: { accounts, activeAccountIndex, addresses },
+    accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
