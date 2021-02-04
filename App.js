@@ -244,7 +244,6 @@ const MainTabScreen = () => {
         }}>
         <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
         <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
-        <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
         <MainTab.Screen name={'Menu'} component={MenuScreen} />
       </MainTab.Navigator>
     );

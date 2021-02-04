@@ -80,8 +80,6 @@ const MenuScreen = props => {
           <KHeader title={'Menu actions'} style={styles.header}/>
           <View style={styles.spacer} />
           <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
-          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
         </View>
       </SafeAreaView>
       );
@@ -92,10 +90,6 @@ const MenuScreen = props => {
           <KHeader title={'Menu actions'} style={styles.header}/>
           <View style={styles.spacer} />
           <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
-          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
-          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-          <KButton title={'Register external account'} theme={'brown'}
-          style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
           <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
           {exchangeButton}
           {adminButton}
@@ -110,7 +104,6 @@ const MenuScreen = props => {
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
         <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
       </View>
     </SafeAreaView>
     );
@@ -121,9 +114,6 @@ const MenuScreen = props => {
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
         <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
-        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
-        <KButton title={'Register external account'} theme={'brown'}
-        style={styles.button} icon={'add'} onPress={() => navigate('FIORegisterExternal')}/>
         <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
         {exchangeButton}
         {adminButton}

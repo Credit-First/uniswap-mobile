@@ -12,8 +12,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  link: {
-    color: 'blue',
+  alert: {
+    color: 'red',
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
@@ -32,6 +32,9 @@ const styles = StyleSheet.create({
   },
   balanceItem: {
     flex: 1,
+  },
+  spacer: {
+    marginTop: 10,
   },
 });
 

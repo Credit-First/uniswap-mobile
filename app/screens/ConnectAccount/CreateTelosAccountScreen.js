@@ -34,7 +34,7 @@ const CreateTelosAccountScreen = props => {
   const {
     addKey,
     connectAccount,
-    navigation: { goBack },
+    navigation: { goBack, navigate },
     accountsState: { accounts, addresses, keys, config },
   } = props;
 
@@ -188,6 +188,40 @@ const CreateTelosAccountScreen = props => {
   };
 
 
+if (true) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.content}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader title={'Create Telos account is disabled'} style={styles.header}/>
+          <KText>Creating free Telos account is temporary not available due to high demand.</KText>
+          <KText>You can only import existing account:</KText>
+          <KButton
+              title={'Import accounts'}
+              theme={'blue'}
+              style={styles.button}
+              onPress={() => navigate('ConnectAccount')}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/accounts.png')}
+                  style={styles.buttonIcon}
+                  />
+                )}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+    );
+} else {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -236,6 +270,7 @@ const CreateTelosAccountScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
     );
+}
 
 };
 

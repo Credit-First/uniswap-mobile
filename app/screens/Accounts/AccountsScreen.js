@@ -7,7 +7,7 @@ import { Image,
   Linking,
   Text,
   Alert } from 'react-native';
-import { KButton } from '../../components';
+import { KButton, KText } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -424,18 +424,6 @@ if(fioAccounts.length == 0) {
         theme={'brown'}
         style={styles.button}
         onPress={() => navigate('BackupAllKeys')}
-        renderIcon={() => (
-          <Image
-            source={require('../../../assets/icons/accounts.png')}
-            style={styles.buttonIcon}
-          />
-        )}
-      />
-      <KButton
-        title={'Import accounts'}
-        theme={'blue'}
-        style={styles.button}
-        onPress={() => navigate('ConnectAccount')}
         renderIcon={() => (
           <Image
             source={require('../../../assets/icons/accounts.png')}

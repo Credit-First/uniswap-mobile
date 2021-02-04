@@ -62,6 +62,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginTop: 10,
   },
+  alert: {
+    padding: 10,
+    color: 'red',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
   error: {
     color: '#FF0000',
     fontSize: 14,
