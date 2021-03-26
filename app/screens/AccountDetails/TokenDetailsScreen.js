@@ -325,45 +325,6 @@ if (showTransfer) {
       </View>
     </SafeAreaView>
   );
-} else if(config.simpleUX) {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <MaterialIcon
-            name={'keyboard-backspace'}
-            size={24}
-            color={PRIMARY_BLUE}
-          />
-        </TouchableOpacity>
-        <KHeader title={account.accountName} subTitle={getSubtitle()} style={styles.header} />
-        <KText>Balance: {tokenBalance}</KText>
-        <FlatList
-          data={transactions}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <TransactionListItem
-              transaction={item}
-              style={styles.listItem}
-              onPress={() => _handlePressTransaction(item)}
-            />
-          )}
-        />
-        <KButton
-          title={'Start transfer'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={()=>setShowTransfer(true)}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/transfer.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-      </View>
-    </SafeAreaView>
-  );
 } else {
   return (
     <SafeAreaView style={styles.container}>

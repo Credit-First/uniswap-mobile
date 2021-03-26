@@ -67,9 +67,9 @@ export default function accountsState(state = DEFAULT, action = {}) {
 
 function deleteAccount(state, payload) {
   let accounts = state.accounts.filter((_account, index) => index !== payload);
-
   let addresses = state.addresses;
   let keys = state.keys;
+  let config = state.config;
   return {
     accounts,
     addresses,
@@ -82,6 +82,7 @@ function deleteAddress(state, payload) {
   let accounts = state.accounts;
   let addresses = state.addresses.filter((_address, index) => index !== payload);
   let keys = state.keys;
+  let config = state.config;
   return {
     accounts,
     addresses,

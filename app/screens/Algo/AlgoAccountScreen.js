@@ -37,7 +37,7 @@ const AlgoAccountScreen = props => {
       params: { account: account },
     },
     deleteAccount,
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts },
   } = props;
 
   const divider = 1000000;

@@ -4,7 +4,6 @@ export { default as AdminScreen } from './Accounts/AdminScreen';
 export { default as AccountsScreen } from './Accounts/AccountsScreen';
 export { default as TokensScreen } from './Accounts/TokensScreen';
 export { default as KeyListScreen } from './Accounts/KeyListScreen';
-export { default as SettingsScreen } from './Settings/SettingsScreen';
 export {
   default as AccountDetailsScreen,
 } from './AccountDetails/AccountDetailsScreen';
@@ -27,9 +26,8 @@ export { default as RegisterFIOAddressScreen } from './FIO/RegisterFIOAddressScr
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';
-export {
-  default as FIORegisterExternalScreen,
-} from './FIO/FIORegisterExternalScreen';
+export { default as RenewFIOAddressScreen } from './FIO/RenewFIOAddressScreen';
+export { default as FIORegisterExternalScreen } from './FIO/FIORegisterExternalScreen';
 export { default as FIORequestScreen } from './FIO/FIORequestScreen';
 export { default as FIORequestDirectScreen } from './FIO/FIORequestDirectScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';

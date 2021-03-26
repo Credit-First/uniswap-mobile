@@ -23,6 +23,11 @@ const KeyListScreen = props => {
   } = props;
 
   const validKeys = keys.filter((value, index, array) => {
+    accounts.map(function(account) {
+      if(account.privateKey && value.private == account.privateKey) {
+        value.account = account.accountName;
+      }
+    });
     return array.indexOf(value) === index;
   });
 
@@ -41,7 +46,7 @@ const KeyListScreen = props => {
        data={validKeys}
        keyExtractor={(item, index) => `${index}`}
        renderItem={({ item, index }) => (
-         <KeyItem publicKey={item.public} privateKey={item.private} style={styles.listItem}/>
+         <KeyItem publicKey={item.public} privateKey={item.private} account={item.account} style={styles.listItem}/>
        )}
      />
     </View>

@@ -18,9 +18,6 @@ import createStore from './app/redux/store';
 
 const store = createStore();
 
-if(!GLOBAL.config) {
-  GLOBAL.config = accountsState().config;
-}
 
 const AccountsStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
@@ -40,6 +37,7 @@ import {
   PrivateKeyDelegateScreen,
   RegisterFIOAddressScreen,
   FIOAddressActionsScreen,
+  RenewFIOAddressScreen,
   FIORegisterExternalScreen,
   FIORequestScreen,
   FIORequestDirectScreen,
@@ -62,8 +60,7 @@ import {
   AdminScreen,
   KeyListScreen,
   ExchangeScreen,
-  PinCodeScreen,
-  SettingsScreen,
+  PinCodeScreen
 } from './app/screens';
 
 const AccountsStackScreen = () => {
@@ -122,6 +119,10 @@ const AccountsStackScreen = () => {
         component={FIOAddressActionsScreen}
       />
       <AccountsStack.Screen
+        name="RenewFIOAddress"
+        component={RenewFIOAddressScreen}
+      />
+      <AccountsStack.Screen
         name="FIORegisterExternal"
         component={FIORegisterExternalScreen}
       />
@@ -164,10 +165,6 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="KeyList"
         component={KeyListScreen}
-      />
-      <AccountsStack.Screen
-        name="Settings"
-        component={SettingsScreen}
       />
     </AccountsStack.Navigator>
   );
@@ -244,6 +241,7 @@ const MainTabScreen = () => {
         }}>
         <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
         <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
+        <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
         <MainTab.Screen name={'Menu'} component={MenuScreen} />
       </MainTab.Navigator>
     );
@@ -254,7 +252,6 @@ const App = () => {
 
   const navigationRef = useRef(null);
 
-  if(GLOBAL.config.usePinCode) {
     const timeoutPeriod = 5 * 60 * 1000; // 5 mins
     var lastUnlocked;
 
@@ -295,17 +292,6 @@ const App = () => {
         </NavigationContainer>
       </Provider>
     );
-  } else {
-    return (
-      <Provider store={store}>
-        <NavigationContainer ref={navigationRef}>
-          <MainStack.Navigator headerMode={'none'}>
-            <MainStack.Screen name="MainTab" component={MainTabScreen} />
-          </MainStack.Navigator>
-        </NavigationContainer>
-      </Provider>
-    );
-  }
 
 };
 

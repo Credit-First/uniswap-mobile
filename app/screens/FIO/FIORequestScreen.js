@@ -66,7 +66,7 @@ const FIORequestScreen = props => {
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
       .catch(error => log({
-        description: 'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
+        description: 'getFee - fetch ' + fioEndpoint+'/v1/chain/get_fee',
         cause: error,
         location: 'FIORequestScreen'
       })

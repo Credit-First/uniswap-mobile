@@ -20,6 +20,10 @@ const MenuScreen = props => {
     return value.chainName === 'Telos';
   });
 
+  const algoAccounts = accounts.filter((value, index, array) => {
+    return value.chainName === 'ALGO';
+  });
+
   const adminAccount = accounts.filter((value, index, array) => {
     return (value.chainName === 'FIO' && value.address === 'admin@tribe');
   });
@@ -72,38 +76,43 @@ const MenuScreen = props => {
     adminButton = <KButton title={'Admin'} style={styles.button} onPress={() => navigate('Admin')}/>;
   }
 
-  if(telosAccounts.length == 0) {
-    if(config.simpleUX) {
+  if(telosAccounts.length == 0 && algoAccounts.length == 0) {
       return (
        <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
           <KHeader title={'Menu actions'} style={styles.header}/>
           <View style={styles.spacer} />
-          <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
-        </View>
-      </SafeAreaView>
-      );
-    } else {
-      return (
-       <SafeAreaView style={styles.container}>
-        <View style={styles.inner}>
-          <KHeader title={'Menu actions'} style={styles.header}/>
-          <View style={styles.spacer} />
-          <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
+          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+          <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
           <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
           {exchangeButton}
           {adminButton}
         </View>
       </SafeAreaView>
       );
-    }
-  } else if(config.simpleUX) {
+    } else if(telosAccounts.length == 0) {
+      return (
+       <SafeAreaView style={styles.container}>
+        <View style={styles.inner}>
+          <KHeader title={'Menu actions'} style={styles.header}/>
+          <View style={styles.spacer} />
+          <KButton title={'Create Telos account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateTelosAccount}/>
+          <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
+          {exchangeButton}
+          {adminButton}
+        </View>
+      </SafeAreaView>
+      );
+  } else if(algoAccounts.length == 0) {
     return (
      <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
-        <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
+        <KButton title={'Create Algorand account'} theme={'brown'} style={styles.button} icon={'add'} onPress={_handleCreateAlgorandAccount}/>
+        <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
+        {exchangeButton}
+        {adminButton}
       </View>
     </SafeAreaView>
     );
@@ -113,7 +122,6 @@ const MenuScreen = props => {
       <View style={styles.inner}>
         <KHeader title={'Menu actions'} style={styles.header}/>
         <View style={styles.spacer} />
-        <KButton title={'Settings'} style={styles.button} onPress={() => navigate('Settings')}/>
         <KButton title={'List all keys in wallet'} style={styles.button} onPress={() => navigate('KeyList')}/>
         {exchangeButton}
         {adminButton}

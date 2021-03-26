@@ -43,6 +43,7 @@ const FIOAddressActionsScreen = props => {
   var initialExternalAccounts = [];
   const [connectedHeader, setConnectedHeader] = useState('');
   const [connectedAccounts, setConnectedAccounts] = useState(initialConnectedAccounts);
+  const [disconnectedHeader, setDisconnectedHeader] = useState('');
   const [filteredAccounts, setFilteredAccounts] = useState(initialFilteredAccounts);
   const [externalAccounts, setExternalAccounts] = useState(initialExternalAccounts);
 
@@ -108,6 +109,9 @@ const FIOAddressActionsScreen = props => {
   }
 
   const addAccountToFilteredList = (account) => {
+    if (disconnectedHeader == '') {
+      setDisconnectedHeader('Connect accounts to this address:');
+    }
     var newFilteredAccounts = [...initialFilteredAccounts , account ];
     initialFilteredAccounts.push(account);
     setFilteredAccounts(newFilteredAccounts);
@@ -495,6 +499,35 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
+  const goToRenewFIOScreen = (json) => {
+    console.log(json);
+    navigate('RenewFIOAddress', { json, fioAccount })
+  };
+
+  const _handleRenewFIOAddress = () => {
+    const fioPublicKey = Ecc.privateToPublic(fioAccount.privateKey);
+    fetch('https://reg.fioprotocol.io/public-api/renew', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        referralCode: "tribe",
+        publicKey: fioPublicKey,
+        address: fioAccount.address
+      }),
+    })
+      .then(response => response.json())
+      .then(json => goToRenewFIOScreen(json))
+      .catch(error => log({
+        description: '_handleRenewFIOAddress - fetch https://reg.fioprotocol.io/public-api/renew',
+        cause: error,
+        location: 'FIOAddressActionsScreen'
+      })
+    );
+  };
+
   if (executionCount === 0) {
     checkRegistration(fioKey);
   }
@@ -516,8 +549,8 @@ const FIOAddressActionsScreen = props => {
         <KHeader title={fioAccount.address} style={styles.header} />
         <KText>Actor: {actor}</KText>
         <KText>Balance: {fioBalance} FIO</KText>
-        <KText>Connect fee: {fioFee} FIO</KText>
         <KText>{fioRegistrationContent}</KText>
+        <Text style={styles.link} onPress={_handleRenewFIOAddress}>{'Renew this FIO address'}</Text>
         <Text style={styles.link} onPress={_handleShowPendingRequests}>{pendingFioRequestsLink}</Text>
         <Text style={styles.link} onPress={_handleShowSentRequests}>{sentFioRequestsLink}</Text>
         <KText>{connectedHeader}</KText>
@@ -535,7 +568,7 @@ const FIOAddressActionsScreen = props => {
             <Text>{item.chain_code}: {item.public_key}</Text>
           )}
         />
-        <KText>Connect accounts to this address:</KText>
+        <KText>{disconnectedHeader}</KText>
         <FlatList
           data={filteredAccounts}
           keyExtractor={(item, index) => `${index}`}

@@ -274,6 +274,24 @@ const TransferScreen = props => {
     }
   };
 
+
+ if(accounts.length == 0) {
+   return (
+     <SafeAreaView style={styles.container}>
+       <KeyboardAwareScrollView
+         contentContainerStyle={styles.scrollContentContainer}
+         enableOnAndroid>
+         <View style={styles.inner}>
+           <KHeader
+             title={'Transfer not available'}
+             subTitle={'No accounts in wallet'}
+             style={styles.header}
+           />
+         </View>
+       </KeyboardAwareScrollView>
+     </SafeAreaView>
+   );
+ } else {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -339,6 +357,9 @@ const TransferScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
+ }
+
 };
+
 
 export default connectAccounts()(TransferScreen);

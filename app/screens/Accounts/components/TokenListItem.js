@@ -40,9 +40,6 @@ const TokenListItem = ({ account, token, onPress, showAllTokens, ...props }) => 
     refreshBalances();
   }
 
-if (zero && showAllTokens === false) {
-  return null;
-} else {
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
       <View style={[styles.container, props.style]}>
@@ -55,7 +52,6 @@ if (zero && showAllTokens === false) {
       </View>
     </View>
   );
-}
 
 };
 

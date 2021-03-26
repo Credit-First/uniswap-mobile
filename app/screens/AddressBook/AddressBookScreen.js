@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, View, FlatList, TouchableOpacity, SafeAreaView, Linking, Text } from 'react-native';
+import { Image, View, FlatList, TouchableOpacity, SafeAreaView, Text, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KButton, KHeader } from '../../components';
 import AddressListItem from './components/AddressListItem';
@@ -39,6 +39,34 @@ const AddressBookScreen = props => {
     navigate('EditAddress', { fioAddress, index });
   };
 
+if(fioAccounts.length == 0) {
+  return (
+    <SafeAreaView style={styles.container}>
+     <View style={styles.inner}>
+     <KHeader title={'Address Book'} style={styles.header} />
+     <FlatList
+       data={addresses.sort((a, b) => a.name.localeCompare(b.name))}
+       keyExtractor={(item, index) => `${index}`}
+       renderItem={({ item, index }) => (
+         <AddressListItem
+           address={item}
+           fromactor={fromActor}
+           style={styles.listItem}
+           onEdit={() => _handleEditAddress(index)}
+         />
+       )}
+     />
+      <KButton
+        title={'Add address'}
+        theme={'brown'}
+        style={styles.button}
+        onPress={() => navigate('AddAddress')}
+        icon={'add'}
+      />
+    </View>
+  </SafeAreaView>
+  );
+} else {
   return (
     <SafeAreaView style={styles.container}>
      <View style={styles.inner}>
@@ -71,6 +99,7 @@ const AddressBookScreen = props => {
     </View>
   </SafeAreaView>
   );
+}
 
 };
 

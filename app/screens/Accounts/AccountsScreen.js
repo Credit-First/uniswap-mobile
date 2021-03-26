@@ -32,8 +32,6 @@ const AccountsScreen = props => {
     chooseActiveAccount,
   } = props;
 
-  GLOBAL.config = config;
-
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
@@ -419,6 +417,18 @@ if(fioAccounts.length == 0) {
         )}
       />
       {optionalButtons}
+      <KButton
+          title={'Import accounts'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={() => navigate('ConnectAccount')}
+          renderIcon={() => (
+            <Image
+              source={require('../../../assets/icons/accounts.png')}
+              style={styles.buttonIcon}
+              />
+            )}
+      />
       <KButton
         title={'Backup All Keys!'}
         theme={'brown'}

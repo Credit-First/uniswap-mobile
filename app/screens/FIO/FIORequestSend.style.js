@@ -42,7 +42,19 @@ const styles = StyleSheet.create({
   },
   qrcode: {
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
+  },
+  black: {
+    color: 'black',
+    alignSelf: 'center',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
+  },
+  link: {
+    color: 'blue',
+    alignSelf: 'center',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
   },
   errorMessage: {
     color: '#FF0000',

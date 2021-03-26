@@ -5,9 +5,7 @@ const accountsState = {
   addresses: [],
   keys: [],
   config: {
-    usePinCode: false,
-    simpleUX: true,
-    showAllTokens: false,
+    showAllTokens: true,
   }
 };
 
