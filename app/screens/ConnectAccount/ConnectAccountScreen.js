@@ -32,7 +32,10 @@ const ConnectAccountScreen = props => {
   const [chain, setChain] = useState(null);
   const [isFioChain, setIsFioChain] = useState(false);
 
-  var importableChains = [{name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io'}];
+  var importableChains = [
+    {name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io'},
+    {name: 'Stellar', symbol: 'XRP'}
+  ];
   supportedChains.map(function(item) {
     importableChains.push(item);
   });
