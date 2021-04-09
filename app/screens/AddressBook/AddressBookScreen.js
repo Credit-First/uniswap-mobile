@@ -12,10 +12,23 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 
 const AddressBookScreen = props => {
   const {
+    deleteAddress,
     navigation: { navigate, goBack },
     accountsState: { accounts, addresses, keys, config },
   } = props;
 
+  // Remove duplicate addresses:
+  addresses.map((value, index, array) => {
+    var counter = 0;
+    addresses.map(function(item, index2) {
+      if(item.address === value.address) {
+        counter++;
+        if (counter > 1) {
+          deleteAddress(index2);
+        }
+      }
+    });
+  });
 
   const fioAccounts = accounts.filter((value, index, array) => {
     return value.chainName == 'FIO';
