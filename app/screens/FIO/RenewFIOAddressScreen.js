@@ -60,6 +60,14 @@ const RenewFIOAddressScreen = props => {
     }
   };
 
+  const getSelectedPrice = () => {
+    if (selectedOption && selectedOption.price) {
+      return selectedOption.price + " " + selectedOption.ticket;
+    } else {
+      return " ";
+    }
+  };
+
   const copyToClipboard = () => {
   	Clipboard.setString(getSelectedAddress());
   	Alert.alert('Address copied to Clipboard!');
@@ -104,10 +112,9 @@ const RenewFIOAddressScreen = props => {
             />
             <View style={styles.spacer} />
             <View style={styles.qrcode}>
-            	<QRCode value={getSelectedAddress()} size={200} onPress={copyToClipboard}/>
+            	<QRCode value={getSelectedAddress()} size={160} onPress={copyToClipboard}/>
             </View>
-            <Text style={styles.link} onPress={copyToClipboard}>{getSelectedAddress()}</Text>
-            <View style={styles.spacer} />
+            <Text>Pay {getSelectedPrice()} to {getSelectedAddress()}</Text>
             <View style={styles.spacer} />
             <Text style={styles.black}>You can either pay to above address.</Text>
             <Text style={styles.link} onPress={gotoCoinbase}>or pay by following this Coinbase link.</Text>

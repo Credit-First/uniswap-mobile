@@ -25,6 +25,7 @@ import AccountListItem from '../Accounts/components/AccountListItem';
 
 
 const FIOAddressActionsScreen = props => {
+  const [fioExpirationDate, setFioExpirationDate] = useState();
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
   const [registrationLink, setRegistrationLink] = useState();
   const [executionCount, setExecutionCount] = useState(0);
@@ -391,7 +392,21 @@ const FIOAddressActionsScreen = props => {
             fioAccount.address = item.fio_address;
           }
         }
-        return item.fio_address + ' expires ' + item.expiration + ', ';
+        // Check expiration:
+        setFioExpirationDate(item.expiration);
+        try {
+          if(item.expiration) {
+            const expireDate = Date.parse('2021-07-02T18:38:42');
+            const diffTime = expireDate - new Date();
+            const days = parseInt(diffTime/(1000*60*60*24));
+            if(days < 90) {
+              Alert.alert(item.fio_address + " expires in "+days+" days!");
+            }
+          }
+        } catch(err) {
+          console.log(err);
+        }
+        return item.fio_address + ' expires ' + item.expiration + ' ';
       });
       setRegistered(true);
       setButtonColor('primary');
