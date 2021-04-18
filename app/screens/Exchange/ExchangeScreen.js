@@ -23,7 +23,7 @@ const ExchangeScreen = props => {
 
   const {
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts },
   } = props;
 
   const filteredAccounts = accounts.filter((value, index, array) => {
@@ -73,7 +73,7 @@ const ExchangeScreen = props => {
 
     setSubmitting(true);
     try {
-      const res = await newdexTransfer(floatAmount, fromAccount, toAccount);
+      await newdexTransfer(floatAmount, fromAccount, toAccount);
       setSubmitting(false);
       Alert.alert('Market order submitted to Newdex for processing!');
     } catch (e) {

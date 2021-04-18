@@ -10,7 +10,7 @@ import { log } from '../../logger/logger';
 
 const TransactionsScreen = props => {
   const {
-    navigation: { navigate, goBack },
+    navigation,
     route: {
       params: { account },
     },
@@ -46,52 +46,44 @@ const TransactionsScreen = props => {
   }, [account]);
 
   const _handlePressTransaction = action => {
-    const { navigate } = navigation;
+    // const { navigate } = navigation;
     //FIXME: Implement view transaction details
   };
 
   const _loadBloksHistory = () => {
-    if (activeAccount.chainName === 'EOS') {
-      Linking.openURL('https://bloks.io/account/' + activeAccount.accountName);
-    } else if (activeAccount.chainName === 'Telos') {
+    if (account.chainName === 'EOS') {
+      Linking.openURL('https://bloks.io/account/' + account.accountName);
+    } else if (account.chainName === 'Telos') {
+      Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
+    } else if (account.chainName === 'TLOS') {
+      Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
+    } else if (account.chainName === 'BOS') {
+      Linking.openURL('https://bos.bloks.io/account/' + account.accountName);
+    } else if (account.chainName === 'WAX') {
+      Linking.openURL('https://wax.bloks.io/account/' + account.accountName);
+    } else if (account.chainName === 'MEETONE') {
       Linking.openURL(
-        'https://telos.bloks.io/account/' + activeAccount.accountName,
+        'https://meetone.bloks.io/account/' + account.accountName,
       );
-    } else if (activeAccount.chainName === 'TLOS') {
+    } else if (account.chainName === 'FIO') {
+      Linking.openURL('https://fio.bloks.io/address/' + account.address);
+    } else if (account.chainName === 'ALGO') {
       Linking.openURL(
-        'https://telos.bloks.io/account/' + activeAccount.accountName,
-      );
-    } else if (activeAccount.chainName === 'BOS') {
-      Linking.openURL(
-        'https://bos.bloks.io/account/' + activeAccount.accountName,
-      );
-    } else if (activeAccount.chainName === 'WAX') {
-      Linking.openURL(
-        'https://wax.bloks.io/account/' + activeAccount.accountName,
-      );
-    } else if (activeAccount.chainName === 'MEETONE') {
-      Linking.openURL(
-        'https://meetone.bloks.io/account/' + activeAccount.accountName,
-      );
-    } else if (activeAccount.chainName === 'FIO') {
-      Linking.openURL('https://fio.bloks.io/address/' + activeAccount.address);
-    } else if (activeAccount.chainName === 'ALGO') {
-      Linking.openURL(
-        'https://algoexplorer.io/address/' + activeAccount.account.addr,
+        'https://algoexplorer.io/address/' + account.account.addr,
       );
     }
   };
 
   const getAccountName = () => {
-    if (!activeAccount) {
+    if (!account) {
       return '';
     }
-    if (activeAccount.chainName === 'FIO') {
-      return activeAccount.chainName + ': ' + activeAccount.address;
-    } else if (activeAccount.chainName === 'ALGO') {
-      return activeAccount.chainName + ': ' + activeAccount.account.addr;
+    if (account.chainName === 'FIO') {
+      return account.chainName + ': ' + account.address;
+    } else if (account.chainName === 'ALGO') {
+      return account.chainName + ': ' + account.account.addr;
     } else {
-      return activeAccount.chainName + ': ' + activeAccount.accountName;
+      return account.chainName + ': ' + account.accountName;
     }
   };
 

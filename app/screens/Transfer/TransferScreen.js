@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import styles from './TransferScreen.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -27,7 +28,7 @@ const TransferScreen = props => {
   const {
     addAddress,
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -218,7 +219,7 @@ const TransferScreen = props => {
       let matchingAddresses = addresses.filter(
         (item, index) => item.address === toFioAddress,
       );
-      if (matchingAddresses.length == 0) {
+      if (matchingAddresses.length === 0) {
         addAddress(addressJson);
       }
     } else {
@@ -323,7 +324,7 @@ const TransferScreen = props => {
     }
   };
 
-  if (accounts.length == 0) {
+  if (accounts.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView

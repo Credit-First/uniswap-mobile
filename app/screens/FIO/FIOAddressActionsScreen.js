@@ -21,7 +21,6 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { getEndpoint } from '../../eos/chains';
-import AccountListItem from '../Accounts/components/AccountListItem';
 
 const FIOAddressActionsScreen = props => {
   const [fioExpirationDate, setFioExpirationDate] = useState();
@@ -60,7 +59,7 @@ const FIOAddressActionsScreen = props => {
     route: {
       params: { account: fioAccount },
     },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts },
   } = props;
 
   const fioDivider = 1000000000;
@@ -70,7 +69,7 @@ const FIOAddressActionsScreen = props => {
 
   const checkRegPubkey = async account => {
     var chainName = account.chainName;
-    if (chainName == 'Telos') {
+    if (chainName === 'Telos') {
       chainName = 'TLOS';
     }
 
@@ -101,7 +100,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const addAccountToConnectedList = account => {
-    if (connectedHeader == '') {
+    if (connectedHeader === '') {
       setConnectedHeader('Connected accounts to this address:');
     }
     var newConnectedAccounts = [...initialConnectedAccounts, account];
@@ -110,7 +109,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const appendAccountToConnectedList = account => {
-    if (connectedHeader == '') {
+    if (connectedHeader === '') {
       setConnectedHeader('Connected accounts to this address:');
     }
     var newConnectedAccounts = [...connectedAccounts, account];
@@ -118,7 +117,7 @@ const FIOAddressActionsScreen = props => {
   };
 
   const addAccountToFilteredList = account => {
-    if (disconnectedHeader == '') {
+    if (disconnectedHeader === '') {
       setDisconnectedHeader('Connect accounts to this address:');
     }
     var newFilteredAccounts = [...initialFilteredAccounts, account];
@@ -135,14 +134,14 @@ const FIOAddressActionsScreen = props => {
       accPubkey = ecc.privateToPublic(account.privateKey);
     }
     if (accountPubkeyEntry && accountPubkeyEntry.indexOf(',') > 0) {
-      var [actor, regPubkey] = accountPubkeyEntry.split(',');
-      if (accPubkey == regPubkey) {
+      var [, regPubkey] = accountPubkeyEntry.split(',');
+      if (accPubkey === regPubkey) {
         addAccountToConnectedList(account);
       } else {
         addAccountToFilteredList(account);
       }
     } else if (accountPubkeyEntry) {
-      if (accPubkey == accountPubkeyEntry) {
+      if (accPubkey === accountPubkeyEntry) {
         addAccountToConnectedList(account);
       } else {
         addAccountToFilteredList(account);
@@ -157,7 +156,7 @@ const FIOAddressActionsScreen = props => {
       setLoading(true);
       setFilteredAccounts(
         filteredAccounts.filter(function(item) {
-          return item != account;
+          return item !== account;
         }),
       );
       appendAccountToConnectedList(account);
@@ -445,7 +444,7 @@ const FIOAddressActionsScreen = props => {
           if (item.expiration) {
             const expireDate = Date.parse('2021-07-02T18:38:42');
             const diffTime = expireDate - new Date();
-            const days = parseInt(diffTime / (1000 * 60 * 60 * 24));
+            const days = parseInt(diffTime / (1000 * 60 * 60 * 24), 10);
             if (days < 90) {
               Alert.alert(item.fio_address + ' expires in ' + days + ' days!');
             }

@@ -1,23 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  SafeAreaView,
-  TouchableOpacity,
-  FlatList,
-  View,
-  Image,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, TouchableOpacity, FlatList, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './FIOChat.style';
-import {
-  KHeader,
-  KButton,
-  KInput,
-  KSelect,
-  KText,
-  InputSend,
-} from '../../components';
+import { KHeader, InputSend } from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -25,8 +10,8 @@ import { log } from '../../logger/logger';
 
 const GroupChatScreen = props => {
   const {
-    navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    navigation: { goBack },
+    accountsState: { accounts },
   } = props;
 
   const [messageList, setMessageList] = useState([]);
@@ -34,7 +19,7 @@ const GroupChatScreen = props => {
   const groupChatEndpoint = 'https://fiochat.eostribe.io/group_chat';
 
   const fioAccounts = accounts.filter((value, index, array) => {
-    return value.chainName == 'FIO';
+    return value.chainName === 'FIO';
   });
 
   if (fioAccounts.length === 0) {

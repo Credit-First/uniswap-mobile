@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Image,
-  SafeAreaView,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, TouchableOpacity, View, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
-import ecc from 'eosjs-ecc-rn';
+import { Fio } from '@fioprotocol/fiojs';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { getTokens, getTokenByName, transferToken } from '../../eos/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
@@ -32,8 +25,8 @@ const FIOSendScreen = props => {
   const [loading, setLoading] = useState(false);
   const {
     addAddress,
-    navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    navigation: { goBack },
+    accountsState: { accounts, addresses },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -47,7 +40,7 @@ const FIOSendScreen = props => {
   accounts.map((chain, index, self) => {
     if (importedChains.indexOf(chain.chainName) < 0) {
       importedChains.push(chain.chainName);
-      let chainName = chain.chainName == 'Telos' ? 'TLOS' : chain.chainName;
+      let chainName = chain.chainName === 'Telos' ? 'TLOS' : chain.chainName;
       var token = getTokens(chainName);
       if (token) {
         importedChains.push(token.name);
@@ -178,7 +171,7 @@ const FIOSendScreen = props => {
       setLoading(false);
       return;
     }
-    const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
+    const [fromActor] = fromAccountPubkey.split(',');
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
       Alert.alert(
@@ -396,7 +389,7 @@ const FIOSendScreen = props => {
       setLoading(false);
       return;
     }
-    if (tokenName == 'Telos') {
+    if (tokenName === 'Telos') {
       tokenName = 'TLOS';
     }
     try {
@@ -469,7 +462,7 @@ const FIOSendScreen = props => {
       );
   };
 
-  if (fioAccounts.length == 1) {
+  if (fioAccounts.length === 1) {
     return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView

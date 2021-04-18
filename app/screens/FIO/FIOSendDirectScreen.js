@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Image,
-  SafeAreaView,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, TouchableOpacity, View, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
-import ecc from 'eosjs-ecc-rn';
 import styles from './FIORequestSend.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
-import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
+import { getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
@@ -27,7 +19,7 @@ const FIOSendDirectScreen = props => {
   const [loading, setLoading] = useState(false);
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts },
     route: {
       params: { fromFioAccount, toFioAddress },
     },
@@ -60,7 +52,7 @@ const FIOSendDirectScreen = props => {
       setLoading(false);
       return;
     }
-    const [toActor, toPubkey] = toAccountPubkey.split(',');
+    const [toActor] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
       Alert.alert(
@@ -74,7 +66,7 @@ const FIOSendDirectScreen = props => {
       setLoading(false);
       return;
     }
-    const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
+    const [fromActor] = fromAccountPubkey.split(',');
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
       Alert.alert(

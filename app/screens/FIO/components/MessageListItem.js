@@ -1,12 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { KText } from '../../../components';
-import { log } from '../../../logger/logger';
-import {
-  PRIMARY_GRAY,
-  PRIMARY_BLACK,
-  PRIMARY_BLUE,
-} from '../../../theme/colors';
+import { PRIMARY_BLACK } from '../../../theme/colors';
 
 const MessageListItem = ({
   item,
@@ -15,7 +10,7 @@ const MessageListItem = ({
   onPress,
   ...props
 }) => {
-  const _handleOnPress = item => {
+  const _handleOnPress = () => {
     if (item.reload) {
       reloadAction();
     } else if (onPress) {

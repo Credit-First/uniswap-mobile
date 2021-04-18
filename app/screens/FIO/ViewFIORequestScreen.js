@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
+import React, { useState } from 'react';
+import { Fio } from '@fioprotocol/fiojs';
 import {
   Image,
   SafeAreaView,
   TouchableOpacity,
-  FlatList,
   Alert,
   View,
 } from 'react-native';
@@ -33,13 +32,13 @@ const ViewFIORequestScreen = props => {
     route: {
       params: { fioAccount, fioRequest, title },
     },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
 
   var otherPublicKey = fioRequest.payer_fio_public_key;
-  if (fioAccount.address == fioRequest.payer_fio_address) {
+  if (fioAccount.address === fioRequest.payer_fio_address) {
     otherPublicKey = fioRequest.payee_fio_public_key;
   }
   const cipher = Fio.createSharedCipher({
@@ -51,7 +50,7 @@ const ViewFIORequestScreen = props => {
 
   var tokenChainMap = [];
   accounts.map((chain, index, self) => {
-    let chainName = chain.chainName == 'Telos' ? 'TLOS' : chain.chainName;
+    let chainName = chain.chainName === 'Telos' ? 'TLOS' : chain.chainName;
     let token = getTokens(chainName);
     if (token) {
       tokenChainMap[token.name] = chainName;
@@ -159,7 +158,7 @@ const ViewFIORequestScreen = props => {
   };
 
   var payerRole = false;
-  if (fioAccount.address == fioRequest.payer_fio_address) {
+  if (fioAccount.address === fioRequest.payer_fio_address) {
     payerRole = true;
     getFee(fioAccount.address);
     getFioPubkey(fioRequest.payee_fio_address);
@@ -170,7 +169,7 @@ const ViewFIORequestScreen = props => {
   const markFIORequestCompleted = async transferId => {
     try {
       var chainCode = decryptedContent.chain_code.toUpperCase();
-      const res = await recordObtData(
+      await recordObtData(
         fioAccount,
         fioRequest.payee_fio_address,
         fioRequest.payee_fio_public_key,
@@ -206,7 +205,7 @@ const ViewFIORequestScreen = props => {
       return;
     }
     // To EOSIO Account record:
-    const [toActor, toPubkey] = toAccountPubkey.split(',');
+    const [toActor] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
       Alert.alert(
@@ -215,7 +214,7 @@ const ViewFIORequestScreen = props => {
       return;
     }
     // From EOSIO Account record:
-    const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
+    const [fromActor] = fromAccountPubkey.split(',');
     // Load account info:
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
@@ -437,7 +436,7 @@ const ViewFIORequestScreen = props => {
       setLoading(false);
       return;
     }
-    if (tokenName == 'Telos') {
+    if (tokenName === 'Telos') {
       tokenName = 'TLOS';
     }
     try {
@@ -504,7 +503,7 @@ const ViewFIORequestScreen = props => {
   const _handleExternalAccept = async () => {
     try {
       const chainCode = decryptedContent.chain_code.toUpperCase();
-      const res = await recordObtData(
+      await recordObtData(
         fioAccount,
         fioRequest.payee_fio_address,
         fioRequest.payee_fio_public_key,
@@ -529,11 +528,7 @@ const ViewFIORequestScreen = props => {
 
   const _handleReject = async () => {
     try {
-      const res = await rejectFundsRequest(
-        fioAccount,
-        fioRequest.fio_request_id,
-        fee,
-      );
+      await rejectFundsRequest(fioAccount, fioRequest.fio_request_id, fee);
       Alert.alert('Request rejected!');
       navigate('Accounts');
     } catch (err) {

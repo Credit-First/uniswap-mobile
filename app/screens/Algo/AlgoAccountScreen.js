@@ -8,17 +8,14 @@ import {
   Clipboard,
   Image,
   Text,
-  Linking,
   Alert,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KHeader, KText, KInput, KButton } from '../../components';
+import { KHeader, KText, KButton } from '../../components';
 import styles from './AlgoAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import algosdk from 'algosdk';
 import { getEndpoint } from '../../eos/chains';
 import { log } from '../../logger/logger';
 
@@ -41,7 +38,7 @@ const AlgoAccountScreen = props => {
 
   const divider = 1000000;
   const fioEndpoint = getEndpoint('FIO');
-  var runOnce = 0;
+  // var runOnce = 0;
 
   const copyToClipboard = () => {
     Clipboard.setString(account.account.addr);

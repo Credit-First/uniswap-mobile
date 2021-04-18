@@ -6,7 +6,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -29,7 +29,6 @@ const ConnectAccountScreen = props => {
   const [privateKey, setPrivateKey] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const [chain, setChain] = useState(null);
-  const [isFioChain, setIsFioChain] = useState(false);
 
   var importableChains = [
     { name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io' },
@@ -140,7 +139,7 @@ const ConnectAccountScreen = props => {
     goBack();
   };
 
-  if (chain && chain.name == 'Algorand') {
+  if (chain && chain.name === 'Algorand') {
     return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView
@@ -194,7 +193,7 @@ const ConnectAccountScreen = props => {
         </KeyboardAwareScrollView>
       </SafeAreaView>
     );
-  } else if (chain && chain.name == 'FIO') {
+  } else if (chain && chain.name === 'FIO') {
     return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView

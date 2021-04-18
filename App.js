@@ -12,8 +12,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Provider } from 'react-redux';
-import { connectAccounts } from './app/redux';
-import { accountsState } from './app/redux/modules';
 import createStore from './app/redux/store';
 
 const store = createStore();
@@ -23,7 +21,7 @@ const MainTab = createBottomTabNavigator();
 const MainStack = createStackNavigator();
 const TransferStack = createStackNavigator();
 const AddressStack = createStackNavigator();
-const MenuStack = createStackNavigator();
+// const MenuStack = createStackNavigator();
 
 import {
   AccountsScreen,
@@ -167,13 +165,13 @@ const AddressStackScreen = () => {
   );
 };
 
-const MenuStackScreen = () => {
-  return (
-    <MenuStack.Navigator headerMode={'none'}>
-      <MenuStack.Screen name="Menu" component={MenuScreen} />
-    </MenuStack.Navigator>
-  );
-};
+// const MenuStackScreen = () => {
+//   return (
+//     <MenuStack.Navigator headerMode={'none'}>
+//       <MenuStack.Screen name="Menu" component={MenuScreen} />
+//     </MenuStack.Navigator>
+//   );
+// };
 
 const tabScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => {

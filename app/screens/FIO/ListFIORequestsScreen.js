@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Image,
-  SafeAreaView,
-  TouchableOpacity,
-  FlatList,
-  View,
-} from 'react-native';
+import React from 'react';
+import { SafeAreaView, TouchableOpacity, FlatList, View } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import styles from './FIORequestSend.style';
-import { KHeader, KButton, KText } from '../../components';
+import { KHeader, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -18,7 +12,7 @@ const ListFIORequestsScreen = props => {
     route: {
       params: { fioAccount, fioRequests, title },
     },
-    accountsState: { accounts, addresses, keys, config },
+    // accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const _handleViewFIORequest = fioRequest => {

@@ -15,9 +15,7 @@ import { fioAddPublicAddress, fioBackupEncryptedKey } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { getAccount } from '../../eos/eos';
 import { log } from '../../logger/logger';
-import algosdk from 'algosdk';
 
 const chars = '12345abcdefghijklmnopqrstuvwxyz';
 
@@ -33,8 +31,8 @@ const CreateTelosAccountScreen = props => {
   const {
     addKey,
     connectAccount,
-    navigation: { goBack, navigate },
-    accountsState: { accounts, addresses, keys, config },
+    navigation: { goBack },
+    accountsState: { accounts },
   } = props;
 
   const [accountName, setAccountName] = useState('');
@@ -73,7 +71,7 @@ const CreateTelosAccountScreen = props => {
   };
 
   const fioAccounts = accounts.filter((value, index, array) => {
-    if (value.chainName === 'FIO' && fioFee == 0) {
+    if (value.chainName === 'FIO' && fioFee === 0) {
       getFee(value.address);
     }
     return value.chainName === 'FIO';

@@ -55,6 +55,12 @@ const styles = StyleSheet.create({
   spacer: {
     marginTop: 10,
   },
+  captcha: {
+    alignSelf: 'center',
+    marginTop: 10,
+    width: 200,
+    height: 50,
+  },
 });
 
 export default styles;

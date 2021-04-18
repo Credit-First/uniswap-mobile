@@ -1,38 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import {
-  SafeAreaView,
-  TouchableOpacity,
-  FlatList,
-  View,
-  Image,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, TouchableOpacity, FlatList, Alert } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { fioSendMessage, getFioChatEndpoint } from '../../eos/fio';
-import ecc from 'eosjs-ecc-rn';
 import styles from './FIOChat.style';
-import {
-  KHeader,
-  KButton,
-  KInput,
-  KSelect,
-  KText,
-  InputSend,
-  RequestSendButtons,
-} from '../../components';
+import { KHeader, KSelect, InputSend } from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { connectAccounts } from '../../redux';
-import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
 const FIOChatScreen = props => {
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses },
     route: {
       params: { fioAddress, index, fromFioAddress },
     },
@@ -41,11 +23,11 @@ const FIOChatScreen = props => {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [messageList, setMessageList] = useState([]);
 
-  const fioEndpoint = getEndpoint('FIO');
+  // const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
   const fioAccounts = accounts.filter((value, index, array) => {
-    return value.chainName == 'FIO';
+    return value.chainName === 'FIO';
   });
 
   if (fioAccounts.length === 0) {
@@ -57,7 +39,7 @@ const FIOChatScreen = props => {
   let fromAccount = fioAccounts[0];
   if (fromFioAddress != null) {
     let matchingFioAccounts = fioAccounts.filter((value, index, array) => {
-      return value.address == fromFioAddress;
+      return value.address === fromFioAddress;
     });
     if (matchingFioAccounts.length > 0) {
       fromAccount = matchingFioAccounts[0];
@@ -74,7 +56,7 @@ const FIOChatScreen = props => {
 
   if (!fioAddress.publicKey && fioAddress.indexOf('@') > 0) {
     let matchingFioAddress = addresses.filter((value, index, array) => {
-      return value.address == fioAddress;
+      return value.address === fioAddress;
     });
     if (matchingFioAddress.length > 0) {
       toFioAddress = matchingFioAddress[0];
@@ -83,7 +65,7 @@ const FIOChatScreen = props => {
       return;
     }
   }
-  let toAddress = toFioAddress.address;
+  // let toAddress = toFioAddress.address;
   let toActor = toFioAddress.actor;
   let toPublicKey = toFioAddress.publicKey;
 
@@ -210,7 +192,7 @@ const FIOChatScreen = props => {
   };
 
   const _handleChangeFromAccount = (value, index) => {
-    const fromFioAddress = value.address;
+    // const fromFioAddress = value.address;
     navigate('FIOChat', { fioAddress, index, fromFioAddress });
   };
 
@@ -249,7 +231,7 @@ const FIOChatScreen = props => {
         <FlatList
           data={messageList}
           keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
+          renderItem={({ item }) => (
             <MessageListItem
               item={item}
               myactor={fromActor}
@@ -282,7 +264,7 @@ const FIOChatScreen = props => {
         <FlatList
           data={messageList}
           keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
+          renderItem={({ item }) => (
             <MessageListItem
               item={item}
               myactor={fromActor}

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Image,
   SafeAreaView,
   TouchableOpacity,
   View,
@@ -16,12 +15,11 @@ import styles from './FIORequestSend.style';
 import { KHeader, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { log } from '../../logger/logger';
 
 const RenewFIOAddressScreen = props => {
   const [selectedOption, setSelectedOption] = useState();
   const {
-    navigation: { navigate, goBack },
+    navigation: { goBack },
     route: {
       params: { json, fioAccount },
     },
@@ -29,7 +27,7 @@ const RenewFIOAddressScreen = props => {
 
   var paymentOptions = [];
 
-  if (json.success && paymentOptions.length == 0) {
+  if (json.success && paymentOptions.length === 0) {
     for (var key in json.success.charge.addresses) {
       var option = {
         currency: key,
@@ -43,7 +41,7 @@ const RenewFIOAddressScreen = props => {
 
   const setPaymentOption = currency => {
     for (var key in paymentOptions) {
-      if (currency == paymentOptions[key].currency) {
+      if (currency === paymentOptions[key].currency) {
         setSelectedOption(paymentOptions[key]);
       }
     }

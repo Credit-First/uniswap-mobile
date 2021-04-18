@@ -8,12 +8,11 @@ import {
   FlatList,
   Image,
   Text,
-  Linking,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ecc from 'eosjs-ecc-rn';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
+import { Ecc } from '@fioprotocol/fiojs';
 import { fioBackupEncryptedKey } from '../../eos/fio';
 import styles from './RegisterAddress.style';
 import {
@@ -29,15 +28,15 @@ import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { log } from '../../logger/logger';
 
-const chars = '12345abcdefghijklmnopqrstuvwxyz';
+// const chars = '12345abcdefghijklmnopqrstuvwxyz';
 
-function randomName() {
-  var result = '';
-  for (var i = 12; i > 0; --i) {
-    result += chars[Math.round(Math.random() * (chars.length - 1))];
-  }
-  return result;
-}
+// function randomName() {
+//   var result = '';
+//   for (var i = 12; i > 0; --i) {
+//     result += chars[Math.round(Math.random() * (chars.length - 1))];
+//   }
+//   return result;
+// }
 
 const RegisterFIOAddressScreen = props => {
   const [email, setEmail] = useState();
@@ -50,20 +49,20 @@ const RegisterFIOAddressScreen = props => {
   const [loading, setLoading] = useState(false);
   const [checkState, setCheckState] = useState('');
   const [fioAccount, setFioAccount] = useState();
-  const [fioFee, setFioFee] = useState(0);
+  // const [fioFee, setFioFee] = useState(0);
   const [registeredAddresses, setRegisteredAddresses] = useState();
   const {
     addKey,
     connectAccount,
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    // accountsState: { accounts, addresses, keys, config },
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
   const fioRegistrationUrl = 'https://fioregistration.eostribe.io/fioreg';
   // Telos endpoint:
-  const endpoint = getEndpoint('Telos');
-  const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
+  // const endpoint = getEndpoint('Telos');
+  // const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
   // Check device registrations endpint:
   const deviceId = DeviceInfo.getUniqueId();
   const checkDeviceEndpoint =
@@ -78,9 +77,9 @@ const RegisterFIOAddressScreen = props => {
     return fioRegistrationUrl + '/captcha/' + email;
   };
 
-  const _sendEmailCode = email => {
+  const _sendEmailCode = txt => {
     let request = {
-      email: email,
+      email: txt,
       device_id: deviceId,
     };
     fetch(fioRegistrationUrl + '/send_code', {
@@ -125,7 +124,7 @@ const RegisterFIOAddressScreen = props => {
   };
 
   const _nextValidate = () => {
-    if (email && code && code.length == 6) {
+    if (email && code && code.length === 6) {
       let request = {
         email: email,
         code: code,
@@ -189,21 +188,21 @@ const RegisterFIOAddressScreen = props => {
     }
   }
 
-  const _checkAvailable = async name => {
-    if (name.indexOf('@') > 0) {
-      name = name.replace('@', '');
+  const _checkAvailable = async text => {
+    if (text.indexOf('@') > 0) {
+      text = text.replace('@', '');
     }
-    if (name.indexOf(' ') > 0) {
-      name = name.replace(' ', '');
+    if (text.indexOf(' ') > 0) {
+      text = text.replace(' ', '');
     }
-    if (name.indexOf('.') > 0) {
-      name = name.replace('.', '');
+    if (text.indexOf('.') > 0) {
+      text = text.replace('.', '');
     }
-    setName(name);
+    setName(text);
     setAvailable(false);
-    let newAddress = name + '@tribe';
+    let newAddress = text + '@tribe';
     setAddress(newAddress);
-    if (name.length > 0) {
+    if (text.length > 0) {
       setCheckState('Checking ' + newAddress + ' address ..');
       fetch(fioEndpoint + '/v1/chain/avail_check', {
         method: 'POST',
@@ -247,7 +246,7 @@ const RegisterFIOAddressScreen = props => {
     }
   };
 
-  const connectFioAccount = (text, fioAccount) => {
+  const connectFioAccount = text => {
     setLoading(false);
     try {
       let json = JSON.parse(text);
@@ -302,7 +301,7 @@ const RegisterFIOAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       addKey({ private: privateKey, public: fioPubkey });
-      const fioAccount = { address, privateKey, chainName: 'FIO' };
+      // const fioAccount = { address, privateKey, chainName: 'FIO' };
       var hash = sha256(
         email + code + answer + deviceId + address + fioPubkey + currentUTCDate,
       );
@@ -324,13 +323,13 @@ const RegisterFIOAddressScreen = props => {
         body: JSON.stringify(request),
       })
         .then(response => response.text())
-        .then(text => connectFioAccount(text, fioAccount))
+        .then(text => connectFioAccount(text))
         .catch(error =>
           log({
             description: 'Register FIO service call error',
             cause: error,
             request: request,
-            response: text,
+            // response: text,
             location: 'RegisterFIOAddressScreen',
           }),
         );
@@ -398,15 +397,7 @@ const RegisterFIOAddressScreen = props => {
             <InputAddress onChange={_checkAvailable} />
             <KText>{checkState}</KText>
             <KText>Solve equation:</KText>
-            <Image
-              style={{
-                alignSelf: 'center',
-                marginTop: 10,
-                width: 200,
-                height: 50,
-              }}
-              source={{ uri: getCaptchaUrl() }}
-            />
+            <Image style={styles.captcha} source={{ uri: getCaptchaUrl() }} />
             <KInput
               placeholder={'Enter answer to the formula above'}
               value={answer}

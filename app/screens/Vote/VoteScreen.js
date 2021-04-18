@@ -1,26 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  SafeAreaView,
-  TouchableOpacity,
-  View,
-  Linking,
-  FlatList,
-  Text,
-} from 'react-native';
+import { SafeAreaView, TouchableOpacity, View, FlatList } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { get } from 'lodash';
-import { Fio, Ecc } from '@fioprotocol/fiojs';
-import ecc from 'eosjs-ecc-rn';
-import algosdk from 'algosdk';
+
 import styles from './VoteScreen.style';
 import { KHeader, KButton, KText } from '../../components';
 import { connectAccounts } from '../../redux';
-import {
-  getProducers,
-  getAccount,
-  voteProducers,
-  sumAmount,
-} from '../../eos/eos';
+import { getProducers, getAccount, sumAmount } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import ProducerListItem from './components/ProducerListItem';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -28,8 +14,7 @@ import { log } from '../../logger/logger';
 
 const VoteScreen = props => {
   const {
-    connectAccount,
-    navigation: { navigate, goBack },
+    navigation: { goBack },
     route: {
       params: { account },
     },
@@ -39,8 +24,8 @@ const VoteScreen = props => {
   const [totalProducerVoteWeight, setTotalProducerVoteWeight] = useState(1);
   const [votedProducers, setVotedProducers] = useState([]);
   const [isVoting, setVoting] = useState(false);
-  const [liquidBalance, setLiquidBalance] = useState('0.0000');
-  const [refundingBalance, setRefundingBalance] = useState('0.0000');
+  // const [liquidBalance, setLiquidBalance] = useState('0.0000');
+  // const [refundingBalance, setRefundingBalance] = useState('0.0000');
   const [totalStaked, setTotalStaked] = useState('0.0000');
 
   useEffect(() => {
@@ -62,7 +47,7 @@ const VoteScreen = props => {
         const accountInfo = await getAccount(account.accountName, chain);
         const vProducers = get(accountInfo, 'voter_info.producers', []);
         setVotedProducers(vProducers);
-        setLiquidBalance(accountInfo.core_liquid_balance.split(' ')[0]);
+        // setLiquidBalance(accountInfo.core_liquid_balance.split(' ')[0]);
         if (accountInfo.self_delegated_bandwidth) {
           setTotalStaked(
             sumAmount(
@@ -72,14 +57,14 @@ const VoteScreen = props => {
           );
         }
 
-        if (accountInfo.refund_request) {
-          setRefundingBalance(
-            sumAmount(
-              accountInfo.refund_request.cpu_amount,
-              accountInfo.refund_request.net_amount,
-            ),
-          );
-        }
+        // if (accountInfo.refund_request) {
+        //   setRefundingBalance(
+        //     sumAmount(
+        //       accountInfo.refund_request.cpu_amount,
+        //       accountInfo.refund_request.net_amount,
+        //     ),
+        //   );
+        // }
       } catch (err) {
         log({
           description: 'get producers failed with error',
@@ -115,8 +100,8 @@ const VoteScreen = props => {
 
     setVoting(true);
     try {
-      const sortedVps = votedProducers.slice().sort();
-      const res = await voteProducers(sortedVps, activeAccount, chain);
+      // const sortedVps = votedProducers.slice().sort();
+      // const res = await voteProducers(sortedVps, activeAccount, chain);
     } catch (err) {
       log({
         description: 'vote failed with error',
