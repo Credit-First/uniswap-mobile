@@ -13,23 +13,27 @@ export {
 export {
   default as ResourceManagementScreen,
 } from './AccountDetails/ResourceManagementScreen';
-export {
-  default as BackupAllKeysScreen,
-} from './Accounts/BackupAllKeysScreen';
+export { default as BackupAllKeysScreen } from './Accounts/BackupAllKeysScreen';
 export {
   default as PrivateKeyBackupScreen,
 } from './Accounts/PrivateKeyBackupScreen';
 export {
   default as PrivateKeyDelegateScreen,
 } from './Accounts/PrivateKeyDelegateScreen';
-export { default as RegisterFIOAddressScreen } from './FIO/RegisterFIOAddressScreen';
+export {
+  default as RegisterFIOAddressScreen,
+} from './FIO/RegisterFIOAddressScreen';
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';
 export { default as RenewFIOAddressScreen } from './FIO/RenewFIOAddressScreen';
-export { default as FIORegisterExternalScreen } from './FIO/FIORegisterExternalScreen';
+export {
+  default as FIORegisterExternalScreen,
+} from './FIO/FIORegisterExternalScreen';
 export { default as FIORequestScreen } from './FIO/FIORequestScreen';
-export { default as FIORequestDirectScreen } from './FIO/FIORequestDirectScreen';
+export {
+  default as FIORequestDirectScreen,
+} from './FIO/FIORequestDirectScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
 export { default as FIOSendDirectScreen } from './FIO/FIOSendDirectScreen';
 export { default as FIOChatScreen } from './FIO/FIOChatScreen';

@@ -1,6 +1,6 @@
 import { getChain } from './chains';
 import { get } from 'lodash';
-import { log } from '../logger/logger'
+import { log } from '../logger/logger';
 
 const getNewdexSymbol = (fromChain, toChain) => {
   if (fromChain.name === 'EOS') {
@@ -39,7 +39,11 @@ const getNewdexPrice = async (fromAccount, toAccount) => {
       return price;
     }
   } catch (err) {
-    log({ description: 'get newdex price failed with error', cause: err, location: 'exchange'});
+    log({
+      description: 'get newdex price failed with error',
+      cause: err,
+      location: 'exchange',
+    });
     return null;
   }
 };

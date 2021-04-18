@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   error: {
     color: '#FF0000',
     fontSize: 14,
-  }
+  },
 });
 
 export default styles;

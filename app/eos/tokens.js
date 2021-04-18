@@ -2,7 +2,7 @@ import { JsonRpc, Api } from 'eosjs-rn';
 import { JsSignatureProvider } from 'eosjs-rn/dist/eosjs-jssig';
 import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getEndpoint } from './chains';
-import { log } from '../logger/logger'
+import { log } from '../logger/logger';
 
 var tokens = [
   {
@@ -293,8 +293,9 @@ var tokens = [
 ];
 
 const getTokens = chainName => {
-  var name = (chainName && chainName.indexOf(' ') >= 0) ? chainName.trim() : chainName;
-  name = (name === 'Telos') ? 'TLOS' : name;
+  var name =
+    chainName && chainName.indexOf(' ') >= 0 ? chainName.trim() : chainName;
+  name = name === 'Telos' ? 'TLOS' : name;
   var chainTokens = [];
   for (let token of tokens) {
     if (token.chain === name) {
@@ -305,15 +306,15 @@ const getTokens = chainName => {
 };
 
 const getTokenByName = tokenName => {
-  return tokens.find(item => (item.name === tokenName));
+  return tokens.find(item => item.name === tokenName);
 };
 
 const getBalance = async (accountName, token, handler) => {
   const endpoint = getEndpoint(token.chain);
   var request = {
-    "account": accountName,
-    "code": token.contract,
-    "symbol": token.name
+    account: accountName,
+    code: token.contract,
+    symbol: token.name,
   };
   try {
     fetch(endpoint + '/v1/chain/get_currency_balance', {
@@ -326,17 +327,36 @@ const getBalance = async (accountName, token, handler) => {
     })
       .then(response => response.json())
       .then(json => handler(json))
-      .catch(error => log({
-        description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token.name+', '+token.contract+']',
-        cause: error,
-        location: 'tokens.js'
-      })
-    );
-  } catch(err) {
+      .catch(error =>
+        log({
+          description:
+            'getBalance - fetch ' +
+            endpoint +
+            '/v1/chain/get_currency_balance [' +
+            accountName +
+            ', ' +
+            token.name +
+            ', ' +
+            token.contract +
+            ']',
+          cause: error,
+          location: 'tokens.js',
+        }),
+      );
+  } catch (err) {
     log({
-      description: 'getBalance - fetch '+endpoint + '/v1/chain/get_currency_balance ['+accountName+', '+token.name+', '+token.contract+']',
+      description:
+        'getBalance - fetch ' +
+        endpoint +
+        '/v1/chain/get_currency_balance [' +
+        accountName +
+        ', ' +
+        token.name +
+        ', ' +
+        token.contract +
+        ']',
       cause: error,
-      location: 'tokens.js'
+      location: 'tokens.js',
     });
   }
 };

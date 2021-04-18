@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
-import { Image,
+import {
+  Image,
   View,
   FlatList,
   SafeAreaView,
   TouchableOpacity,
   Text,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KButton, KHeader } from '../../components';
 import styles from './AccountsScreen.style';
@@ -15,8 +17,7 @@ import TokenListItem from './components/TokenListItem';
 import { findIndex } from 'lodash';
 import { getTokens, getBalance } from '../../eos/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { log } from '../../logger/logger'
-
+import { log } from '../../logger/logger';
 
 const TokensScreen = props => {
   const {
@@ -38,35 +39,33 @@ const TokensScreen = props => {
     return account.chainName + ':' + account.accountName + ' tokens';
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
-     <View style={styles.inner}>
-     <TouchableOpacity style={styles.backButton} onPress={goBack}>
-       <MaterialIcon
-         name={'keyboard-backspace'}
-         size={24}
-         color={PRIMARY_BLUE}
-       />
-     </TouchableOpacity>
-     <KHeader title={getTitle()} style={styles.header} />
-     <FlatList
-       data={tokens.sort((a, b) => a.name.localeCompare(b.name))}
-       keyExtractor={(item, index) => `${index}`}
-       renderItem={({ item, index }) => (
-         <TokenListItem
-           account={account}
-           token={item}
-           style={styles.listItem}
-           onPress={() => _handlePressToken(index)}
-           showAllTokens={config.showAllTokens}
-         />
-       )}
-     />
-    </View>
-  </SafeAreaView>
+      <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
+          />
+        </TouchableOpacity>
+        <KHeader title={getTitle()} style={styles.header} />
+        <FlatList
+          data={tokens.sort((a, b) => a.name.localeCompare(b.name))}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item, index }) => (
+            <TokenListItem
+              account={account}
+              token={item}
+              style={styles.listItem}
+              onPress={() => _handlePressToken(index)}
+              showAllTokens={config.showAllTokens}
+            />
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(TokensScreen);

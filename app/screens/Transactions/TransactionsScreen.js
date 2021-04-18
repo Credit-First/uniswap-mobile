@@ -8,13 +8,12 @@ import { getChain } from '../../eos/chains';
 import TransactionItem from './components/TransactionItem';
 import { log } from '../../logger/logger';
 
-
 const TransactionsScreen = props => {
   const {
     navigation: { navigate, goBack },
     route: {
       params: { account },
-    }
+    },
   } = props;
 
   const [transactions, setTransactions] = useState([]);
@@ -35,7 +34,11 @@ const TransactionsScreen = props => {
         setTransactions(res.actions);
       } catch (err) {
         setTransactions([]);
-        log({ description: 'Error loading actions', cause: err, location: 'TransactionsScreen'});
+        log({
+          description: 'Error loading actions',
+          cause: err,
+          location: 'TransactionsScreen',
+        });
       }
     });
 
@@ -71,9 +74,7 @@ const TransactionsScreen = props => {
         'https://meetone.bloks.io/account/' + activeAccount.accountName,
       );
     } else if (activeAccount.chainName === 'FIO') {
-      Linking.openURL(
-        'https://fio.bloks.io/address/' + activeAccount.address,
-      );
+      Linking.openURL('https://fio.bloks.io/address/' + activeAccount.address);
     } else if (activeAccount.chainName === 'ALGO') {
       Linking.openURL(
         'https://algoexplorer.io/address/' + activeAccount.account.addr,
@@ -82,17 +83,17 @@ const TransactionsScreen = props => {
   };
 
   const getAccountName = () => {
-    if(!activeAccount) {
+    if (!activeAccount) {
       return '';
     }
-    if(activeAccount.chainName === 'FIO') {
-      return activeAccount.chainName + ": " + activeAccount.address;
-    } else if(activeAccount.chainName === 'ALGO') {
-      return activeAccount.chainName + ": " + activeAccount.account.addr;
+    if (activeAccount.chainName === 'FIO') {
+      return activeAccount.chainName + ': ' + activeAccount.address;
+    } else if (activeAccount.chainName === 'ALGO') {
+      return activeAccount.chainName + ': ' + activeAccount.account.addr;
     } else {
-      return activeAccount.chainName + ": " + activeAccount.accountName;
+      return activeAccount.chainName + ': ' + activeAccount.accountName;
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -123,7 +124,6 @@ const TransactionsScreen = props => {
       </View>
     </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(TransactionsScreen);

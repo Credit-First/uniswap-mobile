@@ -14,39 +14,36 @@ let deviceInfo = {
   uniqueId: DeviceInfo.getUniqueId(),
 };
 
-const log = async (error) => {
+const log = async error => {
   //console.log(error);
   fetch('http://wallet.eostribe.io/logger', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          device: deviceInfo,
-          wallet: 'TRIBE',
-          error: error,
-        }),
-      });
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      device: deviceInfo,
+      wallet: 'TRIBE',
+      error: error,
+    }),
+  });
 };
 
-const report = async (message) => {
+const report = async message => {
   //console.log(message);
   fetch('http://wallet.eostribe.io/logger', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          device: deviceInfo,
-          wallet: 'TRIBE',
-          message: message,
-        }),
-      });
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      device: deviceInfo,
+      wallet: 'TRIBE',
+      message: message,
+    }),
+  });
 };
 
-export {
-  log,
-  report,
-};
+export { log, report };

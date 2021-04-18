@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Image,
+import {
+  Image,
   View,
   FlatList,
   TouchableOpacity,
   SafeAreaView,
   Alert,
-  Text } from 'react-native';
+  Text,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KButton, KHeader, KText } from '../../components';
 import styles from './AddressBookScreen.style';
 import { connectAccounts } from '../../redux';
-import { log } from '../../logger/logger'
+import { log } from '../../logger/logger';
 import { PRIMARY_BLUE } from '../../theme/colors';
-
 
 const EditAddressScreen = props => {
   const {
@@ -21,10 +22,7 @@ const EditAddressScreen = props => {
     accountsState: { accounts, addresses, keys, config },
     navigation: { navigate },
     route: {
-      params: {
-        fioAddress,
-        index,
-      },
+      params: { fioAddress, index },
     },
   } = props;
 
@@ -35,7 +33,12 @@ const EditAddressScreen = props => {
   };
 
   const _handleEditAddress = () => {
-    let newAddress = { name: newName, address: fioAddress.address, actor: fioAddress.actor, publicKey: fioAddress.publicKey };
+    let newAddress = {
+      name: newName,
+      address: fioAddress.address,
+      actor: fioAddress.actor,
+      publicKey: fioAddress.publicKey,
+    };
     //console.log(newAddress);
     deleteAddress(index);
     addAddress(newAddress);
@@ -48,14 +51,14 @@ const EditAddressScreen = props => {
   };
 
   return (
-     <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
           <MaterialIcon
             name={'keyboard-backspace'}
             size={24}
             color={PRIMARY_BLUE}
-            />
+          />
         </TouchableOpacity>
         <KHeader title={'Edit FIO Address'} style={styles.header} />
         <KInput
@@ -63,28 +66,31 @@ const EditAddressScreen = props => {
           value={fioAddress.address}
           editable={false}
           containerStyle={styles.inputContainer}
-          autoCapitalize={'none'} />
+          autoCapitalize={'none'}
+        />
         <KInput
           label={'Name'}
           value={newName}
           onChangeText={setNewName}
           containerStyle={styles.inputContainer}
-          autoCapitalize={'none'} />
+          autoCapitalize={'none'}
+        />
         <KButton
           title={'Save'}
           theme={'brown'}
           style={styles.button}
           onPress={_handleEditAddress}
-          icon={'edit'} />
+          icon={'edit'}
+        />
         <KButton
           title={'Delete'}
           style={styles.button}
           onPress={_handleDeleteAddress}
-          icon={'delete'} />
+          icon={'delete'}
+        />
       </View>
     </SafeAreaView>
-    );
-
+  );
 };
 
 export default connectAccounts()(EditAddressScreen);

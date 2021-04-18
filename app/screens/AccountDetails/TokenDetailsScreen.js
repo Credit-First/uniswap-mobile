@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
-import { SafeAreaView,
+import {
+  SafeAreaView,
   View,
   TouchableOpacity,
   Dimensions,
   Image,
   Linking,
   FlatList,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
-import { KHeader, KButton, KText, KInput, RequestSendButtons } from '../../components';
+import {
+  KHeader,
+  KButton,
+  KText,
+  KInput,
+  RequestSendButtons,
+} from '../../components';
 import styles from './AccountDetailsScreen.style';
 import TransactionListItem from './components/TransactionListItem';
 import { connectAccounts } from '../../redux';
@@ -19,8 +27,7 @@ import { getChain, getEndpoint } from '../../eos/chains';
 import { getBalance, transferToken } from '../../eos/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import { log } from '../../logger/logger'
-
+import { log } from '../../logger/logger';
 
 const TokenDetailsScreen = props => {
   const [tokenBalance, setTokenBalance] = useState(0);
@@ -37,27 +44,28 @@ const TokenDetailsScreen = props => {
   const {
     navigation: { navigate, goBack },
     route: {
-      params: {
-        account: account,
-        token: token,
-       },
+      params: { account: account, token: token },
     },
     accountsState: { accounts, addresses, keys, config },
   } = props;
 
-  const chainCode = (account.chainName === 'Telos') ? 'TLOS' : account.chainName;
+  const chainCode = account.chainName === 'Telos' ? 'TLOS' : account.chainName;
   const fioEndpoint = getEndpoint('FIO');
 
-  const handleTokenBalance = (jsonArray) => {
-    if(jsonArray && jsonArray.length > 0) {
+  const handleTokenBalance = jsonArray => {
+    if (jsonArray && jsonArray.length > 0) {
       setTokenBalance(jsonArray[0]);
     } else {
       setTokenBalance('0 ' + token.name);
     }
-  }
+  };
 
   const _validateAddress = address => {
-    if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
+    if (
+      address.length >= 3 &&
+      address.indexOf('@') > 0 &&
+      address.indexOf('@') < address.length - 1
+    ) {
       fetch(fioEndpoint + '/v1/chain/avail_check', {
         method: 'POST',
         headers: {
@@ -85,9 +93,10 @@ const TokenDetailsScreen = props => {
       setToPubkey('');
       setAddressInvalidMessage('Error validating FIO address');
       log({
-        description: '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
+        description:
+          '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
         cause: error,
-        location: 'TokenDetailsScreen'
+        location: 'TokenDetailsScreen',
       });
     }
   };
@@ -100,111 +109,128 @@ const TokenDetailsScreen = props => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "fio_address": address,
-        "chain_code": chainCode,
-        "token_code": chainCode,
+        fio_address: address,
+        chain_code: chainCode,
+        token_code: chainCode,
       }),
     })
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
-      .catch(error => log({
-        description: 'loadToPubkey - fetch [' + chainCode + '] ' + fioEndpoint + '/v1/chain/get_pub_address ['+address+']',
-        cause: error,
-        location: 'TokenDetailsScreen'
-      })
-    );
+      .catch(error =>
+        log({
+          description:
+            'loadToPubkey - fetch [' +
+            chainCode +
+            '] ' +
+            fioEndpoint +
+            '/v1/chain/get_pub_address [' +
+            address +
+            ']',
+          cause: error,
+          location: 'TokenDetailsScreen',
+        }),
+      );
   };
 
-  const processToPubkeyUpdate = async (toAccountPubkey) => {
+  const processToPubkeyUpdate = async toAccountPubkey => {
     const chain = getChain(chainCode);
-    if(chain) { // EOSIO chain
+    if (chain) {
+      // EOSIO chain
       const [toActorValue, toPubkeyValue] = toAccountPubkey.split(',');
       const toAccountInfo = await getAccount(toActorValue, chain);
       if (!toAccountInfo) {
-        Alert.alert('Error fetching account data for '+toActor+' on chain '+chainCode);
+        Alert.alert(
+          'Error fetching account data for ' +
+            toActor +
+            ' on chain ' +
+            chainCode,
+        );
         return;
       }
       setToActor(toActorValue);
       setToPubkey(toPubkeyValue);
-    } else { // Non EOSIO chain - no 'actor,pubkey' split
+    } else {
+      // Non EOSIO chain - no 'actor,pubkey' split
       setToActor('');
       setToPubkey(toAccountPubkey);
     }
-  }
+  };
 
   const _handleToAccountChange = value => {
     setToAccountName(value);
     // If FIO addreess
-    if(value.indexOf('@') > 0) {
+    if (value.indexOf('@') > 0) {
       _validateAddress(value);
     }
   };
 
-  const processHistoryData = (json) => {
-  if(json.actions) {
-    let trans = [];
-    json.actions.forEach((item) => {
-      let trxid = item.action_trace.trx_id;
-      let type = item.action_trace.act.name;
-      if(type == 'transfer') {
-        let from = item.action_trace.act.data.from;
-        let to = item.action_trace.act.data.to;
-        let quantity = item.action_trace.act.data.quantity;
-        if (quantity.indexOf(token.name) > 0) {
-          let transaction = {
-            'id': trxid,
-            'type': type,
-            'from': from,
-            'to': to,
-            'quantity': quantity,
-          };
-          trans.push(transaction);
+  const processHistoryData = json => {
+    if (json.actions) {
+      let trans = [];
+      json.actions.forEach(item => {
+        let trxid = item.action_trace.trx_id;
+        let type = item.action_trace.act.name;
+        if (type == 'transfer') {
+          let from = item.action_trace.act.data.from;
+          let to = item.action_trace.act.data.to;
+          let quantity = item.action_trace.act.data.quantity;
+          if (quantity.indexOf(token.name) > 0) {
+            let transaction = {
+              id: trxid,
+              type: type,
+              from: from,
+              to: to,
+              quantity: quantity,
+            };
+            trans.push(transaction);
+          }
         }
-      }
-    });
-    setTransactions(trans);
-  }
-};
+      });
+      setTransactions(trans);
+    }
+  };
 
-const loadAccountHistory = () => {
-  if (account.chainName == 'Telos') {
-    fetch('https://telos.greymass.com/v1/history/get_actions', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "account_name": account.accountName
-      }),
-    })
-      .then(response => response.json())
-      .then(json => processHistoryData(json))
-      .catch(error => log({
-        description: 'loadAccountHistory - fetch https://telos.greymass.com/v1/history/get_actions',
-        cause: error,
-        telos: account.accountName,
-        location: 'TokenDetailsScreen'
+  const loadAccountHistory = () => {
+    if (account.chainName == 'Telos') {
+      fetch('https://telos.greymass.com/v1/history/get_actions', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          account_name: account.accountName,
+        }),
       })
-    );
-  }
-};
+        .then(response => response.json())
+        .then(json => processHistoryData(json))
+        .catch(error =>
+          log({
+            description:
+              'loadAccountHistory - fetch https://telos.greymass.com/v1/history/get_actions',
+            cause: error,
+            telos: account.accountName,
+            location: 'TokenDetailsScreen',
+          }),
+        );
+    }
+  };
 
-if(!loaded) {
-  if (account.chainName == 'Telos') {
-    loadAccountHistory();
-  } else {
-    setShowTransfer(true);
+  if (!loaded) {
+    if (account.chainName == 'Telos') {
+      loadAccountHistory();
+    } else {
+      setShowTransfer(true);
+    }
+    getBalance(account.accountName, token, handleTokenBalance);
+    setLoaded(true);
   }
-  getBalance(account.accountName, token, handleTokenBalance);
-  setLoaded(true);
-}
 
-const _handlePressTransaction = (trans) => {
-  if (account.chainName == 'Telos') {
-    Linking.openURL('https://telos.bloks.io/transaction/'+trans.id);
-  }
-};
+  const _handlePressTransaction = trans => {
+    if (account.chainName == 'Telos') {
+      Linking.openURL('https://telos.bloks.io/transaction/' + trans.id);
+    }
+  };
 
   const getSubtitle = () => {
     return token.name + ' on ' + account.chainName + ': ' + token.contract;
@@ -224,19 +250,31 @@ const _handlePressTransaction = (trans) => {
 
   const _handleTransfer = async () => {
     let toAccount = toAccountName;
-    if(toAccount.indexOf('@') > 0 && toActor) {
+    if (toAccount.indexOf('@') > 0 && toActor) {
       toAccount = toActor;
-    } else { // Validate account:
+    } else {
+      // Validate account:
       const chain = getChain(chainCode);
       const toAccountInfo = await getAccount(toAccount, chain);
       if (!toAccountInfo) {
-        Alert.alert('Error fetching account data for '+toAccount+' on chain '+chainCode);
+        Alert.alert(
+          'Error fetching account data for ' +
+            toAccount +
+            ' on chain ' +
+            chainCode,
+        );
         return;
       }
     }
-    const res = await transferToken(toAccount, parseFloat(amount), memo, account, token);
+    const res = await transferToken(
+      toAccount,
+      parseFloat(amount),
+      memo,
+      account,
+      token,
+    );
     if (res && res.transaction_id) {
-      Alert.alert('Token transfer sent in tx '+res.transaction_id);
+      Alert.alert('Token transfer sent in tx ' + res.transaction_id);
       goBack();
     } else {
       let error = {
@@ -247,56 +285,59 @@ const _handlePressTransaction = (trans) => {
         fromAccount: account.accountName,
         toAccount: toAccount,
         amount: parseFloat(amount),
-        token: token
+        token: token,
       };
       log(error);
-      Alert.alert("Token transfer failed.");
+      Alert.alert('Token transfer failed.');
     }
   };
 
   const getTransferFormLabel = () => {
-    return 'Transfer '+token.name+' tokens: ';
-  }
+    return 'Transfer ' + token.name + ' tokens: ';
+  };
 
-
-if (showTransfer) {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <MaterialIcon
-            name={'keyboard-backspace'}
-            size={24}
-            color={PRIMARY_BLUE}
+  if (showTransfer) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+          <KHeader
+            title={account.accountName}
+            subTitle={getSubtitle()}
+            style={styles.header}
           />
-        </TouchableOpacity>
-        <KHeader title={account.accountName} subTitle={getSubtitle()} style={styles.header} />
-        <KText>Balance: {tokenBalance}</KText>
-        <KInput
-          label={getTransferFormLabel()}
-          placeholder={'Enter receiver account name'}
-          value={toAccountName}
-          onChangeText={_handleToAccountChange}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
-        />
-        <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
-        <KInput
-          label={'Amount to send'}
-          placeholder={'Enter amount to send'}
-          value={amount}
-          onChangeText={setAmount}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
-          keyboardType={'numeric'}
-        />
-        <KInput
-          label={'Memo'}
-          placeholder={'Optional memo'}
-          value={memo}
-          onChangeText={setMemo}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
+          <KText>Balance: {tokenBalance}</KText>
+          <KInput
+            label={getTransferFormLabel()}
+            placeholder={'Enter receiver account name'}
+            value={toAccountName}
+            onChangeText={_handleToAccountChange}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+          />
+          <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
+          <KInput
+            label={'Amount to send'}
+            placeholder={'Enter amount to send'}
+            value={amount}
+            onChangeText={setAmount}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KInput
+            label={'Memo'}
+            placeholder={'Optional memo'}
+            value={memo}
+            onChangeText={setMemo}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
           />
           <KButton
             title={'Submit transfer'}
@@ -304,79 +345,82 @@ if (showTransfer) {
             style={styles.button}
             onPress={_handleTransfer}
             renderIcon={() => (
-               <Image
-                 source={require('../../../assets/icons/transfer.png')}
-                 style={styles.buttonIcon}
-               />
-             )}
-           />
-        <KButton
-          title={'Show transactions'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={()=>setShowTransfer(false)}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/transactions.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-      </View>
-    </SafeAreaView>
-  );
-} else {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <MaterialIcon
-            name={'keyboard-backspace'}
-            size={24}
-            color={PRIMARY_BLUE}
+              <Image
+                source={require('../../../assets/icons/transfer.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
-        </TouchableOpacity>
-        <KHeader title={account.accountName} subTitle={getSubtitle()} style={styles.header} />
-        <KText>Balance: {tokenBalance}</KText>
-        <FlatList
-          data={transactions}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <TransactionListItem
-              transaction={item}
-              style={styles.listItem}
-              onPress={() => _handlePressTransaction(item)}
+          <KButton
+            title={'Show transactions'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={() => setShowTransfer(false)}
+            renderIcon={() => (
+              <Image
+                source={require('../../../assets/icons/transactions.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
             />
-          )}
-        />
-        <KButton
-          title={'Start transfer'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={()=>setShowTransfer(true)}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/transfer.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-        <RequestSendButtons
+          </TouchableOpacity>
+          <KHeader
+            title={account.accountName}
+            subTitle={getSubtitle()}
+            style={styles.header}
+          />
+          <KText>Balance: {tokenBalance}</KText>
+          <FlatList
+            data={transactions}
+            keyExtractor={(item, index) => `${index}`}
+            renderItem={({ item, index }) => (
+              <TransactionListItem
+                transaction={item}
+                style={styles.listItem}
+                onPress={() => _handlePressTransaction(item)}
+              />
+            )}
+          />
+          <KButton
+            title={'Start transfer'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={() => setShowTransfer(true)}
+            renderIcon={() => (
+              <Image
+                source={require('../../../assets/icons/transfer.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+          />
+          <RequestSendButtons
             style={styles.request_send_button}
             onRequestPress={_handleFIORequest}
             onSendPress={_handleFIOSend}
             renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/transfer.png')}
-              style={styles.buttonIcon}
-            />
+              <Image
+                source={require('../../../assets/icons/transfer.png')}
+                style={styles.buttonIcon}
+              />
             )}
-        />
-      </View>
-    </SafeAreaView>
-  );
-}
-
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 };
 
 export default connectAccounts()(TokenDetailsScreen);

@@ -29,22 +29,25 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   }
   try {
     const accountInfo = await getAccount(account.accountName, chain);
-    if(accountInfo.core_liquid_balance) {
+    if (accountInfo.core_liquid_balance) {
       setAccountBalance(accountInfo.core_liquid_balance);
     } else {
-      setAccountBalance('0 '+chain.symbol);
+      setAccountBalance('0 ' + chain.symbol);
     }
   } catch (err) {
-    log({ description: 'loadAccountBalance', cause: err, location: 'AccountListItem'});
+    log({
+      description: 'loadAccountBalance',
+      cause: err,
+      location: 'AccountListItem',
+    });
     return;
   }
 };
 
-
 const loadFioAccountBalance = async (account, setAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
-    fetch(fioEndpoint+'/v1/chain/get_fio_balance', {
+    fetch(fioEndpoint + '/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -55,15 +58,29 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
       }),
     })
       .then(response => response.json())
-      .then(json => setAccountBalance(((json.balance!==undefined) ? (parseFloat(json.balance)/fioDivider).toFixed(4) + ' FIO' : 'validate')))
-      .catch(error => log({
-        description: 'loadFioAccountBalance - fetch '+fioEndpoint+'/v1/chain/get_fio_balance',
-        cause: error,
-        location: 'AccountListItem'
-      })
-    );
+      .then(json =>
+        setAccountBalance(
+          json.balance !== undefined
+            ? (parseFloat(json.balance) / fioDivider).toFixed(4) + ' FIO'
+            : 'validate',
+        ),
+      )
+      .catch(error =>
+        log({
+          description:
+            'loadFioAccountBalance - fetch ' +
+            fioEndpoint +
+            '/v1/chain/get_fio_balance',
+          cause: error,
+          location: 'AccountListItem',
+        }),
+      );
   } catch (err) {
-    log({ description: 'loadFioAccountBalance', cause: err, location: 'AccountListItem'});
+    log({
+      description: 'loadFioAccountBalance',
+      cause: err,
+      location: 'AccountListItem',
+    });
     return;
   }
 };
@@ -71,7 +88,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
 const loadAlgoAccountBalance = async (account, setAccountBalance) => {
   try {
     const addr = account.account.addr;
-    fetch('http://algo.eostribe.io/v1/account/'+addr, {
+    fetch('http://algo.eostribe.io/v1/account/' + addr, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -79,15 +96,26 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
       },
     })
       .then(response => response.json())
-      .then(json => setAccountBalance( (parseFloat(json.amount)/algoDivider).toFixed(4) + ' ALGO'))
-      .catch(error => log({
-        description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
-        cause: error,
-        location: 'AccountListItem'
-      })
-    );
+      .then(json =>
+        setAccountBalance(
+          (parseFloat(json.amount) / algoDivider).toFixed(4) + ' ALGO',
+        ),
+      )
+      .catch(error =>
+        log({
+          description:
+            'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/' +
+            addr,
+          cause: error,
+          location: 'AccountListItem',
+        }),
+      );
   } catch (err) {
-    log({ description: 'loadAlgoAccountBalance', cause: err, location: 'AccountListItem'});
+    log({
+      description: 'loadAlgoAccountBalance',
+      cause: err,
+      location: 'AccountListItem',
+    });
     return;
   }
 };
@@ -108,18 +136,18 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
     setCount(1);
   };
 
-  const handleOnTokensPress = (index) => {
+  const handleOnTokensPress = index => {
     setCount(0);
     onTokenPress(index);
-  }
+  };
 
-  const handleOnPress = (index) => {
+  const handleOnPress = index => {
     setCount(0);
     refreshBalances();
     onPress(index);
-  }
+  };
 
-  if(count === 0) {
+  if (count === 0) {
     refreshBalances();
   }
 
@@ -127,12 +155,14 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <TouchableOpacity onPress={handleOnPress}>
-          <KText style={styles.chainName}>{account.chainName} : {account.address}, {accountBalance}</KText>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={refreshBalances}>
-          <Icon name={'refresh'} size={25} color="#000000" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={handleOnPress}>
+            <KText style={styles.chainName}>
+              {account.chainName} : {account.address}, {accountBalance}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshBalances}>
+            <Icon name={'refresh'} size={25} color="#000000" />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -140,24 +170,28 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <TouchableOpacity onPress={handleOnPress}>
-          <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={refreshBalances}>
-          <Icon name={'refresh'} size={25} color="#000000" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={handleOnPress}>
+            <KText style={styles.chainName}>
+              {account.chainName} : {account.accountName}, {accountBalance}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshBalances}>
+            <Icon name={'refresh'} size={25} color="#000000" />
+          </TouchableOpacity>
         </View>
       </View>
     );
   } else {
     let tokens = getTokens(account.chainName);
-    if(tokens.length > 0) {
+    if (tokens.length > 0) {
       return (
         <View>
           <View onFocus={refreshBalances} style={styles.rowContainer}>
             <View style={[styles.container, props.style]}>
               <TouchableOpacity onPress={handleOnPress}>
-                <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+                <KText style={styles.chainName}>
+                  {account.chainName} : {account.accountName}, {accountBalance}
+                </KText>
               </TouchableOpacity>
               <TouchableOpacity onPress={refreshBalances}>
                 <Icon name={'refresh'} size={25} color="#000000" />
@@ -178,7 +212,9 @@ const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
         <View onFocus={refreshBalances} style={styles.rowContainer}>
           <View style={[styles.container, props.style]}>
             <TouchableOpacity onPress={handleOnPress}>
-              <KText style={styles.chainName}>{account.chainName} : {account.accountName}, {accountBalance}</KText>
+              <KText style={styles.chainName}>
+                {account.chainName} : {account.accountName}, {accountBalance}
+              </KText>
             </TouchableOpacity>
             <TouchableOpacity onPress={refreshBalances}>
               <Icon name={'refresh'} size={25} color="#000000" />

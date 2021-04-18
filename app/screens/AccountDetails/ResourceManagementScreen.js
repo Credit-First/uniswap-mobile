@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { KHeader, KButton, KText, KInput } from '../../components';
@@ -10,7 +17,6 @@ import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger';
-
 
 const ResourceManagementScreen = props => {
   // Form values:
@@ -45,8 +51,9 @@ const ResourceManagementScreen = props => {
       return;
     }
     let chain = getChain(account.chainName);
-    if (!chain) { // Should never happen
-      Alert.alert('Unknown chain: '+account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
       return;
     }
     // Do Staking:
@@ -54,18 +61,20 @@ const ResourceManagementScreen = props => {
     try {
       await stake(account, cpuStake, netStake, chain);
       setLoadingStake(false);
-      Alert.alert('Successfully staked! Reload account details screen to see new stats.');
-    } catch(err) {
-      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(
+        'Successfully staked! Reload account details screen to see new stats.',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingStake(false);
       log({
         description: '_handleCpuNetStake',
         cause: errorMsg,
-        location: 'ResourceManagementScreen'
+        location: 'ResourceManagementScreen',
       });
     }
-  }
+  };
 
   const _handleBuyRam = async () => {
     let ramAmount = parseFloat(newRamAmount);
@@ -79,26 +88,29 @@ const ResourceManagementScreen = props => {
       return;
     }
     let chain = getChain(account.chainName);
-    if (!chain) { // Should never happen
-      Alert.alert('Unknown chain: '+account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
       return;
     }
     setLoadingRAM(true);
     try {
       await buyram(account, ramAmount, chain);
       setLoadingRAM(false);
-      Alert.alert('Successfully bought RAM! Reload account details screen to see new stats.');
-    } catch(err) {
-      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(
+        'Successfully bought RAM! Reload account details screen to see new stats.',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingRAM(false);
       log({
         description: '_handleBuyRam',
         cause: errorMsg,
-        location: 'ResourceManagementScreen'
+        location: 'ResourceManagementScreen',
       });
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,7 +123,7 @@ const ResourceManagementScreen = props => {
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
-              />
+            />
           </TouchableOpacity>
           <KHeader
             title={'Resource management'}
@@ -119,7 +131,9 @@ const ResourceManagementScreen = props => {
             style={styles.header}
           />
           <KText>Available balance: {params.liquidBalance}</KText>
-          <KText>Staked CPU/NET: {params.cpuStaked} / {params.netStaked}</KText>
+          <KText>
+            Staked CPU/NET: {params.cpuStaked} / {params.netStaked}
+          </KText>
           <View style={styles.spacer} />
           <KInput
             label={'Stake for CPU'}

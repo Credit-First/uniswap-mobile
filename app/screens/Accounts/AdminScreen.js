@@ -20,7 +20,6 @@ import KeyItem from './components/KeyItem';
 import { getAccount } from '../../eos/eos';
 import { log } from '../../logger/logger';
 
-
 const AdminScreen = props => {
   const {
     connectAccount,
@@ -35,10 +34,10 @@ const AdminScreen = props => {
   const [error, setError] = useState();
 
   const adminAccount = accounts.filter((value, index, array) => {
-    return (value.chainName === 'FIO' && value.address === 'admin@tribe');
+    return value.chainName === 'FIO' && value.address === 'admin@tribe';
   });
 
-  const processSecret = (json) => {
+  const processSecret = json => {
     if (json) {
       let key = json.memo;
       setPrivateKey(key);
@@ -52,7 +51,7 @@ const AdminScreen = props => {
         setPublicKey(publicKey);
       }
     } else {
-      setError('No response:'+json);
+      setError('No response:' + json);
     }
   };
 
@@ -62,59 +61,62 @@ const AdminScreen = props => {
     }
   };
 
-if (adminAccount.length > 0) {
-  return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        enableOnAndroid>
-        <View style={styles.content}>
-          <TouchableOpacity style={styles.backButton} onPress={goBack}>
-            <MaterialIcon
-              name={'keyboard-backspace'}
-              size={24}
-              color={PRIMARY_BLUE}
+  if (adminAccount.length > 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.content}>
+            <TouchableOpacity style={styles.backButton} onPress={goBack}>
+              <MaterialIcon
+                name={'keyboard-backspace'}
+                size={24}
+                color={PRIMARY_BLUE}
+              />
+            </TouchableOpacity>
+            <KHeader title={'Admin: Load account'} style={styles.header} />
+            <KInput
+              label={'Account name'}
+              value={accountName}
+              placeholder={'Enter account name'}
+              onChangeText={setAccountName}
+              containerStyle={styles.inputContainer}
+              autoCapitalize={'none'}
             />
-          </TouchableOpacity>
-          <KHeader title={'Admin: Load account'} style={styles.header}/>
-          <KInput
-            label={'Account name'}
-            value={accountName}
-            placeholder={'Enter account name'}
-            onChangeText={setAccountName}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-          />
-          <View style={styles.spacer} />
-          <KText>{chainName}</KText>
-          <View style={styles.spacer} />
-          <KeyItem publicKey={publicKey} privateKey={privateKey} style={styles.listItem}/>
-          <KText style={styles.error}>{error}</KText>
-          <View style={styles.spacer} />
-          <KButton
-            title={'Load keys'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={_handleLoadAccountKey}
-          />
-        </View>
-      </KeyboardAwareScrollView>
-    </SafeAreaView>
+            <View style={styles.spacer} />
+            <KText>{chainName}</KText>
+            <View style={styles.spacer} />
+            <KeyItem
+              publicKey={publicKey}
+              privateKey={privateKey}
+              style={styles.listItem}
+            />
+            <KText style={styles.error}>{error}</KText>
+            <View style={styles.spacer} />
+            <KButton
+              title={'Load keys'}
+              theme={'brown'}
+              style={styles.button}
+              onPress={_handleLoadAccountKey}
+            />
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
     );
-} else {
-  return (
-  <SafeAreaView style={styles.container}>
-    <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContentContainer}
-      enableOnAndroid>
-      <View style={styles.content}>
-        <KHeader title={'No Admin account'} style={styles.header}/>
-      </View>
-    </KeyboardAwareScrollView>
-  </SafeAreaView>
-  );
-}
-
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.content}>
+            <KHeader title={'No Admin account'} style={styles.header} />
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  }
 };
 
 export default connectAccounts()(AdminScreen);

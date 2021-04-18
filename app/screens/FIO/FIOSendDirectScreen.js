@@ -4,7 +4,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   View,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -15,13 +16,9 @@ import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
-import {
-  supportedChains,
-  getChain,
-  getEndpoint } from '../../eos/chains';
+import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
-
 
 const FIOSendDirectScreen = props => {
   const [chainName, setChainName] = useState();
@@ -32,10 +29,7 @@ const FIOSendDirectScreen = props => {
     navigation: { navigate, goBack },
     accountsState: { accounts, addresses, keys, config },
     route: {
-      params: {
-        fromFioAccount,
-        toFioAddress,
-      },
+      params: { fromFioAccount, toFioAddress },
     },
   } = props;
 
@@ -48,15 +42,15 @@ const FIOSendDirectScreen = props => {
     }
   });
 
-  const _callback = (txid) => {
-    Alert.alert('Transfer completed: '+txid);
+  const _callback = txid => {
+    Alert.alert('Transfer completed: ' + txid);
     goBack();
-  }
+  };
 
   const doEOSIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     const chain = getChain(chainName);
     if (!chain) {
-      Alert.alert('Unknown EOSIO chain '+chainName);
+      Alert.alert('Unknown EOSIO chain ' + chainName);
       setLoading(false);
       return;
     }
@@ -69,7 +63,9 @@ const FIOSendDirectScreen = props => {
     const [toActor, toPubkey] = toAccountPubkey.split(',');
     const toAccountInfo = await getAccount(toActor, chain);
     if (!toAccountInfo) {
-      Alert.alert('Error fetching account data for '+toActor+' on chain '+chainName);
+      Alert.alert(
+        'Error fetching account data for ' + toActor + ' on chain ' + chainName,
+      );
       return;
     }
     // From EOSIO Account record:
@@ -81,7 +77,12 @@ const FIOSendDirectScreen = props => {
     const [fromActor, fromPubkey] = fromAccountPubkey.split(',');
     const fromAccountInfo = await getAccount(fromActor, chain);
     if (!fromAccountInfo) {
-      Alert.alert('Error fetching account data for '+fromActor+' on chain '+chainName);
+      Alert.alert(
+        'Error fetching account data for ' +
+          fromActor +
+          ' on chain ' +
+          chainName,
+      );
       return;
     }
     // Find matching active account:
@@ -89,46 +90,56 @@ const FIOSendDirectScreen = props => {
       return value.accountName === fromActor && value.chainName === chainName;
     });
     if (activeAccounts.length === 0) {
-      Alert.alert('Could not find matching account to send transfer from in this wallet');
+      Alert.alert(
+        'Could not find matching account to send transfer from in this wallet',
+      );
       setLoading(false);
       return;
     }
     // Check amount
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
-      Alert.alert('Invalid transfer amount '+floatAmount);
+      Alert.alert('Invalid transfer amount ' + floatAmount);
       setLoading(false);
       return;
     }
     // Now do transfer
     try {
       setLoading(true);
-      const res = await transfer(toActor,
+      const res = await transfer(
+        toActor,
         floatAmount,
         memo,
         fromFioAccount,
-        chain);
-        if (res && res.transaction_id) {
-          Alert.alert("Transfer completed in tx "+res.transaction_id);
-        } else {
-          let fromAccountName = (fromFioAccount.address) ? fromFioAccount.address : fromFioAccount.accountName;
-          let error = {
-            description: 'Failed doEOSIOTransfer',
-            method: 'transfer',
-            location: 'FIOSendDirectScreen',
-            cause: res,
-            fromAccount: fromAccountName,
-            toAccount: toActor,
-            amount: floatAmount,
-            chain: chain
-          };
-          log(error);
-          Alert.alert("FIO Send: transfer failed.");
-    		}
+        chain,
+      );
+      if (res && res.transaction_id) {
+        Alert.alert('Transfer completed in tx ' + res.transaction_id);
+      } else {
+        let fromAccountName = fromFioAccount.address
+          ? fromFioAccount.address
+          : fromFioAccount.accountName;
+        let error = {
+          description: 'Failed doEOSIOTransfer',
+          method: 'transfer',
+          location: 'FIOSendDirectScreen',
+          cause: res,
+          fromAccount: fromAccountName,
+          toAccount: toActor,
+          amount: floatAmount,
+          chain: chain,
+        };
+        log(error);
+        Alert.alert('FIO Send: transfer failed.');
+      }
       setLoading(false);
-    } catch(err) {
-      Alert.alert('Transfer failed: '+err);
-      log({ description: 'doEOSIOTransfer', cause: err, location: 'FIOSendScreen'});
+    } catch (err) {
+      Alert.alert('Transfer failed: ' + err);
+      log({
+        description: 'doEOSIOTransfer',
+        cause: err,
+        location: 'FIOSendScreen',
+      });
       setLoading(false);
     }
   };
@@ -136,118 +147,163 @@ const FIOSendDirectScreen = props => {
   const doAlgoTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     // Find imported matching from account:
     const activeAccounts = accounts.filter((value, index, array) => {
-      return value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey;
+      return (
+        value.chainName === 'ALGO' && value.account.addr === fromAccountPubkey
+      );
     });
     if (activeAccounts.length === 0) {
-      Alert.alert('Could not find imported Algo account to pubkey '+fromAccountPubkey);
+      Alert.alert(
+        'Could not find imported Algo account to pubkey ' + fromAccountPubkey,
+      );
       setLoading(false);
       return;
     }
     // Check amount
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
-      Alert.alert('Invalid transfer amount '+floatAmount);
+      Alert.alert('Invalid transfer amount ' + floatAmount);
       setLoading(false);
       return;
     }
-    submitAlgoTransaction(fromFioAccount, toAccountPubkey, floatAmount, memo, _callback);
+    submitAlgoTransaction(
+      fromFioAccount,
+      toAccountPubkey,
+      floatAmount,
+      memo,
+      _callback,
+    );
   };
 
-  const doFIOTransfer = async  (toAccountPubkey, fromAccountPubkey) => {
+  const doFIOTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
-      Alert.alert('Invalid transfer amount '+floatAmount);
+      Alert.alert('Invalid transfer amount ' + floatAmount);
       setLoading(false);
       return;
     }
     try {
-      await sendFioTransfer(fromFioAccount, toAccountPubkey, floatAmount, memo, _callback);
-    } catch(err) {
-      Alert.alert('Transfer failed: '+err);
-      log({ description: 'doFIOTransfer', cause: err, location: 'FIOSendScreen'});
+      await sendFioTransfer(
+        fromFioAccount,
+        toAccountPubkey,
+        floatAmount,
+        memo,
+        _callback,
+      );
+    } catch (err) {
+      Alert.alert('Transfer failed: ' + err);
+      log({
+        description: 'doFIOTransfer',
+        cause: err,
+        location: 'FIOSendScreen',
+      });
     }
   };
 
-  const handleFromToAccountTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+  const handleFromToAccountTransfer = async (
+    toAccountPubkey,
+    fromAccountPubkey,
+  ) => {
     if (!fromAccountPubkey) {
-      Alert.alert('No valid '+chainName+' public address found for '+fromFioAccount.address);
+      Alert.alert(
+        'No valid ' +
+          chainName +
+          ' public address found for ' +
+          fromFioAccount.address,
+      );
       setLoading(false);
       return;
     }
     if (!toAccountPubkey) {
-      Alert.alert('No '+chainCode+' public address found for '+validToAccount);
+      Alert.alert(
+        'No ' + chainCode + ' public address found for ' + validToAccount,
+      );
       setLoading(false);
       return;
     }
     try {
-        setLoading(true);
-        if (chainName === 'ALGO') {
-          await doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
-        } else if (chainName === 'FIO') {
-          await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
-        } else { // Any of EOSIO based chains:
-          await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
-        }
-        setLoading(false);
-      } catch (e) {
-        setLoading(false);
-        Alert.alert(e.message);
+      setLoading(true);
+      if (chainName === 'ALGO') {
+        await doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
+      } else if (chainName === 'FIO') {
+        await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
+      } else {
+        // Any of EOSIO based chains:
+        await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);
       }
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      Alert.alert(e.message);
+    }
   };
 
-  const handleToAccountAddress = async (toAccountPubkey) => {
-    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+  const handleToAccountAddress = async toAccountPubkey => {
+    let chainCode = chainName === 'Telos' ? 'TLOS' : chainName;
     if (!toAccountPubkey) {
-      Alert.alert('No '+chainCode+' public address found for '+validToAccount);
+      Alert.alert(
+        'No ' + chainCode + ' public address found for ' + validToAccount,
+      );
       setLoading(false);
       return;
     }
     try {
-      fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+      fetch(fioEndpoint + '/v1/chain/get_pub_address', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "fio_address": fromFioAccount.address,
-          "chain_code": chainCode,
-          "token_code": chainCode
+          fio_address: fromFioAccount.address,
+          chain_code: chainCode,
+          token_code: chainCode,
         }),
       })
-      .then(response => response.json())
-      .then(json => handleFromToAccountTransfer(toAccountPubkey, json.public_address))
-      .catch(error => Alert.alert('Error fetching payer public address for '+chainCode));
+        .then(response => response.json())
+        .then(json =>
+          handleFromToAccountTransfer(toAccountPubkey, json.public_address),
+        )
+        .catch(error =>
+          Alert.alert('Error fetching payer public address for ' + chainCode),
+        );
     } catch (err) {
-      Alert.alert('Error: '+err);
-      log({ description: '_handleSubmit', cause: err, location: 'FIOSendScreen'});
+      Alert.alert('Error: ' + err);
+      log({
+        description: '_handleSubmit',
+        cause: err,
+        location: 'FIOSendScreen',
+      });
       return;
     }
   };
 
   const _handleSubmit = async () => {
     if (!fromFioAccount || !toFioAddress || !chainName || !amount) {
-      Alert.alert("Please fill all required fields including valid payee address!");
+      Alert.alert(
+        'Please fill all required fields including valid payee address!',
+      );
       return;
     }
-    let chainCode = (chainName === 'Telos') ? 'TLOS' : chainName;
+    let chainCode = chainName === 'Telos' ? 'TLOS' : chainName;
     setLoading(true);
     // Load toAccount actor,publicKey:
-    fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+    fetch(fioEndpoint + '/v1/chain/get_pub_address', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "fio_address": toFioAddress.address,
-        "chain_code": chainCode,
-        "token_code": chainCode
+        fio_address: toFioAddress.address,
+        chain_code: chainCode,
+        token_code: chainCode,
       }),
     })
-    .then(response => response.json())
-    .then(json => handleToAccountAddress(json.public_address))
-    .catch(error => Alert.alert('Error fetching payee public address for '+chainCode));
+      .then(response => response.json())
+      .then(json => handleToAccountAddress(json.public_address))
+      .catch(error =>
+        Alert.alert('Error fetching payee public address for ' + chainCode),
+      );
   };
 
   const _handleFIORequest = () => {
@@ -265,7 +321,7 @@ const FIOSendDirectScreen = props => {
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
-              />
+            />
           </TouchableOpacity>
           <KHeader
             title={'FIO Send payment'}
@@ -321,7 +377,6 @@ const FIOSendDirectScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(FIOSendDirectScreen);

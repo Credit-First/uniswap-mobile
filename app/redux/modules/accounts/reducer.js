@@ -10,7 +10,7 @@ import {
   FETCH_KEYS,
   ADD_KEY,
   SET_CONFIG,
-  GET_CONFIG
+  GET_CONFIG,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
 
@@ -80,7 +80,9 @@ function deleteAccount(state, payload) {
 
 function deleteAddress(state, payload) {
   let accounts = state.accounts;
-  let addresses = state.addresses.filter((_address, index) => index !== payload);
+  let addresses = state.addresses.filter(
+    (_address, index) => index !== payload,
+  );
   let keys = state.keys;
   let config = state.config;
   return {

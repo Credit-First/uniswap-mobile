@@ -6,10 +6,9 @@ const accountsState = {
   keys: [],
   config: {
     showAllTokens: true,
-  }
+  },
 };
 
-
 export const defaultReducers = {
-  accountsState
+  accountsState,
 };

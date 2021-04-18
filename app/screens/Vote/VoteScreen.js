@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, TouchableOpacity, View, Linking, FlatList, Text } from 'react-native';
+import {
+  SafeAreaView,
+  TouchableOpacity,
+  View,
+  Linking,
+  FlatList,
+  Text,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { get } from 'lodash';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -19,14 +26,13 @@ import ProducerListItem from './components/ProducerListItem';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
-
 const VoteScreen = props => {
   const {
     connectAccount,
     navigation: { navigate, goBack },
     route: {
       params: { account },
-    }
+    },
   } = props;
 
   const [producers, setProducers] = useState([]);
@@ -36,7 +42,6 @@ const VoteScreen = props => {
   const [liquidBalance, setLiquidBalance] = useState('0.0000');
   const [refundingBalance, setRefundingBalance] = useState('0.0000');
   const [totalStaked, setTotalStaked] = useState('0.0000');
-
 
   useEffect(() => {
     const fetchProducers = async () => {
@@ -79,7 +84,7 @@ const VoteScreen = props => {
         log({
           description: 'get producers failed with error',
           cause: err,
-          location: 'VoteScreen'
+          location: 'VoteScreen',
         });
       }
     };
@@ -116,31 +121,30 @@ const VoteScreen = props => {
       log({
         description: 'vote failed with error',
         cause: err,
-        location: 'VoteScreen'
+        location: 'VoteScreen',
       });
     }
     setVoting(false);
   };
 
   const getSubtitle = () => {
-    return account.chainName + " " + account.accountName;
-  }
+    return account.chainName + ' ' + account.accountName;
+  };
 
   const getTitle = () => {
-    return "Vote for " + account.chainName + " Block Producers";
-  }
-
+    return 'Vote for ' + account.chainName + ' Block Producers';
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <MaterialIcon
-          name={'keyboard-backspace'}
-          size={24}
-          color={PRIMARY_BLUE}
-        />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
+          />
+        </TouchableOpacity>
         <KHeader
           title={getTitle()}
           subTitle={getSubtitle()}
@@ -175,8 +179,7 @@ const VoteScreen = props => {
         />
       </View>
     </SafeAreaView>
-    );
-
+  );
 };
 
 export default connectAccounts()(VoteScreen);

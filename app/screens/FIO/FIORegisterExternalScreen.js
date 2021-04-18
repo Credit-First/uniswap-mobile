@@ -4,7 +4,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   View,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -16,7 +17,6 @@ import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
 import { getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
-
 
 const FIORegisterExternalScreen = props => {
   const [fioAccount, setFioAccount] = useState();
@@ -40,7 +40,7 @@ const FIORegisterExternalScreen = props => {
   };
 
   const getFee = async address => {
-    fetch(fioEndpoint+'/v1/chain/get_fee', {
+    fetch(fioEndpoint + '/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -58,8 +58,13 @@ const FIORegisterExternalScreen = props => {
 
   const _handleSubmit = async () => {
     try {
-      const res = await fioAddExternalAddress(fioAccount, chain, publicKey, fee);
-      Alert.alert("Successfully added!");
+      const res = await fioAddExternalAddress(
+        fioAccount,
+        chain,
+        publicKey,
+        fee,
+      );
+      Alert.alert('Successfully added!');
     } catch (e) {
       Alert.alert(e.message);
     }
@@ -76,7 +81,7 @@ const FIORegisterExternalScreen = props => {
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
-              />
+            />
           </TouchableOpacity>
           <KHeader
             title={'FIO Register External Account'}
@@ -120,7 +125,6 @@ const FIORegisterExternalScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(FIORegisterExternalScreen);

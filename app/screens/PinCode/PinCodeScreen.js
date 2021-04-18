@@ -18,14 +18,15 @@ const PinCodeScreen = ({ navigation }) => {
       setLoading(false);
     } catch (err) {
       // In case if Android fails - mark 'Pin Code' unsupported and unlock:
-      if (err.code == "E_CRYPTO_FAILED") {
+      if (err.code == 'E_CRYPTO_FAILED') {
         setSupported(false);
         setStatus('enter');
         setLoading(false);
         log({
-          description: 'checkHasPinCode: Allow entry without pin code (not supported)',
+          description:
+            'checkHasPinCode: Allow entry without pin code (not supported)',
           cause: err,
-          location: 'PinCodeScreen'
+          location: 'PinCodeScreen',
         });
       } else {
         setStatus('choose');
@@ -33,7 +34,7 @@ const PinCodeScreen = ({ navigation }) => {
         log({
           description: 'checkHasPinCode: Error',
           cause: err,
-          location: 'PinCodeScreen'
+          location: 'PinCodeScreen',
         });
       }
     }

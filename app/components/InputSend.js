@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View,
+import {
+  View,
   Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions } from 'react-native';
+  Dimensions,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import KText from './KText';
 import KInput from './KInput';
@@ -16,9 +18,7 @@ var inputWidth = width - 120;
 var groupInputWidth = width - 60;
 var buttonWidth = 40;
 
-
-const InputSend = ({onSendMessage, onSendCoin}) => {
-
+const InputSend = ({ onSendMessage, onSendCoin }) => {
   const [message, setMessage] = useState();
 
   const _handlePressSendMessage = () => {
@@ -30,8 +30,8 @@ const InputSend = ({onSendMessage, onSendCoin}) => {
     onSendCoin();
   };
 
-if (onSendMessage && onSendCoin) {
-  return (
+  if (onSendMessage && onSendCoin) {
+    return (
       <View style={styles.rowContainer}>
         <TextInput
           multiline={true}
@@ -39,32 +39,32 @@ if (onSendMessage && onSendCoin) {
           value={message}
           onChangeText={setMessage}
           style={styles.input}
-          />
-       <TouchableOpacity onPress={_handlePressSendMessage}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#6A63EE', '#59D4FC']}
-          style={styles.button}>
-          <Icon name={'send'} style={styles.icon} />
-        </LinearGradient>
-       </TouchableOpacity>
-       <TouchableOpacity onPress={_handlePressSendCoin}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#E06C39', '#DF8856']}
-          style={styles.button}>
-          <Image
-            source={require('../../assets/icons/coins.png')}
-            style={styles.buttonIcon}
+        />
+        <TouchableOpacity onPress={_handlePressSendMessage}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#6A63EE', '#59D4FC']}
+            style={styles.button}>
+            <Icon name={'send'} style={styles.icon} />
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={_handlePressSendCoin}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#E06C39', '#DF8856']}
+            style={styles.button}>
+            <Image
+              source={require('../../assets/icons/coins.png')}
+              style={styles.buttonIcon}
             />
-        </LinearGradient>
-       </TouchableOpacity>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
-  );
-} else {
-  return (
+    );
+  } else {
+    return (
       <View style={styles.rowContainer}>
         <TextInput
           multiline={true}
@@ -72,21 +72,19 @@ if (onSendMessage && onSendCoin) {
           value={message}
           onChangeText={setMessage}
           style={styles.group_input}
-          />
-       <TouchableOpacity onPress={_handlePressSendMessage}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#6A63EE', '#59D4FC']}
-          style={styles.button}>
-          <Icon name={'send'} style={styles.icon} />
-        </LinearGradient>
-       </TouchableOpacity>
+        />
+        <TouchableOpacity onPress={_handlePressSendMessage}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#6A63EE', '#59D4FC']}
+            style={styles.button}>
+            <Icon name={'send'} style={styles.icon} />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
-  );
-}
-
-
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default InputSend;

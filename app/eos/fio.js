@@ -18,8 +18,13 @@ const getFioChatEndpoint = () => {
   return 'https://fiochat.eostribe.io/messages';
 };
 
-const sendFioTransfer = async (fromFioAccount,
-  toPublicKey, amount, memo, callback) => {
+const sendFioTransfer = async (
+  fromFioAccount,
+  toPublicKey,
+  amount,
+  memo,
+  callback,
+) => {
   const privateKeys = [fromFioAccount.privateKey];
   const publicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
   const accountHash = Fio.accountHash(publicKey);
@@ -32,37 +37,41 @@ const sendFioTransfer = async (fromFioAccount,
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   //(1 FIO token = 1,000,000,000 SUFs)
-  const sufsAmount = (amount * 1000000000);
+  const sufsAmount = amount * 1000000000;
   const maxFee = 1500000000;
 
   const transaction = {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
+    actions: [
+      {
         account: 'fio.token',
         name: 'trnsfiopubky',
-        authorization: [{
+        authorization: [
+          {
             actor: accountHash,
             permission: 'active',
-        }],
+          },
+        ],
         data: {
-            payee_public_key: toPublicKey,
-            amount: sufsAmount.toString(),
-            max_fee: maxFee,
-            actor: accountHash,
-            tpid: 'crypto@tribe',
+          payee_public_key: toPublicKey,
+          amount: sufsAmount.toString(),
+          max_fee: maxFee,
+          actor: accountHash,
+          tpid: 'crypto@tribe',
         },
-    }]
+      },
+    ],
   };
 
-  var abiMap = new Map()
-  var tokenRawAbi = await rpc.get_raw_abi('fio.token')
-  abiMap.set('fio.token', tokenRawAbi)
+  var abiMap = new Map();
+  var tokenRawAbi = await rpc.get_raw_abi('fio.token');
+  abiMap.set('fio.token', tokenRawAbi);
 
   const tx = await Fio.prepareTransaction({
     transaction,
@@ -70,16 +79,16 @@ const sendFioTransfer = async (fromFioAccount,
     privateKeys,
     abiMap,
     textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
+    textEncoder: new TextEncoder(),
   });
 
-  var sendtime = (new Date()).getTime();
+  var sendtime = new Date().getTime();
   var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
     body: JSON.stringify(tx),
     method: 'POST',
   });
   const json = await pushResult.json();
-  var calltime = (new Date()).getTime() - sendtime;
+  var calltime = new Date().getTime() - sendtime;
 
   if (!json.processed) {
     log({
@@ -88,21 +97,18 @@ const sendFioTransfer = async (fromFioAccount,
       endpoint: fioEndpoint,
       calltime: calltime,
       cause: json,
-      location: 'fio'
+      location: 'fio',
     });
-    let errmsg = (json.message) ? json.message : json;
+    let errmsg = json.message ? json.message : json;
     Alert.alert(errmsg);
   }
-  if(callback && json.transaction_id) {
+  if (callback && json.transaction_id) {
     callback(json.transaction_id);
   }
   return json;
-}
+};
 
-const rejectFundsRequest = async (payerFioAccount,
-  fioRequestId,
-  fee) => {
-
+const rejectFundsRequest = async (payerFioAccount, fioRequestId, fee) => {
   const payerPrivateKey = payerFioAccount.privateKey;
   const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
   const payerActor = Fio.accountHash(payerPublicKey);
@@ -114,27 +120,31 @@ const rejectFundsRequest = async (payerFioAccount,
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const transaction = {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
-      account: 'fio.reqobt',
-      name: 'rejectfndreq',
-      authorization: [{
-        actor: payerActor,
-        permission: 'active',
-      }],
-      data: {
-        fio_request_id: fioRequestId,
-        max_fee: fee,
-        tpid: 'crypto@tribe',
-        actor: payerActor,
+    actions: [
+      {
+        account: 'fio.reqobt',
+        name: 'rejectfndreq',
+        authorization: [
+          {
+            actor: payerActor,
+            permission: 'active',
+          },
+        ],
+        data: {
+          fio_request_id: fioRequestId,
+          max_fee: fee,
+          tpid: 'crypto@tribe',
+          actor: payerActor,
+        },
       },
-    }]
+    ],
   };
 
   var abiMap = new Map();
@@ -150,13 +160,16 @@ const rejectFundsRequest = async (payerFioAccount,
     privateKeys,
     abiMap,
     textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
+    textEncoder: new TextEncoder(),
   });
 
-  var sendtime = (new Date()).getTime();
-  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var sendtime = new Date().getTime();
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
   const json = await pushResult.json();
-  var calltime = (new Date()).getTime() - sendtime;
+  var calltime = new Date().getTime() - sendtime;
 
   if (!json.processed) {
     log({
@@ -165,13 +178,14 @@ const rejectFundsRequest = async (payerFioAccount,
       endpoint: fioEndpoint,
       calltime: calltime,
       cause: json,
-      location: 'fio'
+      location: 'fio',
     });
- }
+  }
   return json;
 };
 
-const recordObtData = async (payerFioAccount,
+const recordObtData = async (
+  payerFioAccount,
   payeeFioAddress,
   payeePublicKey,
   token,
@@ -179,55 +193,58 @@ const recordObtData = async (payerFioAccount,
   fioRequestId,
   transactionId,
   memo,
-  fee) => {
+  fee,
+) => {
+  const payerFioAddress = payerFioAccount.address;
+  const payerPrivateKey = payerFioAccount.privateKey;
+  const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
+  const payerActor = Fio.accountHash(payerPublicKey);
 
-    const payerFioAddress = payerFioAccount.address;
-    const payerPrivateKey = payerFioAccount.privateKey;
-    const payerPublicKey = Ecc.privateToPublic(payerPrivateKey);
-    const payerActor = Fio.accountHash(payerPublicKey);
+  const fioEndpoint = getEndpoint('FIO');
+  const rpc = new JsonRpc(fioEndpoint);
 
-    const fioEndpoint = getEndpoint('FIO');
-    const rpc = new JsonRpc(fioEndpoint);
+  const info = await rpc.get_info();
+  const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
+  const currentDate = new Date();
+  const timePlusTen = currentDate.getTime() + expirationPeriod;
+  const timeInISOString = new Date(timePlusTen).toISOString();
+  const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
-    const info = await rpc.get_info();
-    const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
-    const currentDate = new Date();
-    const timePlusTen = currentDate.getTime() + expirationPeriod;
-    const timeInISOString = (new Date(timePlusTen)).toISOString();
-    const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+  const obtContent = {
+    payer_public_address: payerPublicKey,
+    payee_public_address: payeePublicKey,
+    amount: amount.toString(),
+    chain_code: token,
+    token_code: token,
+    status: 'sent_to_blockchain',
+    obt_id: transactionId,
+    memo: memo,
+    hash: null,
+    offline_url: null,
+  };
 
-    const obtContent = {
-      payer_public_address: payerPublicKey,
-      payee_public_address: payeePublicKey,
-      amount: amount.toString(),
-      chain_code: token,
-      token_code: token,
-      status: 'sent_to_blockchain',
-      obt_id: transactionId,
-      memo: memo,
-      hash: null,
-      offline_url: null
-    };
+  const cipher = Fio.createSharedCipher({
+    privateKey: payerPrivateKey,
+    publicKey: payeePublicKey,
+    textEncoder: new TextEncoder(),
+    textDecoder: new TextDecoder(),
+  });
+  const cipherHex = cipher.encrypt('record_obt_data_content', obtContent);
 
-    const cipher = Fio.createSharedCipher({
-      privateKey: payerPrivateKey,
-      publicKey: payeePublicKey,
-      textEncoder: new TextEncoder(),
-      textDecoder: new TextDecoder()}
-    );
-    const cipherHex = cipher.encrypt('record_obt_data_content', obtContent);
-
-    const transaction = {
-      expiration,
-      ref_block_num: blockInfo.block_num & 0xffff,
-      ref_block_prefix: blockInfo.ref_block_prefix,
-      actions: [{
+  const transaction = {
+    expiration,
+    ref_block_num: blockInfo.block_num & 0xffff,
+    ref_block_prefix: blockInfo.ref_block_prefix,
+    actions: [
+      {
         account: 'fio.reqobt',
         name: 'recordobt',
-        authorization: [{
-          actor: payerActor,
-          permission: 'active',
-        }],
+        authorization: [
+          {
+            actor: payerActor,
+            permission: 'active',
+          },
+        ],
         data: {
           payer_fio_address: payerFioAddress,
           payee_fio_address: payeeFioAddress,
@@ -237,51 +254,56 @@ const recordObtData = async (payerFioAccount,
           tpid: 'crypto@tribe',
           actor: payerActor,
         },
-      }]
-    };
+      },
+    ],
+  };
 
-    var abiMap = new Map();
-    var tokenRawAbi = await rpc.get_raw_abi('fio.reqobt');
-    abiMap.set('fio.reqobt', tokenRawAbi);
+  var abiMap = new Map();
+  var tokenRawAbi = await rpc.get_raw_abi('fio.reqobt');
+  abiMap.set('fio.reqobt', tokenRawAbi);
 
-    const chainId = info.chain_id;
-    var privateKeys = [payerPrivateKey];
+  const chainId = info.chain_id;
+  var privateKeys = [payerPrivateKey];
 
-    const tx = await Fio.prepareTransaction({
-      transaction,
-      chainId,
-      privateKeys,
-      abiMap,
-      textDecoder: new TextDecoder(),
-      textEncoder: new TextEncoder()
+  const tx = await Fio.prepareTransaction({
+    transaction,
+    chainId,
+    privateKeys,
+    abiMap,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder(),
+  });
+
+  var sendtime = new Date().getTime();
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
+  const json = await pushResult.json();
+  var calltime = new Date().getTime() - sendtime;
+
+  if (!json.processed) {
+    log({
+      description: 'recordObtData error',
+      transaction: transaction,
+      endpoint: fioEndpoint,
+      calltime: calltime,
+      cause: json,
+      location: 'fio',
     });
-
-    var sendtime = (new Date()).getTime();
-    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
-    const json = await pushResult.json();
-    var calltime = (new Date()).getTime() - sendtime;
-
-    if (!json.processed) {
-      log({
-        description: 'recordObtData error',
-        transaction: transaction,
-        endpoint: fioEndpoint,
-        calltime: calltime,
-        cause: json,
-        location: 'fio'
-      });
-   }
-    return json;
+  }
+  return json;
 };
 
-const fioDelegateSecretRequest = async (fromFioAccount,
+const fioDelegateSecretRequest = async (
+  fromFioAccount,
   toFioAddress,
   toPublicKey,
   token,
   email,
   secret,
-  fee) => {
-
+  fee,
+) => {
   const fromFioAddress = fromFioAccount.address;
   const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
@@ -293,7 +315,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const newFundsContent = {
@@ -303,7 +325,7 @@ const fioDelegateSecretRequest = async (fromFioAccount,
     token_code: token,
     memo: secret,
     hash: null,
-    offline_url: email
+    offline_url: email,
   };
 
   const fromPrivateKey = fromFioAccount.privateKey;
@@ -311,30 +333,34 @@ const fioDelegateSecretRequest = async (fromFioAccount,
     privateKey: fromPrivateKey,
     publicKey: toPublicKey,
     textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()}
-  );
+    textDecoder: new TextDecoder(),
+  });
   const cipherHex = cipher.encrypt('new_funds_content', newFundsContent);
 
   const transaction = {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
-      account: 'fio.reqobt',
-      name: 'newfundsreq',
-      authorization: [{
-        actor: fromActor,
-        permission: 'active',
-      }],
-      data: {
-        payer_fio_address: toFioAddress,
-        payee_fio_address: fromFioAddress,
-        content: cipherHex,
-        max_fee: fee,
-        tpid: 'crypto@tribe',
-        actor: fromActor,
+    actions: [
+      {
+        account: 'fio.reqobt',
+        name: 'newfundsreq',
+        authorization: [
+          {
+            actor: fromActor,
+            permission: 'active',
+          },
+        ],
+        data: {
+          payer_fio_address: toFioAddress,
+          payee_fio_address: fromFioAddress,
+          content: cipherHex,
+          max_fee: fee,
+          tpid: 'crypto@tribe',
+          actor: fromActor,
+        },
       },
-    }]
+    ],
   };
 
   var abiMap = new Map();
@@ -350,13 +376,16 @@ const fioDelegateSecretRequest = async (fromFioAccount,
     privateKeys,
     abiMap,
     textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
+    textEncoder: new TextEncoder(),
   });
 
-  var sendtime = (new Date()).getTime();
-  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var sendtime = new Date().getTime();
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
   const json = await pushResult.json();
-  var calltime = (new Date()).getTime() - sendtime;
+  var calltime = new Date().getTime() - sendtime;
 
   if (!json.processed) {
     log({
@@ -365,23 +394,24 @@ const fioDelegateSecretRequest = async (fromFioAccount,
       endpoint: fioEndpoint,
       calltime: calltime,
       cause: json,
-      location: 'fio'
+      location: 'fio',
     });
   }
   return json;
 };
 
-const fioSendMessage = async (fromFioAccount,
+const fioSendMessage = async (
+  fromFioAccount,
   toFioAddress,
   toPublicKey,
-  message) => {
-
+  message,
+) => {
   const fromFioAddress = fromFioAccount.address;
   const fromPrivateKey = fromFioAccount.privateKey;
   const fromPublicKey = Ecc.privateToPublic(fromPrivateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
   const toActor = Fio.accountHash(toPublicKey);
-  const id = fromActor+'-'+toActor;
+  const id = fromActor + '-' + toActor;
 
   const obtContent = {
     payer_public_address: fromPublicKey,
@@ -393,61 +423,65 @@ const fioSendMessage = async (fromFioAccount,
     obt_id: id,
     memo: message,
     hash: fromFioAddress,
-    offline_url: toFioAddress
+    offline_url: toFioAddress,
   };
 
   const cipher = Fio.createSharedCipher({
     privateKey: fromPrivateKey,
     publicKey: toPublicKey,
     textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()}
+    textDecoder: new TextDecoder(),
+  });
+  const encryptedMessage = cipher.encrypt(
+    'record_obt_data_content',
+    obtContent,
   );
-  const encryptedMessage = cipher.encrypt('record_obt_data_content', obtContent);
 
   const fioMessageRequest = {
     fromActor: fromActor,
     toActor: toActor,
-    encryptedMessage: encryptedMessage
+    encryptedMessage: encryptedMessage,
   };
 
   const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fioMessageRequest)
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fioMessageRequest),
   };
 
   try {
     let fioChatEndpoint = getFioChatEndpoint();
     fetch(fioChatEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => _handleMessageSent(data));
-  } catch(err) {
+      .then(response => response.json())
+      .then(data => _handleMessageSent(data));
+  } catch (err) {
     log({
       description: 'fioSendMessage error sending message',
       cause: err,
-      location: 'fio'
+      location: 'fio',
     });
   }
 };
 
-const _handleMessageSent = (data) => {
-  if(!data.processed) {
+const _handleMessageSent = data => {
+  if (!data.processed) {
     log({
       description: 'fioSendMessage:_handleMessageSent error',
       cause: data,
-      location: 'fio'
+      location: 'fio',
     });
   }
 };
 
-const fioNewFundsRequest = async (fromFioAccount,
+const fioNewFundsRequest = async (
+  fromFioAccount,
   toFioAddress,
   toPublicKey,
   token,
   amount,
   memo,
-  fee) => {
-
+  fee,
+) => {
   const fromFioAddress = fromFioAccount.address;
   const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
   const fromActor = Fio.accountHash(fromPublicKey);
@@ -459,7 +493,7 @@ const fioNewFundsRequest = async (fromFioAccount,
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const newFundsContent = {
@@ -469,7 +503,7 @@ const fioNewFundsRequest = async (fromFioAccount,
     token_code: token,
     memo: memo,
     hash: null,
-    offline_url: null
+    offline_url: null,
   };
 
   const fromPrivateKey = fromFioAccount.privateKey;
@@ -477,30 +511,34 @@ const fioNewFundsRequest = async (fromFioAccount,
     privateKey: fromPrivateKey,
     publicKey: toPublicKey,
     textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()}
-  );
+    textDecoder: new TextDecoder(),
+  });
   const cipherHex = cipher.encrypt('new_funds_content', newFundsContent);
 
   const transaction = {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
-      account: 'fio.reqobt',
-      name: 'newfundsreq',
-      authorization: [{
-        actor: fromActor,
-        permission: 'active',
-      }],
-      data: {
-        payer_fio_address: toFioAddress,
-        payee_fio_address: fromFioAddress,
-        content: cipherHex,
-        max_fee: fee,
-        tpid: 'crypto@tribe',
-        actor: fromActor,
+    actions: [
+      {
+        account: 'fio.reqobt',
+        name: 'newfundsreq',
+        authorization: [
+          {
+            actor: fromActor,
+            permission: 'active',
+          },
+        ],
+        data: {
+          payer_fio_address: toFioAddress,
+          payee_fio_address: fromFioAddress,
+          content: cipherHex,
+          max_fee: fee,
+          tpid: 'crypto@tribe',
+          actor: fromActor,
+        },
       },
-    }]
+    ],
   };
 
   var abiMap = new Map();
@@ -516,13 +554,16 @@ const fioNewFundsRequest = async (fromFioAccount,
     privateKeys,
     abiMap,
     textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
+    textEncoder: new TextEncoder(),
   });
 
-  var sendtime = (new Date()).getTime();
-  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var sendtime = new Date().getTime();
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
   const json = await pushResult.json();
-  var calltime = (new Date()).getTime() - sendtime;
+  var calltime = new Date().getTime() - sendtime;
 
   if (!json.processed) {
     log({
@@ -531,7 +572,7 @@ const fioNewFundsRequest = async (fromFioAccount,
       endpoint: fioEndpoint,
       calltime: calltime,
       cause: json,
-      location: 'fio'
+      location: 'fio',
     });
   }
   return json;
@@ -546,12 +587,12 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   var chainName = account.chainName;
-  if(chainName == "Telos") {
-    chainName = "TLOS";
+  if (chainName == 'Telos') {
+    chainName = 'TLOS';
   }
 
   // account is EOSIO (Not FIO account):
@@ -567,25 +608,31 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
-      account: 'fio.address',
-      name: 'addaddress',
-      authorization: [{
-        actor: fioActor,
-        permission: 'active',
-      }],
-      data: {
-        fio_address: fioAddress,
-        public_addresses: [{
-          chain_code: chainName,
-          token_code: chainName,
-          public_address: accIdentifier,
-        }],
-        max_fee: fee,
-        tpid: 'crypto@tribe',
-        actor: fioActor,
+    actions: [
+      {
+        account: 'fio.address',
+        name: 'addaddress',
+        authorization: [
+          {
+            actor: fioActor,
+            permission: 'active',
+          },
+        ],
+        data: {
+          fio_address: fioAddress,
+          public_addresses: [
+            {
+              chain_code: chainName,
+              token_code: chainName,
+              public_address: accIdentifier,
+            },
+          ],
+          max_fee: fee,
+          tpid: 'crypto@tribe',
+          actor: fioActor,
+        },
       },
-    }]
+    ],
   };
 
   var abiMap = new Map();
@@ -602,13 +649,16 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
       privateKeys,
       abiMap,
       textDecoder: new TextDecoder(),
-      textEncoder: new TextEncoder()
+      textEncoder: new TextEncoder(),
     });
 
-    var sendtime = (new Date()).getTime();
-    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+    var sendtime = new Date().getTime();
+    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+      body: JSON.stringify(tx),
+      method: 'POST',
+    });
     const json = await pushResult.json();
-    var calltime = (new Date()).getTime() - sendtime;
+    var calltime = new Date().getTime() - sendtime;
 
     if (!json.processed) {
       log({
@@ -618,24 +668,23 @@ const fioAddPublicAddress = async (fioAccount, account, fee) => {
         endpoint: fioEndpoint,
         calltime: calltime,
         result: json,
-        location: 'fio'
+        location: 'fio',
       });
     }
     return json;
-  } catch(err) {
+  } catch (err) {
     log({
       description: 'FIO Add Public Key Error',
       address: fioAddress,
       transaction: transaction,
       cause: err,
-      location: 'fio'
+      location: 'fio',
     });
   }
 };
 
 // Used to add external accounts (BTC, ETH, etc) pubkey to FIO address
 const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
-
   const fioEndpoint = getEndpoint('FIO');
   const rpc = new JsonRpc(fioEndpoint);
 
@@ -643,7 +692,7 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
   const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
   const currentDate = new Date();
   const timePlusTen = currentDate.getTime() + expirationPeriod;
-  const timeInISOString = (new Date(timePlusTen)).toISOString();
+  const timeInISOString = new Date(timePlusTen).toISOString();
   const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
   const publicKey = Ecc.privateToPublic(fioAccount.privateKey);
@@ -653,25 +702,31 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
     expiration,
     ref_block_num: blockInfo.block_num & 0xffff,
     ref_block_prefix: blockInfo.ref_block_prefix,
-    actions: [{
-      account: 'fio.address',
-      name: 'addaddress',
-      authorization: [{
-        actor: actor,
-        permission: 'active',
-      }],
-      data: {
-        fio_address: fioAccount.address,
-        public_addresses: [{
-          chain_code: chainName,
-          token_code: chainName,
-          public_address: pubkey,
-        }],
-        max_fee: fee,
-        tpid: 'crypto@tribe',
-        actor: actor,
+    actions: [
+      {
+        account: 'fio.address',
+        name: 'addaddress',
+        authorization: [
+          {
+            actor: actor,
+            permission: 'active',
+          },
+        ],
+        data: {
+          fio_address: fioAccount.address,
+          public_addresses: [
+            {
+              chain_code: chainName,
+              token_code: chainName,
+              public_address: pubkey,
+            },
+          ],
+          max_fee: fee,
+          tpid: 'crypto@tribe',
+          actor: actor,
+        },
       },
-    }]
+    ],
   };
 
   var abiMap = new Map();
@@ -687,13 +742,16 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
     privateKeys,
     abiMap,
     textDecoder: new TextDecoder(),
-    textEncoder: new TextEncoder()
+    textEncoder: new TextEncoder(),
   });
 
-  var sendtime = (new Date()).getTime();
-  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', { body: JSON.stringify(tx), method: 'POST', });
+  var sendtime = new Date().getTime();
+  var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+    body: JSON.stringify(tx),
+    method: 'POST',
+  });
   const json = await pushResult.json();
-  var calltime = (new Date()).getTime() - sendtime;
+  var calltime = new Date().getTime() - sendtime;
 
   if (!json.processed) {
     log({
@@ -702,16 +760,15 @@ const fioAddExternalAddress = async (fioAccount, chainName, pubkey, fee) => {
       endpoint: fioEndpoint,
       calltime: calltime,
       cause: json,
-      location: 'fio'
+      location: 'fio',
     });
   }
   return json;
 };
 
 const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
-
-  const toFioAddress = "admin@tribe";
-  const toPublicKey = "FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5";
+  const toFioAddress = 'admin@tribe';
+  const toPublicKey = 'FIO5ESppRYY3WVounFLTP9j3an5CwhSTxaJScKoeCNZ5PQHsyKYe5';
 
   const fromFioAddress = fromFioAccount.address;
   const fromPublicKey = Ecc.privateToPublic(fromFioAccount.privateKey);
@@ -728,7 +785,7 @@ const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
     token_code: token,
     memo: secret,
     hash: fromActor,
-    offline_url: null
+    offline_url: null,
   };
 
   const fromPrivateKey = fromFioAccount.privateKey;
@@ -736,8 +793,8 @@ const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
     privateKey: fromPrivateKey,
     publicKey: toPublicKey,
     textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()}
-  );
+    textDecoder: new TextDecoder(),
+  });
   const cipherHex = cipher.encrypt('new_funds_content', newFundsContent);
 
   fetch(keystoreEndpoint, {
@@ -747,11 +804,11 @@ const fioBackupEncryptedKey = (fromFioAccount, fromActor, token, secret) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      "account":fromAccount,
-      "chain":token,
-      "public_key":fromPublicKey,
-      "secret":cipherHex,
-      "device":deviceId
+      account: fromAccount,
+      chain: token,
+      public_key: fromPublicKey,
+      secret: cipherHex,
+      device: deviceId,
     }),
   })
     .then(response => response.text())
@@ -768,21 +825,20 @@ const processAccountSecret = (text, adminPrivateKey, callback) => {
       privateKey: adminPrivateKey,
       publicKey: publicKey,
       textEncoder: new TextEncoder(),
-      textDecoder: new TextDecoder()}
-    );
+      textDecoder: new TextDecoder(),
+    });
 
     let decryptedSecret = cipher.decrypt('new_funds_content', secret);
-    if(callback) {
+    if (callback) {
       callback(decryptedSecret);
     }
   } catch (error) {
-    Alert.alert(JSON.stringify(error))
+    Alert.alert(JSON.stringify(error));
   }
 };
 
 const loadAccountSecret = (adminFioAccount, accountName, callback) => {
-
-  const onePublicKey = "FIO66LLrG3KnxMwcCdxJgtf7yy1Zy8qcNNsBSoCBYrFX6zs82kA7z";
+  const onePublicKey = 'FIO66LLrG3KnxMwcCdxJgtf7yy1Zy8qcNNsBSoCBYrFX6zs82kA7z';
 
   const content = {
     payee_public_address: accountName,
@@ -791,18 +847,18 @@ const loadAccountSecret = (adminFioAccount, accountName, callback) => {
     token_code: 'FIO',
     memo: new Date().getTime(),
     hash: deviceId,
-    offline_url: null
+    offline_url: null,
   };
 
   const cipher = Fio.createSharedCipher({
     privateKey: adminFioAccount.privateKey,
     publicKey: onePublicKey,
     textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()}
-  );
+    textDecoder: new TextDecoder(),
+  });
   const cipherHex = cipher.encrypt('new_funds_content', content);
   try {
-    let endpoint = keystoreEndpoint+'/admin';
+    let endpoint = keystoreEndpoint + '/admin';
     fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -810,13 +866,15 @@ const loadAccountSecret = (adminFioAccount, accountName, callback) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "secret":cipherHex,
-        "device":deviceId
+        secret: cipherHex,
+        device: deviceId,
       }),
     })
-    .then(response => response.text())
-    .then(text => processAccountSecret(text, adminFioAccount.privateKey, callback));
-  } catch(err) {
+      .then(response => response.text())
+      .then(text =>
+        processAccountSecret(text, adminFioAccount.privateKey, callback),
+      );
+  } catch (err) {
     Alert.alert(JSON.stringify(err));
   }
 };
@@ -832,5 +890,5 @@ export {
   rejectFundsRequest,
   getFioChatEndpoint,
   fioBackupEncryptedKey,
-  loadAccountSecret
+  loadAccountSecret,
 };

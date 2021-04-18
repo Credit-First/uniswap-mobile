@@ -48,17 +48,26 @@ const ExchangeScreen = props => {
     }
 
     const floatAmount = parseFloat(sendAmount);
-    if(floatAmount > MAX_AMOUNT) {
-      Alert.alert('We do not recommended to submit large amount market orders.');
+    if (floatAmount > MAX_AMOUNT) {
+      Alert.alert(
+        'We do not recommended to submit large amount market orders.',
+      );
       return;
     }
 
     let chain = getChain(fromAccount.chainName);
     const accountInfo = await getAccount(fromAccount.accountName, chain);
-    let liquidBalance = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
+    let liquidBalance = parseFloat(
+      accountInfo.core_liquid_balance.split(' ')[0],
+    );
     let token = accountInfo.core_liquid_balance.split(' ')[1];
-    if(floatAmount > liquidBalance) {
-      Alert.alert('Amount is more then account liquid balance: '+liquidBalance+' '+token);
+    if (floatAmount > liquidBalance) {
+      Alert.alert(
+        'Amount is more then account liquid balance: ' +
+          liquidBalance +
+          ' ' +
+          token,
+      );
       return;
     }
 
@@ -118,7 +127,7 @@ const ExchangeScreen = props => {
     try {
       const accountInfo = await getAccount(account.accountName, chain);
       if (!accountInfo) {
-        Alert.alert('Could not load account info for '+account.accountName);
+        Alert.alert('Could not load account info for ' + account.accountName);
       }
       setFromAccountBalance(accountInfo.core_liquid_balance);
     } catch (e) {
@@ -138,9 +147,11 @@ const ExchangeScreen = props => {
     accounts.map(function(account) {
       if (account.chainName === 'EOS') {
         eosPresent = true;
-      } else if (account.chainName !== 'EOS'
-        && account.chainName !== 'FIO'
-        && account.chainName !== 'ALGO') {
+      } else if (
+        account.chainName !== 'EOS' &&
+        account.chainName !== 'FIO' &&
+        account.chainName !== 'ALGO'
+      ) {
         anotherValidChain = true;
       }
     });
@@ -217,7 +228,10 @@ const ExchangeScreen = props => {
               icon={'check'}
               onPress={_handleSubmit}
             />
-            <KText>(*) Note: exact receive amount depends on final market order execution at Newdex.io exchange.</KText>
+            <KText>
+              (*) Note: exact receive amount depends on final market order
+              execution at Newdex.io exchange.
+            </KText>
           </View>
         </KeyboardAwareScrollView>
       </SafeAreaView>

@@ -5,16 +5,23 @@ import {
   FlatList,
   View,
   Image,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './FIOChat.style';
-import { KHeader, KButton, KInput, KSelect, KText, InputSend } from '../../components';
+import {
+  KHeader,
+  KButton,
+  KInput,
+  KSelect,
+  KText,
+  InputSend,
+} from '../../components';
 import MessageListItem from './components/MessageListItem';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
-
 
 const GroupChatScreen = props => {
   const {
@@ -30,7 +37,7 @@ const GroupChatScreen = props => {
     return value.chainName == 'FIO';
   });
 
-  if(fioAccounts.length === 0) {
+  if (fioAccounts.length === 0) {
     Alert.alert('No FIO account exists int this wallet!');
     goBack();
     return;
@@ -38,16 +45,16 @@ const GroupChatScreen = props => {
 
   let myAccount = fioAccounts[0];
 
-  const processMessages = (json) => {
+  const processMessages = json => {
     var messages = [];
-    for(var i in json) {
+    for (var i in json) {
       let item = json[i];
       item.from = item.sender;
       item.fromAddress = item.sender;
       item.created = item.created_date;
       messages.push(json[i]);
     }
-    messages.push({"reload": true});
+    messages.push({ reload: true });
     setMessageList(messages);
   };
 
@@ -62,14 +69,19 @@ const GroupChatScreen = props => {
       })
         .then(response => response.json())
         .then(json => processMessages(json))
-        .catch(error => log({
-          description: 'loadMessages - fetch GET ' + groupChatEndpoint,
-          cause: error,
-          location: 'GroupChatScreen'
-        })
-      );
+        .catch(error =>
+          log({
+            description: 'loadMessages - fetch GET ' + groupChatEndpoint,
+            cause: error,
+            location: 'GroupChatScreen',
+          }),
+        );
     } catch (err) {
-      log({ description: 'loadMessages', cause: err, location: 'GroupChatScreen'});
+      log({
+        description: 'loadMessages',
+        cause: err,
+        location: 'GroupChatScreen',
+      });
       return;
     }
   };
@@ -86,8 +98,10 @@ const GroupChatScreen = props => {
     return 'chat as ' + myAccount.address;
   };
 
-  const _handleSendMessage = async (message) => {
-    if(!message) return;
+  const _handleSendMessage = async message => {
+    if (!message) {
+      return;
+    }
     try {
       fetch(groupChatEndpoint, {
         method: 'POST',
@@ -96,20 +110,22 @@ const GroupChatScreen = props => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "sender": myAccount.address,
-          "message": message
+          sender: myAccount.address,
+          message: message,
         }),
       })
         .then(response => response.json())
         .then(json => loadMessages(json))
-        .catch(error => log({
-          description: '_handleSendMessage - fetch ' + groupChatEndpoint + ' [POST]',
-          cause: error,
-          sender: myAccount.address,
-          message: message,
-          location: 'GroupChatScreen'
-        })
-      );
+        .catch(error =>
+          log({
+            description:
+              '_handleSendMessage - fetch ' + groupChatEndpoint + ' [POST]',
+            cause: error,
+            sender: myAccount.address,
+            message: message,
+            location: 'GroupChatScreen',
+          }),
+        );
     } catch (err) {
       Alert.alert(err.message);
       log({
@@ -117,7 +133,7 @@ const GroupChatScreen = props => {
         cause: err,
         sender: myAccount.address,
         message: message,
-        location: 'GroupChatScreen'
+        location: 'GroupChatScreen',
       });
     }
   };
@@ -131,31 +147,35 @@ const GroupChatScreen = props => {
   }
 
   return (
-      <SafeAreaView style={styles.container}>
-          <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
-            <MaterialIcon
-              name={'keyboard-backspace'}
-              size={24}
-              color={PRIMARY_BLUE}
-              />
-          </TouchableOpacity>
-          <KHeader title={getTitle()} subTitle={getSubtitle()} style={styles.header}/>
-          <InputSend onSendMessage={_handleSendMessage} onSendCoin={null}/>
-          <FlatList
-              data={messageList}
-              keyExtractor={(item, index) => `${index}`}
-              inverted={true}
-              renderItem={({ item, index }) => (
-                <MessageListItem item={item}
-                  myactor={myAccount.address}
-                  reloadAction={refreshMessages}
-                  style={styles.listItem} />
-              )}
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
+        <MaterialIcon
+          name={'keyboard-backspace'}
+          size={24}
+          color={PRIMARY_BLUE}
+        />
+      </TouchableOpacity>
+      <KHeader
+        title={getTitle()}
+        subTitle={getSubtitle()}
+        style={styles.header}
+      />
+      <InputSend onSendMessage={_handleSendMessage} onSendCoin={null} />
+      <FlatList
+        data={messageList}
+        keyExtractor={(item, index) => `${index}`}
+        inverted={true}
+        renderItem={({ item, index }) => (
+          <MessageListItem
+            item={item}
+            myactor={myAccount.address}
+            reloadAction={refreshMessages}
+            style={styles.listItem}
           />
-      </SafeAreaView>
+        )}
+      />
+    </SafeAreaView>
   );
-
 };
-
 
 export default connectAccounts()(GroupChatScreen);

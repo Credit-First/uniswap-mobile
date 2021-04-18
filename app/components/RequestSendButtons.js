@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Spinner from 'react-native-spinkit';
 
 const { height, width } = Dimensions.get('window');
-var buttonWidth = width/2 - 31;
+var buttonWidth = width / 2 - 31;
 
 const RequestSendButtons = ({
   icon,
@@ -16,7 +16,6 @@ const RequestSendButtons = ({
   onSendPress,
   visible = true,
 }) => {
-
   const renderMaterialIcon = () => {
     if (!!icon && typeof icon === 'string') {
       return <Icon name={icon} style={styles.icon} />;
@@ -33,35 +32,35 @@ const RequestSendButtons = ({
     return null;
   };
 
-  if(visible) {
+  if (visible) {
     return (
       <View style={styles.rowContainer}>
-       <TouchableOpacity onPress={onRequestPress} style={style}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#E06C39', '#DF8856']}
-          style={styles.container}>
-          {renderMaterialIcon()}
-          {renderIconComponent()}
-          <KText style={styles.title}>FIO Request</KText>
-        </LinearGradient>
-       </TouchableOpacity>
-       <TouchableOpacity onPress={onSendPress} style={style}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#6A63EE', '#59D4FC']}
-          style={styles.container}>
-          {renderMaterialIcon()}
-          {renderIconComponent()}
-          <KText style={styles.title}>FIO Send</KText>
-        </LinearGradient>
-       </TouchableOpacity>
+        <TouchableOpacity onPress={onRequestPress} style={style}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#E06C39', '#DF8856']}
+            style={styles.container}>
+            {renderMaterialIcon()}
+            {renderIconComponent()}
+            <KText style={styles.title}>FIO Request</KText>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onSendPress} style={style}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#6A63EE', '#59D4FC']}
+            style={styles.container}>
+            {renderMaterialIcon()}
+            {renderIconComponent()}
+            <KText style={styles.title}>FIO Send</KText>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     );
   } else {
-    return (<View style={styles.spacer} />);
+    return <View style={styles.spacer} />;
   }
 };
 
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     marginTop: 10,
     flexDirection: 'row',
-  }
+  },
 });
 
 export default RequestSendButtons;
