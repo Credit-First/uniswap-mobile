@@ -442,7 +442,7 @@ const FIOAddressActionsScreen = props => {
         setFioExpirationDate(item.expiration);
         try {
           if (item.expiration) {
-            const expireDate = Date.parse('2021-07-02T18:38:42');
+            const expireDate = Date.parse(item.expiration);
             const diffTime = expireDate - new Date();
             const days = parseInt(diffTime / (1000 * 60 * 60 * 24), 10);
             if (days < 90) {
