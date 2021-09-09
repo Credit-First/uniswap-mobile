@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, TouchableOpacity, FlatList, View } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import styles from './FIORequestSend.style';
-import { KHeader, KButton } from '../../components';
+import { KHeader, KButton, KInput } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 
@@ -14,6 +14,23 @@ const ListFIORequestsScreen = props => {
     },
     // accountsState: { accounts, addresses, keys, config },
   } = props;
+
+  const [filter, setFilter] = useState('');
+  const [filteredRequests, setFilteredRequests] = useState(fioRequests);
+
+  //console.log(fioRequests[0]);
+
+  const onChangeFilter = text => {
+    setFilter(text);
+    if(text.length > 0) {
+      let result = fioRequests.filter(
+        (item, index) => (item.payee_fio_address.indexOf(text) >= 0),
+      );
+      setFilteredRequests(result);
+    } else { // else - no filtering:
+      setFilteredRequests(fioRequests);
+    }
+  }
 
   const _handleViewFIORequest = fioRequest => {
     navigate('ViewFIORequest', { fioAccount, fioRequest, title });
@@ -38,8 +55,15 @@ const ListFIORequestsScreen = props => {
           subTitle={fioAccount.address}
           style={styles.header}
         />
+        <KInput
+          label={'Filter requests'}
+          value={filter}
+          onChangeText={onChangeFilter}
+          containerStyle={styles.inputContainer}
+          autoCapitalize={'none'}
+        />
         <FlatList
-          data={fioRequests}
+          data={filteredRequests}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
             <KButton

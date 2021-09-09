@@ -57,14 +57,8 @@ const TransactionsScreen = props => {
       Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
     } else if (account.chainName === 'TLOS') {
       Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'BOS') {
-      Linking.openURL('https://bos.bloks.io/account/' + account.accountName);
     } else if (account.chainName === 'WAX') {
       Linking.openURL('https://wax.bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'MEETONE') {
-      Linking.openURL(
-        'https://meetone.bloks.io/account/' + account.accountName,
-      );
     } else if (account.chainName === 'FIO') {
       Linking.openURL('https://fio.bloks.io/address/' + account.address);
     } else if (account.chainName === 'ALGO') {

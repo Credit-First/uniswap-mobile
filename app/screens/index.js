@@ -1,6 +1,7 @@
 export { default as SetPinCodeScreen } from './PinCode/PinCodeScreen';
 export { default as PinCodeScreen } from './PinCode/PinCodeScreen';
 export { default as AdminScreen } from './Accounts/AdminScreen';
+export { default as RecoverPrivateKeyScreen } from './Accounts/RecoverPrivateKeyScreen';
 export { default as AccountsScreen } from './Accounts/AccountsScreen';
 export { default as TokensScreen } from './Accounts/TokensScreen';
 export { default as KeyListScreen } from './Accounts/KeyListScreen';

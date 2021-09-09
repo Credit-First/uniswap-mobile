@@ -112,6 +112,42 @@ const ResourceManagementScreen = props => {
     }
   };
 
+  const checkPowerUpResponse = (json) => {
+    if(json.result) {
+      Alert.alert("Account powered up!");
+    } else {
+      Alert.alert("Something went wrong: "+json);
+    }
+  };
+
+  const _handlePowerUpAccount = async () => {
+    const powerUpUrl = "https://api.eospowerup.io/freePowerup/"+account.accountName;
+    try {
+      fetch(powerUpUrl, { method: 'GET' })
+        .then(response => response.json())
+        .then(json => checkPowerUpResponse(json))
+        .catch(error => Alert.alert("Error calling PowerUp EOS account service"));
+    } catch (err) {
+      Alert.alert("PowerUp Error: "+err);
+    }
+  };
+
+  var eosPowerupButton = <View style={styles.spacer} />;
+  if (account.chainName == 'EOS') {
+    eosPowerupButton = (
+      <View>
+        <KButton
+          title={'PowerUp Account'}
+          theme={'brown'}
+          style={styles.button}
+          icon={'add'}
+          onPress={_handlePowerUpAccount}
+        />
+        <View style={styles.spacer} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
@@ -161,7 +197,7 @@ const ResourceManagementScreen = props => {
             isLoading={loadingStake}
             onPress={_handleCpuNetStake}
           />
-          <View style={styles.spacer} />
+          {eosPowerupButton}
           <KText>
             RAM Used/Quota: {params.ramUsed}/{params.ramQuota} bytes
           </KText>

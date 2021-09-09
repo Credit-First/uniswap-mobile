@@ -150,7 +150,7 @@ const PrivateKeyDelegateScreen = props => {
             description: 'Failed _handleConnectAccountToAddress - segment 2',
             method: 'fioDelegateSecretRequest',
             location: 'PrivateKeyDelegateScreen',
-            cause: res,
+            cause: res2,
             fromAccount: fromAccount.accountName,
             guardian2: guardian2,
             guardian2Pubkey: guardian2Pubkey,
@@ -166,7 +166,7 @@ const PrivateKeyDelegateScreen = props => {
           description: 'Failed _handleConnectAccountToAddress - segment 1',
           method: 'fioDelegateSecretRequest',
           location: 'PrivateKeyDelegateScreen',
-          cause: res,
+          cause: res1,
           fromAccount: fromAccount.accountName,
           guardian1: guardian1,
           guardian1Pubkey: guardian1Pubkey,
@@ -187,9 +187,6 @@ const PrivateKeyDelegateScreen = props => {
     }
   };
 
-  const _loadAboutKeyDelegation = () => {
-    Linking.openURL('https://eostribe.io/keydelegation.html');
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -258,9 +255,6 @@ const PrivateKeyDelegateScreen = props => {
             onPress={_delegateKey}
             isLoading={loading}
           />
-          <Text style={styles.link} onPress={_loadAboutKeyDelegation}>
-            Learn more at https://eostribe.io
-          </Text>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

@@ -392,9 +392,7 @@ const AccountsScreen = props => {
       if (
         account.chainName == 'EOS' ||
         account.chainName == 'Telos' ||
-        account.chainName == 'BOS' ||
-        account.chainName == 'WAX' ||
-        account.chainName == 'MEET.ONE'
+        account.chainName == 'WAX' 
       ) {
         const privateKey = account.privateKey;
         const publicKey = ecc.privateToPublic(account.privateKey);

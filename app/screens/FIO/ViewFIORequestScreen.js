@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Fio } from '@fioprotocol/fiojs';
 import {
+  Text,
   Image,
   SafeAreaView,
   TouchableOpacity,
   Alert,
+  Clipboard,
   View,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -60,6 +62,7 @@ const ViewFIORequestScreen = props => {
   let decryptedContent = null;
   try {
     decryptedContent = cipher.decrypt('new_funds_content', fioRequest.content);
+    //console.log(decryptedContent);
   } catch (err) {
     Alert.alert('Error decrypting FIO Request: ' + err);
     log({
@@ -68,6 +71,13 @@ const ViewFIORequestScreen = props => {
       location: 'ViewFIORequestScreen',
     });
   }
+
+  const _copyMemoToClipboard = () => {
+    if(decryptedContent != null) {
+      Clipboard.setString(decryptedContent.memo);
+      Alert.alert('Memo copied to Clipboard');
+    }
+  };
 
   const getRequestTitle = () => {
     return fioRequest.payer_fio_address + ' -> ' + fioRequest.payee_fio_address;
@@ -558,7 +568,8 @@ const ViewFIORequestScreen = props => {
     decryptedContent != null &&
     payerRole &&
     chain &&
-    chainAccounts.length > 0
+    chainAccounts.length > 0 &&
+    decryptedContent.offline_url == null
   ) {
     return (
       <SafeAreaView style={styles.container}>
@@ -581,7 +592,8 @@ const ViewFIORequestScreen = props => {
           <KText>
             Amount: {decryptedContent.amount} {decryptedContent.token_code}
           </KText>
-          <KText>Memo: {decryptedContent.memo}</KText>
+          <Text>Memo:</Text>
+          <Text style={styles.link} onPress={() => copyToClipboard(decryptedContent.memo)}>{decryptedContent.memo}</Text>
           <KText>Timestamp: {fioRequest.time_stamp}</KText>
           <KText>Address: {decryptedContent.payee_public_address}</KText>
           <View style={styles.spacer} />
@@ -612,7 +624,7 @@ const ViewFIORequestScreen = props => {
         </View>
       </SafeAreaView>
     );
-  } else if (decryptedContent != null && payerRole && chain) {
+  } else if (decryptedContent != null && payerRole && chain && decryptedContent.offline_url == null) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
@@ -634,7 +646,8 @@ const ViewFIORequestScreen = props => {
           <KText>
             Amount: {decryptedContent.amount} {decryptedContent.token_code}
           </KText>
-          <KText>Memo: {decryptedContent.memo}</KText>
+          <Text>Memo:</Text>
+          <Text style={styles.link} onPress={_copyMemoToClipboard}>{decryptedContent.memo}</Text>
           <KText>Timestamp: {fioRequest.time_stamp}</KText>
           <KText>Address: {decryptedContent.payee_public_address}</KText>
           <KText style={styles.errorMessage}>
@@ -670,7 +683,7 @@ const ViewFIORequestScreen = props => {
         </View>
       </SafeAreaView>
     );
-  } else if (decryptedContent != null && payerRole) {
+  } else if (decryptedContent != null && payerRole && decryptedContent.offline_url == null) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
@@ -689,7 +702,8 @@ const ViewFIORequestScreen = props => {
           <KText>
             Amount: {decryptedContent.amount} {decryptedContent.token_code}
           </KText>
-          <KText>Memo: {decryptedContent.memo}</KText>
+          <Text>Memo:</Text>
+          <Text style={styles.link} onPress={_copyMemoToClipboard}>{decryptedContent.memo}</Text>
           <KText>Address: {decryptedContent.payee_public_address}</KText>
           <KText style={styles.errorMessage}>
             This wallet does not support {decryptedContent.chain_code} accounts.
@@ -741,7 +755,7 @@ const ViewFIORequestScreen = props => {
         </View>
       </SafeAreaView>
     );
-  } else if (decryptedContent != null && decryptedContent.offline_url) {
+  } else if (decryptedContent != null && decryptedContent.offline_url != null) {
     // Private key delegate:
     return (
       <SafeAreaView style={styles.container}>
@@ -764,7 +778,8 @@ const ViewFIORequestScreen = props => {
           <KText>
             Amount: {decryptedContent.amount} {decryptedContent.token_code}
           </KText>
-          <KText>Memo: {decryptedContent.memo}</KText>
+          <Text>Memo:</Text>
+          <Text style={styles.link} onPress={_copyMemoToClipboard}>{decryptedContent.memo}</Text>
           <KText>Timestamp: {fioRequest.time_stamp}</KText>
           <KText>Status: {fioRequest.status}</KText>
           <KText>Address: {decryptedContent.payee_public_address}</KText>
@@ -802,7 +817,8 @@ const ViewFIORequestScreen = props => {
           <KText>
             Amount: {decryptedContent.amount} {decryptedContent.token_code}
           </KText>
-          <KText>Memo: {decryptedContent.memo}</KText>
+          <Text>Memo:</Text>
+          <Text style={styles.link} onPress={_copyMemoToClipboard}>{decryptedContent.memo}</Text>
           <KText>Timestamp: {fioRequest.time_stamp}</KText>
           <KText>Status: {fioRequest.status}</KText>
           <KText>Address: {decryptedContent.payee_public_address}</KText>
@@ -846,6 +862,13 @@ const ViewFIORequestScreen = props => {
             icon={'check'}
             isLoading={loading}
             onPress={_handleContact}
+          />
+          <KButton
+            title={'Reject'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'check'}
+            onPress={_handleReject}
           />
         </View>
       </SafeAreaView>

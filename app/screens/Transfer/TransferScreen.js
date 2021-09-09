@@ -175,6 +175,11 @@ const TransferScreen = props => {
       Alert.alert('Select from account first!');
       return;
     }
+    // trim white space if present:
+    if(value.indexOf(' ') >= 0) {
+      value = value.trim();
+    }
+    // Then validate FIO address (if set):
     if (fromAccount.chainName === 'FIO') {
       if (value && value.indexOf('@') > 0) {
         _validateAddress(value);

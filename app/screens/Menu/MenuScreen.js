@@ -117,6 +117,11 @@ const MenuScreen = props => {
             onPress={_handleCreateAlgorandAccount}
           />
           <KButton
+            title={'Recover Private Key'}
+            style={styles.button}
+            onPress={() => navigate('RecoverPrivateKey')}
+          />
+          <KButton
             title={'List all keys in wallet'}
             style={styles.button}
             onPress={() => navigate('KeyList')}

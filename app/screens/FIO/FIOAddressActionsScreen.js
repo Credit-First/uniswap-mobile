@@ -246,7 +246,7 @@ const FIOAddressActionsScreen = props => {
       },
       body: JSON.stringify({
         fio_public_key: pubkey,
-        limit: 100,
+        limit: 1000,
         offset: 0,
       }),
     })
@@ -273,7 +273,7 @@ const FIOAddressActionsScreen = props => {
       },
       body: JSON.stringify({
         fio_public_key: pubkey,
-        limit: 100,
+        limit: 1000,
         offset: 0,
       }),
     })

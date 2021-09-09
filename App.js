@@ -55,6 +55,7 @@ import {
   VoteScreen,
   MenuScreen,
   AdminScreen,
+  RecoverPrivateKeyScreen,
   KeyListScreen,
   ExchangeScreen,
   PinCodeScreen,
@@ -66,6 +67,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="Accounts" component={AccountsScreen} />
       <AccountsStack.Screen name="Tokens" component={TokensScreen} />
       <AccountsStack.Screen name="Admin" component={AdminScreen} />
+      <AccountsStack.Screen name="RecoverPrivateKey" component={RecoverPrivateKeyScreen} />
       <AccountsStack.Screen
         name="ConnectAccount"
         component={ConnectAccountScreen}

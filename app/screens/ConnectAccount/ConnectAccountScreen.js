@@ -12,7 +12,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KInput, KSelect } from '../../components';
-import { supportedChains } from '../../eos/chains';
+import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { getAccount } from '../../eos/eos';
@@ -29,6 +29,8 @@ const ConnectAccountScreen = props => {
   const [privateKey, setPrivateKey] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const [chain, setChain] = useState(null);
+
+  const fioEndpoint = getEndpoint('FIO');
 
   var importableChains = [
     { name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io' },
@@ -56,13 +58,13 @@ const ConnectAccountScreen = props => {
       return;
     }
 
-    if (!ecc.isValidPrivate(privateKey)) {
+    if (!Ecc.isValidPrivate(privateKey)) {
       Alert.alert('Please input valid private key');
       return;
     }
 
     const fioPublicKey = Ecc.privateToPublic(privateKey);
-    fetch('http://fio.greymass.com/v1/chain/get_fio_names', {
+    fetch(fioEndpoint + '/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
