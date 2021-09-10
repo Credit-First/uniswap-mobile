@@ -105,11 +105,6 @@ const AddressBookScreen = props => {
             )}
           />
           <KButton
-            title={'Group chat'}
-            style={styles.button}
-            onPress={() => navigate('GroupChat')}
-          />
-          <KButton
             title={'Add address'}
             theme={'brown'}
             style={styles.button}

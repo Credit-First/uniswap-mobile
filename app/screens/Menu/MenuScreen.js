@@ -15,15 +15,15 @@ const MenuScreen = props => {
   } = props;
 
   const telosAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'Telos';
+    return (value != null && value.chainName === 'Telos');
   });
 
   const algoAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'ALGO';
+    return (value != null && value.chainName === 'ALGO');
   });
 
   const adminAccount = accounts.filter((value, index, array) => {
-    return value.chainName === 'FIO' && value.address === 'admin@tribe';
+    return (value != null && value.chainName === 'FIO' && value.address === 'admin@tribe');
   });
 
   const _handleCreateAlgorandAccount = () => {

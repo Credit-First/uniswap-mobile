@@ -205,18 +205,18 @@ const AccountsScreen = props => {
   };
 
   const telosAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'Telos';
+    return (value != null && value.chainName === 'Telos');
   });
 
   const fioAccounts = accounts.filter((value, index, array) => {
-    if (value.chainName === 'FIO') {
+    if (value != null && value.chainName === 'FIO') {
       loadIncomingMessages(value);
     }
-    return value.chainName === 'FIO';
+    return (value != null && value.chainName === 'FIO');
   });
 
   const algoAccounts = accounts.filter((value, index, array) => {
-    return value.chainName === 'ALGO';
+    return (value != null && value.chainName === 'ALGO');
   });
 
   const updateAccountLists = account => {
@@ -227,6 +227,7 @@ const AccountsScreen = props => {
 
   const _handlePressAccount = index => {
     const account = accounts[index];
+    if (account == null) return;
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
@@ -392,7 +393,7 @@ const AccountsScreen = props => {
       if (
         account.chainName == 'EOS' ||
         account.chainName == 'Telos' ||
-        account.chainName == 'WAX' 
+        account.chainName == 'WAX'
       ) {
         const privateKey = account.privateKey;
         const publicKey = ecc.privateToPublic(account.privateKey);

@@ -72,7 +72,7 @@ const GroupChatScreen = props => {
   };
 
   const refreshMessages = () => {
-    loadMessages();
+    //loadMessages();
   };
 
   const getTitle = () => {
@@ -128,7 +128,7 @@ const GroupChatScreen = props => {
   };
 
   if (messageList.length === 0) {
-    loadMessages();
+    //loadMessages();
   }
 
   return (
