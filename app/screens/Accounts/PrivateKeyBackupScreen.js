@@ -22,7 +22,7 @@ const PrivateKeyBackupScreen = props => {
     route: {
       params: { account },
     },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const _handleDelegateKey = () => {

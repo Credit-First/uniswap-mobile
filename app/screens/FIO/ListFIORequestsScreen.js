@@ -12,7 +12,6 @@ const ListFIORequestsScreen = props => {
     route: {
       params: { fioAccount, fioRequests, title },
     },
-    // accountsState: { accounts, addresses, keys, config },
   } = props;
 
   const [filter, setFilter] = useState('');

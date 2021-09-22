@@ -59,13 +59,22 @@ const FIOAddressActionsScreen = props => {
     route: {
       params: { account: fioAccount },
     },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
   const fioKey = Ecc.privateToPublic(privateKey);
   const fioEndpoint = getEndpoint('FIO');
+
+  const name = "FIO:" + fioAccount.address;
+  var usdValue = 0;
+  for (const elem of totals) {
+    if(elem.account===name) {
+      usdValue = elem.total;
+      break;
+    }
+  }
 
   const checkRegPubkey = async account => {
     var chainName = account.chainName;
@@ -612,6 +621,7 @@ const FIOAddressActionsScreen = props => {
         <KHeader title={fioAccount.address} style={styles.header} />
         <KText>Actor: {actor}</KText>
         <KText>Balance: {fioBalance} FIO</KText>
+        <KText>USD Value: ${usdValue}</KText>
         <KText>{fioRegistrationContent}</KText>
         <Text style={styles.link} onPress={_handleRenewFIOAddress}>
           {'Renew this FIO address'}

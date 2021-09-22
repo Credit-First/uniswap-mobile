@@ -31,6 +31,8 @@ const TransferScreen = props => {
     accountsState: { accounts, addresses },
   } = props;
 
+  console.log(accounts);
+
   const fioEndpoint = getEndpoint('FIO');
 
   const processToPubkeyUpdate = async toAccountPubkey => {

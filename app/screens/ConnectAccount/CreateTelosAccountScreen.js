@@ -65,7 +65,7 @@ const CreateTelosAccountScreen = props => {
         log({
           description: 'getFee - fetch ' + fioEndpoint + '/v1/chain/get_fee',
           cause: error,
-          location: 'FIOAddressActionsScreen',
+          location: 'CreateTelosAccountScreen',
         }),
       );
   };

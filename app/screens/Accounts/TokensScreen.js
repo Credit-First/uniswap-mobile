@@ -25,7 +25,7 @@ const TokensScreen = props => {
     route: {
       params: { account: account },
     },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const tokens = getTokens(account.chainName);

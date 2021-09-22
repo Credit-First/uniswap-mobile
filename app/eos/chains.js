@@ -57,7 +57,12 @@ const selectFastest = (chain, endpoint, json, sendtime) => {
 const checkEndpoint = async (chain, endpoint) => {
   try {
     var sendtime = new Date().getTime();
-    fetch(endpoint + '/v1/chain/get_info', {
+    var url = endpoint.trim();
+    if(url.slice(-1) != "/") {
+      url += '/';
+    }
+    url += 'v1/chain/get_info';
+    fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',

@@ -18,8 +18,11 @@ import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
 import { getChain, getEndpoint } from '../../eos/chains';
+import { getBalance } from '../../eos/tokens';
 import { findIndex } from 'lodash';
+import { getLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
+
 
 const AccountsScreen = props => {
   const {
@@ -27,8 +30,9 @@ const AccountsScreen = props => {
     deleteAccount,
     addAddress,
     addKey,
+    setTotal,
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
     chooseActiveAccount,
   } = props;
 
@@ -41,6 +45,20 @@ const AccountsScreen = props => {
   );
   const [runCount, setRunCount] = useState(0);
   const [newMessageCount, setNewMessageCount] = useState(0);
+  const [usdTotal, setUsdTotal] = useState(0.0);
+
+  //console.log(totals);
+  // Make sure empty account records removed:
+  accounts.map((value, index, array) => {
+    if(!value) {
+      console.log("Delete account #"+index);
+      deleteAccount(index);
+    }
+  });
+
+  const validAccounts = accounts.filter((value, index, array) => {
+    return (value != null);
+  });
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -226,7 +244,7 @@ const AccountsScreen = props => {
   };
 
   const _handlePressAccount = index => {
-    const account = accounts[index];
+    const account = validAccounts[index];
     if (account == null) return;
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
@@ -238,8 +256,34 @@ const AccountsScreen = props => {
   };
 
   const _handlePressTokenList = index => {
-    const account = accounts[index];
+    const account = validAccounts[index];
     navigate('Tokens', { account });
+  };
+
+  const updateTotal = () => {
+    var newTotal = 0;
+    for (const elem of totals) {
+      try {
+        newTotal += parseFloat(elem.total)
+      } catch(err) {
+        console.log(err);
+      }
+    }
+    setUsdTotal(newTotal.toFixed(2));
+  };
+
+  const _handleBalanceUpdate = async (account, balance) => {
+    var prices = await getLatestPrices();
+    let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
+    let price = prices[chain];
+    let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
+    let name = (chain==='FIO') ? account.address : account.accountName;
+    let record = {
+      "account": chain + ":" + name,
+      "total": usdval
+    };
+    setTotal(record);
+    updateTotal();
   };
 
   const getAppVersion = () => {
@@ -389,7 +433,7 @@ const AccountsScreen = props => {
   };
 
   const addKeysIfMissing = () => {
-    accounts.map(function(account) {
+    validAccounts.map(function(account) {
       if (
         account.chainName == 'EOS' ||
         account.chainName == 'Telos' ||
@@ -446,7 +490,7 @@ const AccountsScreen = props => {
     );
   }
 
-  if (accounts.length == 0) {
+  if (validAccounts.length == 0) {
     return (
       <SafeAreaView style={styles.container}>
         <Image
@@ -478,8 +522,9 @@ const AccountsScreen = props => {
           source={require('../../../assets/logo/tribe-logo.png')}
           resizeMode="contain"
         />
+        <Text style={styles.total}>${usdTotal}</Text>
         <FlatList
-          data={accounts}
+          data={validAccounts}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
             <AccountListItem
@@ -487,6 +532,7 @@ const AccountsScreen = props => {
               style={styles.listItem}
               onPress={() => _handlePressAccount(index)}
               onTokenPress={() => _handlePressTokenList(index)}
+              onBalanceUpdate={_handleBalanceUpdate}
             />
           )}
         />

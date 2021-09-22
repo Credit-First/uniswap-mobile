@@ -33,12 +33,20 @@ const AlgoAccountScreen = props => {
       params: { account: account },
     },
     deleteAccount,
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const divider = 1000000;
   const fioEndpoint = getEndpoint('FIO');
   // var runOnce = 0;
+  const name =  "ALGO:" + account.accountName;
+  var usdValue = 0;
+  for (const elem of totals) {
+    if(elem.account===name) {
+      usdValue = elem.total;
+      break;
+    }
+  }
 
   const copyToClipboard = () => {
     Clipboard.setString(account.account.addr);
@@ -190,6 +198,7 @@ const AlgoAccountScreen = props => {
         </TouchableOpacity>
         <KHeader title={account.accountName} style={styles.header} />
         <KText>Balance: {accountBalance} ALGO</KText>
+        <KText>USD Value: ${usdValue}</KText>
         <KText>Rewards: {rewards} ALGO</KText>
         <Text style={styles.link} onPress={copyToClipboard}>
           {account.account.addr}

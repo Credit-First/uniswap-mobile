@@ -22,18 +22,19 @@ const fioEndpoint = getEndpoint('FIO');
 const { height, width } = Dimensions.get('window');
 var chainWidth = width - 80;
 
-const loadAccountBalance = async (account, setAccountBalance) => {
+const loadAccountBalance = async (account, updateAccountBalance) => {
   const chain = getChain(account.chainName);
   if (!chain) {
     return;
   }
   try {
     const accountInfo = await getAccount(account.accountName, chain);
+    var balance = 0.0;
     if (accountInfo.core_liquid_balance) {
-      setAccountBalance(accountInfo.core_liquid_balance);
-    } else {
-      setAccountBalance('0 ' + chain.symbol);
+      let amount = accountInfo.core_liquid_balance.split(' ')[0];
+      balance = parseFloat(amount).toFixed(4);
     }
+    updateAccountBalance(balance);
   } catch (err) {
     log({
       description: 'loadAccountBalance',
@@ -44,7 +45,7 @@ const loadAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
-const loadFioAccountBalance = async (account, setAccountBalance) => {
+const loadFioAccountBalance = async (account, updateAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
     fetch(fioEndpoint + '/v1/chain/get_fio_balance', {
@@ -59,10 +60,10 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
     })
       .then(response => response.json())
       .then(json =>
-        setAccountBalance(
+        updateAccountBalance(
           json.balance !== undefined
-            ? (parseFloat(json.balance) / fioDivider).toFixed(4) + ' FIO'
-            : 'validate',
+            ? (parseFloat(json.balance) / fioDivider).toFixed(4)
+            : 0,
         ),
       )
       .catch(error =>
@@ -85,7 +86,7 @@ const loadFioAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
-const loadAlgoAccountBalance = async (account, setAccountBalance) => {
+const loadAlgoAccountBalance = async (account, updateAccountBalance) => {
   try {
     const addr = account.account.addr;
     fetch('http://algo.eostribe.io/v1/account/' + addr, {
@@ -97,8 +98,10 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
     })
       .then(response => response.json())
       .then(json =>
-        setAccountBalance(
-          (parseFloat(json.amount) / algoDivider).toFixed(4) + ' ALGO',
+        updateAccountBalance(
+          json.amount !== undefined
+            ? (parseFloat(json.amount) / algoDivider).toFixed(4)
+            : 0,
         ),
       )
       .catch(error =>
@@ -120,18 +123,24 @@ const loadAlgoAccountBalance = async (account, setAccountBalance) => {
   }
 };
 
-const AccountListItem = ({ account, onPress, onTokenPress, ...props }) => {
+const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
   const [count, setCount] = useState(0);
+
+  const updateAccountBalance = (balance) => {
+    let balText = balance + ' ' + account.chainName;
+    setAccountBalance(balText);
+    onBalanceUpdate(account, balance);
+  };
 
   const refreshBalances = () => {
     //console.log('Refreshing balances');
     if (account.chainName === 'FIO') {
-      loadFioAccountBalance(account, setAccountBalance);
+      loadFioAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'ALGO') {
-      loadAlgoAccountBalance(account, setAccountBalance);
+      loadAlgoAccountBalance(account, updateAccountBalance);
     } else {
-      loadAccountBalance(account, setAccountBalance);
+      loadAccountBalance(account, updateAccountBalance);
     }
     setCount(1);
   };

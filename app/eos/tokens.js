@@ -11,14 +11,34 @@ var tokens = [
     contract: 'ecoin1nation',
   },
   {
+    name: 'APX',
+    chain: 'TLOS',
+    contract: 'apx',
+  },
+  {
     name: 'SEEDS',
     chain: 'TLOS',
     contract: 'token.seeds',
   },
   {
+    name: 'TASK',
+    chain: 'TLOS',
+    contract: 'telostaskapp',
+  },
+  {
     name: 'TEACH',
     chain: 'TLOS',
     contract: 'teachology14',
+  },
+  {
+    name: 'DRIC',
+    chain: 'TLOS',
+    contract: 'persiandaric',
+  },
+  {
+    name: 'ACORN',
+    chain: 'TLOS',
+    contract: 'acornaccount',
   },
   {
     name: 'QBE',

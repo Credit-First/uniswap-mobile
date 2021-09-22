@@ -26,7 +26,7 @@ const PrivateKeyDelegateScreen = props => {
     route: {
       params: { account },
     },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const [fromAccount, setFromAccount] = useState();

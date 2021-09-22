@@ -28,15 +28,6 @@ import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { log } from '../../logger/logger';
 
-// const chars = '12345abcdefghijklmnopqrstuvwxyz';
-
-// function randomName() {
-//   var result = '';
-//   for (var i = 12; i > 0; --i) {
-//     result += chars[Math.round(Math.random() * (chars.length - 1))];
-//   }
-//   return result;
-// }
 
 const RegisterFIOAddressScreen = props => {
   const [email, setEmail] = useState();
@@ -48,21 +39,16 @@ const RegisterFIOAddressScreen = props => {
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [checkState, setCheckState] = useState('');
-  const [fioAccount, setFioAccount] = useState();
-  // const [fioFee, setFioFee] = useState(0);
   const [registeredAddresses, setRegisteredAddresses] = useState();
   const {
     addKey,
     connectAccount,
     navigation: { navigate, goBack },
-    // accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');
   const fioRegistrationUrl = 'https://fioregistration.eostribe.io/fioreg';
-  // Telos endpoint:
-  // const endpoint = getEndpoint('Telos');
-  // const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
   // Check device registrations endpint:
   const deviceId = DeviceInfo.getUniqueId();
   const checkDeviceEndpoint =
@@ -246,7 +232,7 @@ const RegisterFIOAddressScreen = props => {
     }
   };
 
-  const connectFioAccount = text => {
+  const connectFioAccount = (text, fioAccount) => {
     setLoading(false);
     try {
       let json = JSON.parse(text);
@@ -301,7 +287,8 @@ const RegisterFIOAddressScreen = props => {
     ecc.randomKey().then(privateKey => {
       const fioPubkey = Ecc.privateToPublic(privateKey);
       addKey({ private: privateKey, public: fioPubkey });
-      // const fioAccount = { address, privateKey, chainName: 'FIO' };
+      const fioAccount = { address, privateKey, chainName: 'FIO' };
+
       var hash = sha256(
         email + code + answer + deviceId + address + fioPubkey + currentUTCDate,
       );
@@ -323,13 +310,13 @@ const RegisterFIOAddressScreen = props => {
         body: JSON.stringify(request),
       })
         .then(response => response.text())
-        .then(text => connectFioAccount(text))
+        .then(text => connectFioAccount(text, fioAccount))
         .catch(error =>
           log({
             description: 'Register FIO service call error',
+            url: fioRegistrationUrl + '/register',
             cause: error,
             request: request,
-            // response: text,
             location: 'RegisterFIOAddressScreen',
           }),
         );

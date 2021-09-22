@@ -36,16 +36,26 @@ const AccountDetailsScreen = props => {
   const [ramUsagePct, setRamUsagePct] = useState(0);
   const [resourcesWarning, setResourcesWarning] = useState('');
 
+
   const {
     navigation: { navigate, goBack },
     route: {
       params: { account },
     },
     deleteAccount,
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const maxRatio = 0.95;
+  const chainPrefix = (account.chainName==="Telos") ? "TLOS" : account.chainName;
+  const name = chainPrefix + ":" + account.accountName;
+  var usdValue = 0;
+  for (const elem of totals) {
+    if(elem.account===name) {
+      usdValue = elem.total;
+      break;
+    }
+  }
 
   // Stake chart data:
   const stakeData = [
@@ -280,6 +290,7 @@ const AccountDetailsScreen = props => {
           />
           <View style={styles.spacer} />
           <KText>Available: {liquidBalance}</KText>
+          <KText>USD Value: ${usdValue}</KText>
           <KText>Total balance: {totalBalance}</KText>
           <KText>Refunding balance: {refundBalance}</KText>
           <KText>CPU Staked: {cpuStaked}</KText>

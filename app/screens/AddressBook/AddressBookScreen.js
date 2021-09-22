@@ -21,7 +21,7 @@ const AddressBookScreen = props => {
   const {
     deleteAddress,
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   // Remove duplicate addresses:

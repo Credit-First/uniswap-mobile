@@ -25,7 +25,7 @@ const FIORegisterExternalScreen = props => {
   const [fee, setFee] = useState(0);
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');

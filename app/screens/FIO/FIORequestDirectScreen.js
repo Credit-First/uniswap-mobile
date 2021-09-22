@@ -27,7 +27,7 @@ const FIORequestDirectScreen = props => {
   const [loading, setLoading] = useState(false);
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
     route: {
       params: { fromFioAccount, toFioAddress },
     },
