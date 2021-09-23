@@ -263,10 +263,19 @@ const AccountsScreen = props => {
   const updateTotal = () => {
     var newTotal = 0;
     for (const elem of totals) {
-      try {
-        newTotal += parseFloat(elem.total)
-      } catch(err) {
-        console.log(err);
+      if(elem.account && elem.account.indexOf(":") > 0) {
+        let chainAccount = elem.account.split(":");
+        const matchingAccounts = validAccounts.filter((value, index, array) => {
+          let accName = (value.address) ? value.address : value.accountName;
+          return (value.chainName===chainAccount[0] && accName===chainAccount[1]);
+        });
+        if(matchingAccounts.length > 0) {
+          try {
+            newTotal += parseFloat(elem.total)
+          } catch(err) {
+            console.log(err);
+          }
+        }
       }
     }
     setUsdTotal(newTotal.toFixed(2));

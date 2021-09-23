@@ -133,7 +133,7 @@ const ResourceManagementScreen = props => {
   };
 
   var eosPowerupButton = <View style={styles.spacer} />;
-  if (account.chainName == 'EOS') {
+  if (account.chainName === 'EOS') {
     eosPowerupButton = (
       <View>
         <KButton

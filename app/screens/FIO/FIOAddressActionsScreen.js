@@ -454,8 +454,11 @@ const FIOAddressActionsScreen = props => {
             const expireDate = Date.parse(item.expiration);
             const diffTime = expireDate - new Date();
             const days = parseInt(diffTime / (1000 * 60 * 60 * 24), 10);
-            if (days < 90) {
+            if (days > 0 && days < 90) {
               Alert.alert(item.fio_address + ' expires in ' + days + ' days!');
+            } else if(days < 0) {
+              let pastDays = 0 - days;
+              Alert.alert(item.fio_address + ' expired ' + pastDays + ' days ago!');
             }
           }
         } catch (err) {
