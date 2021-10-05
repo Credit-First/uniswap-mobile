@@ -29,12 +29,46 @@ const loadAccountBalance = async (account, updateAccountBalance) => {
   }
   try {
     const accountInfo = await getAccount(account.accountName, chain);
-    var balance = 0.0;
+    // Calculate balance:
+    var selfUnstaked = 0;
     if (accountInfo.core_liquid_balance) {
-      let amount = accountInfo.core_liquid_balance.split(' ')[0];
-      balance = parseFloat(amount).toFixed(4);
+      token = accountInfo.core_liquid_balance.split(' ')[1];
+      selfUnstaked = parseFloat(accountInfo.core_liquid_balance.split(' ')[0]);
     }
-    updateAccountBalance(balance);
+    // Calculate self stakes:
+    var selfCpuStaked = 0;
+    var selfNetStaked = 0;
+    if (accountInfo.self_delegated_bandwidth) {
+      if (accountInfo.self_delegated_bandwidth.cpu_weight) {
+        selfCpuStaked = parseFloat(
+          accountInfo.self_delegated_bandwidth.cpu_weight.split(' ')[0],
+        );
+      }
+      if (accountInfo.self_delegated_bandwidth.net_weight) {
+        selfNetStaked = parseFloat(
+          accountInfo.self_delegated_bandwidth.net_weight.split(' ')[0],
+        );
+      }
+    }
+    // Calculate refund amount:
+    var refund = accountInfo.refund_request;
+    var totRefund = 0;
+    if (refund) {
+      var cpuRefund = refund.cpu_amount
+        ? parseFloat(refund.cpu_amount.split(' ')[0])
+        : 0;
+      var netRefund = refund.net_amount
+        ? parseFloat(refund.net_amount.split(' ')[0])
+        : 0;
+      totRefund = cpuRefund + netRefund;
+    }
+    var totalBalance = (
+      selfUnstaked +
+      selfCpuStaked +
+      selfNetStaked +
+      totRefund
+    ).toFixed(4);
+    updateAccountBalance(totalBalance);
   } catch (err) {
     log({
       description: 'loadAccountBalance',

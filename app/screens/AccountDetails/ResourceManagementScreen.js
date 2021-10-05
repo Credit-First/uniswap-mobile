@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { KHeader, KButton, KText, KInput } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
-import { getAccount, stake, buyram } from '../../eos/eos';
+import { getAccount, stake, unstake, buyram, sellram } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
@@ -22,7 +22,10 @@ const ResourceManagementScreen = props => {
   // Form values:
   const [cpuNewStaked, setCpuNewStaked] = useState(0);
   const [netNewStaked, setNetNewStaked] = useState(0);
+  const [cpuNewUnstaked, setCpuNewUnstaked] = useState(0);
+  const [netNewUnstaked, setNetNewUnstaked] = useState(0);
   const [newRamAmount, setNewRamAmount] = useState(0);
+  const [sellRamBytes, setSellRamBytes] = useState(0);
   const [loadingStake, setLoadingStake] = useState(false);
   const [loadingRAM, setLoadingRAM] = useState(false);
 
@@ -62,7 +65,7 @@ const ResourceManagementScreen = props => {
       await stake(account, cpuStake, netStake, chain);
       setLoadingStake(false);
       Alert.alert(
-        'Successfully staked! Reload account details screen to see new stats.',
+        'Successfully staked!',
       );
     } catch (err) {
       let errorMsg = err.message !== undefined ? err.message : err;
@@ -70,6 +73,53 @@ const ResourceManagementScreen = props => {
       setLoadingStake(false);
       log({
         description: '_handleCpuNetStake',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen',
+      });
+    }
+  };
+
+  const _handleCpuNetUnstake = async () => {
+    let cpuUnstake = parseFloat(cpuNewUnstaked);
+    if (isNaN(cpuUnstake)) {
+      Alert.alert('Please input valid amount for CPU unstake');
+      return;
+    }
+    let netUnstake = parseFloat(netNewUnstaked);
+    if (isNaN(netUnstake)) {
+      Alert.alert('Please input valid amount for NET unstake');
+      return;
+    }
+    let totalCpuStaked = parseFloat(params.cpuStaked);
+    let totalNetStaked = parseFloat(params.netStaked);
+    if (cpuUnstake >= totalCpuStaked) {
+      Alert.alert('CPU unstake over limit: '+totalCpuStaked);
+      return;
+    }
+    if (netUnstake >= totalNetStaked) {
+      Alert.alert('NET unstake over limit: '+totalNetStaked);
+      return;
+    }
+    let chain = getChain(account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
+      return;
+    }
+    // Do Staking:
+    setLoadingStake(true);
+    try {
+      await unstake(account, cpuUnstake, netUnstake, chain);
+      setLoadingStake(false);
+      Alert.alert(
+        'Successfully unstaked!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
+      Alert.alert(errorMsg);
+      setLoadingStake(false);
+      log({
+        description: '_handleCpuNetUnstake',
         cause: errorMsg,
         location: 'ResourceManagementScreen',
       });
@@ -98,7 +148,7 @@ const ResourceManagementScreen = props => {
       await buyram(account, ramAmount, chain);
       setLoadingRAM(false);
       Alert.alert(
-        'Successfully bought RAM! Reload account details screen to see new stats.',
+        'Successfully bought RAM!',
       );
     } catch (err) {
       let errorMsg = err.message !== undefined ? err.message : err;
@@ -106,6 +156,42 @@ const ResourceManagementScreen = props => {
       setLoadingRAM(false);
       log({
         description: '_handleBuyRam',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen',
+      });
+    }
+  };
+
+  const _handleSellRam = async () => {
+    let ramBytes = parseInt(sellRamBytes);
+    if (isNaN(ramBytes)) {
+      Alert.alert('Please input valid integer bytes');
+      return;
+    }
+    let ramUsed = parseInt(params.ramUsed);
+    let ramQuota = parseInt(params.ramQuota);
+    if (ramBytes >= (ramQuota - ramUsed)) {
+      Alert.alert('RAM bytes to sell above available quota');
+      return;
+    }
+    let chain = getChain(account.chainName);
+    if (!chain) {
+      Alert.alert('Unknown chain: ' + account.chainName);
+      return;
+    }
+    setLoadingRAM(true);
+    try {
+      await sellram(account, ramBytes, chain);
+      setLoadingRAM(false);
+      Alert.alert(
+        'Successfully sold RAM!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
+      Alert.alert(errorMsg);
+      setLoadingRAM(false);
+      log({
+        description: '_handleSellRam',
         cause: errorMsg,
         location: 'ResourceManagementScreen',
       });
@@ -198,6 +284,34 @@ const ResourceManagementScreen = props => {
             onPress={_handleCpuNetStake}
           />
           {eosPowerupButton}
+          <View style={styles.spacer} />
+          <KInput
+            label={'Unstake from CPU'}
+            placeholder={'Enter amount to unstake from CPU'}
+            value={cpuNewUnstaked}
+            onChangeText={setCpuNewUnstaked}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KInput
+            label={'Unstake from NET'}
+            placeholder={'Enter amount to unstake from NET'}
+            value={netNewUnstaked}
+            onChangeText={setNetNewUnstaked}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KButton
+            title={'Unstake from CPU / NET'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            isLoading={loadingStake}
+            onPress={_handleCpuNetUnstake}
+          />
+          <View style={styles.spacer} />
           <KText>
             RAM Used/Quota: {params.ramUsed}/{params.ramQuota} bytes
           </KText>
@@ -217,6 +331,24 @@ const ResourceManagementScreen = props => {
             icon={'add'}
             isLoading={loadingRAM}
             onPress={_handleBuyRam}
+          />
+          <View style={styles.spacer} />
+          <KInput
+            label={'Sell RAM (in bytes)'}
+            placeholder={'Enter bytes of RAM to sell'}
+            value={sellRamBytes}
+            onChangeText={setSellRamBytes}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KButton
+            title={'Sell RAM'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            isLoading={loadingRAM}
+            onPress={_handleSellRam}
           />
         </View>
       </KeyboardAwareScrollView>

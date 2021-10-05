@@ -63,6 +63,46 @@ const stake = (account, cpuAmount, netAmount, chain) => {
   );
 };
 
+const unstake = (account, cpuAmount, netAmount, chain) => {
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
+  const signatureProvider = new JsSignatureProvider([account.privateKey]);
+
+  const api = new Api({
+    rpc,
+    signatureProvider,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder(),
+  });
+
+  return api.transact(
+    {
+      actions: [
+        {
+          account: 'eosio',
+          name: 'undelegatebw',
+          authorization: [
+            {
+              actor: account.accountName,
+              permission: 'active',
+            },
+          ],
+          data: {
+            from: account.accountName,
+            receiver: account.accountName,
+            unstake_cpu_quantity: `${cpuAmount.toFixed(4)} ${chain.symbol}`,
+            unstake_net_quantity: `${netAmount.toFixed(4)} ${chain.symbol}`
+          },
+        },
+      ],
+    },
+    {
+      blocksBehind: 3,
+      expireSeconds: 30,
+    },
+  );
+};
+
 const buyram = (account, amount, chain) => {
   const endpoint = getEndpoint(chain.name);
   const rpc = new JsonRpc(endpoint);
@@ -91,6 +131,44 @@ const buyram = (account, amount, chain) => {
             payer: account.accountName,
             quant: `${amount.toFixed(4)} ${chain.symbol}`,
             receiver: account.accountName,
+          },
+        },
+      ],
+    },
+    {
+      blocksBehind: 3,
+      expireSeconds: 30,
+    },
+  );
+};
+
+const sellram = (account, bytes, chain) => {
+  const endpoint = getEndpoint(chain.name);
+  const rpc = new JsonRpc(endpoint);
+  const signatureProvider = new JsSignatureProvider([account.privateKey]);
+
+  const api = new Api({
+    rpc,
+    signatureProvider,
+    textDecoder: new TextDecoder(),
+    textEncoder: new TextEncoder(),
+  });
+
+  return api.transact(
+    {
+      actions: [
+        {
+          account: 'eosio',
+          name: 'sellram',
+          authorization: [
+            {
+              actor: account.accountName,
+              permission: 'active',
+            },
+          ],
+          data: {
+            account: account.accountName,
+            bytes: bytes,
           },
         },
       ],
@@ -273,7 +351,9 @@ export {
   getProducers,
   getActions,
   stake,
+  unstake,
   buyram,
+  sellram,
   transfer,
   newdexTransfer,
   voteProducers,

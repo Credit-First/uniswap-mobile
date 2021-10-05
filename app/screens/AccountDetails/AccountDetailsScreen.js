@@ -154,7 +154,7 @@ const AccountDetailsScreen = props => {
       var netRefund = refund.net_amount
         ? parseFloat(refund.net_amount.split(' ')[0])
         : 0;
-      var totRefund = cpuRefund + netRefund;
+      totRefund = cpuRefund + netRefund;
       setRefundNumber(totRefund);
     }
     var total = (
