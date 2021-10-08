@@ -4,6 +4,11 @@ import { Alert } from 'react-native';
 
 var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 
+const createKeyPair = () => {
+  const pair = StellarSdk.Keypair.random();
+  return pair;
+}
+
 const submitStellarTransaction = async (fromAccount, destination, amount, memo) => {
 
   if(!fromAccount) {
@@ -68,4 +73,5 @@ const submitStellarTransaction = async (fromAccount, destination, amount, memo) 
 
 export {
   submitStellarTransaction,
+  createKeyPair
 };

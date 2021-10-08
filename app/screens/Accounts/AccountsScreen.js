@@ -15,6 +15,7 @@ import ecc from 'eosjs-ecc-rn';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
+import { createKeyPair } from '../../stellar/stellar';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger'
@@ -31,6 +32,11 @@ const AccountsScreen = props => {
     accountsState: { accounts, addresses, keys, config },
     chooseActiveAccount,
   } = props;
+
+  const stellarKeys = createKeyPair();
+  console.log(stellarKeys.secret());
+  console.log(stellarKeys.publicKey());
+
 
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
