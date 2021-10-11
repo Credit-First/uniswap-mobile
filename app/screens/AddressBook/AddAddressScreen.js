@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
-import { Image,
+import {
+  Image,
   View,
   FlatList,
   TouchableOpacity,
   SafeAreaView,
   Alert,
-  Text } from 'react-native';
+  Text,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KInput, KButton, KHeader, KText } from '../../components';
 import styles from './AddressBookScreen.style';
 import { connectAccounts } from '../../redux';
-import { log } from '../../logger/logger'
+import { log } from '../../logger/logger';
 import { getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
-
 
 const AddAddressScreen = props => {
   const {
     addAddress,
-    accountsState: { accounts, addresses, keys, config },
-    navigation: { navigate }
+    accountsState: { accounts, addresses, keys, totals, config },
+    navigation: { navigate },
   } = props;
 
   const [name, setName] = useState('');
@@ -37,8 +38,12 @@ const AddAddressScreen = props => {
     navigate('AddressBook');
   };
 
-  const _validateAddress = (address) => {
-    if (address.length >= 3 && address.indexOf('@') > 0 && address.indexOf('@') < address.length-1) {
+  const _validateAddress = address => {
+    if (
+      address.length >= 3 &&
+      address.indexOf('@') > 0 &&
+      address.indexOf('@') < address.length - 1
+    ) {
       fetch(fioEndpoint + '/v1/chain/avail_check', {
         method: 'POST',
         headers: {
@@ -75,9 +80,10 @@ const AddAddressScreen = props => {
       setActor('');
       setPublicKey('');
       log({
-        description: '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
+        description:
+          '_validateAddress - fetch ' + fioEndpoint + '/v1/chain/avail_check',
         cause: error,
-        location: 'TransferScreen'
+        location: 'TransferScreen',
       });
     }
   };
@@ -90,33 +96,41 @@ const AddAddressScreen = props => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "fio_address": address,
-        "chain_code": "FIO",
-        "token_code": "FIO",
+        fio_address: address,
+        chain_code: 'FIO',
+        token_code: 'FIO',
       }),
     })
       .then(response => response.json())
       .then(json => processToPubkeyUpdate(json.public_address))
-      .catch(error => log({
-        description: 'loadToPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
-        cause: error,
-        location: 'AddAddressScreen'
-      })
-    );
+      .catch(error =>
+        log({
+          description:
+            'loadToPubkey - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
+          cause: error,
+          location: 'AddAddressScreen',
+        }),
+      );
   };
 
-  const processToPubkeyUpdate = async (publicKey) => {
+  const processToPubkeyUpdate = async publicKey => {
     setPublicKey(publicKey);
     const accountHash = Fio.accountHash(publicKey);
     setActor(accountHash);
-  }
-
+  };
 
   const _handleAddAddress = () => {
-    if(fioAddress && publicKey) {
-      let addressJson = { name: name, address: fioAddress, actor: actor, publicKey: publicKey };
-      let matchingAddresses = addresses.filter((item, index) => item.address === fioAddress);
-      if(matchingAddresses.length == 0) {
+    if (fioAddress && publicKey) {
+      let addressJson = {
+        name: name,
+        address: fioAddress,
+        actor: actor,
+        publicKey: publicKey,
+      };
+      let matchingAddresses = addresses.filter(
+        (item, index) => item.address === fioAddress,
+      );
+      if (matchingAddresses.length == 0) {
         addAddress(addressJson);
         _handleBack();
       } else {
@@ -128,14 +142,14 @@ const AddAddressScreen = props => {
   };
 
   return (
-     <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
         <TouchableOpacity style={styles.backButton} onPress={_handleBack}>
           <MaterialIcon
             name={'keyboard-backspace'}
             size={24}
             color={PRIMARY_BLUE}
-            />
+          />
         </TouchableOpacity>
         <KHeader title={'Add FIO Address'} style={styles.header} />
         <KInput
@@ -144,7 +158,8 @@ const AddAddressScreen = props => {
           value={address}
           onChangeText={_validateAddress}
           containerStyle={styles.inputContainer}
-          autoCapitalize={'none'} />
+          autoCapitalize={'none'}
+        />
         <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
         <KInput
           label={'Name'}
@@ -152,18 +167,19 @@ const AddAddressScreen = props => {
           value={name}
           onChangeText={setName}
           containerStyle={styles.inputContainer}
-          autoCapitalize={'none'} />
+          autoCapitalize={'none'}
+        />
         <KButton
           title={'Save'}
           theme={'brown'}
           style={styles.button}
           isLoading={!isValidAddress}
           onPress={_handleAddAddress}
-          icon={'add'} />
+          icon={'add'}
+        />
       </View>
     </SafeAreaView>
-    );
-
+  );
 };
 
 export default connectAccounts()(AddAddressScreen);

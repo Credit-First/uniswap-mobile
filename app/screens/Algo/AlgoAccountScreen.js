@@ -8,20 +8,16 @@ import {
   Clipboard,
   Image,
   Text,
-  Linking,
   Alert,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KHeader, KText, KInput, KButton } from '../../components';
+import { KHeader, KText, KButton } from '../../components';
 import styles from './AlgoAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import algosdk from 'algosdk';
 import { getEndpoint } from '../../eos/chains';
 import { log } from '../../logger/logger';
-
 
 const AlgoAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
@@ -37,21 +33,30 @@ const AlgoAccountScreen = props => {
       params: { account: account },
     },
     deleteAccount,
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const divider = 1000000;
   const fioEndpoint = getEndpoint('FIO');
-  var runOnce = 0;
-
-  const copyToClipboard = () => {
-  	Clipboard.setString(account.account.addr);
-    Alert.alert('Address copied to Clipboard');
+  // var runOnce = 0;
+  const name =  "ALGO:" + account.accountName;
+  var usdValue = 0;
+  for (const elem of totals) {
+    if(elem.account===name) {
+      usdValue = elem.total;
+      break;
+    }
   }
 
+  const copyToClipboard = () => {
+    Clipboard.setString(account.account.addr);
+    Alert.alert('Address copied to Clipboard');
+  };
 
   const checkAlgoAddress = (fioaccount, algoAddress) => {
-    if (loaded) return;
+    if (loaded) {
+      return;
+    }
     if (algoAddress === account.account.addr) {
       if (connectedHeader === '') {
         setConnectedHeader('Connected to FIO address:');
@@ -63,48 +68,55 @@ const AlgoAccountScreen = props => {
   };
 
   const checkConnectedFIOAccounts = async () => {
-    if (loaded) return;
+    if (loaded) {
+      return;
+    }
     // Check if connected to any local FIO address:
     accounts.map((value, index, self) => {
       if (value.chainName === 'FIO' && value.address) {
         setLoaded(true);
-        fetch(fioEndpoint+'/v1/chain/get_pub_address', {
+        fetch(fioEndpoint + '/v1/chain/get_pub_address', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            "fio_address": value.address,
-            "chain_code": "ALGO",
-            "token_code": "ALGO"
+            fio_address: value.address,
+            chain_code: 'ALGO',
+            token_code: 'ALGO',
           }),
         })
-        .then(response => response.json())
-        .then(json => checkAlgoAddress(value, json.public_address))
-        .catch(error => log({
-            description: 'checkConnectedFIOAccounts - fetch ' + fioEndpoint + '/v1/chain/get_pub_address',
-            cause: error,
-            location: 'AlgoAccountScreen'
-          })
-        );
+          .then(response => response.json())
+          .then(json => checkAlgoAddress(value, json.public_address))
+          .catch(error =>
+            log({
+              description:
+                'checkConnectedFIOAccounts - fetch ' +
+                fioEndpoint +
+                '/v1/chain/get_pub_address',
+              cause: error,
+              location: 'AlgoAccountScreen',
+            }),
+          );
       }
     });
   };
 
-  const setAccountStats = (json) => {
-    setAccountBalance(parseFloat(json.amount)/divider);
-    setRewards(parseFloat(json.rewards)/divider);
+  const setAccountStats = json => {
+    setAccountBalance(parseFloat(json.amount) / divider);
+    setRewards(parseFloat(json.rewards) / divider);
     setAccountStatus(json.status);
     checkConnectedFIOAccounts();
   };
 
-
-  const loadAlgoAccountBalance = async (account) => {
-    if(loaded) return;
+  const loadAlgoAccountBalance = async account => {
+    if (loaded) {
+      return;
+    }
     try {
       const addr = account.account.addr;
-      fetch('http://algo.eostribe.io/v1/account/'+addr, {
+      fetch('http://algo.eostribe.io/v1/account/' + addr, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -113,22 +125,29 @@ const AlgoAccountScreen = props => {
       })
         .then(response => response.json())
         .then(json => setAccountStats(json))
-        .catch(error => log({
-          description: 'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/'+addr,
-          cause: error,
-          location: 'AlgoAccountScreen'
-        })
-      );
+        .catch(error =>
+          log({
+            description:
+              'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/' +
+              addr,
+            cause: error,
+            location: 'AlgoAccountScreen',
+          }),
+        );
     } catch (err) {
-      log({ description: 'loadAlgoAccountBalance', cause: err, location: 'AlgoAccountScreen'});
+      log({
+        description: 'loadAlgoAccountBalance',
+        cause: err,
+        location: 'AlgoAccountScreen',
+      });
       return;
     }
   };
 
-  const _handleDeleteAccount = (index) => {
+  const _handleDeleteAccount = index => {
     deleteAccount(index);
     goBack();
-  }
+  };
 
   const _handleRemoveAccount = () => {
     const index = findIndex(
@@ -144,11 +163,11 @@ const AlgoAccountScreen = props => {
         {
           text: 'Cancel',
           onPress: () => console.log('Delete account cancelled'),
-          style: 'cancel'
+          style: 'cancel',
         },
-        { text: 'OK', onPress: () => _handleDeleteAccount(index) }
+        { text: 'OK', onPress: () => _handleDeleteAccount(index) },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -179,33 +198,36 @@ const AlgoAccountScreen = props => {
         </TouchableOpacity>
         <KHeader title={account.accountName} style={styles.header} />
         <KText>Balance: {accountBalance} ALGO</KText>
+        <KText>USD Value: ${usdValue}</KText>
         <KText>Rewards: {rewards} ALGO</KText>
-        <Text style={styles.link} onPress={copyToClipboard}>{account.account.addr}</Text>
+        <Text style={styles.link} onPress={copyToClipboard}>
+          {account.account.addr}
+        </Text>
         <View style={styles.qrcode}>
-          <QRCode value={account.account.addr} size={200}/>
+          <QRCode value={account.account.addr} size={200} />
         </View>
         <KText>{connectedHeader}</KText>
         <KText>{connectedAddress}</KText>
-        <FlatList/>
+        <FlatList />
         <KButton
-            title={'Backup private key'}
-            theme={'primary'}
-            style={styles.button}
-            onPress={_handleBackupKey}
-            renderIcon={() => (
+          title={'Backup private key'}
+          theme={'primary'}
+          style={styles.button}
+          onPress={_handleBackupKey}
+          renderIcon={() => (
             <Image
               source={require('../../../assets/icons/accounts.png')}
               style={styles.buttonIcon}
             />
-            )}
-          />
-          <KButton
-            title={'Remove this account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'remove'}
-            onPress={_handleRemoveAccount}
-          />
+          )}
+        />
+        <KButton
+          title={'Remove this account'}
+          theme={'brown'}
+          style={styles.button}
+          icon={'remove'}
+          onPress={_handleRemoveAccount}
+        />
       </View>
     </SafeAreaView>
   );

@@ -19,17 +19,17 @@ const { height, width } = Dimensions.get('window');
 var transWidth = width - 40;
 
 const TransactionListItem = ({ transaction, onPress, ...props }) => {
-
   return (
-      <View style={styles.rowContainer}>
-        <View style={[styles.container, props.style]}>
+    <View style={styles.rowContainer}>
+      <View style={[styles.container, props.style]}>
         <TouchableOpacity onPress={onPress}>
-          <KText style={styles.transaction}>{transaction.from} -&gt; {transaction.to} : {transaction.quantity}</KText>
+          <KText style={styles.transaction}>
+            {transaction.from} -&gt; {transaction.to} : {transaction.quantity}
+          </KText>
         </TouchableOpacity>
-        </View>
       </View>
+    </View>
   );
-
 };
 
 const styles = StyleSheet.create({

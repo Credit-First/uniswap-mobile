@@ -8,6 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "postinstall": "rn-nodeify --hack --install --yarn & patch-package",
+    "build:ios": "react-native bundle --entry-file='index.ios.js' --bundle-output='./ios/KryptoWallet/main.jsbundle' --dev=false --platform='ios' --assets-dest='./ios'",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "buffer": "^4.9.1",
     "console-browserify": "^1.1.0",
     "constants-browserify": "^1.0.0",
+    "cordova-res": "^0.15.3",
     "dns.js": "^1.0.1",
     "domain-browser": "^1.1.1",
     "eosjs-ecc-rn": "^4.0.6-rn",

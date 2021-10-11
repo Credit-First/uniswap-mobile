@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View,
+import {
+  View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions } from 'react-native';
+  Dimensions,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import { KText } from '../../../components';
@@ -19,21 +21,19 @@ const { height, width } = Dimensions.get('window');
 var textWidth = width - 120;
 var buttonWidth = 40;
 
-
 const AddressListItem = ({ address, fromactor, onPress, onEdit, ...props }) => {
-
   const [msgCount, setMsgCount] = useState(0);
   const [runCount, setRunCount] = useState(0);
 
   const chatEndpoint = getFioChatEndpoint();
 
-  const updateCount = (json) => {
+  const updateCount = json => {
     setMsgCount(json.count);
     address.msgCount = json.count;
-  }
+  };
 
   const loadMessageCount = (from, to) => {
-    let endpoint = chatEndpoint+'/'+from+'/'+to+'/count';
+    let endpoint = chatEndpoint + '/' + from + '/' + to + '/count';
     try {
       fetch(endpoint, {
         method: 'GET',
@@ -44,50 +44,58 @@ const AddressListItem = ({ address, fromactor, onPress, onEdit, ...props }) => {
       })
         .then(response => response.json())
         .then(json => updateCount(json))
-        .catch(error => log({
-          description: 'loadMessageCount - fetch '+endpoint,
-          cause: error,
-          location: 'AddressListItem'
-        })
-      );
+        .catch(error =>
+          log({
+            description: 'loadMessageCount - fetch ' + endpoint,
+            cause: error,
+            location: 'AddressListItem',
+          }),
+        );
     } catch (err) {
-      log({ description: 'loadMessages', cause: err, location: 'FIOChatScreen'});
+      log({
+        description: 'loadMessages',
+        cause: err,
+        location: 'FIOChatScreen',
+      });
       return;
     }
   };
 
-  if(runCount < 1 && fromactor) {
+  if (runCount < 1 && fromactor) {
     setRunCount(1);
     loadMessageCount(fromactor, address.actor);
   }
 
   const getItemText = () => {
-    if(msgCount > 0) {
-      return address.name + " <" + address.address + "> [" + msgCount + " msgs]";
+    if (msgCount > 0) {
+      return (
+        address.name + ' <' + address.address + '> [' + msgCount + ' msgs]'
+      );
     } else {
-      return address.name + " <" + address.address + ">";
+      return address.name + ' <' + address.address + '>';
     }
   };
 
   return (
-      <TouchableOpacity>
-        <View style={[styles.container, props.style]}>
-          <View style={styles.rowContainer}>
-           <Text onPress={onPress} style={styles.address}>{getItemText()}</Text>
-          </View>
-          <TouchableOpacity onPress={onEdit}>
-           <LinearGradient
-             start={{ x: 0, y: 0 }}
-             end={{ x: 1, y: 0 }}
-             colors={['#6A63EE', '#59D4FC']}
-             style={styles.button}>
-             <Icon name={'edit'} style={styles.icon} />
-           </LinearGradient>
-          </TouchableOpacity>
+    <TouchableOpacity>
+      <View style={[styles.container, props.style]}>
+        <View style={styles.rowContainer}>
+          <Text onPress={onPress} style={styles.address}>
+            {getItemText()}
+          </Text>
         </View>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={onEdit}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#6A63EE', '#59D4FC']}
+            style={styles.button}>
+            <Icon name={'edit'} style={styles.icon} />
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
-
 };
 
 const styles = StyleSheet.create({
@@ -136,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default AddressListItem;

@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { KHeader, KButton, KText, KInput } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
-import { getAccount, stake, buyram } from '../../eos/eos';
+import { getAccount, stake, unstake, buyram, sellram } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { log } from '../../logger/logger';
 
-
 const ResourceManagementScreen = props => {
   // Form values:
   const [cpuNewStaked, setCpuNewStaked] = useState(0);
   const [netNewStaked, setNetNewStaked] = useState(0);
+  const [cpuNewUnstaked, setCpuNewUnstaked] = useState(0);
+  const [netNewUnstaked, setNetNewUnstaked] = useState(0);
   const [newRamAmount, setNewRamAmount] = useState(0);
+  const [sellRamBytes, setSellRamBytes] = useState(0);
   const [loadingStake, setLoadingStake] = useState(false);
   const [loadingRAM, setLoadingRAM] = useState(false);
 
@@ -45,8 +54,9 @@ const ResourceManagementScreen = props => {
       return;
     }
     let chain = getChain(account.chainName);
-    if (!chain) { // Should never happen
-      Alert.alert('Unknown chain: '+account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
       return;
     }
     // Do Staking:
@@ -54,18 +64,67 @@ const ResourceManagementScreen = props => {
     try {
       await stake(account, cpuStake, netStake, chain);
       setLoadingStake(false);
-      Alert.alert('Successfully staked! Reload account details screen to see new stats.');
-    } catch(err) {
-      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(
+        'Successfully staked!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingStake(false);
       log({
         description: '_handleCpuNetStake',
         cause: errorMsg,
-        location: 'ResourceManagementScreen'
+        location: 'ResourceManagementScreen',
       });
     }
-  }
+  };
+
+  const _handleCpuNetUnstake = async () => {
+    let cpuUnstake = parseFloat(cpuNewUnstaked);
+    if (isNaN(cpuUnstake)) {
+      Alert.alert('Please input valid amount for CPU unstake');
+      return;
+    }
+    let netUnstake = parseFloat(netNewUnstaked);
+    if (isNaN(netUnstake)) {
+      Alert.alert('Please input valid amount for NET unstake');
+      return;
+    }
+    let totalCpuStaked = parseFloat(params.cpuStaked);
+    let totalNetStaked = parseFloat(params.netStaked);
+    if (cpuUnstake >= totalCpuStaked) {
+      Alert.alert('CPU unstake over limit: '+totalCpuStaked);
+      return;
+    }
+    if (netUnstake >= totalNetStaked) {
+      Alert.alert('NET unstake over limit: '+totalNetStaked);
+      return;
+    }
+    let chain = getChain(account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
+      return;
+    }
+    // Do Staking:
+    setLoadingStake(true);
+    try {
+      await unstake(account, cpuUnstake, netUnstake, chain);
+      setLoadingStake(false);
+      Alert.alert(
+        'Successfully unstaked!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
+      Alert.alert(errorMsg);
+      setLoadingStake(false);
+      log({
+        description: '_handleCpuNetUnstake',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen',
+      });
+    }
+  };
 
   const _handleBuyRam = async () => {
     let ramAmount = parseFloat(newRamAmount);
@@ -79,25 +138,100 @@ const ResourceManagementScreen = props => {
       return;
     }
     let chain = getChain(account.chainName);
-    if (!chain) { // Should never happen
-      Alert.alert('Unknown chain: '+account.chainName);
+    if (!chain) {
+      // Should never happen
+      Alert.alert('Unknown chain: ' + account.chainName);
       return;
     }
     setLoadingRAM(true);
     try {
       await buyram(account, ramAmount, chain);
       setLoadingRAM(false);
-      Alert.alert('Successfully bought RAM! Reload account details screen to see new stats.');
-    } catch(err) {
-      let errorMsg = (err.message !== undefined) ? err.message : err;
+      Alert.alert(
+        'Successfully bought RAM!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
       Alert.alert(errorMsg);
       setLoadingRAM(false);
       log({
         description: '_handleBuyRam',
         cause: errorMsg,
-        location: 'ResourceManagementScreen'
+        location: 'ResourceManagementScreen',
       });
     }
+  };
+
+  const _handleSellRam = async () => {
+    let ramBytes = parseInt(sellRamBytes);
+    if (isNaN(ramBytes)) {
+      Alert.alert('Please input valid integer bytes');
+      return;
+    }
+    let ramUsed = parseInt(params.ramUsed);
+    let ramQuota = parseInt(params.ramQuota);
+    if (ramBytes >= (ramQuota - ramUsed)) {
+      Alert.alert('RAM bytes to sell above available quota');
+      return;
+    }
+    let chain = getChain(account.chainName);
+    if (!chain) {
+      Alert.alert('Unknown chain: ' + account.chainName);
+      return;
+    }
+    setLoadingRAM(true);
+    try {
+      await sellram(account, ramBytes, chain);
+      setLoadingRAM(false);
+      Alert.alert(
+        'Successfully sold RAM!',
+      );
+    } catch (err) {
+      let errorMsg = err.message !== undefined ? err.message : err;
+      Alert.alert(errorMsg);
+      setLoadingRAM(false);
+      log({
+        description: '_handleSellRam',
+        cause: errorMsg,
+        location: 'ResourceManagementScreen',
+      });
+    }
+  };
+
+  const checkPowerUpResponse = (json) => {
+    if(json.result) {
+      Alert.alert("Account powered up!");
+    } else {
+      Alert.alert("Something went wrong: "+json);
+    }
+  };
+
+  const _handlePowerUpAccount = async () => {
+    const powerUpUrl = "https://api.eospowerup.io/freePowerup/"+account.accountName;
+    try {
+      fetch(powerUpUrl, { method: 'GET' })
+        .then(response => response.json())
+        .then(json => checkPowerUpResponse(json))
+        .catch(error => Alert.alert("Error calling PowerUp EOS account service"));
+    } catch (err) {
+      Alert.alert("PowerUp Error: "+err);
+    }
+  };
+
+  var eosPowerupButton = <View style={styles.spacer} />;
+  if (account.chainName === 'EOS') {
+    eosPowerupButton = (
+      <View>
+        <KButton
+          title={'PowerUp Account'}
+          theme={'brown'}
+          style={styles.button}
+          icon={'add'}
+          onPress={_handlePowerUpAccount}
+        />
+        <View style={styles.spacer} />
+      </View>
+    );
   }
 
   return (
@@ -111,7 +245,7 @@ const ResourceManagementScreen = props => {
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
-              />
+            />
           </TouchableOpacity>
           <KHeader
             title={'Resource management'}
@@ -119,7 +253,9 @@ const ResourceManagementScreen = props => {
             style={styles.header}
           />
           <KText>Available balance: {params.liquidBalance}</KText>
-          <KText>Staked CPU/NET: {params.cpuStaked} / {params.netStaked}</KText>
+          <KText>
+            Staked CPU/NET: {params.cpuStaked} / {params.netStaked}
+          </KText>
           <View style={styles.spacer} />
           <KInput
             label={'Stake for CPU'}
@@ -147,6 +283,34 @@ const ResourceManagementScreen = props => {
             isLoading={loadingStake}
             onPress={_handleCpuNetStake}
           />
+          {eosPowerupButton}
+          <View style={styles.spacer} />
+          <KInput
+            label={'Unstake from CPU'}
+            placeholder={'Enter amount to unstake from CPU'}
+            value={cpuNewUnstaked}
+            onChangeText={setCpuNewUnstaked}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KInput
+            label={'Unstake from NET'}
+            placeholder={'Enter amount to unstake from NET'}
+            value={netNewUnstaked}
+            onChangeText={setNetNewUnstaked}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KButton
+            title={'Unstake from CPU / NET'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            isLoading={loadingStake}
+            onPress={_handleCpuNetUnstake}
+          />
           <View style={styles.spacer} />
           <KText>
             RAM Used/Quota: {params.ramUsed}/{params.ramQuota} bytes
@@ -167,6 +331,24 @@ const ResourceManagementScreen = props => {
             icon={'add'}
             isLoading={loadingRAM}
             onPress={_handleBuyRam}
+          />
+          <View style={styles.spacer} />
+          <KInput
+            label={'Sell RAM (in bytes)'}
+            placeholder={'Enter bytes of RAM to sell'}
+            value={sellRamBytes}
+            onChangeText={setSellRamBytes}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
+          <KButton
+            title={'Sell RAM'}
+            theme={'brown'}
+            style={styles.button}
+            icon={'remove'}
+            isLoading={loadingRAM}
+            onPress={_handleSellRam}
           />
         </View>
       </KeyboardAwareScrollView>

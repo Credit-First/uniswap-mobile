@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
@@ -10,8 +17,7 @@ import { getAccount } from '../../eos/eos';
 import { getChain } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import { log } from '../../logger/logger'
-
+import { log } from '../../logger/logger';
 
 const AccountDetailsScreen = props => {
   const [liquidBalance, setLiquidBalance] = useState();
@@ -30,16 +36,26 @@ const AccountDetailsScreen = props => {
   const [ramUsagePct, setRamUsagePct] = useState(0);
   const [resourcesWarning, setResourcesWarning] = useState('');
 
+
   const {
     navigation: { navigate, goBack },
     route: {
       params: { account },
     },
     deleteAccount,
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
   } = props;
 
   const maxRatio = 0.95;
+  const chainPrefix = (account.chainName==="Telos") ? "TLOS" : account.chainName;
+  const name = chainPrefix + ":" + account.accountName;
+  var usdValue = 0;
+  for (const elem of totals) {
+    if(elem.account===name) {
+      usdValue = elem.total;
+      break;
+    }
+  }
 
   // Stake chart data:
   const stakeData = [
@@ -108,7 +124,7 @@ const AccountDetailsScreen = props => {
       setLiquidBalance(accountInfo.core_liquid_balance);
       setLiquidNumber(selfUnstaked);
     } else {
-      setLiquidBalance('0 '+token);
+      setLiquidBalance('0 ' + token);
       setLiquidNumber(0);
     }
     // Calculate self stakes:
@@ -132,9 +148,13 @@ const AccountDetailsScreen = props => {
     var refund = accountInfo.refund_request;
     var totRefund = 0;
     if (refund) {
-      var cpuRefund = (refund.cpu_amount) ? parseFloat(refund.cpu_amount.split(' ')[0]) : 0;
-      var netRefund = (refund.net_amount) ? parseFloat(refund.net_amount.split(' ')[0]) : 0;
-      var totRefund = cpuRefund + netRefund;
+      var cpuRefund = refund.cpu_amount
+        ? parseFloat(refund.cpu_amount.split(' ')[0])
+        : 0;
+      var netRefund = refund.net_amount
+        ? parseFloat(refund.net_amount.split(' ')[0])
+        : 0;
+      totRefund = cpuRefund + netRefund;
       setRefundNumber(totRefund);
     }
     var total = (
@@ -161,35 +181,45 @@ const AccountDetailsScreen = props => {
       var ratioRAM = accountInfo.ram_usage / accountInfo.ram_quota;
       setRamUsagePct(ratioRAM);
       if (ratioCPU > maxRatio) {
-        setResourcesWarning('RAM usage is too high - you may not be able to submit transactions from this account.')
+        setResourcesWarning(
+          'RAM usage is too high - you may not be able to submit transactions from this account.',
+        );
       }
     }
     if (accountInfo.cpu_limit) {
-      var usedCPU = (accountInfo.cpu_limit.used) ? parseFloat(accountInfo.cpu_limit.used) : 0;
-      var availableCPU = (accountInfo.cpu_limit.available) ? parseFloat(accountInfo.cpu_limit.available) : 0;
+      var usedCPU = accountInfo.cpu_limit.used
+        ? parseFloat(accountInfo.cpu_limit.used)
+        : 0;
+      var availableCPU = accountInfo.cpu_limit.available
+        ? parseFloat(accountInfo.cpu_limit.available)
+        : 0;
       var totalCPU = usedCPU + availableCPU;
-      var ratioCPU = usedCPU/totalCPU;
+      var ratioCPU = usedCPU / totalCPU;
       setCpuUsagePct(ratioCPU);
       if (ratioCPU > maxRatio) {
-        setResourcesWarning('CPU usage is too high - you may not be able to submit transactions from this account.')
+        setResourcesWarning(
+          'CPU usage is too high - you may not be able to submit transactions from this account.',
+        );
       }
     }
     if (accountInfo.net_limit) {
       var usedNET = accountInfo.net_limit.used;
       var availableNET = accountInfo.net_limit.available;
       var totalNET = usedNET + availableNET;
-      var ratioNET = usedNET/totalNET;
+      var ratioNET = usedNET / totalNET;
       setNetUsagePct(ratioNET);
       if (ratioNET > maxRatio) {
-        setResourcesWarning('NET usage is too high - you may not be able to submit transactions from this account.')
+        setResourcesWarning(
+          'NET usage is too high - you may not be able to submit transactions from this account.',
+        );
       }
     }
   };
 
-  const _handleDeleteAccount = (index) => {
+  const _handleDeleteAccount = index => {
     deleteAccount(index);
     goBack();
-  }
+  };
 
   const _handleRemoveAccount = () => {
     const index = findIndex(
@@ -199,17 +229,17 @@ const AccountDetailsScreen = props => {
         el.chainName === account.chainName,
     );
     Alert.alert(
-      'Delete '+account.accountName+' account',
+      'Delete ' + account.accountName + ' account',
       'Are you sure you want to delete this account?',
       [
         {
           text: 'Cancel',
           onPress: () => console.log('Delete account cancelled'),
-          style: 'cancel'
+          style: 'cancel',
         },
-        { text: 'OK', onPress: () => _handleDeleteAccount(index) }
+        { text: 'OK', onPress: () => _handleDeleteAccount(index) },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -240,7 +270,7 @@ const AccountDetailsScreen = props => {
 
   loadAccount();
 
-    return (
+  return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContentContainer}
@@ -260,6 +290,7 @@ const AccountDetailsScreen = props => {
           />
           <View style={styles.spacer} />
           <KText>Available: {liquidBalance}</KText>
+          <KText>USD Value: ${usdValue}</KText>
           <KText>Total balance: {totalBalance}</KText>
           <KText>Refunding balance: {refundBalance}</KText>
           <KText>CPU Staked: {cpuStaked}</KText>
@@ -308,10 +339,10 @@ const AccountDetailsScreen = props => {
             style={styles.button}
             onPress={_handleBackupKey}
             renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
+              <Image
+                source={require('../../../assets/icons/accounts.png')}
+                style={styles.buttonIcon}
+              />
             )}
           />
           <KButton
@@ -324,8 +355,7 @@ const AccountDetailsScreen = props => {
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
-    );
-
+  );
 };
 
 export default connectAccounts()(AccountDetailsScreen);

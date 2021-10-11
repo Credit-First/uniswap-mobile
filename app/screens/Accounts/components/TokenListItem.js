@@ -13,13 +13,19 @@ import {
 const { height, width } = Dimensions.get('window');
 var tokenWidth = width - 60;
 
-const TokenListItem = ({ account, token, onPress, showAllTokens, ...props }) => {
+const TokenListItem = ({
+  account,
+  token,
+  onPress,
+  showAllTokens,
+  ...props
+}) => {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [count, setCount] = useState(0);
   const [zero, setZero] = useState(false);
 
-  const handleTokenBalance = (jsonArray) => {
-    if(jsonArray && jsonArray.length > 0) {
+  const handleTokenBalance = jsonArray => {
+    if (jsonArray && jsonArray.length > 0) {
       setTokenBalance(jsonArray[0]);
     } else {
       setZero(true);
@@ -27,7 +33,7 @@ const TokenListItem = ({ account, token, onPress, showAllTokens, ...props }) => 
     }
   };
 
-  const handleOnPress = (index) => {
+  const handleOnPress = index => {
     onPress(index);
   };
 
@@ -36,23 +42,24 @@ const TokenListItem = ({ account, token, onPress, showAllTokens, ...props }) => 
     setCount(1);
   };
 
-  if(count === 0) {
+  if (count === 0) {
     refreshBalances();
   }
 
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
       <View style={[styles.container, props.style]}>
-      <TouchableOpacity onPress={handleOnPress}>
-        <KText style={styles.tokenName}>{token.name}: {tokenBalance}</KText>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={refreshBalances}>
-        <Icon name={'refresh'} size={25} color="#000000" />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleOnPress}>
+          <KText style={styles.tokenName}>
+            {token.name}: {tokenBalance}
+          </KText>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={refreshBalances}>
+          <Icon name={'refresh'} size={25} color="#000000" />
+        </TouchableOpacity>
       </View>
     </View>
   );
-
 };
 
 const styles = StyleSheet.create({

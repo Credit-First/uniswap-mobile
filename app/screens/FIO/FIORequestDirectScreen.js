@@ -4,7 +4,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   View,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -18,7 +19,6 @@ import { getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 
-
 const FIORequestDirectScreen = props => {
   const [coin, setCoin] = useState();
   const [amount, setAmount] = useState(0);
@@ -27,12 +27,9 @@ const FIORequestDirectScreen = props => {
   const [loading, setLoading] = useState(false);
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, config },
+    accountsState: { accounts, addresses, keys, totals, config },
     route: {
-      params: {
-        fromFioAccount,
-        toFioAddress,
-      },
+      params: { fromFioAccount, toFioAddress },
     },
   } = props;
 
@@ -40,10 +37,10 @@ const FIORequestDirectScreen = props => {
 
   const _handleSetCoin = value => {
     setCoin(value.toUpperCase());
-  }
+  };
 
   const getFee = async address => {
-    fetch(fioEndpoint+'/v1/chain/get_fee', {
+    fetch(fioEndpoint + '/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -56,30 +53,34 @@ const FIORequestDirectScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
-      .catch(error => log({
-        description: 'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
-        cause: error,
-        location: 'FIORequestScreen'
-      })
-    );
+      .catch(error =>
+        log({
+          description:
+            'getFee - fetch http://fio.greymass.com/v1/chain/get_fee',
+          cause: error,
+          location: 'FIORequestScreen',
+        }),
+      );
   };
 
   const _handleSubmit = async () => {
     if (!fromFioAccount || !toFioAddress || !coin || !amount) {
-      Alert.alert("Please fill all required fields!");
+      Alert.alert('Please fill all required fields!');
       return;
     }
     try {
       setLoading(true);
-      const res = await fioNewFundsRequest(fromFioAccount,
+      const res = await fioNewFundsRequest(
+        fromFioAccount,
         toFioAddress.address,
         toFioAddress.publicKey,
         coin,
         amount,
         memo,
-        fioFee);
+        fioFee,
+      );
       setLoading(false);
-      Alert.alert("FIO Request sent!");
+      Alert.alert('FIO Request sent!');
       goBack();
     } catch (err) {
       setLoading(false);
@@ -87,12 +88,12 @@ const FIORequestDirectScreen = props => {
       log({
         description: '_handleSubmit - fioNewFundsRequest',
         cause: err,
-        location: 'FIORequestScreen'
+        location: 'FIORequestScreen',
       });
     }
   };
 
-  if(fromFioAccount.address) {
+  if (fromFioAccount.address) {
     getFee(fromFioAccount.address);
   }
 
@@ -111,7 +112,7 @@ const FIORequestDirectScreen = props => {
               name={'keyboard-backspace'}
               size={24}
               color={PRIMARY_BLUE}
-              />
+            />
           </TouchableOpacity>
           <KHeader
             title={'FIO Request'}
@@ -166,7 +167,6 @@ const FIORequestDirectScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(FIORequestDirectScreen);

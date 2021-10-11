@@ -41,6 +41,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
   },
+  total: {
+    color: 'blue',
+    alignSelf: 'center',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 24,
+    marginBottom: 10,
+  },
   version: {
     alignSelf: 'center',
     color: 'black',
@@ -71,7 +78,7 @@ const styles = StyleSheet.create({
   error: {
     color: '#FF0000',
     fontSize: 14,
-  }
+  },
 });
 
 export default styles;

@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   errorMessage: {
     color: '#FF0000',
     fontSize: 14,
-  }
+  },
 });
 
 export default styles;

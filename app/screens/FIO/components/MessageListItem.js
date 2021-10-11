@@ -1,28 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { KText } from '../../../components';
-import { log } from '../../../logger/logger';
-import {
-  PRIMARY_GRAY,
-  PRIMARY_BLACK,
-  PRIMARY_BLUE,
-} from '../../../theme/colors';
+import { PRIMARY_BLACK } from '../../../theme/colors';
 
-
-const MessageListItem = ({ item, myactor, reloadAction, onPress, ...props }) => {
-
-  const _handleOnPress = (item) => {
-    if(item.reload) {
+const MessageListItem = ({
+  item,
+  myactor,
+  reloadAction,
+  onPress,
+  ...props
+}) => {
+  const _handleOnPress = () => {
+    if (item.reload) {
       reloadAction();
     } else if (onPress) {
       onPress(item);
     }
   };
 
-  const formatDate = (date) => {
-    if(date.indexOf('T') > 0) {
+  const formatDate = date => {
+    if (date.indexOf('T') > 0) {
       var dateTime = date.split('T');
-      return dateTime[0] + " " + dateTime[1] + " UTC";
+      return dateTime[0] + ' ' + dateTime[1] + ' UTC';
     } else {
       return date;
     }
@@ -36,7 +35,7 @@ const MessageListItem = ({ item, myactor, reloadAction, onPress, ...props }) => 
     }
   };
 
-  if(item.reload) {
+  if (item.reload) {
     return (
       <TouchableOpacity onPress={_handleOnPress}>
         <View style={styles.reload}>
@@ -51,14 +50,15 @@ const MessageListItem = ({ item, myactor, reloadAction, onPress, ...props }) => 
       <TouchableOpacity onPress={_handleOnPress}>
         <View style={[getItemStyle(), props.style]}>
           <View style={styles.contentContainer}>
-            <Text style={styles.date}>{item.fromAddress} @ {formatDate(item.created)}</Text>
+            <Text style={styles.date}>
+              {item.fromAddress} @ {formatDate(item.created)}
+            </Text>
             <KText style={styles.item}>{item.message}</KText>
           </View>
         </View>
       </TouchableOpacity>
     );
   }
-
 };
 
 const styles = StyleSheet.create({

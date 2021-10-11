@@ -133,8 +133,8 @@ android {
         applicationId "com.kryptowallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 73
-        versionName "73.0"
+        versionCode 80
+        versionName "80.0"
         multiDexEnabled true
     }
     splits {

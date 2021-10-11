@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View,
+import {
+  View,
   Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions } from 'react-native';
+  Dimensions,
+} from 'react-native';
 import KText from './KText';
 import KInput from './KInput';
 import LinearGradient from 'react-native-linear-gradient';
@@ -14,13 +16,11 @@ const { height, width } = Dimensions.get('window');
 var inputWidth = width - 120;
 var buttonWidth = 100;
 
-
-const EmailCodeSend = ({onChange, onSendCode}) => {
-
+const EmailCodeSend = ({ onChange, onSendCode }) => {
   const [email, setEmail] = useState();
 
-  const _handleChangeEmail = (value) => {
-    let lcv = (value)?value.toLowerCase():'';
+  const _handleChangeEmail = value => {
+    let lcv = value ? value.toLowerCase() : '';
     setEmail(lcv);
     onChange(lcv);
   };
@@ -30,15 +30,15 @@ const EmailCodeSend = ({onChange, onSendCode}) => {
   };
 
   return (
-      <View style={styles.rowContainer}>
-        <TextInput
-          multiline={true}
-          placeholder={'Email'}
-          value={email}
-          onChangeText={_handleChangeEmail}
-          style={styles.input}
-          />
-       <TouchableOpacity onPress={_handlePressSendCode}>
+    <View style={styles.rowContainer}>
+      <TextInput
+        multiline={true}
+        placeholder={'Email'}
+        value={email}
+        onChangeText={_handleChangeEmail}
+        style={styles.input}
+      />
+      <TouchableOpacity onPress={_handlePressSendCode}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -46,10 +46,9 @@ const EmailCodeSend = ({onChange, onSendCode}) => {
           style={styles.button}>
           <KText style={styles.title}>Send Code</KText>
         </LinearGradient>
-       </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
+    </View>
   );
-
 };
 
 const styles = StyleSheet.create({
@@ -83,7 +82,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default EmailCodeSend;

@@ -11,37 +11,36 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KButton, KInput, KText } from '../../components';
-import {
-  fioAddPublicAddress,
-  fioBackupEncryptedKey } from '../../eos/fio';
+import { fioAddPublicAddress, fioBackupEncryptedKey } from '../../eos/fio';
 import { getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { getAccount } from '../../eos/eos';
 import { log } from '../../logger/logger';
-import algosdk from 'algosdk';
-
 
 const chars = '12345abcdefghijklmnopqrstuvwxyz';
 
 function randomName() {
-    var result = '';
-    for (var i = 12; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
-    return result;
+  var result = '';
+  for (var i = 12; i > 0; --i) {
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
+  }
+  return result;
 }
 
 const CreateTelosAccountScreen = props => {
   const {
     addKey,
     connectAccount,
-    navigation: { goBack, navigate },
-    accountsState: { accounts, addresses, keys, config },
+    navigation: { goBack },
+    accountsState: { accounts },
   } = props;
 
   const [accountName, setAccountName] = useState('');
   const [available, setAvailable] = useState(false);
   const [checkState, setCheckState] = useState();
-  const [availableState, setAvailableState] = useState('Use generated random name or enter your own.');
+  const [availableState, setAvailableState] = useState(
+    'Use generated random name or enter your own.',
+  );
   const [fioFee, setFioFee] = useState(0);
 
   const fioEndpoint = getEndpoint('FIO');
@@ -49,7 +48,7 @@ const CreateTelosAccountScreen = props => {
   const newAccountEndpoint = 'https://newaccount.telos.eostribe.io/create';
 
   const getFee = async address => {
-    fetch(fioEndpoint+'/v1/chain/get_fee', {
+    fetch(fioEndpoint + '/v1/chain/get_fee', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -62,28 +61,28 @@ const CreateTelosAccountScreen = props => {
     })
       .then(response => response.json())
       .then(json => setFioFee(json.fee))
-      .catch(error => log({
-        description: 'getFee - fetch '+fioEndpoint+'/v1/chain/get_fee',
-        cause: error,
-        location: 'FIOAddressActionsScreen'
-      })
-    );
+      .catch(error =>
+        log({
+          description: 'getFee - fetch ' + fioEndpoint + '/v1/chain/get_fee',
+          cause: error,
+          location: 'CreateTelosAccountScreen',
+        }),
+      );
   };
 
-
   const fioAccounts = accounts.filter((value, index, array) => {
-    if (value.chainName === 'FIO' && fioFee == 0) {
+    if (value.chainName === 'FIO' && fioFee === 0) {
       getFee(value.address);
     }
     return value.chainName === 'FIO';
   });
 
-  const validateName = (name) => {
+  const validateName = name => {
     setAccountName(name);
     var validName = '';
     for (var i = 0; i < name.length; i++) {
       let ch = name.charAt(i);
-      if(chars.indexOf(ch) >= 0 && i < 12) {
+      if (chars.indexOf(ch) >= 0 && i < 12) {
         validName += ch;
       }
     }
@@ -98,8 +97,8 @@ const CreateTelosAccountScreen = props => {
     }
   };
 
-  const markAvailable = (json) => {
-    if(json && json.account_name) {
+  const markAvailable = json => {
+    if (json && json.account_name) {
       setAvailable(false);
       setCheckState('Name already registered!');
       setAvailableState('');
@@ -110,47 +109,60 @@ const CreateTelosAccountScreen = props => {
     }
   };
 
-  const checkAvailable = (name) => {
+  const checkAvailable = name => {
     fetch(endpoint + '/v1/chain/get_account', {
       method: 'POST',
       headers: {
-        Accept: 'application/json','Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        "account_name":name
+        account_name: name,
       }),
     })
       .then(response => response.json())
       .then(json => markAvailable(json))
-      .catch(error => log({
-        description: 'checkAvailable - fetch ' + endpoint + '/v1/chain/get_account ['+name+']',
-        cause: error,
-        location: 'CreateTelosAccountScreen'
-      })
-    );
+      .catch(error =>
+        log({
+          description:
+            'checkAvailable - fetch ' +
+            endpoint +
+            '/v1/chain/get_account [' +
+            name +
+            ']',
+          cause: error,
+          location: 'CreateTelosAccountScreen',
+        }),
+      );
   };
 
   const generateRandomName = () => {
     setAccountName(randomName());
     checkAvailable(accountName);
-  }
+  };
 
   const addAccount = (json, account) => {
+    console.log(json);
     if (json && json.transaction_id) {
       connectAccount(account);
       // Connect Telos account to a single FIO address:
-      if( fioAccounts.length === 1 ) {
+      if (fioAccounts.length === 1) {
         fioAddPublicAddress(fioAccounts[0], account, fioFee);
         // Backup encrypted Telos account:
-        fioBackupEncryptedKey(fioAccounts[0], account.accountName, account.chainName, account.privateKey);
+        fioBackupEncryptedKey(
+          fioAccounts[0],
+          account.accountName,
+          account.chainName,
+          account.privateKey,
+        );
       }
-      Alert.alert('Account registered on chain: '+json.transaction_id);
+      Alert.alert('Account registered on chain: ' + json.transaction_id);
       goBack();
     } else {
       log({
         description: 'Failed to add account: ' + account.accountName,
         cause: json,
-        location: 'CreateTelosAccountScreen'
+        location: 'CreateTelosAccountScreen',
       });
       setCheckState('Failed to register account: ' + account.accountName);
     }
@@ -164,7 +176,7 @@ const CreateTelosAccountScreen = props => {
       const request = {
         name: accountName,
         owner_public_key: publicKey,
-        active_public_key: publicKey
+        active_public_key: publicKey,
       };
       // Call new account service:
       fetch(newAccountEndpoint, {
@@ -172,21 +184,27 @@ const CreateTelosAccountScreen = props => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          'API-KEY': 'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
+          'API-KEY':
+            'TZEqLNkDP3b2sB7mNBmTfSVSr5FRDNqzAtpWY87gct7wnDvufk0eD1bRU5SH8aSs',
         },
         body: JSON.stringify(request),
       })
         .then(response => response.json())
         .then(json => addAccount(json, account))
-        .catch(error => log({
-          description: '_handleCreateAccount - fetch ' + newAccountEndpoint + ' POST: [' + accountName + ']',
-          cause: error,
-          location: 'CreateTelosAccountScreen'
-        })
-      );
+        .catch(error =>
+          log({
+            description:
+              '_handleCreateAccount - fetch ' +
+              newAccountEndpoint +
+              ' POST: [' +
+              accountName +
+              ']',
+            cause: error,
+            location: 'CreateTelosAccountScreen',
+          }),
+        );
     });
   };
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -201,7 +219,7 @@ const CreateTelosAccountScreen = props => {
               color={PRIMARY_BLUE}
             />
           </TouchableOpacity>
-          <KHeader title={'Create Telos account'} style={styles.header}/>
+          <KHeader title={'Create Telos account'} style={styles.header} />
           <KInput
             label={'Account name'}
             value={accountName}
@@ -235,9 +253,7 @@ const CreateTelosAccountScreen = props => {
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
-    );
-
-
+  );
 };
 
 export default connectAccounts()(CreateTelosAccountScreen);

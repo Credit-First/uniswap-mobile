@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View,
+import {
+  View,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
   Clipboard,
-  Alert } from 'react-native';
+  Alert,
+} from 'react-native';
 import { KText } from '../../../components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { getBalance } from '../../../eos/tokens';
@@ -19,7 +21,6 @@ const { height, width } = Dimensions.get('window');
 var textWidth = width - 60;
 
 const KeyItem = ({ publicKey, privateKey, account, ...props }) => {
-
   const [text, setText] = useState(publicKey);
 
   const toggleKey = () => {
@@ -31,44 +32,45 @@ const KeyItem = ({ publicKey, privateKey, account, ...props }) => {
   };
 
   const copyToClipboard = () => {
-    if(account) {
-      Clipboard.setString(account+": "+publicKey+","+privateKey);
+    if (account) {
+      Clipboard.setString(account + ': ' + publicKey + ',' + privateKey);
     } else {
-  	  Clipboard.setString(publicKey+","+privateKey);
+      Clipboard.setString(publicKey + ',' + privateKey);
     }
-  	Alert.alert('Key copied to Clipboard');
+    Alert.alert('Key copied to Clipboard');
   };
 
-  if(publicKey && privateKey && account) {
+  if (publicKey && privateKey && account) {
     return (
-    <View style={styles.rowContainer}>
-      <View style={[styles.container, props.style]}>
-      <TouchableOpacity onPress={copyToClipboard}>
-        <KText style={styles.text}>{account}: {text}</KText>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={toggleKey}>
-        <Icon name={'lock'} size={25} color="#000000" />
-      </TouchableOpacity>
+      <View style={styles.rowContainer}>
+        <View style={[styles.container, props.style]}>
+          <TouchableOpacity onPress={copyToClipboard}>
+            <KText style={styles.text}>
+              {account}: {text}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleKey}>
+            <Icon name={'lock'} size={25} color="#000000" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     );
-  } else if(publicKey && privateKey) {
+  } else if (publicKey && privateKey) {
     return (
-    <View style={styles.rowContainer}>
-      <View style={[styles.container, props.style]}>
-      <TouchableOpacity onPress={copyToClipboard}>
-        <KText style={styles.text}>{text}</KText>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={toggleKey}>
-        <Icon name={'lock'} size={25} color="#000000" />
-      </TouchableOpacity>
+      <View style={styles.rowContainer}>
+        <View style={[styles.container, props.style]}>
+          <TouchableOpacity onPress={copyToClipboard}>
+            <KText style={styles.text}>{text}</KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleKey}>
+            <Icon name={'lock'} size={25} color="#000000" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     );
   } else {
     return null;
   }
-
 };
 
 const styles = StyleSheet.create({
