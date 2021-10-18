@@ -1,6 +1,7 @@
 import React from 'react';
 import { SafeAreaView, View } from 'react-native';
 import algosdk from 'algosdk';
+import { createKeyPair } from '../../stellar/stellar';
 
 import styles from './MenuScreen.style';
 import { KHeader, KButton } from '../../components';
@@ -20,6 +21,10 @@ const MenuScreen = props => {
 
   const algoAccounts = accounts.filter((value, index, array) => {
     return (value != null && value.chainName === 'ALGO');
+  });
+
+  const xlmAccounts = accounts.filter((value, index, array) => {
+    return (value != null && value.chainName === 'XLM');
   });
 
   const adminAccount = accounts.filter((value, index, array) => {
@@ -56,6 +61,27 @@ const MenuScreen = props => {
     navigate('CreateTelosAccount');
   };
 
+  const _handleCreateStellarAccount = () => {
+    try {
+      const stellarKeys = createKeyPair();
+      const privateKey = stellarKeys.secret();
+      const address = stellarKeys.publicKey();
+      var xlmAccount = {
+        address: address,
+        privateKey: privateKey,
+        chainName: 'XLM',
+      };
+      connectAccount(xlmAccount);
+      navigate('Accounts');
+    } catch (err) {
+      log({
+        description: 'Error create/add Stellar account',
+        cause: err,
+        location: 'MenuScreen',
+      });
+    }
+  };
+
   var displayExchange = false;
   if (accounts.length > 1) {
     var eosPresent = false;
@@ -63,11 +89,7 @@ const MenuScreen = props => {
     accounts.map(function(account) {
       if (account.chainName === 'EOS') {
         eosPresent = true;
-      } else if (
-        account.chainName !== 'EOS' &&
-        account.chainName !== 'FIO' &&
-        account.chainName !== 'ALGO'
-      ) {
+      } else if (account.chainName === 'Telos'||account.chainName === 'TLOS') {
         anotherValidChain = true;
       }
     });
@@ -96,26 +118,53 @@ const MenuScreen = props => {
     );
   }
 
-  if (telosAccounts.length === 0 && algoAccounts.length === 0) {
+  var createTelosButton = <View style={styles.spacer} />;
+  if (telosAccounts.length === 0) {
+    createTelosButton = (
+      <KButton
+        title={'Create Telos account'}
+        theme={'brown'}
+        style={styles.button}
+        icon={'add'}
+        onPress={_handleCreateTelosAccount}
+      />
+    );
+  }
+
+  var createAlgoButton = <View style={styles.spacer} />;
+  if (algoAccounts.length === 0) {
+    createAlgoButton = (
+      <KButton
+        title={'Create Algorand account'}
+        theme={'brown'}
+        style={styles.button}
+        icon={'add'}
+        onPress={_handleCreateAlgorandAccount}
+      />
+    );
+  }
+
+  var createStellarButton = <View style={styles.spacer} />;
+  if (xlmAccounts.length === 0) {
+    createStellarButton = (
+      <KButton
+        title={'Create Stellar account'}
+        theme={'brown'}
+        style={styles.button}
+        icon={'add'}
+        onPress={_handleCreateStellarAccount}
+      />
+    );
+  }
+
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
           <KHeader title={'Menu actions'} style={styles.header} />
           <View style={styles.spacer} />
-          <KButton
-            title={'Create Telos account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'add'}
-            onPress={_handleCreateTelosAccount}
-          />
-          <KButton
-            title={'Create Algorand account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'add'}
-            onPress={_handleCreateAlgorandAccount}
-          />
+          {createTelosButton}
+          {createAlgoButton}
+          {createStellarButton}
           <KButton
             title={'Recover Private Key'}
             style={styles.button}
@@ -131,69 +180,7 @@ const MenuScreen = props => {
         </View>
       </SafeAreaView>
     );
-  } else if (telosAccounts.length === 0) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.inner}>
-          <KHeader title={'Menu actions'} style={styles.header} />
-          <View style={styles.spacer} />
-          <KButton
-            title={'Create Telos account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'add'}
-            onPress={_handleCreateTelosAccount}
-          />
-          <KButton
-            title={'List all keys in wallet'}
-            style={styles.button}
-            onPress={() => navigate('KeyList')}
-          />
-          {exchangeButton}
-          {adminButton}
-        </View>
-      </SafeAreaView>
-    );
-  } else if (algoAccounts.length === 0) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.inner}>
-          <KHeader title={'Menu actions'} style={styles.header} />
-          <View style={styles.spacer} />
-          <KButton
-            title={'Create Algorand account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'add'}
-            onPress={_handleCreateAlgorandAccount}
-          />
-          <KButton
-            title={'List all keys in wallet'}
-            style={styles.button}
-            onPress={() => navigate('KeyList')}
-          />
-          {exchangeButton}
-          {adminButton}
-        </View>
-      </SafeAreaView>
-    );
-  } else {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.inner}>
-          <KHeader title={'Menu actions'} style={styles.header} />
-          <View style={styles.spacer} />
-          <KButton
-            title={'List all keys in wallet'}
-            style={styles.button}
-            onPress={() => navigate('KeyList')}
-          />
-          {exchangeButton}
-          {adminButton}
-        </View>
-      </SafeAreaView>
-    );
-  }
+
 };
 
 export default connectAccounts()(MenuScreen);

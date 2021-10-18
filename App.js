@@ -45,6 +45,7 @@ import {
   FIOChatScreen,
   GroupChatScreen,
   AlgoAccountScreen,
+  StellarAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
   AddressBookScreen,
@@ -137,6 +138,7 @@ const AccountsStackScreen = () => {
         component={FIOSendDirectScreen}
       />
       <AccountsStack.Screen name="AlgoAccount" component={AlgoAccountScreen} />
+      <AccountsStack.Screen name="StellarAccount" component={StellarAccountScreen} />
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />

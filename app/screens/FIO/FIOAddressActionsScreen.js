@@ -21,6 +21,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { getEndpoint } from '../../eos/chains';
+import { getKeyPair } from '../../stellar/stellar';
 
 const FIOAddressActionsScreen = props => {
   const [fioExpirationDate, setFioExpirationDate] = useState();
@@ -139,6 +140,8 @@ const FIOAddressActionsScreen = props => {
     var accPubkey = '';
     if (account.chainName === 'ALGO') {
       accPubkey = account.account.addr;
+    } else if(account.chainName === 'XLM') {
+      accPubkey = account.address;
     } else if (account.privateKey) {
       accPubkey = ecc.privateToPublic(account.privateKey);
     }
@@ -190,6 +193,28 @@ const FIOAddressActionsScreen = props => {
           };
           log(error);
           Alert.alert('Failed to link ALGO account to FIO address.');
+        }
+      } else if(account.chainName === 'XLM') {
+        const res = await fioAddExternalAddress(
+          fioAccount,
+          'XLM',
+          account.address,
+          fioFee,
+        );
+        if (res && res.transaction_id) {
+          Alert.alert('Successfully added in tx ' + res.transaction_id);
+        } else {
+          let error = {
+            description: 'Failed _handleConnectAccountToAddress',
+            method: 'fioAddExternalAddress',
+            location: 'FIOAddressActionsScreen',
+            cause: res,
+            fioAccount: fioAccount.address,
+            account: account.address,
+            fioFee: fioFee,
+          };
+          log(error);
+          Alert.alert('Failed to link Stellar account to FIO address.');
         }
       } else {
         const res = await fioAddPublicAddress(fioAccount, account, fioFee);
@@ -530,6 +555,8 @@ const FIOAddressActionsScreen = props => {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
       navigate('AlgoAccount', { account });
+    } else if (account.chainName === 'XLM') {
+      navigate('StellarAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -608,7 +635,8 @@ const FIOAddressActionsScreen = props => {
   }
 
   const getConnectAccountText = account => {
-    return 'Connect ' + account.chainName + ': ' + account.accountName;
+    let accountName = (account.chainName==='XLM') ? account.address.substring(0,12)+".." : account.accountName;
+    return 'Connect ' + account.chainName + ': ' + accountName;
   };
 
   return (
@@ -643,7 +671,7 @@ const FIOAddressActionsScreen = props => {
             <Text
               style={styles.link}
               onPress={() => _handlePressAccount(index)}>
-              {item.chainName}: {item.accountName}
+              {item.chainName}: {(item.chainName==='XLM') ? item.address.substring(0,12)+".." : item.accountName}
             </Text>
           )}
         />

@@ -7,6 +7,7 @@ import { KText } from '../../../components';
 import { getChain, getEndpoint } from '../../../eos/chains';
 import { getBalance, getTokens } from '../../../eos/tokens';
 import { getAccount } from '../../../eos/eos';
+import { loadAccount } from '../../../stellar/stellar';
 import { log } from '../../../logger/logger';
 import {
   PRIMARY_GRAY,
@@ -157,6 +158,32 @@ const loadAlgoAccountBalance = async (account, updateAccountBalance) => {
   }
 };
 
+
+const loadStellarAccountBalance = async (account, updateAccountBalance) => {
+  try {
+    const processStellarAccount = (json) => {
+      var nativeBalance = 0;
+      if(json['balances']) {
+        const balances = json['balances'];
+        balances.forEach(balance => {
+          if(balance["asset_type"] === "native") {
+            nativeBalance = balance["balance"];
+          }
+        });
+      }
+      updateAccountBalance(parseFloat(nativeBalance).toFixed(4));
+    };
+    loadAccount(account.address, processStellarAccount); // 'GAI3GJ2Q3B35AOZJ36C4ANE3HSS4NK7WI6DNO4ZSHRAX6NG7BMX6VJER'
+  } catch (err) {
+    log({
+      description: 'loadStellarAccountBalance',
+      cause: err,
+      location: 'AccountListItem',
+    });
+    return;
+  }
+};
+
 const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
   const [count, setCount] = useState(0);
@@ -167,12 +194,13 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     onBalanceUpdate(account, balance);
   };
 
-  const refreshBalances = () => {
-    //console.log('Refreshing balances');
+  const refreshBalances = async () => {
     if (account.chainName === 'FIO') {
       loadFioAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'ALGO') {
       loadAlgoAccountBalance(account, updateAccountBalance);
+    } else if (account.chainName === 'XLM') {
+      loadStellarAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
     }
@@ -216,6 +244,21 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
               {account.chainName} : {account.accountName}, {accountBalance}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshBalances}>
+            <Icon name={'refresh'} size={25} color="#000000" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  } else if (account.chainName === 'XLM') {
+    return (
+      <View onFocus={refreshBalances} style={styles.rowContainer}>
+        <View style={[styles.container, props.style]}>
+          <TouchableOpacity onPress={handleOnPress}>
+            <KText style={styles.chainName}>
+              {account.chainName} : {account.address.substring(0,12)}.., {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>

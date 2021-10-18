@@ -17,7 +17,6 @@ import ecc from 'eosjs-ecc-rn';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
-import { createKeyPair } from '../../stellar/stellar';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { getBalance } from '../../eos/tokens';
 import { findIndex } from 'lodash';
@@ -36,10 +35,6 @@ const AccountsScreen = props => {
     accountsState: { accounts, addresses, keys, totals, config },
     chooseActiveAccount,
   } = props;
-
-  const stellarKeys = createKeyPair();
-  console.log(stellarKeys.secret());
-  console.log(stellarKeys.publicKey());
 
 
   const fioEndpoint = getEndpoint('FIO');
@@ -256,6 +251,8 @@ const AccountsScreen = props => {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
       navigate('AlgoAccount', { account });
+    } else if (account.chainName === 'XLM') {
+      navigate('StellarAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -292,7 +289,7 @@ const AccountsScreen = props => {
     let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain==='FIO') ? account.address : account.accountName;
+    let name = (chain==='FIO'||chain==='XLM') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -449,11 +446,7 @@ const AccountsScreen = props => {
 
   const addKeysIfMissing = () => {
     validAccounts.map(function(account) {
-      if (
-        account.chainName == 'EOS' ||
-        account.chainName == 'Telos' ||
-        account.chainName == 'WAX'
-      ) {
+      if (account.chainName === 'EOS' || account.chainName === 'Telos') {
         const privateKey = account.privateKey;
         const publicKey = ecc.privateToPublic(account.privateKey);
         const foundKeys = keys.filter((value, index, array) => {
@@ -462,7 +455,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName == 'FIO') {
+      } else if (account.chainName === 'FIO') {
         const privateKey = account.privateKey;
         const publicKey = Ecc.privateToPublic(account.privateKey);
         const foundKeys = keys.filter((value, index, array) => {
@@ -471,7 +464,16 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName == 'ALGO') {
+      } else if (account.chainName === 'XLM') {
+        const privateKey = account.privateKey;
+        const publicKey = account.address;
+        const foundKeys = keys.filter((value, index, array) => {
+          return value.public === publicKey;
+        });
+        if (foundKeys.length == 0) {
+          addKey({ private: privateKey, public: publicKey });
+        }
+      } else if (account.chainName === 'ALGO') {
         const publicKey = account.account.addr;
         const privateKey = account.mnemonic;
         const foundKeys = keys.filter((value, index, array) => {
@@ -484,7 +486,7 @@ const AccountsScreen = props => {
     });
   };
 
-  if (runCount == 0) {
+  if (runCount == 0 && validAccounts.length > 0) {
     setRunCount(1);
     checkOnLatestVersion();
     addKeysIfMissing();

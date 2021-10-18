@@ -10,11 +10,13 @@ import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
+import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
 import { log } from '../../logger/logger';
 
 const TransferScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccountName, setToAccountName] = useState('');
+  const [isLiveStellarAccount, setIsLiveStellarAccount] = useState(false);
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
   const [toFioAddress, setToFioAddress] = useState();
@@ -30,8 +32,6 @@ const TransferScreen = props => {
     navigation: { navigate },
     accountsState: { accounts, addresses },
   } = props;
-
-  console.log(accounts);
 
   const fioEndpoint = getEndpoint('FIO');
 
@@ -146,6 +146,19 @@ const TransferScreen = props => {
     }
   };
 
+  const _validateStellarAddress = address => {
+    const callback = json => {
+      if(json["status"] && json["status"] === 404) {
+        setIsLiveStellarAccount(false);
+      } else if(json['balances']) {
+        setIsLiveStellarAccount(true);
+      } else {
+        setIsLiveStellarAccount(false);
+      }
+    };
+    loadAccount(address, callback);
+  };
+
   const updateAvailableState = (regcount, address, error) => {
     if (regcount === 0) {
       setAddressInvalidMessage('Invalid FIO address!');
@@ -201,6 +214,10 @@ const TransferScreen = props => {
       _validateAddress(value);
       setIsFioAddress(true);
       setToFioAddress(value);
+    } else if (fromAccount.chainName === 'XLM') {
+      setIsFioAddress(false);
+      setAddressInvalidMessage('');
+      _validateStellarAddress(value);
     } else {
       setIsFioAddress(false);
       setAddressInvalidMessage('');
@@ -302,6 +319,13 @@ const TransferScreen = props => {
           memo,
           _callback,
         );
+      } else if (fromAccount.chainName === 'XLM') {
+        let receiver = toPubkey ? toPubkey : toAccountName;
+        if(isLiveStellarAccount) {
+          await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+        } else {
+          await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+        }
       } else if (fromAccount.chainName === 'FIO') {
         await sendFioTransfer(
           fromAccount,
@@ -324,7 +348,7 @@ const TransferScreen = props => {
       log({
         description: '_handleTransfer - transfer: ' + fromAccount.chainName,
         cause: err.message,
-        location: 'ViewFIORequestScreen',
+        location: 'TransferScreen',
       });
     } finally {
       setLoading(false);
@@ -363,7 +387,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  item.chainName !== 'FIO' ? item.accountName : item.address
+                  (item.chainName === 'FIO'||item.chainName === 'XLM') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}
