@@ -35,6 +35,10 @@ const TransferScreen = props => {
 
   const fioEndpoint = getEndpoint('FIO');
 
+  const isValidXLMAddress = address => {
+    return (address != null && address.startsWith('G') && address.length == 56);
+  }
+
   const processToPubkeyUpdate = async toAccountPubkey => {
     const chain = getChain(fromAccount.chainName);
     if (chain && chain.name === 'FIO') {
@@ -78,7 +82,9 @@ const TransferScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => processToPubkeyUpdate(json.public_address))
+      .then(json => {
+        processToPubkeyUpdate(json.public_address);
+      })
       .catch(error =>
         log({
           description:
@@ -156,7 +162,9 @@ const TransferScreen = props => {
         setIsLiveStellarAccount(false);
       }
     };
-    loadAccount(address, callback);
+    if(isValidXLMAddress(address)) {
+      loadAccount(address, callback);
+    }
   };
 
   const updateAvailableState = (regcount, address, error) => {
@@ -321,10 +329,25 @@ const TransferScreen = props => {
         );
       } else if (fromAccount.chainName === 'XLM') {
         let receiver = toPubkey ? toPubkey : toAccountName;
-        if(isLiveStellarAccount) {
-          await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+        if(isValidXLMAddress(receiver)) {
+          if(isLiveStellarAccount) {
+            await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+          } else {
+            //Double check isLiveStellarAccount for FIO use case:
+            const callback = async json => {
+              // XLM address doesn't exists
+              if(json["status"] && json["status"] === 404) {
+                setIsLiveStellarAccount(false);
+                await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+              } else { // Address exists:
+                setIsLiveStellarAccount(true);
+                await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+              }
+            };
+            loadAccount(receiver, callback);
+          }
         } else {
-          await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+          Alert.alert('Invalid XLM to address: '+receiver);
         }
       } else if (fromAccount.chainName === 'FIO') {
         await sendFioTransfer(

@@ -52,8 +52,8 @@ const createStellarAccount = async (fromAccount,
     const fromKeys = StellarSdk.Keypair.fromSecret(fromAccount.privateKey);
     const fromAddress = fromKeys.publicKey();
 
-  server.loadAccount(fromAddress)
-    .then(
+    server.loadAccount(fromAddress)
+      .then(
         account => {
           var transaction = new StellarSdk.TransactionBuilder(account, {
             fee: StellarSdk.BASE_FEE,
@@ -76,7 +76,7 @@ const createStellarAccount = async (fromAccount,
               if (callback) {
                 callback(result);
               }
-              Alert.alert('Stellar account created: ' + result);
+              Alert.alert('Stellar account created: ' + result.id);
             })
             .catch(function (error) {
               log({
@@ -86,7 +86,7 @@ const createStellarAccount = async (fromAccount,
               });
             });
         }
-    );
+      );
 }
 
 const submitStellarPayment = async (fromAccount,
@@ -147,7 +147,7 @@ const submitStellarPayment = async (fromAccount,
     if (callback) {
       callback(result);
     }
-    Alert.alert('Stellar payment submitted: ' + result);
+    Alert.alert('Stellar payment submitted: ' + result.id);
   })
   .catch(function (error) {
     log({
