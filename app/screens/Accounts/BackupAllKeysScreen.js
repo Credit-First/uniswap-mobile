@@ -25,9 +25,13 @@ const BackupAllKeysScreen = props => {
   var privateKeys = '';
   accounts.map((value, index, array) => {
     var chainName = value.chainName == 'Telos' ? 'TLOS' : value.chainName;
-    var accountName = chainName === 'FIO' ? value.address : value.accountName;
+    var accountName = (chainName === 'FIO') ? value.address : value.accountName;
     var privateKey = chainName === 'ALGO' ? value.mnemonic : value.privateKey;
-    privateKeys += accountName + ':' + privateKey + ',';
+    if (chainName === 'XLM' || chainName === 'ALGO') {
+      privateKeys += chainName + ':' + privateKey + ',';
+    } else {
+      privateKeys += accountName + ':' + privateKey + ',';
+    }
   });
 
   const copyToClipboard = () => {

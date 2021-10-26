@@ -16,8 +16,10 @@ import { supportedChains, getChain, getEndpoint } from '../../eos/chains';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { getAccount } from '../../eos/eos';
+import { loadAccount, getKeyPair } from '../../stellar/stellar';
 import { log } from '../../logger/logger';
 import algosdk from 'algosdk';
+
 
 const ConnectAccountScreen = props => {
   const {
@@ -33,8 +35,10 @@ const ConnectAccountScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
 
   var importableChains = [
-    { name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io' },
+    {name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io'},
+    {name: 'Stellar', symbol: 'XRP'}
   ];
+
   supportedChains.map(function(item) {
     importableChains.push(item);
   });
@@ -141,6 +145,44 @@ const ConnectAccountScreen = props => {
     goBack();
   };
 
+  const _handleStellarConnect = async () => {
+    if (!chain || !privateKey) {
+      Alert.alert('Please fill in all required fields');
+      return;
+    }
+    try {
+      const processStellarAccount = (json) => {
+        var stellarAccount = {
+          address: publicKey,
+          privateKey: privateKey,
+          chainName: 'XLM'
+        };
+        // If valid account with balances:
+        if(json['balances']) {
+          connectAccount(stellarAccount);
+        } else if(json["status"] && json["status"] === 404) {
+          connectAccount(stellarAccount);
+          Alert.alert('Account imported but not initialized on chain!');
+          return;
+        } else if(json["title"]) {
+          Alert.alert('Import error: '+json["title"]);
+          return;
+        } else {
+          Alert.alert('Import error: '+json);
+          return;
+        }
+      };
+      const keyPair = getKeyPair(privateKey);
+      const publicKey = keyPair.publicKey();
+      loadAccount(publicKey, processStellarAccount)
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error importing Stellar account: ' + error);
+      return;
+    }
+    goBack();
+  };
+
   if (chain && chain.name === 'Algorand') {
     return (
       <SafeAreaView style={styles.container}>
@@ -183,6 +225,60 @@ const ConnectAccountScreen = props => {
                 />
               )}
               onPress={_handleAlgorandConnect}
+            />
+            <TouchableOpacity style={styles.backButton} onPress={goBack}>
+              <MaterialIcon
+                name={'keyboard-backspace'}
+                size={24}
+                color={PRIMARY_BLUE}
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  } else if (chain && chain.name === 'Stellar') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.content}>
+            <KHeader
+              title={'Account'}
+              subTitle={'Connect your account'}
+              style={styles.header}
+            />
+            <KSelect
+              label={'Blockchain'}
+              items={importableChains.map(item => ({
+                label: item.name,
+                value: item,
+              }))}
+              onValueChange={setChain}
+              containerStyle={styles.inputContainer}
+            />
+            <KInput
+              label={'Private Key'}
+              placeholder={'Enter your Stellar private key'}
+              secureTextEntry
+              value={privateKey}
+              onChangeText={setPrivateKey}
+              onPasteHandler={setPrivateKey}
+              containerStyle={styles.inputContainer}
+            />
+            <View style={styles.spacer} />
+            <KButton
+              title={'Connect account'}
+              theme={'blue'}
+              style={styles.button}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/accounts.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              onPress={_handleStellarConnect}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon

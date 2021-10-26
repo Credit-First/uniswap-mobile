@@ -10,11 +10,13 @@ import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
+import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
 import { log } from '../../logger/logger';
 
 const TransferScreen = props => {
   const [fromAccount, setFromAccount] = useState();
   const [toAccountName, setToAccountName] = useState('');
+  const [isLiveStellarAccount, setIsLiveStellarAccount] = useState(false);
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
   const [toFioAddress, setToFioAddress] = useState();
@@ -31,9 +33,11 @@ const TransferScreen = props => {
     accountsState: { accounts, addresses },
   } = props;
 
-  console.log(accounts);
-
   const fioEndpoint = getEndpoint('FIO');
+
+  const isValidXLMAddress = address => {
+    return (address != null && address.startsWith('G') && address.length == 56);
+  }
 
   const processToPubkeyUpdate = async toAccountPubkey => {
     const chain = getChain(fromAccount.chainName);
@@ -78,7 +82,9 @@ const TransferScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json => processToPubkeyUpdate(json.public_address))
+      .then(json => {
+        processToPubkeyUpdate(json.public_address);
+      })
       .catch(error =>
         log({
           description:
@@ -146,6 +152,21 @@ const TransferScreen = props => {
     }
   };
 
+  const _validateStellarAddress = address => {
+    const callback = json => {
+      if(json["status"] && json["status"] === 404) {
+        setIsLiveStellarAccount(false);
+      } else if(json['balances']) {
+        setIsLiveStellarAccount(true);
+      } else {
+        setIsLiveStellarAccount(false);
+      }
+    };
+    if(isValidXLMAddress(address)) {
+      loadAccount(address, callback);
+    }
+  };
+
   const updateAvailableState = (regcount, address, error) => {
     if (regcount === 0) {
       setAddressInvalidMessage('Invalid FIO address!');
@@ -201,6 +222,10 @@ const TransferScreen = props => {
       _validateAddress(value);
       setIsFioAddress(true);
       setToFioAddress(value);
+    } else if (fromAccount.chainName === 'XLM') {
+      setIsFioAddress(false);
+      setAddressInvalidMessage('');
+      _validateStellarAddress(value);
     } else {
       setIsFioAddress(false);
       setAddressInvalidMessage('');
@@ -302,6 +327,28 @@ const TransferScreen = props => {
           memo,
           _callback,
         );
+      } else if (fromAccount.chainName === 'XLM') {
+        let receiver = toPubkey ? toPubkey : toAccountName;
+        if(isValidXLMAddress(receiver)) {
+          if(isLiveStellarAccount) {
+            await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+          } else {
+            //Double check isLiveStellarAccount for FIO use case:
+            const callback = async json => {
+              // XLM address doesn't exists
+              if(json["status"] && json["status"] === 404) {
+                setIsLiveStellarAccount(false);
+                await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+              } else { // Address exists:
+                setIsLiveStellarAccount(true);
+                await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+              }
+            };
+            loadAccount(receiver, callback);
+          }
+        } else {
+          Alert.alert('Invalid XLM to address: '+receiver);
+        }
       } else if (fromAccount.chainName === 'FIO') {
         await sendFioTransfer(
           fromAccount,
@@ -324,7 +371,7 @@ const TransferScreen = props => {
       log({
         description: '_handleTransfer - transfer: ' + fromAccount.chainName,
         cause: err.message,
-        location: 'ViewFIORequestScreen',
+        location: 'TransferScreen',
       });
     } finally {
       setLoading(false);
@@ -363,7 +410,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  item.chainName !== 'FIO' ? item.accountName : item.address
+                  (item.chainName === 'FIO'||item.chainName === 'XLM') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}

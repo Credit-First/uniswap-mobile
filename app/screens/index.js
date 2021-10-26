@@ -42,6 +42,7 @@ export { default as GroupChatScreen } from './FIO/GroupChatScreen';
 export { default as ListFIORequestsScreen } from './FIO/ListFIORequestsScreen';
 export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
 export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
+export { default as StellarAccountScreen } from './Stellar/StellarAccountScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

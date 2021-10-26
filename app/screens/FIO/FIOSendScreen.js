@@ -42,7 +42,7 @@ const FIOSendScreen = props => {
       importedChains.push(chain.chainName);
       let chainName = chain.chainName === 'Telos' ? 'TLOS' : chain.chainName;
       var token = getTokens(chainName);
-      if (token) {
+      if (token && token.name) {
         importedChains.push(token.name);
         tokenChainMap[token.name] = chainName;
       }
