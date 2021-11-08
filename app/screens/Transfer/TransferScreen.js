@@ -29,8 +29,9 @@ const TransferScreen = props => {
 
   const {
     addAddress,
+    addHistory,
     navigation: { navigate },
-    accountsState: { accounts, addresses },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -233,8 +234,11 @@ const TransferScreen = props => {
     setToAccountName(value);
   };
 
-  const _callback = txid => {
-    Alert.alert('Transfer completed: ' + txid);
+  const addTransactionToHistory = transaction => {
+    transaction.isFioAddress = isFioAddress;
+    transaction.toFioAddress = toFioAddress;
+    addHistory(transaction);
+    Alert.alert('Transfer completed: ' + transaction.txid);
     navigate('Accounts');
   };
 
@@ -325,23 +329,41 @@ const TransferScreen = props => {
           receiver,
           floatAmount,
           memo,
-          _callback,
+          addTransactionToHistory,
         );
       } else if (fromAccount.chainName === 'XLM') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         if(isValidXLMAddress(receiver)) {
           if(isLiveStellarAccount) {
-            await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+            await submitStellarPayment(
+              fromAccount,
+              receiver,
+              floatAmount,
+              memo,
+              addTransactionToHistory,
+            );
           } else {
             //Double check isLiveStellarAccount for FIO use case:
             const callback = async json => {
               // XLM address doesn't exists
               if(json["status"] && json["status"] === 404) {
                 setIsLiveStellarAccount(false);
-                await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+                await createStellarAccount(
+                  fromAccount,
+                  receiver,
+                  floatAmount,
+                  memo,
+                  addTransactionToHistory,
+                );
               } else { // Address exists:
                 setIsLiveStellarAccount(true);
-                await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+                await submitStellarPayment(
+                  fromAccount,
+                  receiver,
+                  floatAmount,
+                  memo,
+                  addTransactionToHistory,
+                );
               }
             };
             loadAccount(receiver, callback);
@@ -355,12 +377,24 @@ const TransferScreen = props => {
           toPubkey,
           floatAmount,
           memo,
-          _callback,
+          addTransactionToHistory,
         );
       } else if (chain) {
         // Any of supported EOSIO chains:
-        await transfer(actorName, floatAmount, memo, fromAccount, chain);
-        Alert.alert('Transfer completed!');
+        let result = await transfer(actorName, floatAmount, memo, fromAccount, chain);
+        const txRecord = {
+          "chain": chain.chainName,
+          "sender": fromAccount,
+          "receiver": actorName,
+          "amount": floatAmount,
+          "memo": memo,
+          "isFioAddress": isFioAddress,
+          "toFioAddress": toFioAddress,
+          "txid": result,
+          "date": new Date(),
+        };
+        //addTransactionToHistory(txRecord);
+        console.log(txRecord);
       } else {
         Alert.alert('Unsupported transfer state!');
       }

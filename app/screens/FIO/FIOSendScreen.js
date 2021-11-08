@@ -26,7 +26,7 @@ const FIOSendScreen = props => {
   const {
     addAddress,
     navigation: { goBack },
-    accountsState: { accounts, addresses },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');

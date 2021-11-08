@@ -34,7 +34,7 @@ const ViewFIORequestScreen = props => {
     route: {
       params: { fioAccount, fioRequest, title },
     },
-    accountsState: { accounts, addresses },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -109,9 +109,12 @@ const ViewFIORequestScreen = props => {
   let chain = null;
   if (decryptedContent != null) {
     var chainCode = decryptedContent.chain_code.toUpperCase().trim();
+    console.log(chainCode);
     chain = getChain(chainCode);
     if (!chain && chainCode === 'ALGO') {
       chain = { name: 'ALGO', symbol: 'ALGO' };
+    } else if (!chain && chainCode === 'XLM') {
+      chain = { name: 'XLM', symbol: 'XLM' };
     } else if (tokenChainMap[chainCode]) {
       let chainName = tokenChainMap[chainCode];
       chain = getChain(chainName);

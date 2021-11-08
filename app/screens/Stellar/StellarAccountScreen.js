@@ -34,7 +34,7 @@ const StellarAccountScreen = props => {
       params: { account: account },
     },
     deleteAccount,
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const divider = 1000000;

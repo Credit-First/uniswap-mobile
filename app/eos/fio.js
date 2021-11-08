@@ -103,7 +103,16 @@ const sendFioTransfer = async (
     Alert.alert(errmsg);
   }
   if (callback && json.transaction_id) {
-    callback(json.transaction_id);
+    const txRecord = {
+      "chain": "FIO",
+      "sender": fromFioAccount,
+      "receiver": toPublicKey,
+      "amount": amount,
+      "memo": memo,
+      "txid": json.transaction_id,
+      "date": new Date(),
+    };
+    callback(txRecord);
   }
   return json;
 };
@@ -878,7 +887,7 @@ const loadAccountSecret = (adminFioAccount, accountName, callback) => {
     Alert.alert(JSON.stringify(err));
   }
 };
-  
+
 
 export {
   sendFioTransfer,
