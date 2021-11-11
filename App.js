@@ -52,6 +52,7 @@ import {
   AddAddressScreen,
   EditAddressScreen,
   TransferScreen,
+  ResendTransferScreen,
   TransactionsScreen,
   VoteScreen,
   MenuScreen,
@@ -150,6 +151,7 @@ const TransferStackScreen = () => {
   return (
     <TransferStack.Navigator headerMode={'none'}>
       <TransferStack.Screen name="Transfer" component={TransferScreen} />
+      <TransferStack.Screen name="ResendTransfer" component={ResendTransferScreen} />
       <TransferStack.Screen
         name="Transactions"
         component={TransactionsScreen}

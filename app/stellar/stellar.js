@@ -84,7 +84,7 @@ const createStellarAccount = async (fromAccount,
                   "date": new Date(),
                 };
                 callback(txRecord);
-              } else
+              } else {
                 Alert.alert('Stellar account created: ' + result.id);
               }
             })

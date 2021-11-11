@@ -18,6 +18,7 @@ import { TextEncoder, TextDecoder } from 'text-encoding';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
+import { submitStellarPayment } from '../../stellar/stellar';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { getTokens, getTokenByName, transferToken } from '../../eos/tokens';
 import { rejectFundsRequest, recordObtData } from '../../eos/fio';
@@ -359,6 +360,51 @@ const ViewFIORequestScreen = props => {
         cause: err.message,
         location: 'ViewFIORequestScreen',
       });
+    } finally {
+      setLoading(false);
+    }
+    return;
+  };
+
+  const doStellarTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    // Find imported matching from account:
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return (
+        value.chainName === 'XLM' && value.address === fromAccountPubkey
+      );
+    });
+    if (activeAccounts.length === 0) {
+      Alert.alert(
+        'Could not find imported Stellar account to pubkey ' + fromAccountPubkey,
+      );
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(decryptedContent.amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount ' + decryptedContent.amount);
+      return;
+    }
+    setLoading(true);
+    try {
+      await submitStellarPayment(
+        fromAccount,
+        toAccountPubkey,
+        floatAmount,
+        decryptedContent.memo,
+        markFIORequestCompleted,
+      );
+    } catch (err) {
+      setLoading(false);
+      Alert.alert(err.message);
+      log({
+        description: 'doStellarTransfer',
+        cause: err.message,
+        location: 'ViewFIORequestScreen',
+      });
+    } finally {
+      setLoading(false);
     }
     return;
   };
@@ -383,6 +429,7 @@ const ViewFIORequestScreen = props => {
       setLoading(false);
       return;
     }
+    setLoading(true);
     try {
       await sendFioTransfer(
         fromAccount,
@@ -398,6 +445,8 @@ const ViewFIORequestScreen = props => {
         cause: err,
         location: 'FIOSendScreen',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -416,6 +465,8 @@ const ViewFIORequestScreen = props => {
       setLoading(true);
       if (chainCode === 'ALGO') {
         await doAlgoTransfer(toActorPubkey, fromActorPubkey);
+      } else if (chainCode === 'XLM') {
+        await doStellarTransfer(toActorPubkey, fromActorPubkey);
       } else if (chainCode === 'FIO') {
         await doFIOTransfer(toActorPubkey, fromActorPubkey);
       } else {

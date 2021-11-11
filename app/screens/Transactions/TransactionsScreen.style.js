@@ -10,13 +10,13 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 5,
   },
   header: {
-    marginTop: 40,
+    marginTop: 5,
   },
   list: {
-    marginTop: 20,
+    marginTop: 0,
   },
 });
 

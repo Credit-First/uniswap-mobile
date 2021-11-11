@@ -105,7 +105,7 @@ const sendFioTransfer = async (
   if (callback && json.transaction_id) {
     const txRecord = {
       "chain": "FIO",
-      "sender": fromFioAccount,
+      "sender": fromFioAccount.address,
       "receiver": toPublicKey,
       "amount": amount,
       "memo": memo,
