@@ -3,8 +3,7 @@ import { log } from '../logger/logger';
 import { Alert } from 'react-native';
 
 const algo_endpoint = 'https://algo.eostribe.io';
-const client_token =
-  '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
+const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
 const Buffer = require('buffer').Buffer;
 
 const algoDivider = 1000000;
@@ -37,8 +36,10 @@ const makeTransactionWithParams = async (
   // Combine the signed transactions
   let signed = [];
   signed.push(signedTx);
-  let algodClient = new algosdk.Algod(client_token, algo_endpoint, '');
+  console.log(signedTx);
+  let algodClient = new algosdk.Algodv2(client_token, algo_endpoint, '');
   let tx = await algodClient.sendRawTransactions(signed);
+  console.log(tx);
   if (callback && tx.txId) {
     callback(tx.txId);
   } else if (!tx.txId) {
@@ -66,6 +67,7 @@ const processAlgoTransaction = async (
   fetch(algo_endpoint + '/v1/transactions/params')
     .then(response => response.json())
     .then(json => {
+      console.log(json);
       makeTransactionWithParams(sender, receiver, amount, memo, json, callback);
     })
     .catch(error => {
