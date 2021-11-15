@@ -32,7 +32,7 @@ const AccountsScreen = props => {
     addKey,
     setTotal,
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
     chooseActiveAccount,
   } = props;
 

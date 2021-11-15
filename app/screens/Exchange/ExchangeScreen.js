@@ -23,7 +23,7 @@ const ExchangeScreen = props => {
 
   const {
     navigation: { navigate },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const filteredAccounts = accounts.filter((value, index, array) => {

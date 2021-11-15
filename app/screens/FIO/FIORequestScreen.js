@@ -33,7 +33,7 @@ const FIORequestScreen = props => {
   const {
     addAddress,
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');

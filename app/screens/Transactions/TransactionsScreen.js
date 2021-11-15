@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, FlatList, Linking } from 'react-native';
+import { SafeAreaView,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Linking } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { PRIMARY_BLUE } from '../../theme/colors';
 import styles from './TransactionsScreen.style';
 import { KHeader, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -10,102 +17,40 @@ import { log } from '../../logger/logger';
 
 const TransactionsScreen = props => {
   const {
-    navigation,
-    route: {
-      params: { account },
-    },
+    navigation: { navigate, goBack },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const [transactions, setTransactions] = useState([]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', async () => {
-      if (!account) {
-        return;
-      }
-
-      const chain = getChain(account.chainName);
-      if (!chain) {
-        return;
-      }
-
-      try {
-        const res = await getActions(account.accountName, chain);
-        setTransactions(res.actions);
-      } catch (err) {
-        setTransactions([]);
-        log({
-          description: 'Error loading actions',
-          cause: err,
-          location: 'TransactionsScreen',
-        });
-      }
-    });
-
-    return unsubscribe;
-  }, [account]);
-
-  const _handlePressTransaction = action => {
-    // const { navigate } = navigation;
-    //FIXME: Implement view transaction details
+  const _handlePressTransaction = (transaction) => {
+    navigate('ResendTransfer', { transaction });
   };
 
-  const _loadBloksHistory = () => {
-    if (account.chainName === 'EOS') {
-      Linking.openURL('https://bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'Telos') {
-      Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'TLOS') {
-      Linking.openURL('https://telos.bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'WAX') {
-      Linking.openURL('https://wax.bloks.io/account/' + account.accountName);
-    } else if (account.chainName === 'FIO') {
-      Linking.openURL('https://fio.bloks.io/address/' + account.address);
-    } else if (account.chainName === 'ALGO') {
-      Linking.openURL(
-        'https://algoexplorer.io/address/' + account.account.addr,
-      );
-    }
-  };
-
-  const getAccountName = () => {
-    if (!account) {
-      return '';
-    }
-    if (account.chainName === 'FIO') {
-      return account.chainName + ': ' + account.address;
-    } else if (account.chainName === 'ALGO') {
-      return account.chainName + ': ' + account.account.addr;
-    } else {
-      return account.chainName + ': ' + account.accountName;
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <MaterialIcon
+          name={'keyboard-backspace'}
+          size={24}
+          color={PRIMARY_BLUE}
+        />
+      </TouchableOpacity>
         <KHeader
           title={'Transactions'}
-          subTitle={getAccountName()}
           style={styles.header}
-        />
-        <KButton
-          title={'Load account history'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={_loadBloksHistory}
         />
         <FlatList
           style={styles.list}
-          data={transactions}
+          data={history}
+          keyExtractor={(item, index) => `${index}`}
           renderItem={({ item }) => (
             <TransactionItem
               onPress={() => _handlePressTransaction(item)}
-              action={item}
-              activeAccount={account}
+              item={item}
             />
           )}
-          keyExtractor={(item, index) => `${index}`}
         />
       </View>
     </SafeAreaView>

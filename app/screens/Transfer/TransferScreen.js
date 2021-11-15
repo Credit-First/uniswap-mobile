@@ -29,8 +29,9 @@ const TransferScreen = props => {
 
   const {
     addAddress,
+    addHistory,
     navigation: { navigate },
-    accountsState: { accounts, addresses },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const fioEndpoint = getEndpoint('FIO');
@@ -224,18 +225,23 @@ const TransferScreen = props => {
       setToFioAddress(value);
     } else if (fromAccount.chainName === 'XLM') {
       setIsFioAddress(false);
+      setToFioAddress('');
       setAddressInvalidMessage('');
       _validateStellarAddress(value);
     } else {
       setIsFioAddress(false);
+      setToFioAddress('');
       setAddressInvalidMessage('');
     }
     setToAccountName(value);
   };
 
-  const _callback = txid => {
-    Alert.alert('Transfer completed: ' + txid);
-    navigate('Accounts');
+  const addTransactionToHistory = transaction => {
+    transaction.isFioAddress = isFioAddress;
+    transaction.toFioAddress = toFioAddress;
+    addHistory(transaction);
+    Alert.alert('Transfer completed: ' + transaction.txid);
+    navigate('Transactions');
   };
 
   const addFIOAddressToAddressbook = () => {
@@ -265,10 +271,13 @@ const TransferScreen = props => {
   };
 
   const _handleTransfer = async () => {
+    setLoading(true);
+
     if (!fromAccount || !toAccountName || !amount) {
       Alert.alert(
         'Please select from and to account as well as amount for transfer',
       );
+      setLoading(false);
       return;
     }
 
@@ -276,6 +285,7 @@ const TransferScreen = props => {
     const floatAmount = parseFloat(amount);
     if (isNaN(floatAmount)) {
       Alert.alert('Please input valid amount');
+      setLoading(false);
       return;
     }
 
@@ -294,6 +304,7 @@ const TransferScreen = props => {
             ' registered to ' +
             toAccountName,
         );
+        setLoading(false);
         return;
       }
       // Add FIO address to addressbook:
@@ -307,17 +318,19 @@ const TransferScreen = props => {
         let toAccount = await getAccount(actorName, chain);
         if (!toAccount) {
           Alert.alert('Please input valid account name');
+          setLoading(false);
           return;
         }
       } catch (e) {
         Alert.alert('Please input valid account name');
+        setLoading(false);
         return;
       }
     }
 
-    setLoading(true);
     // From account validation
     try {
+      setLoading(true);
       if (fromAccount.chainName === 'ALGO') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         await submitAlgoTransaction(
@@ -325,23 +338,41 @@ const TransferScreen = props => {
           receiver,
           floatAmount,
           memo,
-          _callback,
+          addTransactionToHistory,
         );
       } else if (fromAccount.chainName === 'XLM') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         if(isValidXLMAddress(receiver)) {
           if(isLiveStellarAccount) {
-            await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+            await submitStellarPayment(
+              fromAccount,
+              receiver,
+              floatAmount,
+              memo,
+              addTransactionToHistory,
+            );
           } else {
             //Double check isLiveStellarAccount for FIO use case:
             const callback = async json => {
               // XLM address doesn't exists
               if(json["status"] && json["status"] === 404) {
                 setIsLiveStellarAccount(false);
-                await createStellarAccount(fromAccount, receiver, floatAmount, memo);
+                await createStellarAccount(
+                  fromAccount,
+                  receiver,
+                  floatAmount,
+                  memo,
+                  addTransactionToHistory,
+                );
               } else { // Address exists:
                 setIsLiveStellarAccount(true);
-                await submitStellarPayment(fromAccount, receiver, floatAmount, memo);
+                await submitStellarPayment(
+                  fromAccount,
+                  receiver,
+                  floatAmount,
+                  memo,
+                  addTransactionToHistory,
+                );
               }
             };
             loadAccount(receiver, callback);
@@ -355,12 +386,23 @@ const TransferScreen = props => {
           toPubkey,
           floatAmount,
           memo,
-          _callback,
+          addTransactionToHistory,
         );
       } else if (chain) {
         // Any of supported EOSIO chains:
-        await transfer(actorName, floatAmount, memo, fromAccount, chain);
-        Alert.alert('Transfer completed!');
+        let result = await transfer(actorName, floatAmount, memo, fromAccount, chain);
+        const txRecord = {
+          "chain": chain.name,
+          "sender": fromAccount.accountName,
+          "receiver": actorName,
+          "amount": floatAmount,
+          "memo": memo,
+          "isFioAddress": isFioAddress,
+          "toFioAddress": toFioAddress,
+          "txid": result.transaction_id,
+          "date": new Date(),
+        };
+        addTransactionToHistory(txRecord);
       } else {
         Alert.alert('Unsupported transfer state!');
       }
@@ -458,6 +500,20 @@ const TransferScreen = props => {
               )}
               onPress={_handleTransfer}
             />
+            <View style={styles.spacer} />
+            <KButton
+              title={'Past transfers'}
+              theme={'brown'}
+              style={styles.button}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/transactions.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              onPress={() => navigate('Transactions')}
+            />
+            <View style={styles.spacer} />
           </View>
         </KeyboardAwareScrollView>
       </SafeAreaView>

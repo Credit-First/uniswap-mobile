@@ -19,7 +19,7 @@ const EditAddressScreen = props => {
   const {
     addAddress,
     deleteAddress,
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
     navigation: { navigate },
     route: {
       params: { fioAddress, index },

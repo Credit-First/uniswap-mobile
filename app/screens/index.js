@@ -50,6 +50,7 @@ export {
   default as CreateTelosAccountScreen,
 } from './ConnectAccount/CreateTelosAccountScreen';
 export { default as TransferScreen } from './Transfer/TransferScreen';
+export { default as ResendTransferScreen } from './Transfer/ResendTransferScreen';
 export {
   default as TransactionsScreen,
 } from './Transactions/TransactionsScreen';

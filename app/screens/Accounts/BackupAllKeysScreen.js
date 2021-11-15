@@ -19,7 +19,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const BackupAllKeysScreen = props => {
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   var privateKeys = '';

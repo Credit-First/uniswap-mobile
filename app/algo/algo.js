@@ -41,7 +41,16 @@ const makeTransactionWithParams = async (
   let tx = await algodClient.sendRawTransactions(signed);
   console.log(tx);
   if (callback && tx.txId) {
-    callback(tx.txId);
+    const txRecord = {
+      "chain": "ALGO",
+      "sender": sender,
+      "receiver": receiver,
+      "amount": amount,
+      "memo": memo,
+      "txid": tx.txId,
+      "date": new Date(),
+    };
+    callback(txRecord);
   } else if (!tx.txId) {
     log({
       description: 'makeTransactionWithParams error',

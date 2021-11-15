@@ -11,7 +11,7 @@ import { log } from '../../logger/logger';
 const GroupChatScreen = props => {
   const {
     navigation: { goBack },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const [messageList, setMessageList] = useState([]);

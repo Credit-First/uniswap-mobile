@@ -7,6 +7,7 @@ const accountsState = {
   addresses: [],
   keys: [],
   totals: [],
+  history: [],
   config: {
     showAllTokens: true,
   },

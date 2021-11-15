@@ -43,7 +43,7 @@ const AccountDetailsScreen = props => {
       params: { account },
     },
     deleteAccount,
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const maxRatio = 0.95;

@@ -72,11 +72,21 @@ const createStellarAccount = async (fromAccount,
           // And finally, send it off to Stellar!
           return server.submitTransaction(transaction)
             .then(function (result) {
-              //console.log(result);
               if (callback) {
-                callback(result);
+                const txRecord = {
+                  "chain": "XLM",
+                  "operation": "createAccount",
+                  "sender": fromAddress,
+                  "receiver": destination,
+                  "amount": amount,
+                  "memo": memo,
+                  "txid": result.id,
+                  "date": new Date(),
+                };
+                callback(txRecord);
+              } else {
+                Alert.alert('Stellar account created: ' + result.id);
               }
-              Alert.alert('Stellar account created: ' + result.id);
             })
             .catch(function (error) {
               log({
@@ -101,6 +111,7 @@ const submitStellarPayment = async (fromAccount,
   }
 
   var fromKeys = StellarSdk.Keypair.fromSecret(fromAccount.privateKey);
+  const fromAddress = fromKeys.publicKey();
 
   server.loadAccount(destination).catch(function (error) {
     if (error instanceof StellarSdk.NotFoundError) {
@@ -145,9 +156,20 @@ const submitStellarPayment = async (fromAccount,
   .then(function (result) {
     //console.log(result);
     if (callback) {
-      callback(result);
+      const txRecord = {
+        "chain": "XLM",
+        "operation": "payment",
+        "sender": fromAddress,
+        "receiver": destination,
+        "amount": amount,
+        "memo": memo,
+        "txid": result.id,
+        "date": new Date(),
+      };
+      callback(txRecord);
+    } else {
+      Alert.alert('Stellar payment submitted: ' + result.id);
     }
-    Alert.alert('Stellar payment submitted: ' + result.id);
   })
   .catch(function (error) {
     log({

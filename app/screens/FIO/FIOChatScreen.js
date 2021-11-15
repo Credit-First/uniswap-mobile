@@ -14,7 +14,7 @@ import { log } from '../../logger/logger';
 const FIOChatScreen = props => {
   const {
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses },
+    accountsState: { accounts, addresses, keys, totals, history, config },
     route: {
       params: { fioAddress, index, fromFioAddress },
     },

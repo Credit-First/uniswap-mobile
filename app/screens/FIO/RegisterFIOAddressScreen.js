@@ -44,7 +44,7 @@ const RegisterFIOAddressScreen = props => {
     addKey,
     connectAccount,
     navigation: { navigate, goBack },
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
   // FIO endpoint:
   const fioEndpoint = getEndpoint('FIO');

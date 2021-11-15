@@ -46,7 +46,7 @@ const TokenDetailsScreen = props => {
     route: {
       params: { account: account, token: token },
     },
-    accountsState: { accounts, addresses, keys, totals, config },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const chainCode = account.chainName === 'Telos' ? 'TLOS' : account.chainName;

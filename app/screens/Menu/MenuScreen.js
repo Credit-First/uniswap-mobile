@@ -12,7 +12,7 @@ const MenuScreen = props => {
   const {
     connectAccount,
     navigation: { navigate },
-    accountsState: { accounts },
+    accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const telosAccounts = accounts.filter((value, index, array) => {

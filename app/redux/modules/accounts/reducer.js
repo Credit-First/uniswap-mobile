@@ -11,6 +11,7 @@ import {
   ADD_KEY,
   SET_CONFIG,
   GET_CONFIG,
+  ADD_HISTORY,
   SET_TOTAL,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
@@ -27,6 +28,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         addresses: state.addresses,
         keys: state.keys,
         totals: state.totals,
+        history: state.history,
         config: state.config,
       };
     case DELETE_ACCOUNT:
@@ -39,6 +41,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         addresses: state.addresses.concat([payload]),
         keys: state.keys,
         totals: state.totals,
+        history: state.history,
         config: state.config,
       };
     case DELETE_ADDRESS:
@@ -51,6 +54,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         addresses: state.addresses,
         keys: state.keys.concat([payload]),
         totals: state.totals,
+        history: state.history,
         config: state.config,
       };
     case FETCH_KEYS:
@@ -61,10 +65,20 @@ export default function accountsState(state = DEFAULT, action = {}) {
         addresses: state.addresses,
         keys: state.keys,
         totals: state.totals,
+        history: state.history,
         config: payload,
       };
     case GET_CONFIG:
       break;
+    case ADD_HISTORY:
+      return {
+        accounts: state.accounts,
+        addresses: state.addresses,
+        keys: state.keys,
+        totals: state.totals,
+        history: state.history.concat([payload]),
+        config: state.config,
+      };
     case SET_TOTAL:
         return updateTotal(state, payload);
     default:
@@ -78,12 +92,14 @@ function updateTotal(state, payload) {
   let accounts = state.accounts;
   let addresses = state.addresses;
   let keys = state.keys;
+  let history = state.history;
   let config = state.config;
   return {
     accounts,
     addresses,
     keys,
     totals,
+    history,
     config,
   };
 }
@@ -93,12 +109,14 @@ function deleteAccount(state, payload) {
   let addresses = state.addresses;
   let keys = state.keys;
   let totals = state.totals;
+  let history = state.history;
   let config = state.config;
   return {
     accounts,
     addresses,
     keys,
     totals,
+    history,
     config,
   };
 }
@@ -110,12 +128,14 @@ function deleteAddress(state, payload) {
   let accounts = state.accounts;
   let keys = state.keys;
   let totals = state.totals;
+  let history = state.history;
   let config = state.config;
   return {
     accounts,
     addresses,
     keys,
     totals,
+    history,
     config,
   };
 }
