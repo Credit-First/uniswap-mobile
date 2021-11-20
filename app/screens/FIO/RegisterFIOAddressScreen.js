@@ -95,7 +95,6 @@ const RegisterFIOAddressScreen = props => {
   };
 
   const processCodeValidateResponse = text => {
-    console.log(text);
     try {
       let json = JSON.parse(text);
       if (json.code_match) {
@@ -104,7 +103,6 @@ const RegisterFIOAddressScreen = props => {
         Alert.alert(text);
       }
     } catch (err) {
-      console.log(err);
       Alert.alert(text);
     }
   };

@@ -8,6 +8,7 @@ import { getChain, getEndpoint } from '../../../eos/chains';
 import { getBalance, getTokens } from '../../../eos/tokens';
 import { getAccount } from '../../../eos/eos';
 import { loadAccount } from '../../../stellar/stellar';
+import { getAlgoAccountInfo } from '../../../algo/algo';
 import { log } from '../../../logger/logger';
 import {
   PRIMARY_GRAY,
@@ -124,30 +125,9 @@ const loadFioAccountBalance = async (account, updateAccountBalance) => {
 const loadAlgoAccountBalance = async (account, updateAccountBalance) => {
   try {
     const addr = account.account.addr;
-    fetch('http://algo.eostribe.io/v1/account/' + addr, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(json =>
-        updateAccountBalance(
-          json.amount !== undefined
-            ? (parseFloat(json.amount) / algoDivider).toFixed(4)
-            : 0,
-        ),
-      )
-      .catch(error =>
-        log({
-          description:
-            'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/' +
-            addr,
-          cause: error,
-          location: 'AccountListItem',
-        }),
-      );
+    const info = await getAlgoAccountInfo(addr);
+    const algoBalance = (parseFloat(info.amount) / algoDivider).toFixed(4);
+    updateAccountBalance(algoBalance);
   } catch (err) {
     log({
       description: 'loadAlgoAccountBalance',

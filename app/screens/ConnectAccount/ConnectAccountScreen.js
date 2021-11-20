@@ -35,7 +35,7 @@ const ConnectAccountScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
 
   var importableChains = [
-    {name: 'Algorand', symbol: 'ALGO', endpoint: 'http://algo.eostribe.io'},
+    {name: 'Algorand', symbol: 'ALGO'},
     {name: 'Stellar', symbol: 'XRP'}
   ];
 

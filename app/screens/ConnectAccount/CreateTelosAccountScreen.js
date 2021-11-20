@@ -142,7 +142,6 @@ const CreateTelosAccountScreen = props => {
   };
 
   const addAccount = (json, account) => {
-    console.log(json);
     if (json && json.transaction_id) {
       connectAccount(account);
       // Connect Telos account to a single FIO address:

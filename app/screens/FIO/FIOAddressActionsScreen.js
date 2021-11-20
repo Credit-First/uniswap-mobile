@@ -600,7 +600,6 @@ const FIOAddressActionsScreen = props => {
   };
 
   const goToRenewFIOScreen = json => {
-    console.log(json);
     navigate('RenewFIOAddress', { json, fioAccount });
   };
 

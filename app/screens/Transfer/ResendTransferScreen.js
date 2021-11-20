@@ -40,6 +40,21 @@ const ResendTransferScreen = props => {
     });
   }
 
+  const getSender = () => {
+    let sender = "";
+    if(transaction.sender.address) {
+      sender = transaction.sender.address;
+    } else if(transaction.sender.accountName) {
+      sender = transaction.sender.accountName;
+    } else {
+      sender = transaction.sender;
+    }
+    if(sender.length > 20) {
+      return sender.substring(0,20) + "..";
+    }
+    return sender;
+  };
+
   const getReceiver = () => {
     if(transaction.isFioAddress) {
       return transaction.toFioAddress;
@@ -142,7 +157,7 @@ const ResendTransferScreen = props => {
               title={'Resend transfer'}
               style={styles.header}
             />
-            <KText>From: {transaction.sender}</KText>
+            <KText>From: {getSender()}</KText>
             <KText>To: {getReceiver()}</KText>
             <KText>Memo: {transaction.memo}</KText>
             <KInput

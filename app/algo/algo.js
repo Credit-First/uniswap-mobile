@@ -2,92 +2,21 @@ import algosdk from 'algosdk';
 import { log } from '../logger/logger';
 import { Alert } from 'react-native';
 
-const algo_endpoint = 'https://algo.eostribe.io';
-const client_token = '3081024bfba2474b8c5140f8320ddcb1c43fb0c01add547c74694587b2ee799b';
+const algodNodeHost = "https://node.algoexplorerapi.io";
+const algoIndexerHost = "https://algoindexer.algoexplorerapi.io";
+
+const algodV2 = new algosdk.Algodv2("", algodNodeHost, "");
+const indexer = new algosdk.Indexer("", algoIndexerHost, "");
+
 const Buffer = require('buffer').Buffer;
+const encoder = new TextEncoder();
 
 const algoDivider = 1000000;
 
-const makeTransactionWithParams = async (
-  sender,
-  receiver,
-  amount,
-  memo,
-  params,
-  callback,
-) => {
-  let algoAmount = amount * algoDivider;
-  let base64Memo = new Buffer(memo).toString('base64');
-  params.genesisHash = params.genesishashb64;
-  params.firstRound = params.lastRound;
-  params.lastRound = params.lastRound + 1000;
-  let transaction = algosdk.makePaymentTxnWithSuggestedParams(
-    sender.account.addr /* sender */,
-    receiver /* receiver */,
-    algoAmount /* amount */,
-    undefined /*closeRemainderTo*/,
-    new Uint8Array(Buffer.from(base64Memo, 'base64')) /* memo */,
-    params,
-  );
-  let txns = [transaction];
-  let txgroup = algosdk.assignGroupID(txns);
-  let myAccount = algosdk.mnemonicToSecretKey(sender.mnemonic);
-  let signedTx = transaction.signTxn(myAccount.sk);
-  // Combine the signed transactions
-  let signed = [];
-  signed.push(signedTx);
-  console.log(signedTx);
-  let algodClient = new algosdk.Algodv2(client_token, algo_endpoint, '');
-  let tx = await algodClient.sendRawTransactions(signed);
-  console.log(tx);
-  if (callback && tx.txId) {
-    const txRecord = {
-      "chain": "ALGO",
-      "sender": sender,
-      "receiver": receiver,
-      "amount": amount,
-      "memo": memo,
-      "txid": tx.txId,
-      "date": new Date(),
-    };
-    callback(txRecord);
-  } else if (!tx.txId) {
-    log({
-      description: 'makeTransactionWithParams error',
-      cause: tx,
-      location: 'algo',
-    });
-    Alert.alert('Failed to prepare Algorand transaction');
-  }
-};
-
-const processAlgoTransaction = async (
-  sender,
-  receiver,
-  amount,
-  memo,
-  balance,
-  callback,
-) => {
-  if (amount > balance) {
-    Alert.alert('Insufficient balance ' + balance + ' ALGO for transfer');
-    return;
-  }
-  fetch(algo_endpoint + '/v1/transactions/params')
-    .then(response => response.json())
-    .then(json => {
-      console.log(json);
-      makeTransactionWithParams(sender, receiver, amount, memo, json, callback);
-    })
-    .catch(error => {
-      log({
-        description: 'processAlgoTransaction error',
-        cause: error,
-        location: 'algo',
-      });
-      Alert.alert('Failed to submit Algorand transfer');
-    });
-};
+const getAlgoAccountInfo = async (addr) => {
+  let res = await indexer.lookupAccountByID(addr).do();
+  return res.account;
+}
 
 const submitAlgoTransaction = async (
   sender,
@@ -106,38 +35,79 @@ const submitAlgoTransaction = async (
     return;
   }
   try {
-    const addr = sender.account.addr;
-    fetch('http://algo.eostribe.io/v1/account/' + addr, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(json =>
-        processAlgoTransaction(
-          sender,
-          receiver,
-          amount,
-          memo,
-          parseFloat(json.amount) / algoDivider,
-          callback,
-        ),
-      )
-      .catch(error =>
-        log({
-          description:
-            'submitAlgoTransaction - fetch https://algo.eostribe.io/v1/account/' +
-            addr,
-          cause: error,
-          location: 'algo',
-        }),
-      );
+    // Construct the transaction
+    let params = await algodV2.getTransactionParams().do();
+    const note = encoder.encode(memo);
+    let floatAmount = parseFloat(amount) * algoDivider;
+    let txn = algosdk.makePaymentTxnWithSuggestedParams(
+      sender.account.addr,
+      receiver,
+      floatAmount,
+      undefined,
+      note,
+      params);
+    let senderAccount = algosdk.mnemonicToSecretKey(sender.mnemonic);
+    let signedTxn = txn.signTxn(senderAccount.sk);
+    let txId = txn.txID().toString();
+    await algodV2.sendRawTransaction(signedTxn).do();
+    let confirmedTxn = await waitForConfirmation(algodV2, txId, 4);
+    if (callback) {
+      const txRecord = {
+        "chain": "ALGO",
+        "sender": sender.account.addr,
+        "receiver": receiver,
+        "amount": amount,
+        "memo": memo,
+        "txid": txId,
+        "date": new Date(),
+      };
+      callback(txRecord);
+    }
   } catch (err) {
     log({ description: 'submitAlgoTransaction', cause: err, location: 'algo' });
     return;
   }
 };
 
-export { submitAlgoTransaction };
+/**
+ * Wait until the transaction is confirmed or rejected, or until 'timeout'
+ * number of rounds have passed.
+ * @param {algosdk.Algodv2} algodClient the Algod V2 client
+ * @param {string} txId the transaction ID to wait for
+ * @param {number} timeout maximum number of rounds to wait
+ * @return {Promise<*>} pending transaction information
+ * @throws Throws an error if the transaction is not confirmed or rejected in the next timeout rounds
+ */
+ const waitForConfirmation = async function (algodClient, txId, timeout) {
+    if (algodClient == null || txId == null || timeout < 0) {
+        throw new Error("Bad arguments");
+    }
+
+    const status = (await algodClient.status().do());
+    if (status === undefined) {
+        throw new Error("Unable to get node status");
+    }
+
+    const startround = status["last-round"] + 1;
+    let currentround = startround;
+
+    while (currentround < (startround + timeout)) {
+        const pendingInfo = await algodClient.pendingTransactionInformation(txId).do();
+        if (pendingInfo !== undefined) {
+            if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
+                //Got the completed Transaction
+                return pendingInfo;
+            } else {
+                if (pendingInfo["pool-error"] != null && pendingInfo["pool-error"].length > 0) {
+                    // If there was a pool error, then the transaction has been rejected!
+                    throw new Error("Transaction " + txId + " rejected - pool error: " + pendingInfo["pool-error"]);
+                }
+            }
+        }
+        await algodClient.statusAfterBlock(currentround).do();
+        currentround++;
+    }
+    throw new Error("Transaction " + txId + " not confirmed after " + timeout + " rounds!");
+};
+
+export { getAlgoAccountInfo, submitAlgoTransaction };

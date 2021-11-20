@@ -105,7 +105,6 @@ const StellarAccountScreen = props => {
   };
 
   const setAccountStats = json => {
-    console.log(json);
     var nativeBalance = 0;
     if(json['status'] && json['status'] === 404) {
       setAccountStatus('Account not initialized! \nDeposit 1 XLM into this address to initialize account on ledger.');

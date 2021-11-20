@@ -17,6 +17,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { getEndpoint } from '../../eos/chains';
+import { getAlgoAccountInfo } from '../../algo/algo';
 import { log } from '../../logger/logger';
 
 const AlgoAccountScreen = props => {
@@ -103,12 +104,6 @@ const AlgoAccountScreen = props => {
     });
   };
 
-  const setAccountStats = json => {
-    setAccountBalance(parseFloat(json.amount) / divider);
-    setRewards(parseFloat(json.rewards) / divider);
-    setAccountStatus(json.status);
-    checkConnectedFIOAccounts();
-  };
 
   const loadAlgoAccountBalance = async account => {
     if (loaded) {
@@ -116,24 +111,13 @@ const AlgoAccountScreen = props => {
     }
     try {
       const addr = account.account.addr;
-      fetch('http://algo.eostribe.io/v1/account/' + addr, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(response => response.json())
-        .then(json => setAccountStats(json))
-        .catch(error =>
-          log({
-            description:
-              'loadAlgoAccountBalance - fetch https://algo.eostribe.io/v1/account/' +
-              addr,
-            cause: error,
-            location: 'AlgoAccountScreen',
-          }),
-        );
+      const info = await getAlgoAccountInfo(addr);
+      const algoBalance = (parseFloat(info.amount) / divider).toFixed(4);
+      const algoRewards = (parseFloat(info.rewards) / divider).toFixed(4);
+      setAccountBalance(algoBalance);
+      setRewards(parseFloat(algoRewards));
+      setAccountStatus(info.status);
+      checkConnectedFIOAccounts();
     } catch (err) {
       log({
         description: 'loadAlgoAccountBalance',
@@ -141,6 +125,8 @@ const AlgoAccountScreen = props => {
         location: 'AlgoAccountScreen',
       });
       return;
+    } finally {
+      setLoaded(true);
     }
   };
 
@@ -183,6 +169,7 @@ const AlgoAccountScreen = props => {
   const _handleTransfer = () => {
     navigate('Transfer', { account });
   };
+
 
   loadAlgoAccountBalance(account);
 
