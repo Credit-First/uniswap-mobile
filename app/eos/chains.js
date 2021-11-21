@@ -12,7 +12,7 @@ var supportedChains = [
   {
     name: 'Telos',
     symbol: 'TLOS',
-    icon: require('../../assets/chains/eos.png'),
+    icon: require('../../assets/chains/telos.png'),
     endpoint: 'https://telos.greymass.com',
     endpoint1: 'https://api.telos.eostribe.io',
     endpoint2: 'https://mainnet.telosusa.io',
@@ -22,7 +22,7 @@ var supportedChains = [
   {
     name: 'FIO',
     symbol: 'FIO',
-    icon: require('../../assets/chains/eos.png'),
+    icon: require('../../assets/chains/fio.png'),
     endpoint: 'https://fio.greymass.com',
     endpoint1: 'https://fio.eosphere.io',
     endpoint2: 'https://fio.genereos.io',

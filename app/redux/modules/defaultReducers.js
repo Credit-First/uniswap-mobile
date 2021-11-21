@@ -9,7 +9,7 @@ const accountsState = {
   totals: [],
   history: [],
   config: {
-    showAllTokens: true,
+    showAllTokens: false,
   },
 };
 

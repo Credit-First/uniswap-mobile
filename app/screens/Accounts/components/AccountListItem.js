@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Image, View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import CheckBox from 'react-native-check-box';
@@ -202,13 +202,30 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     refreshBalances();
   }
 
+  const getChainIcon = name => {
+    if(name == "EOS") {
+      return require("../../../../assets/chains/eos.png");
+    } else if(name == "Telos") {
+      return require("../../../../assets/chains/telos.png");
+    } else if (name == "ALGO") {
+      return require("../../../../assets/chains/algo.png");
+    } else if (name == "FIO") {
+      return require("../../../../assets/chains/fio.png");
+    } else if (name == "XLM") {
+      return require("../../../../assets/chains/xlm.png");
+    } else {
+      return "";
+    }
+  }
+
   if (account.chainName === 'FIO') {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
-              {account.chainName} : {account.address}, {accountBalance}
+              {" "} {account.address}, {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>
@@ -221,9 +238,10 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
+        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
-              {account.chainName} : {account.accountName}, {accountBalance}
+              {" "} {account.accountName}, {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>
@@ -236,9 +254,10 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
+        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
-              {account.chainName} : {account.address.substring(0,12)}.., {accountBalance}
+              {" "} {account.address.substring(0,12)}.., {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>
@@ -254,9 +273,10 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
         <View>
           <View onFocus={refreshBalances} style={styles.rowContainer}>
             <View style={[styles.container, props.style]}>
+              <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
               <TouchableOpacity onPress={handleOnPress}>
                 <KText style={styles.chainName}>
-                  {account.chainName} : {account.accountName}, {accountBalance}
+                  {" "} {account.accountName}, {accountBalance}
                 </KText>
               </TouchableOpacity>
               <TouchableOpacity onPress={refreshBalances}>
@@ -277,9 +297,10 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       return (
         <View onFocus={refreshBalances} style={styles.rowContainer}>
           <View style={[styles.container, props.style]}>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
             <TouchableOpacity onPress={handleOnPress}>
               <KText style={styles.chainName}>
-                {account.chainName} : {account.accountName}, {accountBalance}
+                {" "} {account.accountName}, {accountBalance}
               </KText>
             </TouchableOpacity>
             <TouchableOpacity onPress={refreshBalances}>
@@ -318,6 +339,10 @@ const styles = StyleSheet.create({
     width: chainWidth,
     fontSize: 16,
     color: PRIMARY_BLACK,
+  },
+  chainIcon: {
+    width: 18,
+    height: 18,
   },
   tokenName: {
     fontSize: 15,
