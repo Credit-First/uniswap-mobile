@@ -14,6 +14,7 @@ import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
+import keythereum from 'keythereum';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
@@ -56,6 +57,14 @@ const AccountsScreen = props => {
       deleteAccount(index);
     }
   });
+
+  var keythereum = require("keythereum");
+
+  const createEthereum = () => {
+    var params = { keyBytes: 32, ivBytes: 16 };
+    var dk = keythereum.create(params);
+    console.log(dk);
+  };
 
   const validAccounts = accounts.filter((value, index, array) => {
     return (value != null);
@@ -554,6 +563,12 @@ const AccountsScreen = props => {
           )}
         />
         {optionalButtons}
+        <KButton
+          title={'Create Ethereum'}
+          theme={'blue'}
+          style={styles.button}
+          onPress={() => createEthereum()}
+        />
         <KButton
           title={'Import accounts'}
           theme={'blue'}
