@@ -10,7 +10,7 @@ import {
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
-import { KHeader, KButton, KText } from '../../components';
+import { KHeader, KButton, KText, ManageEOSIOButtons } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
@@ -321,37 +321,38 @@ const AccountDetailsScreen = props => {
             hideLegend={false}
           />
           <KText style={styles.alert}>{resourcesWarning}</KText>
-          <KButton
-            title={'Manage resources'}
-            theme={'primary'}
-            style={styles.button}
-            onPress={_handleManageResources}
-          />
-          <KButton
-            title={'Vote for Block Producers'}
-            theme={'primary'}
-            style={styles.button}
-            onPress={_handleVoteBP}
-          />
-          <KButton
-            title={'Backup private key'}
-            theme={'primary'}
-            style={styles.button}
-            onPress={_handleBackupKey}
-            renderIcon={() => (
+
+          <ManageEOSIOButtons
+            onManageResourcesPress={_handleManageResources}
+            onVoteBPPress={_handleVoteBP}
+            onSaveKeyPress={_handleBackupKey}
+            onDeletePress={_handleRemoveAccount}
+            manageResourcesIcon={() => (
               <Image
-                source={require('../../../assets/icons/accounts.png')}
+                source={require('../../../assets/icons/manage_resources.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            voteBPIcon={() => (
+              <Image
+                source={require('../../../assets/icons/vote.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            saveKeyIcon={() => (
+              <Image
+                source={require('../../../assets/icons/save_key.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            deleteIcon={() => (
+              <Image
+                source={require('../../../assets/icons/delete.png')}
                 style={styles.buttonIcon}
               />
             )}
           />
-          <KButton
-            title={'Remove account'}
-            theme={'brown'}
-            style={styles.button}
-            icon={'remove'}
-            onPress={_handleRemoveAccount}
-          />
+
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

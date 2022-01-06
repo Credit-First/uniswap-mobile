@@ -9,6 +9,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
+  iconComponentWrapper: {
+    marginRight: 8,
+  },
   rowContainer: {
     marginTop: 5,
     flexDirection: 'row',
@@ -28,9 +31,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonIcon: {
-    width: 18,
-    height: 18,
-    tintColor: '#FFF',
+    width: 48,
+    height: 48,
   },
   qrcode: {
     alignSelf: 'center',
@@ -78,6 +80,14 @@ const styles = StyleSheet.create({
   error: {
     color: '#FF0000',
     fontSize: 14,
+  },
+  chainIcon: {
+    width: 18,
+    height: 18,
+  },
+  chainName: {
+    fontSize: 16,
+    color: 'black',
   },
 });
 

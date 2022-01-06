@@ -10,7 +10,7 @@ import { Transaction as EthereumTx } from 'ethereumjs-tx';
 const web3 = new Web3();
 /**
  * Web3 Custom Module
- * @param {String} url 
+ * @param {String} url
  * @param {String} chainName
  * @param {Array} tokenABI
  * @param {String} tokenAddress

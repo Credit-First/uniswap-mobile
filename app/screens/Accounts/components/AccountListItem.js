@@ -164,6 +164,11 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
   }
 };
 
+const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
+  //TODO: implement
+  updateAccountBalance(0.0);
+};
+
 const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
   const [count, setCount] = useState(0);
@@ -181,6 +186,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       loadAlgoAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'XLM') {
       loadStellarAccountBalance(account, updateAccountBalance);
+    } else if (account.chainName === 'ETH') {
+      loadEthereumAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
     }
@@ -203,7 +210,9 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
   }
 
   const getChainIcon = name => {
-    if(name == "EOS") {
+    if(name == "ETH") {
+      return require("../../../../assets/chains/eth.png");
+    } else if(name == "EOS") {
       return require("../../../../assets/chains/eos.png");
     } else if(name == "Telos") {
       return require("../../../../assets/chains/telos.png");
@@ -251,6 +260,22 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       </View>
     );
   } else if (account.chainName === 'XLM') {
+    return (
+      <View onFocus={refreshBalances} style={styles.rowContainer}>
+        <View style={[styles.container, props.style]}>
+        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <TouchableOpacity onPress={handleOnPress}>
+            <KText style={styles.chainName}>
+              {" "} {account.address.substring(0,12)}.., {accountBalance}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshBalances}>
+            <Icon name={'refresh'} size={25} color="#000000" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  } else if (account.chainName === 'ETH') {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
