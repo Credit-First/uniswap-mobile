@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
 import styles from './TransferScreen.style';
 import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -11,6 +10,9 @@ import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
+import web3Module from '../../ethereum/ethereum';
+
+
 import { log } from '../../logger/logger';
 
 const TransferScreen = props => {
@@ -26,6 +28,25 @@ const TransferScreen = props => {
   const [toFioPubkey, setToFioPubkey] = useState('');
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
+
+  const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+  const infuraSecret = '7dd34977862c4a78bdbf1e06ce0b403e';
+  const tokenABI = require('../../ethereum/abi.json');
+  const tokenAddress = "";
+  const {
+    createKeyPair,
+    getCurrentGasPrice,
+    transferETH,
+    transterERC20,
+    getBalanceOfAccount,
+    getBalanceOfTokenInAccount
+    } = web3Module({
+      url: infuraEndpoint,
+      tokenABI,
+      tokenAddress,
+      chainName: 'mainnet',
+      decimals: 18
+    });
 
   const {
     addAddress,
@@ -270,6 +291,18 @@ const TransferScreen = props => {
     }
   };
 
+  const prepareETHTransfer = async (from, to, amount) => {
+      const gasPrice = await getCurrentGasPrice();
+      console.log("gas price: "+gasPrice);
+      const ethBalance = await getBalanceOfAccount(from);
+      console.log("Balance: "+ethBalance);
+      const keypair = await createKeyPair(from.privateKey);
+      const result = await transferETH(keypair, to, amount);
+      console.log(result);
+  }
+
+
+
   const _handleTransfer = async () => {
     setLoading(true);
 
@@ -388,9 +421,13 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
+      } else if (fromAccount.chainName === 'ETH') {
+        let result = await prepareETHTransfer(fromAccount, toAccountName, floatAmount, null);
+        console.log(result);
       } else if (chain) {
         // Any of supported EOSIO chains:
         let result = await transfer(actorName, floatAmount, memo, fromAccount, chain);
+        // Save transaction to History:
         const txRecord = {
           "chain": chain.name,
           "sender": fromAccount.accountName,
@@ -452,7 +489,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}
