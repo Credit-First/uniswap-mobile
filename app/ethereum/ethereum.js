@@ -62,8 +62,10 @@ const web3CustomModule = ({ url, chainName, tokenABI, tokenAddress, decimals }) 
         nonce: "0x" + count.toString(16)
       };
       const tx = new EthereumTx(rawTransaction, { 'chain': chainName });
+      console.log(tx);
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
+      console.log(serializedTx);
       return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
     },
     /**

@@ -294,9 +294,10 @@ const TransferScreen = props => {
   const prepareETHTransfer = async (from, to, amount) => {
       const gasPrice = await getCurrentGasPrice();
       console.log("gas price: "+gasPrice);
-      const ethBalance = await getBalanceOfAccount(from);
+      const ethBalance = await getBalanceOfAccount(from.address);
       console.log("Balance: "+ethBalance);
       const keypair = await createKeyPair(from.privateKey);
+      console.log(keypair);
       const result = await transferETH(keypair, to, amount);
       console.log(result);
   }
