@@ -7,6 +7,7 @@ export { default as RequestSendButtons } from './RequestSendButtons';
 export { default as AccountButtons } from './AccountButtons';
 export { default as ManageEOSIOButtons } from './ManageEOSIOButtons';
 export { default as ChainButtons } from './ChainButtons';
+export { default as TwoIconsButtons } from './TwoIconsButtons';
 export { default as InputSend } from './InputSend';
 export { default as InputAddress } from './InputAddress';
 export { default as EmailCodeSend } from './EmailCodeSend';

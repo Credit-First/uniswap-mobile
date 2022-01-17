@@ -10,11 +10,27 @@ import { getAccount } from '../../../eos/eos';
 import { loadAccount } from '../../../stellar/stellar';
 import { getAlgoAccountInfo } from '../../../algo/algo';
 import { log } from '../../../logger/logger';
+import web3Module from '../../../ethereum/ethereum';
 import {
   PRIMARY_GRAY,
   PRIMARY_BLACK,
   PRIMARY_BLUE,
 } from '../../../theme/colors';
+// Infura:
+const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+const ethMultiplier = 1000000000000000000;
+const tokenABI = require('../../../ethereum/abi.json');
+const tokenAddress = "";
+const {
+  getBalanceOfAccount,
+  getBalanceOfTokenInAccount
+  } = web3Module({
+    url: infuraEndpoint,
+    tokenABI,
+    tokenAddress,
+    chainName: 'mainnet',
+    decimals: 18
+  });
 
 const fioDivider = 1000000000;
 const algoDivider = 1000000;
@@ -165,8 +181,9 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
 };
 
 const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
-  //TODO: implement
-  updateAccountBalance(0.0);
+  const ethBalanceInGwei = await getBalanceOfAccount(account.address);
+  const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
+  updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
 };
 
 const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {
