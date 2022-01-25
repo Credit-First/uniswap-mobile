@@ -3,11 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 
-const TwoIconsButtons = ({
+const ThreeIconsButtons = ({
   icon1,
   onIcon1Press,
   icon2,
   onIcon2Press,
+  icon3,
+  onIcon3Press,
 }) => {
 
   return (
@@ -28,6 +30,15 @@ const TwoIconsButtons = ({
             colors={['#FFFFFF', '#FFFFFF']}
             style={styles.container}>
             <View style={styles.icon}>{icon2()}</View>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onIcon3Press}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#FFFFFF', '#FFFFFF']}
+            style={styles.container}>
+            <View style={styles.icon}>{icon3()}</View>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -57,4 +68,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TwoIconsButtons;
+export default ThreeIconsButtons;

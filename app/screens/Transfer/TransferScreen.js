@@ -324,15 +324,23 @@ const TransferScreen = props => {
   }
 
   const sendETHTransfer = async () => {
-    console.log(ethFromPrivateKey);
     const keypair = await createKeyPair(ethFromPrivateKey);
-    console.log(keypair);
-    const gasPrice = await getCurrentGasPrice();
-    console.log(gasPrice);
-    const result = await transferETH(keypair, ethToAddress, ethFloatAmount, gasLimit, gasPrice);
+    const result = await transferETH(keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    // Save transaction to History:
+    const txRecord = {
+      "chain": "ETH",
+      "sender": ethFromAddress,
+      "receiver": ethToAddress,
+      "amount": ethFloatAmount,
+      "memo": memo,
+      "isFioAddress": isFioAddress,
+      "toFioAddress": toFioAddress,
+      "txid": result.transactionHash,
+      "date": new Date(),
+    };
+    addTransactionToHistory(txRecord);
     Alert.alert('ETH Transfer submitted!');
     setPreviewEthTransfer(false);
-    console.log(result);
   }
 
   const rejectETHTransfer = () => {
@@ -537,7 +545,7 @@ const TransferScreen = props => {
               onIcon2Press={rejectETHTransfer}
               icon1={() => (
                 <Image
-                  source={require('../../../assets/icons/send_transfer.png')}
+                  source={require('../../../assets/icons/confirm.png')}
                   style={styles.buttonIcon}
                 />
               )}

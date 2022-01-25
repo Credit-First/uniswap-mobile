@@ -8,6 +8,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
+  rowContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+  },
   inner: {
     flex: 1,
     padding: 10,
@@ -60,6 +64,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: 200,
     height: 50,
+  },
+  buttonIcon: {
+    width: 48,
+    height: 48,
   },
 });
 

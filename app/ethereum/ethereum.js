@@ -43,7 +43,6 @@ const web3CustomModule = ({ url, chainName, tokenABI, tokenAddress, decimals }) 
      * @param {Number} gasPrice
      */
     transferETH: async (account, toAddress, amount, gasLimit = 21000, gasPrice = 20000000000) => {
-      console.log('transferETH', account, amount, gasLimit, gasPrice);
       if (toAddress === undefined || toAddress.length !== 42 || web3.utils.isAddress(toAddress) === false) {
         console.error('The Ethereum address you entered is not valid!');
         return new Error('wrong address');
@@ -52,10 +51,8 @@ const web3CustomModule = ({ url, chainName, tokenABI, tokenAddress, decimals }) 
         console.error('The amount is not valid!');
         return new Error('Wrong amount');
       }
-      console.log(account);
       const privateKey = toBuffer(account.privateKey);
       const count = await web3.eth.getTransactionCount(account.address);
-      console.log(count);
       const rawTransaction = {
         from: account.address,
         to: toAddress,
@@ -67,7 +64,6 @@ const web3CustomModule = ({ url, chainName, tokenABI, tokenAddress, decimals }) 
       const tx = new EthereumTx(rawTransaction, { 'chain': chainName });
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
-      console.log('Sending TX '+serializedTx);
       return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
     },
     /**

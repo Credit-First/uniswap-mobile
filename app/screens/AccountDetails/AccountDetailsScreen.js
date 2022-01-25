@@ -10,7 +10,7 @@ import {
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PieChart, ProgressChart } from 'react-native-chart-kit';
-import { KHeader, KButton, KText, ManageEOSIOButtons } from '../../components';
+import { KHeader, KButton, KText, FourIconsButtons } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
 import { getAccount } from '../../eos/eos';
@@ -268,6 +268,21 @@ const AccountDetailsScreen = props => {
     navigate('Vote', { account });
   };
 
+  const getChainIcon = (name) => {
+    if(name == "EOS") {
+      return (<Image
+        source={require('../../../assets/chains/eos.png')}
+        style={styles.buttonIcon}
+      />);
+    } else if(name == "TLOS") {
+      <Image
+        source={require('../../../assets/chains/telos.png')}
+        style={styles.buttonIcon}
+      />
+    }
+    return (<View style={styles.spacer} />);
+  }
+
   loadAccount();
 
   return (
@@ -279,15 +294,12 @@ const AccountDetailsScreen = props => {
           <TouchableOpacity style={styles.backButton} onPress={goBack}>
             <MaterialIcon
               name={'keyboard-backspace'}
-              size={24}
+              size={35}
               color={PRIMARY_BLUE}
             />
           </TouchableOpacity>
-          <KHeader
-            title={account.accountName}
-            subTitle={account.chainName}
-            style={styles.header}
-          />
+          <View style={styles.spacer} />
+          {getChainIcon(account.chainName)}
           <View style={styles.spacer} />
           <KText>Available: {liquidBalance}</KText>
           <KText>USD Value: ${usdValue}</KText>
@@ -322,30 +334,30 @@ const AccountDetailsScreen = props => {
           />
           <KText style={styles.alert}>{resourcesWarning}</KText>
 
-          <ManageEOSIOButtons
-            onManageResourcesPress={_handleManageResources}
-            onVoteBPPress={_handleVoteBP}
-            onSaveKeyPress={_handleBackupKey}
-            onDeletePress={_handleRemoveAccount}
-            manageResourcesIcon={() => (
+          <FourIconsButtons
+            onIcon1Press={_handleManageResources}
+            onIcon2Press={_handleVoteBP}
+            onIcon3Press={_handleBackupKey}
+            onIcon4Press={_handleRemoveAccount}
+            icon1={() => (
               <Image
                 source={require('../../../assets/icons/manage_resources.png')}
                 style={styles.buttonIcon}
               />
             )}
-            voteBPIcon={() => (
+            icon2={() => (
               <Image
                 source={require('../../../assets/icons/vote.png')}
                 style={styles.buttonIcon}
               />
             )}
-            saveKeyIcon={() => (
+            icon3={() => (
               <Image
                 source={require('../../../assets/icons/save_key.png')}
                 style={styles.buttonIcon}
               />
             )}
-            deleteIcon={() => (
+            icon4={() => (
               <Image
                 source={require('../../../assets/icons/delete.png')}
                 style={styles.buttonIcon}

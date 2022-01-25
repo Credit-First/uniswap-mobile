@@ -1,55 +1,55 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 
-const ManageEOSIOButtons = ({
-  onManageResourcesPress,
-  onVoteBPPress,
-  onSaveKeyPress,
-  onDeletePress,
-  manageResourcesIcon,
-  voteBPIcon,
-  saveKeyIcon,
-  deleteIcon
+const FourIconsButtons = ({
+  icon1,
+  onIcon1Press,
+  icon2,
+  onIcon2Press,
+  icon3,
+  onIcon3Press,
+  icon4,
+  onIcon4Press,
 }) => {
 
   return (
       <View style={styles.rowContainer}>
-      <TouchableOpacity onPress={onManageResourcesPress}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          colors={['#FFFFFF', '#FFFFFF']}
-          style={styles.container}>
-          <View style={styles.icon}>{manageResourcesIcon()}</View>
-        </LinearGradient>
-      </TouchableOpacity>
-        <TouchableOpacity onPress={onVoteBPPress}>
+        <TouchableOpacity onPress={onIcon1Press}>
           <LinearGradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             colors={['#FFFFFF', '#FFFFFF']}
             style={styles.container}>
-            <View style={styles.icon}>{voteBPIcon()}</View>
+            <View style={styles.icon}>{icon1()}</View>
           </LinearGradient>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onSaveKeyPress}>
+        <TouchableOpacity onPress={onIcon2Press}>
           <LinearGradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             colors={['#FFFFFF', '#FFFFFF']}
             style={styles.container}>
-            <View style={styles.icon}>{saveKeyIcon()}</View>
+            <View style={styles.icon}>{icon2()}</View>
           </LinearGradient>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onDeletePress}>
+        <TouchableOpacity onPress={onIcon3Press}>
           <LinearGradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             colors={['#FFFFFF', '#FFFFFF']}
             style={styles.container}>
-            <View style={styles.icon}>{deleteIcon()}</View>
+            <View style={styles.icon}>{icon3()}</View>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onIcon4Press}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#FFFFFF', '#FFFFFF']}
+            style={styles.container}>
+            <View style={styles.icon}>{icon4()}</View>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -59,8 +59,8 @@ const ManageEOSIOButtons = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 52,
-    height: 52,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -68,16 +68,15 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   rowContainer: {
-    marginTop: 5,
+    marginTop: 10,
     flexDirection: 'row',
   },
   icon: {
-    width: 50,
-    height: 50,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
-    tintColor: '#FFF',
   },
 });
 
-export default ManageEOSIOButtons;
+export default FourIconsButtons;

@@ -4,18 +4,39 @@ import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, TwoIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
+import web3Module from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
 
 const ResendTransferScreen = props => {
 
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState(transaction.amount);
+  // Infura:
+  const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+  const ethDivider = 1000000000000000000;
+  const tokenABI = require('../../ethereum/abi.json');
+  const tokenAddress = "";
+  const {
+    createKeyPair,
+    getCurrentGasPrice,
+    transferETH,
+    transterERC20,
+    getBalanceOfAccount,
+    getBalanceOfTokenInAccount
+    } = web3Module({
+      url: infuraEndpoint,
+      tokenABI,
+      tokenAddress,
+      chainName: 'mainnet',
+      decimals: 18
+    });
 
   const {
     addHistory,
@@ -26,7 +47,6 @@ const ResendTransferScreen = props => {
     },
   } = props;
 
-  const [amount, setAmount] = useState(transaction.amount);
 
   let fromAccount = null;
   if(fromAccount == null) {
@@ -119,6 +139,8 @@ const ResendTransferScreen = props => {
           transaction.memo,
           addTransactionToHistory,
         );
+      } else if (fromAccount.chainName === 'ETH') {
+
       } else if (chain) {
         // Any of supported EOSIO chains:
         let result = await transfer(
@@ -127,7 +149,9 @@ const ResendTransferScreen = props => {
           transaction.memo,
           fromAccount,
           chain);
+        transaction.txid = result.transaction_id;
         transaction.amount = floatAmount;
+        transaction.date = new Date();
         addTransactionToHistory(transaction);
       } else {
         Alert.alert('Unsupported transfer state!');
@@ -147,7 +171,11 @@ const ResendTransferScreen = props => {
     }
   };
 
-    return (
+  const _navigateHistory = () => {
+    navigate('Transactions');
+  }
+
+  return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView
           contentContainerStyle={styles.scrollContentContainer}
@@ -169,32 +197,21 @@ const ResendTransferScreen = props => {
               autoCapitalize={'none'}
               keyboardType={'numeric'}
             />
-            <View style={styles.spacer} />
-            <KButton
-              title={'Submit transfer'}
-              theme={'blue'}
-              style={styles.button}
-              isLoading={loading}
-              renderIcon={() => (
+            <TwoIconsButtons
+              onIcon1Press={_handleTransfer}
+              onIcon2Press={_navigateHistory}
+              icon1={() => (
                 <Image
-                  source={require('../../../assets/icons/transfer.png')}
+                  source={require('../../../assets/icons/send_transfer.png')}
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleTransfer}
-            />
-            <View style={styles.spacer} />
-            <KButton
-              title={'Past transfers'}
-              theme={'brown'}
-              style={styles.button}
-              renderIcon={() => (
+              icon2={() => (
                 <Image
-                  source={require('../../../assets/icons/transactions.png')}
+                  source={require('../../../assets/icons/history.png')}
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={() => navigate('Transactions')}
             />
             <View style={styles.spacer} />
           </View>

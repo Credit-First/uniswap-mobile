@@ -16,7 +16,7 @@ import { externalChains } from '../../external/blockchains';
 import { fioAddPublicAddress, fioAddExternalAddress } from '../../eos/fio';
 import { log } from '../../logger/logger';
 import styles from './RegisterAddress.style';
-import { KHeader, KText, KButton, RequestSendButtons } from '../../components';
+import { KHeader, KText, KButton, FourIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
@@ -32,6 +32,7 @@ const FIOAddressActionsScreen = props => {
   const [loading, setLoading] = useState(false);
   const [buttonColor, setButtonColor] = useState('grey');
   const [fioBalance, setFioBalance] = useState(0.0);
+  const [availableBalance, setAvailableBalance] = useState(0.0);
   const [pendingFioRequests, setPendingFioRequests] = useState();
   const [pendingFioRequestsLink, setPendingFioRequestsLink] = useState('');
   const [sentFioRequests, setSentFioRequests] = useState();
@@ -337,12 +338,12 @@ const FIOAddressActionsScreen = props => {
       }),
     })
       .then(response => response.json())
-      .then(json =>
-        setFioBalance(
-          json.balance !== undefined
-            ? (parseFloat(json.balance) / fioDivider).toFixed(4)
-            : 0,
-        ),
+      .then(json => {
+          const fullBalance = json.balance !== undefined ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
+          const availBalance = json.available !== undefined ? (parseFloat(json.available) / fioDivider).toFixed(4) : 0;
+          setFioBalance(fullBalance);
+          setAvailableBalance(availBalance);
+        }
       )
       .catch(error =>
         log({
@@ -464,7 +465,7 @@ const FIOAddressActionsScreen = props => {
   const updateFioRegistration = json => {
     let fioAddresses = json.fio_addresses;
     if (fioAddresses) {
-      var content = fioAddresses.map(function(item) {
+      fioAddresses.map(function(item) {
         if (fioAccount.address !== item.fio_address) {
           if (fioAccount.address === 'pending@tribe') {
             replacePendingFioAddress(item.fio_address);
@@ -472,28 +473,11 @@ const FIOAddressActionsScreen = props => {
             fioAccount.address = item.fio_address;
           }
         }
-        // Check expiration:
         setFioExpirationDate(item.expiration);
-        try {
-          if (item.expiration) {
-            const expireDate = Date.parse(item.expiration);
-            const diffTime = expireDate - new Date();
-            const days = parseInt(diffTime / (1000 * 60 * 60 * 24), 10);
-            if (days > 0 && days < 90) {
-              Alert.alert(item.fio_address + ' expires in ' + days + ' days!');
-            } else if(days < 0) {
-              let pastDays = 0 - days;
-              Alert.alert(item.fio_address + ' expired ' + pastDays + ' days ago!');
-            }
-          }
-        } catch (err) {
-          console.log(err);
-        }
-        return item.fio_address + ' expires ' + item.expiration + ' ';
+        return;
       });
       setRegistered(true);
       setButtonColor('primary');
-      setFioRegistrationContent(content);
       getFioBalance(fioKey);
       getFee(fioAccount.address);
       getPendingFioRequests(fioKey);
@@ -641,21 +625,25 @@ const FIOAddressActionsScreen = props => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <MaterialIcon
             name={'keyboard-backspace'}
-            size={24}
+            size={35}
             color={PRIMARY_BLUE}
           />
-        </TouchableOpacity>
-        <KHeader title={fioAccount.address} style={styles.header} />
+         </TouchableOpacity>
+         <View style={styles.rowContainer}>
+         <Image
+          source={require('../../../assets/chains/fio.png')}
+          style={styles.buttonIcon}
+         />
+         <KHeader title={fioAccount.address} style={styles.header} />
+        </View>
         <KText>Actor: {actor}</KText>
         <KText>Balance: {fioBalance} FIO</KText>
+        <KText>Available: {availableBalance} FIO</KText>
         <KText>USD Value: ${usdValue}</KText>
         <KText>{fioRegistrationContent}</KText>
-        <Text style={styles.link} onPress={_handleRenewFIOAddress}>
-          {'Renew this FIO address'}
-        </Text>
         <Text style={styles.link} onPress={_handleShowPendingRequests}>
           {pendingFioRequestsLink}
         </Text>
@@ -695,33 +683,36 @@ const FIOAddressActionsScreen = props => {
             </Text>
           )}
         />
-        <RequestSendButtons
-          style={styles.button}
-          onRequestPress={_handleFIORequest}
-          onSendPress={_handleFIOSend}
-          visible={registered}
-          renderIcon={() => (
+        <FourIconsButtons
+          onIcon1Press={_handleFIORequest}
+          onIcon2Press={_handleFIOSend}
+          onIcon3Press={_handleBackupKey}
+          onIcon4Press={_handleRemoveAccount}
+          icon1={() => (
             <Image
-              source={require('../../../assets/icons/transfer.png')}
+              source={require('../../../assets/icons/fio_request.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          icon2={() => (
+            <Image
+              source={require('../../../assets/icons/fio_send.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          icon3={() => (
+            <Image
+              source={require('../../../assets/icons/save_key.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          icon4={() => (
+            <Image
+              source={require('../../../assets/icons/delete.png')}
               style={styles.buttonIcon}
             />
           )}
         />
-        <KButton
-          title={'Backup private key'}
-          theme={'primary'}
-          style={styles.button}
-          onPress={_handleBackupKey}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-        <Text style={styles.link} onPress={_handleRemoveAccount}>
-          {'Remove this FIO address'}
-        </Text>
         {registrationLink}
       </View>
     </SafeAreaView>

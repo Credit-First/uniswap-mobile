@@ -261,6 +261,8 @@ const AccountsScreen = props => {
       navigate('AlgoAccount', { account });
     } else if (account.chainName === 'XLM') {
       navigate('StellarAccount', { account });
+    } else if (account.chainName === 'ETH') {
+      navigate('EthereumAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -297,7 +299,7 @@ const AccountsScreen = props => {
     let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain==='FIO'||chain==='XLM') ? account.address : account.accountName;
+    let name = (chain==='FIO'||chain==='XLM'||chain==='ETH') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval

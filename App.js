@@ -46,6 +46,7 @@ import {
   GroupChatScreen,
   AlgoAccountScreen,
   StellarAccountScreen,
+  EthereumAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
   AddressBookScreen,
@@ -140,6 +141,7 @@ const AccountsStackScreen = () => {
       />
       <AccountsStack.Screen name="AlgoAccount" component={AlgoAccountScreen} />
       <AccountsStack.Screen name="StellarAccount" component={StellarAccountScreen} />
+      <AccountsStack.Screen name="EthereumAccount" component={EthereumAccountScreen} />
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />

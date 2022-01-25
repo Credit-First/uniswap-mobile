@@ -46,6 +46,9 @@ const TokenListItem = ({
     refreshBalances();
   }
 
+if(zero) {
+  return null;
+} else {
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
       <View style={[styles.container, props.style]}>
@@ -60,6 +63,9 @@ const TokenListItem = ({
       </View>
     </View>
   );
+}
+
+
 };
 
 const styles = StyleSheet.create({

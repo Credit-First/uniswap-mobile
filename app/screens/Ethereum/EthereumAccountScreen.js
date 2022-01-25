@@ -12,18 +12,33 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { KHeader, KText, KButton, TwoIconsButtons } from '../../components';
-import styles from './StellarAccountScreen.style';
+import styles from './EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import { getEndpoint } from '../../eos/chains';
-import { loadAccount } from '../../stellar/stellar';
+import web3Module from '../../ethereum/ethereum';
+import Wallet from 'ethereumjs-wallet';
 import { log } from '../../logger/logger';
+// Infura:
+const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+const ethMultiplier = 1000000000000000000;
+const tokenABI = require('../../ethereum/abi.json');
+const tokenAddress = "";
+const {
+  getBalanceOfAccount,
+  getBalanceOfTokenInAccount
+  } = web3Module({
+    url: infuraEndpoint,
+    tokenABI,
+    tokenAddress,
+    chainName: 'mainnet',
+    decimals: 18
+  });
 
 
-const StellarAccountScreen = props => {
+const EthereumAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
-  const [accountStatus, setAccountStatus] = useState();
   const [connectedHeader, setConnectedHeader] = useState('');
   const [connectedAddress, setConnectedAddress] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -40,7 +55,7 @@ const StellarAccountScreen = props => {
   const divider = 1000000;
   const fioEndpoint = getEndpoint('FIO');
   // var runOnce = 0;
-  const name =  "XLM:" + account.address;
+  const name =  "ETH:" + account.accountName;
   var usdValue = 0;
   for (const elem of totals) {
     if(elem.account===name) {
@@ -54,11 +69,11 @@ const StellarAccountScreen = props => {
     Alert.alert('Address copied to Clipboard');
   };
 
-  const checkStellarAddress = (fioaccount, stellarAddress) => {
+  const checkEthereumAddress = (fioaccount, ethAddress) => {
     if (loaded) {
       return;
     }
-    if (stellarAddress === account.address) {
+    if (EthereumAddress === account.address) {
       if (connectedHeader === '') {
         setConnectedHeader('Connected to FIO address:');
       }
@@ -84,12 +99,12 @@ const StellarAccountScreen = props => {
           },
           body: JSON.stringify({
             fio_address: value.address,
-            chain_code: 'XLM',
-            token_code: 'XLM',
+            chain_code: 'ETH',
+            token_code: 'ETH',
           }),
         })
           .then(response => response.json())
-          .then(json => checkStellarAddress(value, json.public_address))
+          .then(json => checkEthereumAddress(value, json.public_address))
           .catch(error =>
             log({
               description:
@@ -97,43 +112,32 @@ const StellarAccountScreen = props => {
                 fioEndpoint +
                 '/v1/chain/get_pub_address',
               cause: error,
-              location: 'StellarAccountScreen',
+              location: 'EthereumAccountScreen',
             }),
           );
       }
     });
   };
 
-  const setAccountStats = json => {
-    var nativeBalance = 0;
-    if(json['status'] && json['status'] === 404) {
-      setAccountStatus('Account not initialized! \nDeposit 1 XLM into this address to initialize account on ledger.');
-    }
-    if(json['balances']) {
-      const balances = json['balances'];
-      balances.forEach(balance => {
-        if(balance["asset_type"] === "native") {
-          nativeBalance = balance["balance"];
-        }
-      });
-      setAccountStatus('Live account on ledger.');
-    }
-    setAccountBalance(parseFloat(nativeBalance).toFixed(4));
-    checkConnectedFIOAccounts();
-  };
 
-  const loadStellarAccountBalance = async account => {
+  const loadEthereumAccountBalance = async account => {
     if (loaded) {
       return;
     }
     try {
-      loadAccount(account.address, setAccountStats) // 'GAI3GJ2Q3B35AOZJ36C4ANE3HSS4NK7WI6DNO4ZSHRAX6NG7BMX6VJER'
+      const ethBalanceInGwei = await getBalanceOfAccount(account.address);
+      const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
+      updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+      checkConnectedFIOAccounts();
     } catch (err) {
       log({
-        description: 'loadStellarAccountBalance',
+        description: 'loadEthereumAccountBalance',
         cause: err,
-        location: 'StellarAccountScreen',
+        location: 'EthereumAccountScreen',
       });
+      return;
+    } finally {
+      setLoaded(true);
     }
   };
 
@@ -146,11 +150,11 @@ const StellarAccountScreen = props => {
     const index = findIndex(
       accounts,
       el =>
-        el.address === account.address &&
+        el.accountName === account.accountName &&
         el.chainName === account.chainName,
     );
     Alert.alert(
-      'Delete Stellar Account',
+      'Delete Ethereum Account',
       'Are you sure you want to delete this account?',
       [
         {
@@ -177,11 +181,7 @@ const StellarAccountScreen = props => {
     navigate('Transfer', { account });
   };
 
-  const getTitle = () => {
-    return 'Stellar: ' + account.address.substring(0,12) + '...';
-  }
-
-  loadStellarAccountBalance(account);
+  loadEthereumAccountBalance(account);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -193,17 +193,18 @@ const StellarAccountScreen = props => {
             color={PRIMARY_BLUE}
           />
         </TouchableOpacity>
+        <View style={styles.spacer} />
         <Image
-          source={require('../../../assets/chains/xlm.png')}
+          source={require('../../../assets/chains/eth.png')}
           style={styles.buttonIcon}
         />
-        <KText>Balance: {accountBalance} XLM</KText>
-        <KText>USD Value: ${usdValue}</KText>
-        <KText>Status: {accountStatus}</KText>
         <View style={styles.spacer} />
+        <KText>Balance: {accountBalance} ETH</KText>
+        <KText>USD Value: ${usdValue}</KText>
         <Text style={styles.link} onPress={copyToClipboard}>
           {account.address}
         </Text>
+        <View style={styles.spacer} />
         <View style={styles.qrcode}>
           <QRCode value={account.address} size={200} />
         </View>
@@ -231,4 +232,4 @@ const StellarAccountScreen = props => {
   );
 };
 
-export default connectAccounts()(StellarAccountScreen);
+export default connectAccounts()(EthereumAccountScreen);

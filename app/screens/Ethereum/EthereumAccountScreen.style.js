@@ -29,10 +29,7 @@ const styles = StyleSheet.create({
   link: {
     color: 'blue',
     fontFamily: 'Nunito-Bold',
-    fontSize: 16,
-  },
-  button: {
-    marginTop: 8,
+    fontSize: 15,
   },
   buttonIcon: {
     width: 48,
@@ -49,7 +46,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   spacer: {
-    marginTop: 5,
+    marginTop: 10,
   },
 });
 
