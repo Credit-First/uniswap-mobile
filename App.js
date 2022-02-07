@@ -42,6 +42,7 @@ import {
   ViewFIORequestScreen,
   FIOSendScreen,
   FIOSendDirectScreen,
+  FIOStakeScreen,
   FIOChatScreen,
   GroupChatScreen,
   AlgoAccountScreen,
@@ -139,6 +140,7 @@ const AccountsStackScreen = () => {
         name="FIOSendDirect"
         component={FIOSendDirectScreen}
       />
+      <AccountsStack.Screen name="FIOStake" component={FIOStakeScreen} />
       <AccountsStack.Screen name="AlgoAccount" component={AlgoAccountScreen} />
       <AccountsStack.Screen name="StellarAccount" component={StellarAccountScreen} />
       <AccountsStack.Screen name="EthereumAccount" component={EthereumAccountScreen} />

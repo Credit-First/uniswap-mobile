@@ -26,7 +26,7 @@ import { getEndpoint } from '../../eos/chains';
 import { getKeyPair } from '../../stellar/stellar';
 
 
-const FIOAddressActionsScreen = props => {
+const FIOAddressRegistryScreen = props => {
   const [fioExpirationDate, setFioExpirationDate] = useState();
   const [fioRegistrationContent, setFioRegistrationContent] = useState();
   const [registrationLink, setRegistrationLink] = useState();
@@ -592,32 +592,6 @@ const FIOAddressActionsScreen = props => {
     setLoading(false);
   };
 
-  const _handleDeleteAccount = index => {
-    deleteAccount(index);
-    goBack();
-  };
-
-  const _handleRemoveAccount = () => {
-    const index = findIndex(
-      accounts,
-      el =>
-        el.address === fioAccount.address &&
-        el.chainName === fioAccount.chainName,
-    );
-    Alert.alert(
-      'Delete FIO Account',
-      'Are you sure you want to delete this account?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Delete account cancelled'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => _handleDeleteAccount(index) },
-      ],
-      { cancelable: false },
-    );
-  };
 
   const _handlePressAccount = index => {
     const item = connectedAccounts[index];
@@ -643,114 +617,6 @@ const FIOAddressActionsScreen = props => {
       navigate('AccountDetails', { account });
     }
   };
-
-  const _handleBackupKey = () => {
-    const account = fioAccount;
-    navigate('PrivateKeyBackup', { account });
-  };
-
-  const _handleFIORequest = () => {
-    navigate('FIORequest');
-  };
-
-  const _handleFIOSend = () => {
-    navigate('FIOSend');
-  };
-
-  const _handleFIOStake = () => {
-    navigate('FIOStake', { fioAccount, totalBalance, availableBalance, stakedBalance, lockedBalance, rewardsBalance });
-  };
-
-  const _handleShowPendingRequests = () => {
-    if (pendingFioRequests.length > 1) {
-      const fioRequests = pendingFioRequests;
-      const title = 'Pending FIO requests';
-      navigate('ListFIORequests', { fioAccount, fioRequests, title });
-    } else {
-      const fioRequest = pendingFioRequests[0];
-      const title = 'Pending FIO request';
-      navigate('ViewFIORequest', { fioAccount, fioRequest, title });
-    }
-  };
-
-  const _handleShowSentRequests = () => {
-    if (sentFioRequests.length > 1) {
-      const fioRequests = sentFioRequests;
-      const title = 'Sent FIO requests';
-      navigate('ListFIORequests', { fioAccount, fioRequests, title });
-    } else {
-      const fioRequest = sentFioRequests[0];
-      const title = 'Sent FIO request';
-      navigate('ViewFIORequest', { fioAccount, fioRequest, title });
-    }
-  };
-
-  const goToRenewFIOScreen = json => {
-    navigate('RenewFIOAddress', { json, fioAccount });
-  };
-
-  const _handleRenewFIOAddress = () => {
-    const fioPublicKey = Ecc.privateToPublic(fioAccount.privateKey);
-    fetch('https://reg.fioprotocol.io/public-api/renew', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        referralCode: 'tribe',
-        publicKey: fioPublicKey,
-        address: fioAccount.address,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => goToRenewFIOScreen(json))
-      .catch(error =>
-        log({
-          description:
-            '_handleRenewFIOAddress - fetch https://reg.fioprotocol.io/public-api/renew',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
-
-  if (executionCount === 0) {
-    checkRegistration(fioKey);
-  }
-
-
-  const getFioRegistrationContent = () => {
-    if(fioRegistrationContent) {
-      return (<KText>{fioRegistrationContent}</KText>);
-    } else {
-      return null;
-    }
-  }
-
-  const getPendingFioRequestsLink = () => {
-    if(pendingFioRequestsLink) {
-      return (
-        <Text style={styles.link} onPress={_handleShowPendingRequests}>
-          {pendingFioRequestsLink}
-        </Text>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  const getSentFioRequestsLink = () => {
-    if(sentFioRequestsLink) {
-      return (
-        <Text style={styles.link} onPress={_handleShowSentRequests}>
-          {sentFioRequestsLink}
-        </Text>
-      );
-    } else {
-      return null;
-    }
-  }
 
   const showLoadingIcon = () => {
     if (connectedHeader === '') {
@@ -780,17 +646,7 @@ const FIOAddressActionsScreen = props => {
          />
          <KHeader title={fioAccount.address} style={styles.header} />
         </View>
-        <KText>USD Value: ${usdValue}</KText>
-        <KText>Actor: {actor}</KText>
-        <KText>Available: {availableBalance} FIO</KText>
-        <KText>Staked: {stakedBalance} FIO</KText>
-        <KText>Locked: {lockedBalance} FIO</KText>
-        <KText>Rewards: {rewardsBalance} FIO</KText>
-        <Text style={styles.link} onPress={_handleFIOStake}>Stake FIO for rewards!</Text>
         {showLoadingIcon()}
-        {getFioRegistrationContent()}
-        {getPendingFioRequestsLink()}
-        {getSentFioRequestsLink()}
         <KText>{connectedHeader}</KText>
         <FlatList
           data={connectedAccounts}
@@ -815,47 +671,9 @@ const FIOAddressActionsScreen = props => {
             />
           )}
         />
-        <FiveIconsButtons
-          onIcon1Press={_handleFIOStake}
-          onIcon2Press={_handleFIORequest}
-          onIcon3Press={_handleFIOSend}
-          onIcon4Press={_handleBackupKey}
-          onIcon5Press={_handleRemoveAccount}
-          icon1={() => (
-            <Image
-              source={require('../../../assets/icons/stake.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          icon2={() => (
-            <Image
-              source={require('../../../assets/icons/fio_request.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          icon3={() => (
-            <Image
-              source={require('../../../assets/icons/fio_send.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          icon4={() => (
-            <Image
-              source={require('../../../assets/icons/save_key.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          icon5={() => (
-            <Image
-              source={require('../../../assets/icons/delete.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-        {registrationLink}
       </View>
     </SafeAreaView>
   );
 };
 
-export default connectAccounts()(FIOAddressActionsScreen);
+export default connectAccounts()(FIOAddressRegistryScreen);

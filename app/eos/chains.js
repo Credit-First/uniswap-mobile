@@ -26,7 +26,7 @@ var supportedChains = [
     endpoint: 'https://fio.greymass.com',
     endpoint1: 'https://fio.eosphere.io',
     endpoint2: 'https://fio.genereos.io',
-    endpoint3: 'https://fio.eostribe.io',
+    endpoint3: 'https://fio.blockpane.com',
     newdexAccount: null,
   },
 ];

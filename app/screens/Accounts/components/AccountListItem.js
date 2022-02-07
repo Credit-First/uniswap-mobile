@@ -100,6 +100,7 @@ const loadAccountBalance = async (account, updateAccountBalance) => {
 const loadFioAccountBalance = async (account, updateAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
+    console.log(fioEndpoint + '/v1/chain/get_fio_balance');
     fetch(fioEndpoint + '/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
@@ -112,7 +113,7 @@ const loadFioAccountBalance = async (account, updateAccountBalance) => {
     })
       .then(response => response.json())
       .then(json => {
-          console.log(json);
+          console.log("loadFioAccountBalance", json);
           const balance = (json.balance !== undefined) ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
           updateAccountBalance(balance);
         }
@@ -182,7 +183,9 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
 const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
   const ethBalanceInGwei = await getBalanceOfAccount(account.address);
   const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
-  updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+  if(updateAccountBalance) {
+    updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+  }
 };
 
 const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {

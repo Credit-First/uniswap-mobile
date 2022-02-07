@@ -12,6 +12,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
   },
+  loading: {
+    flex: 1,
+    alignSelf: 'center',
+    height: 200,
+    width: 200,
+  },
   inner: {
     flex: 1,
     padding: 10,

@@ -593,6 +593,13 @@ const AccountsScreen = props => {
     }
   }
 
+  const showUsdTotal = () => {
+    if(validAccounts.length > 0) {
+      return (<Text style={styles.total}>${usdTotal}</Text>);
+    }
+    return null;
+  }
+
 
   if(isListChainsVisible) {
     return (
@@ -602,7 +609,7 @@ const AccountsScreen = props => {
           source={require('../../../assets/logo/tribe-logo.png')}
           resizeMode="contain"
         />
-        <Text style={styles.total}>${usdTotal}</Text>
+        {showUsdTotal()}
         <FlatList
           data={validAccounts}
           keyExtractor={(item, index) => `${index}`}
@@ -671,7 +678,7 @@ const AccountsScreen = props => {
           source={require('../../../assets/logo/tribe-logo.png')}
           resizeMode="contain"
         />
-        <Text style={styles.total}>${usdTotal}</Text>
+        {showUsdTotal()}
         <FlatList
           data={validAccounts}
           keyExtractor={(item, index) => `${index}`}
