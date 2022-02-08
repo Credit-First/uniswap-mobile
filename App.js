@@ -34,6 +34,7 @@ import {
   PrivateKeyDelegateScreen,
   RegisterFIOAddressScreen,
   FIOAddressActionsScreen,
+  FIOAddressRegistryScreen,
   RenewFIOAddressScreen,
   FIORegisterExternalScreen,
   FIORequestScreen,
@@ -113,6 +114,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="FIOAddressActions"
         component={FIOAddressActionsScreen}
+      />
+      <AccountsStack.Screen
+        name="FIOAddressRegistry"
+        component={FIOAddressRegistryScreen}
       />
       <AccountsStack.Screen
         name="RenewFIOAddress"

@@ -17,7 +17,7 @@ import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { fioAddPublicAddress, fioAddExternalAddress } from '../../eos/fio';
 import { log } from '../../logger/logger';
-import styles from './RegisterAddress.style';
+import styles from './FIOCommon.style';
 import { KHeader, KText, KButton, FiveIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -27,25 +27,8 @@ import { getKeyPair } from '../../stellar/stellar';
 
 
 const FIOAddressRegistryScreen = props => {
-  const [fioExpirationDate, setFioExpirationDate] = useState();
-  const [fioRegistrationContent, setFioRegistrationContent] = useState();
-  const [registrationLink, setRegistrationLink] = useState();
   const [executionCount, setExecutionCount] = useState(0);
-  const [registered, setRegistered] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [buttonColor, setButtonColor] = useState('grey');
-  const [totalBalance, setTotalBalance] = useState(0.0);
-  const [availableBalance, setAvailableBalance] = useState(0.0);
-  const [stakedBalance, setStakedBalance] = useState(0.0);
-  const [lockedBalance, setLockedBalance] = useState(0.0);
-  const [rewardsBalance, setRewardsBalance] = useState(0.0);
-  const [roe, setRoe] = useState(0.5);
-  const [srps, setSrps] = useState(0);
-  const [pendingFioRequests, setPendingFioRequests] = useState();
-  const [pendingFioRequestsLink, setPendingFioRequestsLink] = useState('');
-  const [sentFioRequests, setSentFioRequests] = useState();
-  const [sentFioRequestsLink, setSentFioRequestsLink] = useState('');
-  const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
   var initialConnectedAccounts = [];
   var initialFilteredAccounts = [];
@@ -58,13 +41,12 @@ const FIOAddressRegistryScreen = props => {
     initialFilteredAccounts,
   );
 
-
   const {
     connectAccount,
     deleteAccount,
     navigation: { navigate, goBack },
     route: {
-      params: { account: fioAccount },
+      params: { fioAccount },
     },
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
@@ -77,13 +59,7 @@ const FIOAddressRegistryScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
 
   const name = "FIO:" + fioAccount.address;
-  var usdValue = 0;
-  for (const elem of totals) {
-    if(elem.account===name) {
-      usdValue = elem.total;
-      break;
-    }
-  }
+
 
   const checkRegPubkey = async account => {
     var chainName = account.chainName;
@@ -111,7 +87,7 @@ const FIOAddressRegistryScreen = props => {
             fioEndpoint +
             '/v1/chain/get_pub_address',
           cause: error,
-          location: 'FIOAddressActionsScreen',
+          location: 'FIOAddressRegistryScreen',
         }),
       );
   };
@@ -216,7 +192,7 @@ const FIOAddressRegistryScreen = props => {
           let error = {
             description: 'Failed _handleConnectAccountToAddress',
             method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
+            location: 'FIOAddressRegistryScreen',
             cause: res,
             fioAccount: fioAccount.address,
             account: account.account.addr,
@@ -238,7 +214,7 @@ const FIOAddressRegistryScreen = props => {
           let error = {
             description: 'Failed _handleConnectAccountToAddress',
             method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
+            location: 'FIOAddressRegistryScreen',
             cause: res,
             fioAccount: fioAccount.address,
             account: account.address,
@@ -260,7 +236,7 @@ const FIOAddressRegistryScreen = props => {
           let error = {
             description: 'Failed _handleConnectAccountToAddress',
             method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
+            location: 'FIOAddressRegistryScreen',
             cause: res,
             fioAccount: fioAccount.address,
             account: account.address,
@@ -277,7 +253,7 @@ const FIOAddressRegistryScreen = props => {
           let error = {
             description: 'Failed _handleConnectAccountToAddress',
             method: 'fioAddPublicAddress',
-            location: 'FIOAddressActionsScreen',
+            location: 'FIOAddressRegistryScreen',
             cause: res,
             fioAccount: fioAccount.address,
             account: account.accountName,
@@ -294,138 +270,6 @@ const FIOAddressRegistryScreen = props => {
     }
   };
 
-  const checkRegistration = async pubkey => {
-    if (executionCount > 0) {
-      return;
-    }
-    setExecutionCount(1);
-
-    fetch(fioEndpoint + '/v1/chain/get_fio_names', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updateFioRegistration(json))
-      .catch(error =>
-        log({
-          description:
-            'checkRegistration - fetch ' +
-            fioEndpoint +
-            '/v1/chain/get_fio_names',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
-
-  const getPendingFioRequests = async pubkey => {
-    fetch(fioEndpoint + '/v1/chain/get_pending_fio_requests', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-        limit: 1000,
-        offset: 0,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updatePendingFioRequests(json.requests))
-      .catch(error =>
-        log({
-          description:
-            'getPendingFioRequests - fetch ' +
-            fioEndpoint +
-            '/v1/chain/get_pending_fio_requests',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
-
-  const getSentFioRequests = async pubkey => {
-    fetch(fioEndpoint + '/v1/chain/get_sent_fio_requests', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-        limit: 1000,
-        offset: 0,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updateSentFioRequests(json.requests))
-      .catch(error =>
-        log({
-          description:
-            'getSentFioRequests - fetch ' +
-            fioEndpoint +
-            '/v1/chain/get_sent_fio_requests',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
-
-  const getFioBalance = async pubkey => {
-    console.log(fioEndpoint + '/v1/chain/get_fio_balance');
-    fetch(fioEndpoint + '/v1/chain/get_fio_balance', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_public_key: pubkey,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => {
-          //json: {"available": 47818352529, "balance": 47818352529, "roe": "0.500000000000000", "srps": 0, "staked": 0}
-          try {
-            console.log("getFioBalance", json);
-            let tBalance = json.balance !== undefined ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
-            if(tBalance > 0) setTotalBalance(tBalance);
-            let aBalance = json.available !== undefined ? (parseFloat(json.available) / fioDivider).toFixed(4) : 0;
-            if(aBalance > 0) setAvailableBalance(aBalance);
-            let sBalance = json.staked !== undefined ? (parseFloat(json.staked) / fioDivider).toFixed(4) : 0;
-            if(sBalance > 0) setStakedBalance(sBalance);
-            var lBalance = parseFloat(tBalance) - parseFloat(aBalance) - parseFloat(sBalance);
-            lBalance = (lBalance > 0) ? lBalance.toFixed(4) : 0;
-            if(lBalance > 0) setLockedBalance(lBalance);
-            let roeNum = json.roe !== undefined ? parseFloat(json.roe).toFixed(4) : 0.5;
-            setRoe(roeNum);
-            let srpsNum = json.srps !== undefined ? (parseFloat(json.srps) / fioDivider).toFixed(4) : 0;
-            setSrps(srpsNum);
-            let stakeRewards = parseFloat((roeNum*srpsNum) - sBalance).toFixed(4);
-            if(stakeRewards > 0) setRewardsBalance(stakeRewards);
-          } catch(err) {
-            log("Failed to parse JSON balances " + json + ", Error: " + err);
-          }
-        }
-      )
-      .catch(error =>
-        log({
-          description:
-            'getFioBalance - fetch ' +
-            fioEndpoint +
-            '/v1/chain/get_fio_balance',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
 
   const getFee = async address => {
     fetch(fioEndpoint + '/v1/chain/get_fee', {
@@ -445,26 +289,11 @@ const FIOAddressRegistryScreen = props => {
         log({
           description: 'getFee - fetch ' + fioEndpoint + '/v1/chain/get_fee',
           cause: error,
-          location: 'FIOAddressActionsScreen',
+          location: 'FIOAddressRegistryScreen',
         }),
       );
   };
 
-  const updatePendingFioRequests = requests => {
-    if (requests) {
-      setPendingFioRequests(requests);
-      setPendingFioRequestsLink(
-        'View ' + requests.length + ' pending FIO requests',
-      );
-    }
-  };
-
-  const updateSentFioRequests = requests => {
-    if (requests) {
-      setSentFioRequests(requests);
-      setSentFioRequestsLink('View ' + requests.length + ' sent FIO requests');
-    }
-  };
 
   const updateExternalAccounts = (chain, pubkey) => {
     if (pubkey) {
@@ -516,95 +345,45 @@ const FIOAddressRegistryScreen = props => {
               fioEndpoint +
               '/v1/chain/get_pub_address',
             cause: error,
-            location: 'FIOAddressActionsScreen',
+            location: 'FIOAddressRegistryScreen',
           }),
         );
     });
   };
 
-  const registerFioAddress = () => {
-    Linking.openURL('https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey);
-  };
-
-  const replacePendingFioAddress = fioAddress => {
-    // Delete old pending FIO account:
-    const index = findIndex(
-      accounts,
-      el =>
-        el.address === fioAccount.address &&
-        el.chainName === fioAccount.chainName,
-    );
-    deleteAccount(index);
-    // Connect new FIO account:
-    let account = {
-      address: fioAddress,
-      privateKey: privateKey,
-      chainName: 'FIO',
-    };
-    connectAccount(account);
-    fioAccount.address = fioAddress;
-  };
-
-  const updateFioRegistration = json => {
-    let fioAddresses = json.fio_addresses;
-    setLoading(true);
-    if (fioAddresses) {
-      fioAddresses.map(function(item) {
-        if (fioAccount.address !== item.fio_address) {
-          if (fioAccount.address === 'pending@tribe') {
-            replacePendingFioAddress(item.fio_address);
-          } else {
-            fioAccount.address = item.fio_address;
-          }
-        }
-        setFioExpirationDate(item.expiration);
-        return;
-      });
-      setRegistered(true);
-      setButtonColor('primary');
-      getFioBalance(fioKey);
-      getFee(fioAccount.address);
-      getPendingFioRequests(fioKey);
-      getSentFioRequests(fioKey);
-      setActor(Fio.accountHash(fioKey));
-      loadExternalAccounts();
-      accounts.map((value, index, array) => {
-        if (value.chainName !== 'FIO') {
-          checkRegPubkey(value);
-        }
-      });
-      setLoading(false);
-    } else {
-      Alert.alert(json.message);
-      setRegistered(false);
-      setButtonColor('gray');
-      setFioRegistrationContent('Unregistered address');
-      setRegistrationLink(
-        <KButton
-          title={'Register this address'}
-          theme={'brown'}
-          style={styles.button}
-          icon={'add'}
-          onPress={registerFioAddress}
-        />,
-      );
+  const loadFIOAddressRegistrations = fioAccount => {
+    if (executionCount > 0) {
+      return;
     }
+    setExecutionCount(1);
+    setLoading(true);
+    getFee(fioAccount.address);
+    loadExternalAccounts();
+    accounts.map((value, index, array) => {
+      if (value.chainName !== 'FIO') {
+          checkRegPubkey(value);
+      }
+    });
     setLoading(false);
   };
 
 
   const _handlePressAccount = index => {
     const item = connectedAccounts[index];
-    var account;
+    var account = null;
     accounts.map((value, index, array) => {
-      if (chain === value.chainName && address === value.accountName) {
-        external = false;
-      } else if(chain === value.chainName && address === value.address) {
-        external = false;
-      } else if(chain === value.chainName && value.chainName === 'ALGO' && value.account != null && address === value.account.addr) {
-        external = false;
+      if (item.chainName === value.chainName && item.address === value.accountName) {
+        account = value;
+      } else if(item.chainName === value.chainName && item.address === value.address) {
+        account = value;
+      } else if(item.chainName === value.chainName && value.chainName === 'ALGO' && value.account != null && item.address === value.account.addr) {
+        account = value;
       }
     });
+    if(account == null) {
+      Alert.alert("Could not load matching account!");
+      return;
+    }
     if (account.chainName === 'FIO') {
       navigate('FIOAddressActions', { account });
     } else if (account.chainName === 'ALGO') {
@@ -628,6 +407,10 @@ const FIOAddressRegistryScreen = props => {
     return null;
   }
 
+  if (executionCount === 0) {
+    loadFIOAddressRegistrations(fioAccount);
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -644,8 +427,9 @@ const FIOAddressRegistryScreen = props => {
           source={require('../../../assets/chains/fio.png')}
           style={styles.buttonIcon}
          />
-         <KHeader title={fioAccount.address} style={styles.header} />
+         <KHeader title={fioAccount.address} subTitle={"Registry"} style={styles.top_header} />
         </View>
+        <KText> </KText>
         {showLoadingIcon()}
         <KText>{connectedHeader}</KText>
         <FlatList

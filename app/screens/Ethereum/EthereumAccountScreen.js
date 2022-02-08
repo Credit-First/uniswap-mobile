@@ -73,7 +73,7 @@ const EthereumAccountScreen = props => {
     if (loaded) {
       return;
     }
-    if (EthereumAddress === account.address) {
+    if (ethAddress === account.address) {
       if (connectedHeader === '') {
         setConnectedHeader('Connected to FIO address:');
       }
@@ -127,7 +127,7 @@ const EthereumAccountScreen = props => {
     try {
       const ethBalanceInGwei = await getBalanceOfAccount(account.address);
       const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
-      updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+      setAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
       checkConnectedFIOAccounts();
     } catch (err) {
       log({

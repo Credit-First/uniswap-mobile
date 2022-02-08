@@ -14,7 +14,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import ecc from 'eosjs-ecc-rn';
 import { Ecc } from '@fioprotocol/fiojs';
 import { fioBackupEncryptedKey } from '../../eos/fio';
-import styles from './RegisterAddress.style';
+import styles from './FIOCommon.style';
 import {
   KHeader,
   KInput,

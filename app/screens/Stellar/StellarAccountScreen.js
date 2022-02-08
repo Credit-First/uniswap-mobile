@@ -204,6 +204,7 @@ const StellarAccountScreen = props => {
         <Text style={styles.link} onPress={copyToClipboard}>
           {account.address}
         </Text>
+        <KText> </KText>
         <View style={styles.qrcode}>
           <QRCode value={account.address} size={200} />
         </View>

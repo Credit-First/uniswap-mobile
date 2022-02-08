@@ -13,11 +13,12 @@ import {
 import ChainAddressItem from './components/ChainAddressItem';
 import ConnectAddressItem from './components/ConnectAddressItem';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { PieChart, ProgressChart } from 'react-native-chart-kit';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
 import { fioAddPublicAddress, fioAddExternalAddress } from '../../eos/fio';
 import { log } from '../../logger/logger';
-import styles from './RegisterAddress.style';
+import styles from './FIOCommon.style';
 import { KHeader, KText, KButton, FiveIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -47,16 +48,6 @@ const FIOAddressActionsScreen = props => {
   const [sentFioRequestsLink, setSentFioRequestsLink] = useState('');
   const [actor, setActor] = useState();
   const [fioFee, setFioFee] = useState(0);
-  var initialConnectedAccounts = [];
-  var initialFilteredAccounts = [];
-  const [connectedHeader, setConnectedHeader] = useState('');
-  const [connectedAccounts, setConnectedAccounts] = useState(
-    initialConnectedAccounts,
-  );
-  const [disconnectedHeader, setDisconnectedHeader] = useState('');
-  const [filteredAccounts, setFilteredAccounts] = useState(
-    initialFilteredAccounts,
-  );
 
 
   const {
@@ -70,6 +61,56 @@ const FIOAddressActionsScreen = props => {
   } = props;
 
   const blockchains = ['EOS','TLOS','FIO','XLM','ALGO','ETH'];
+
+  // Stake chart data:
+  const stakeData = [
+    {
+      name: 'Available',
+      balance: parseFloat(availableBalance),
+      color: 'rgba(42, 254, 106, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'Staked',
+      balance: parseFloat(stakedBalance),
+      color: 'rgba(254, 142, 42, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'Locked',
+      balance: parseFloat(lockedBalance),
+      color: 'rgba(205, 227, 255, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'Rewards',
+      balance: parseFloat(rewardsBalance),
+      color: 'rgb(113, 175, 255)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    }
+  ];
+
+  const screenWidth = Dimensions.get('window').width;
+  const chartConfig = {
+    backgroundColor: '#FFFFFF',
+    backgroundGradientFrom: '#FFFFFF',
+    backgroundGradientTo: '#FFFFFF',
+    decimalPlaces: 2, // optional, defaults to 2dp
+    color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: '6',
+      strokeWidth: '2',
+      stroke: '#ffa726',
+    },
+  };
 
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
@@ -85,221 +126,11 @@ const FIOAddressActionsScreen = props => {
     }
   }
 
-  const checkRegPubkey = async account => {
-    var chainName = account.chainName;
-    if (chainName === 'Telos') {
-      chainName = 'TLOS';
-    }
-    fetch(fioEndpoint + '/v1/chain/get_pub_address', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fio_address: fioAccount.address,
-        chain_code: chainName,
-        token_code: chainName,
-      }),
-    })
-      .then(response => response.json())
-      .then(json => updateAccountLists(account, json))
-      .catch(error =>
-        log({
-          description:
-            'checkRegPubkey - fetch ' +
-            fioEndpoint +
-            '/v1/chain/get_pub_address',
-          cause: error,
-          location: 'FIOAddressActionsScreen',
-        }),
-      );
-  };
-
-  const getItemFromAccount = (account, external) => {
-    const chainName = account.chainName;
-    var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH') {
-      address = account.address;
-    } else if(chainName==='ALGO' && account.account !== undefined && account.account.addr !== undefined) {
-      address = account.account.addr;
-    }
-    return {chainName: chainName, address: address, external: external};
-  }
-
-  const addAccountToConnectedList = (account, external) => {
-    if (connectedHeader === '') {
-      setConnectedHeader('Connected accounts to this address:');
-    }
-    const chainName = account.chainName;
-    var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH') {
-      address = account.address;
-    } else if(chainName==='ALGO') {
-      if(account.account !== undefined && account.account.addr !== undefined) {
-        address = account.account.addr;
-      } else {
-        address = account.address;
-      }
-    }
-    const item = getItemFromAccount(account, external);
-    var newConnectedAccounts = [...initialConnectedAccounts, item];
-    initialConnectedAccounts.push(item);
-    setConnectedAccounts(newConnectedAccounts);
-  };
-
-  const appendAccountToConnectedList = (account, external) => {
-    if (connectedHeader === '') {
-      setConnectedHeader('Connected accounts to this address:');
-    }
-    const item = getItemFromAccount(account, external);
-    var newConnectedAccounts = [...connectedAccounts, item];
-    setConnectedAccounts(newConnectedAccounts);
-  };
-
-  const addAccountToFilteredList = account => {
-    if (disconnectedHeader === '') {
-      setDisconnectedHeader('Connect accounts to this address:');
-    }
-    var newFilteredAccounts = [...initialFilteredAccounts, account];
-    initialFilteredAccounts.push(account);
-    setFilteredAccounts(newFilteredAccounts);
-  };
-
-  const updateAccountLists = (account, json) => {
-    let accountPubkeyEntry = json.public_address;
-    var accPubkey = '';
-    if (account.chainName === 'ALGO') {
-      accPubkey = account.account.addr;
-    } else if(account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'FIO') {
-      accPubkey = account.address;
-    } else if (account.privateKey) {
-      accPubkey = ecc.privateToPublic(account.privateKey);
-    }
-    if (accountPubkeyEntry && accountPubkeyEntry.indexOf(',') > 0) {
-      var [, regPubkey] = accountPubkeyEntry.split(',');
-      if (accPubkey === regPubkey) {
-        addAccountToConnectedList(account, false);
-      } else {
-        addAccountToFilteredList(account);
-      }
-    } else if (accountPubkeyEntry) {
-      if (accPubkey === accountPubkeyEntry) {
-        addAccountToConnectedList(account, false);
-      } else {
-        addAccountToFilteredList(account);
-      }
-    } else {
-      addAccountToFilteredList(account);
-    }
-  };
-
-  const _handleConnectAccountToAddress = async account => {
-    try {
-      setLoading(true);
-      setFilteredAccounts(
-        filteredAccounts.filter(function(item) {
-          return item !== account;
-        }),
-      );
-      appendAccountToConnectedList(account);
-      if (account.chainName === 'ALGO') {
-        const res = await fioAddExternalAddress(
-          fioAccount,
-          'ALGO',
-          account.account.addr,
-          fioFee,
-        );
-        if (res && res.transaction_id) {
-          Alert.alert('Successfully added in tx ' + res.transaction_id);
-        } else {
-          let error = {
-            description: 'Failed _handleConnectAccountToAddress',
-            method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
-            cause: res,
-            fioAccount: fioAccount.address,
-            account: account.account.addr,
-            fioFee: fioFee,
-          };
-          log(error);
-          Alert.alert('Failed to link ALGO account to FIO address.');
-        }
-      } else if(account.chainName === 'XLM') {
-        const res = await fioAddExternalAddress(
-          fioAccount,
-          'XLM',
-          account.address,
-          fioFee,
-        );
-        if (res && res.transaction_id) {
-          Alert.alert('Successfully added in tx ' + res.transaction_id);
-        } else {
-          let error = {
-            description: 'Failed _handleConnectAccountToAddress',
-            method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
-            cause: res,
-            fioAccount: fioAccount.address,
-            account: account.address,
-            fioFee: fioFee,
-          };
-          log(error);
-          Alert.alert('Failed to link Stellar account to FIO address.');
-        }
-      } else if(account.chainName === 'ETH') {
-        const res = await fioAddExternalAddress(
-          fioAccount,
-          'ETH',
-          account.address,
-          fioFee,
-        );
-        if (res && res.transactionHash) {
-          Alert.alert('Successfully added in tx ' + res.transactionHash);
-        } else {
-          let error = {
-            description: 'Failed _handleConnectAccountToAddress',
-            method: 'fioAddExternalAddress',
-            location: 'FIOAddressActionsScreen',
-            cause: res,
-            fioAccount: fioAccount.address,
-            account: account.address,
-            fioFee: fioFee,
-          };
-          log(error);
-          Alert.alert('Failed to link Ethereum account to FIO address.');
-        }
-      } else {
-        const res = await fioAddPublicAddress(fioAccount, account, fioFee);
-        if (res && res.transaction_id) {
-          Alert.alert('Successfully added in tx ' + res.transaction_id);
-        } else {
-          let error = {
-            description: 'Failed _handleConnectAccountToAddress',
-            method: 'fioAddPublicAddress',
-            location: 'FIOAddressActionsScreen',
-            cause: res,
-            fioAccount: fioAccount.address,
-            account: account.accountName,
-            fioFee: fioFee,
-          };
-          log(error);
-          Alert.alert('Failed to link account to FIO address.');
-        }
-      }
-      setLoading(false);
-    } catch (e) {
-      Alert.alert(e.message);
-      setLoading(false);
-    }
-  };
-
   const checkRegistration = async pubkey => {
     if (executionCount > 0) {
       return;
     }
     setExecutionCount(1);
-
     fetch(fioEndpoint + '/v1/chain/get_fio_names', {
       method: 'POST',
       headers: {
@@ -466,62 +297,6 @@ const FIOAddressActionsScreen = props => {
     }
   };
 
-  const updateExternalAccounts = (chain, pubkey) => {
-    if (pubkey) {
-      var address = pubkey;
-      var publicKey = pubkey;
-      // For EOSIO chains: address,publicKey
-      if (pubkey.indexOf(',') > 0) {
-        [address, publicKey] = pubkey.split(',');
-      }
-      var external = true;
-      var item = {chainName: chain, address: address, accountName: address};
-      accounts.map((value, index, array) => {
-        if (chain === value.chainName && address === value.accountName) {
-          external = false;
-        } else if(chain === value.chainName && address === value.address) {
-          external = false;
-        } else if(chain === value.chainName && value.chainName === 'ALGO' && value.account != null && address === value.account.addr) {
-          external = false;
-        }
-      });
-      if (external) {
-        addAccountToConnectedList(item, external);
-      }
-    }
-  };
-
-  const loadExternalAccounts = async () => {
-    blockchains.map((chain, index, array) => {
-      fetch(fioEndpoint + '/v1/chain/get_pub_address', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fio_address: fioAccount.address,
-          chain_code: chain,
-          token_code: chain,
-        }),
-      })
-        .then(response => response.json())
-        .then(json =>
-          updateExternalAccounts(chain, json.public_address),
-        )
-        .catch(error =>
-          log({
-            description:
-              'loadExternalAccounts - fetch ' +
-              fioEndpoint +
-              '/v1/chain/get_pub_address',
-            cause: error,
-            location: 'FIOAddressActionsScreen',
-          }),
-        );
-    });
-  };
-
   const registerFioAddress = () => {
     Linking.openURL('https://reg.fioprotocol.io/ref/tribe?publicKey=' + fioKey);
   };
@@ -567,12 +342,6 @@ const FIOAddressActionsScreen = props => {
       getPendingFioRequests(fioKey);
       getSentFioRequests(fioKey);
       setActor(Fio.accountHash(fioKey));
-      loadExternalAccounts();
-      accounts.map((value, index, array) => {
-        if (value.chainName !== 'FIO') {
-          checkRegPubkey(value);
-        }
-      });
       setLoading(false);
     } else {
       Alert.alert(json.message);
@@ -619,31 +388,6 @@ const FIOAddressActionsScreen = props => {
     );
   };
 
-  const _handlePressAccount = index => {
-    const item = connectedAccounts[index];
-    var account;
-    accounts.map((value, index, array) => {
-      if (chain === value.chainName && address === value.accountName) {
-        external = false;
-      } else if(chain === value.chainName && address === value.address) {
-        external = false;
-      } else if(chain === value.chainName && value.chainName === 'ALGO' && value.account != null && address === value.account.addr) {
-        external = false;
-      }
-    });
-    if (account.chainName === 'FIO') {
-      navigate('FIOAddressActions', { account });
-    } else if (account.chainName === 'ALGO') {
-      navigate('AlgoAccount', { account });
-    } else if (account.chainName === 'XLM') {
-      navigate('StellarAccount', { account });
-    } else if (account.chainName === 'ETH') {
-      navigate('EthereumAccount', { account });
-    } else {
-      navigate('AccountDetails', { account });
-    }
-  };
-
   const _handleBackupKey = () => {
     const account = fioAccount;
     navigate('PrivateKeyBackup', { account });
@@ -683,6 +427,10 @@ const FIOAddressActionsScreen = props => {
       const title = 'Sent FIO request';
       navigate('ViewFIORequest', { fioAccount, fioRequest, title });
     }
+  };
+
+  const _loadFIORegistry = () => {
+    navigate('FIOAddressRegistry', { fioAccount });
   };
 
   const goToRenewFIOScreen = json => {
@@ -752,16 +500,6 @@ const FIOAddressActionsScreen = props => {
     }
   }
 
-  const showLoadingIcon = () => {
-    if (connectedHeader === '') {
-      return (<Image style={styles.loading}
-        source={require('../../../assets/icons/loading-icon.gif')}
-        resizeMode="contain"
-      />);
-    }
-    return null;
-  }
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -786,35 +524,22 @@ const FIOAddressActionsScreen = props => {
         <KText>Staked: {stakedBalance} FIO</KText>
         <KText>Locked: {lockedBalance} FIO</KText>
         <KText>Rewards: {rewardsBalance} FIO</KText>
+        <PieChart
+          data={stakeData}
+          width={screenWidth}
+          height={220}
+          chartConfig={chartConfig}
+          accessor="balance"
+          backgroundColor="transparent"
+          absolute
+        />
+        <View style={styles.spacer} />
         <Text style={styles.link} onPress={_handleFIOStake}>Stake FIO for rewards!</Text>
-        {showLoadingIcon()}
         {getFioRegistrationContent()}
         {getPendingFioRequestsLink()}
         {getSentFioRequestsLink()}
-        <KText>{connectedHeader}</KText>
-        <FlatList
-          data={connectedAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <ChainAddressItem
-              account={item}
-              style={styles.listItem}
-              onPress={() => _handlePressAccount(index)}
-            />
-          )}
-        />
-        <KText>{disconnectedHeader}</KText>
-        <FlatList
-          data={filteredAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <ConnectAddressItem
-              account={item}
-              style={styles.listItem}
-              onPress={() => _handleConnectAccountToAddress(index)}
-            />
-          )}
-        />
+        <Text style={styles.link} onPress={_loadFIORegistry}>View linked addresses</Text>
+        <FlatList/>
         <FiveIconsButtons
           onIcon1Press={_handleFIOStake}
           onIcon2Press={_handleFIORequest}

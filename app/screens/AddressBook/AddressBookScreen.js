@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KButton, KHeader } from '../../components';
+import { KButton, KHeader, OneIconButton } from '../../components';
 import AddressListItem from './components/AddressListItem';
 import styles from './AddressBookScreen.style';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
@@ -59,6 +59,10 @@ const AddressBookScreen = props => {
     navigate('EditAddress', { fioAddress, index });
   };
 
+  const _handleAddAddress = () => {
+    navigate('AddAddress');
+  }
+
   if (fioAccounts.length == 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -76,12 +80,14 @@ const AddressBookScreen = props => {
               />
             )}
           />
-          <KButton
-            title={'Add address'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={() => navigate('AddAddress')}
-            icon={'add'}
+          <OneIconButton
+            onIconPress={_handleAddAddress}
+            icon={() => (
+              <Image
+                source={require('../../../assets/icons/add_contact.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
         </View>
       </SafeAreaView>
@@ -104,12 +110,14 @@ const AddressBookScreen = props => {
               />
             )}
           />
-          <KButton
-            title={'Add address'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={() => navigate('AddAddress')}
-            icon={'add'}
+          <OneIconButton
+            onIconPress={_handleAddAddress}
+            icon={() => (
+              <Image
+                source={require('../../../assets/icons/add_contact.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
         </View>
       </SafeAreaView>

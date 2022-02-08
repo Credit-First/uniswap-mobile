@@ -25,6 +25,9 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 10,
   },
+  top_header: {
+    marginTop: 0,
+  },
   list: {
     marginTop: 10,
   },

@@ -6,6 +6,7 @@ export { default as KSelect } from './KSelect';
 export { default as RequestSendButtons } from './RequestSendButtons';
 export { default as AccountButtons } from './AccountButtons';
 export { default as ChainButtons } from './ChainButtons';
+export { default as OneIconButton } from './OneIconButton';
 export { default as TwoIconsButtons } from './TwoIconsButtons';
 export { default as ThreeIconsButtons } from './ThreeIconsButtons';
 export { default as FourIconsButtons } from './FourIconsButtons';

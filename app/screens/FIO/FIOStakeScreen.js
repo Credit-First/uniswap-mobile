@@ -19,7 +19,7 @@ import { PieChart } from 'react-native-chart-kit';
 import { stakeFioTokens, unstakeFioTokens } from '../../eos/fio';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import { log } from '../../logger/logger';
-import styles from './RegisterAddress.style';
+import styles from './FIOCommon.style';
 import { KHeader, KText, KInput, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';

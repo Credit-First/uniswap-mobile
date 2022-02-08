@@ -27,6 +27,9 @@ export {
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';
+export {
+  default as FIOAddressRegistryScreen,
+} from './FIO/FIOAddressRegistryScreen';
 export { default as RenewFIOAddressScreen } from './FIO/RenewFIOAddressScreen';
 export {
   default as FIORegisterExternalScreen,
