@@ -19,6 +19,9 @@ import { getAccount } from '../../eos/eos';
 import { loadAccount, getKeyPair } from '../../stellar/stellar';
 import { log } from '../../logger/logger';
 import algosdk from 'algosdk';
+import Wallet from 'ethereumjs-wallet';
+import { toBuffer } from 'ethereumjs-util';
+
 
 
 const ConnectAccountScreen = props => {
@@ -36,7 +39,8 @@ const ConnectAccountScreen = props => {
 
   var importableChains = [
     {name: 'Algorand', symbol: 'ALGO'},
-    {name: 'Stellar', symbol: 'XRP'}
+    {name: 'Stellar', symbol: 'XRP'},
+    {name: 'Ethereum', symbol: 'ETH'}
   ];
 
   supportedChains.map(function(item) {
@@ -139,7 +143,7 @@ const ConnectAccountScreen = props => {
         return;
       }
     } catch (error) {
-      Alert.alert('Error importing Algorand account: ' + error);
+      Alert.alert('Error: ' + error);
       return;
     }
     goBack();
@@ -176,8 +180,31 @@ const ConnectAccountScreen = props => {
       const publicKey = keyPair.publicKey();
       loadAccount(publicKey, processStellarAccount)
     } catch (error) {
-      console.log(error);
-      Alert.alert('Error importing Stellar account: ' + error);
+      Alert.alert('Error: ' + error);
+      return;
+    }
+    goBack();
+  };
+
+  const _handleEthereumConnect = async () => {
+    if (!chain || !privateKey) {
+      Alert.alert('Please fill in all required fields');
+      return;
+    }
+    try {
+      var zxPrivateKey = (privateKey.startsWith('0x')) ? privateKey : '0x'+privateKey;
+      const privateKeyBuffer = toBuffer(zxPrivateKey);
+      const wallet = Wallet.fromPrivateKey(privateKeyBuffer);
+      const publicKey = wallet.getPublicKeyString();
+      const address = wallet.getAddressString();
+      connectAccount({
+        address: address,
+        publicKey: publicKey,
+        privateKey: privateKey,
+        chainName: 'ETH',
+      });
+    } catch (error) {
+      Alert.alert('Error: ' + error);
       return;
     }
     goBack();
@@ -279,6 +306,60 @@ const ConnectAccountScreen = props => {
                 />
               )}
               onPress={_handleStellarConnect}
+            />
+            <TouchableOpacity style={styles.backButton} onPress={goBack}>
+              <MaterialIcon
+                name={'keyboard-backspace'}
+                size={24}
+                color={PRIMARY_BLUE}
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  } else if (chain && chain.name === 'Ethereum') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.content}>
+            <KHeader
+              title={'Account'}
+              subTitle={'Connect your account'}
+              style={styles.header}
+            />
+            <KSelect
+              label={'Blockchain'}
+              items={importableChains.map(item => ({
+                label: item.name,
+                value: item,
+              }))}
+              onValueChange={setChain}
+              containerStyle={styles.inputContainer}
+            />
+            <KInput
+              label={'Private Key'}
+              placeholder={'Enter your Ethereum private key'}
+              secureTextEntry
+              value={privateKey}
+              onChangeText={setPrivateKey}
+              onPasteHandler={setPrivateKey}
+              containerStyle={styles.inputContainer}
+            />
+            <View style={styles.spacer} />
+            <KButton
+              title={'Connect account'}
+              theme={'blue'}
+              style={styles.button}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/accounts.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              onPress={_handleEthereumConnect}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon

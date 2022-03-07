@@ -8,6 +8,7 @@ import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
+import { submitStellarPayment } from '../../stellar/stellar';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
@@ -136,6 +137,41 @@ const FIOSendDirectScreen = props => {
     }
   };
 
+  const doEthereumTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    Alert.alert("Not supported! Use regular transfer.");
+  };
+
+  const doStellarTransfer = async (toAccountPubkey, fromAccountPubkey) => {
+    // Find imported matching from account:
+    const activeAccounts = accounts.filter((value, index, array) => {
+      return (
+        value.chainName === 'XLM' && value.address === fromAccountPubkey
+      );
+    });
+    if (activeAccounts.length === 0) {
+      Alert.alert(
+        'Could not find imported Stellar account to pubkey ' + fromAccountPubkey,
+      );
+      setLoading(false);
+      return;
+    }
+    const fromAccount = activeAccounts[0];
+    // Check amount
+    const floatAmount = parseFloat(amount);
+    if (isNaN(floatAmount)) {
+      Alert.alert('Invalid transfer amount ' + floatAmount);
+      setLoading(false);
+      return;
+    }
+    await submitStellarPayment(
+      fromAccount,
+      toAccountPubkey,
+      floatAmount,
+      memo,
+      _callback,
+    );
+  };
+
   const doAlgoTransfer = async (toAccountPubkey, fromAccountPubkey) => {
     // Find imported matching from account:
     const activeAccounts = accounts.filter((value, index, array) => {
@@ -218,6 +254,10 @@ const FIOSendDirectScreen = props => {
         await doAlgoTransfer(toAccountPubkey, fromAccountPubkey);
       } else if (chainName === 'FIO') {
         await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
+      } else if(chainCode === 'XLM') {
+        await doStellarTransfer(toAccountPubkey, fromAccountPubkey);
+      } else if(chainCode === 'ETH') { //TODO
+        await doEthereumTransfer(toAccountPubkey, fromAccountPubkey);
       } else {
         // Any of EOSIO based chains:
         await doEOSIOTransfer(toAccountPubkey, fromAccountPubkey);

@@ -888,6 +888,169 @@ const loadAccountSecret = (adminFioAccount, accountName, callback) => {
   }
 };
 
+const stakeFioTokens = async (fioAccount, amount) => {
+    const fioPrivateKey = fioAccount.privateKey;
+    const fioPublicKey = Ecc.privateToPublic(fioPrivateKey);
+    const fioActor = Fio.accountHash(fioPublicKey);
+
+    const fioEndpoint = getEndpoint('FIO');
+    const rpc = new JsonRpc(fioEndpoint);
+
+    const info = await rpc.get_info();
+    const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
+    const currentDate = new Date();
+    const timePlusTen = currentDate.getTime() + expirationPeriod;
+    const timeInISOString = new Date(timePlusTen).toISOString();
+    const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+
+    //(1 FIO token = 1,000,000,000 SUFs)
+    const sufsAmount = amount * 1000000000;
+    const maxFee = 1500000000;
+    const fioAddress = fioAccount.address;
+
+    const transaction = {
+      expiration,
+      ref_block_num: blockInfo.block_num & 0xffff,
+      ref_block_prefix: blockInfo.ref_block_prefix,
+      actions: [
+        {
+          account: 'fio.staking',
+          name: 'stakefio',
+          authorization: [
+            {
+              actor: fioActor,
+              permission: 'active',
+            },
+          ],
+          data: {
+            amount: sufsAmount,
+            fio_address: fioAddress,
+            max_fee: maxFee,
+            tpid: 'crypto@tribe',
+            actor: fioActor,
+          },
+        },
+      ],
+    };
+
+    var abiMap = new Map();
+    var tokenRawAbi = await rpc.get_raw_abi('fio.staking');
+    abiMap.set('fio.staking', tokenRawAbi);
+
+    const chainId = info.chain_id;
+    var privateKeys = [fioPrivateKey];
+
+    const tx = await Fio.prepareTransaction({
+      transaction,
+      chainId,
+      privateKeys,
+      abiMap,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder(),
+    });
+
+    var sendtime = new Date().getTime();
+    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+      body: JSON.stringify(tx),
+      method: 'POST',
+    });
+    const json = await pushResult.json();
+    var calltime = new Date().getTime() - sendtime;
+
+    if (!json.processed) {
+      log({
+        description: 'stakeFioTokens error',
+        transaction: transaction,
+        endpoint: fioEndpoint,
+        calltime: calltime,
+        cause: json,
+        location: 'fio',
+      });
+    }
+    return json;
+};
+
+const unstakeFioTokens = async (fioAccount, amount) => {
+    const fioPrivateKey = fioAccount.privateKey;
+    const fioPublicKey = Ecc.privateToPublic(fioPrivateKey);
+    const fioActor = Fio.accountHash(fioPublicKey);
+
+    const fioEndpoint = getEndpoint('FIO');
+    const rpc = new JsonRpc(fioEndpoint);
+
+    const info = await rpc.get_info();
+    const blockInfo = await rpc.get_block(info.last_irreversible_block_num);
+    const currentDate = new Date();
+    const timePlusTen = currentDate.getTime() + expirationPeriod;
+    const timeInISOString = new Date(timePlusTen).toISOString();
+    const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+
+    //(1 FIO token = 1,000,000,000 SUFs)
+    const sufsAmount = amount * 1000000000;
+    const maxFee = 1500000000;
+    const fioAddress = fioAccount.address;
+
+    const transaction = {
+      expiration,
+      ref_block_num: blockInfo.block_num & 0xffff,
+      ref_block_prefix: blockInfo.ref_block_prefix,
+      actions: [
+        {
+          account: 'fio.staking',
+          name: 'unstakefio',
+          authorization: [
+            {
+              actor: fioActor,
+              permission: 'active',
+            },
+          ],
+          data: {
+            amount: sufsAmount,
+            fio_address: fioAddress,
+            max_fee: maxFee,
+            tpid: 'crypto@tribe',
+            actor: fioActor,
+          },
+        },
+      ],
+    };
+
+    var abiMap = new Map();
+    var tokenRawAbi = await rpc.get_raw_abi('fio.staking');
+    abiMap.set('fio.staking', tokenRawAbi);
+
+    const chainId = info.chain_id;
+    var privateKeys = [fioPrivateKey];
+
+    const tx = await Fio.prepareTransaction({
+      transaction,
+      chainId,
+      privateKeys,
+      abiMap,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder(),
+    });
+
+    var sendtime = new Date().getTime();
+    var pushResult = await fetch(fioEndpoint + '/v1/chain/push_transaction', {
+      body: JSON.stringify(tx),
+      method: 'POST',
+    });
+    const json = await pushResult.json();
+    var calltime = new Date().getTime() - sendtime;
+
+    if (!json.processed) {
+      log({
+        description: 'unstakeFioTokens error',
+        transaction: transaction,
+        endpoint: fioEndpoint,
+        calltime: calltime,
+        cause: json,
+        location: 'fio',
+      });
+    }
+    return json;
+};
 
 export {
   sendFioTransfer,
@@ -901,4 +1064,6 @@ export {
   getFioChatEndpoint,
   fioBackupEncryptedKey,
   loadAccountSecret,
+  stakeFioTokens,
+  unstakeFioTokens,
 };

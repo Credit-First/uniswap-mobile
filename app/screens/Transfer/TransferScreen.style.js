@@ -21,9 +21,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonIcon: {
-    width: 18,
-    height: 18,
-    tintColor: '#FFF',
+    width: 72,
+    height: 72,
   },
   inputContainer: {
     marginTop: 10,

@@ -10,11 +10,27 @@ import { getAccount } from '../../../eos/eos';
 import { loadAccount } from '../../../stellar/stellar';
 import { getAlgoAccountInfo } from '../../../algo/algo';
 import { log } from '../../../logger/logger';
+import web3Module from '../../../ethereum/ethereum';
 import {
   PRIMARY_GRAY,
   PRIMARY_BLACK,
   PRIMARY_BLUE,
 } from '../../../theme/colors';
+// Infura:
+const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+const ethMultiplier = 1000000000000000000;
+const tokenABI = require('../../../ethereum/abi.json');
+const tokenAddress = "";
+const {
+  getBalanceOfAccount,
+  getBalanceOfTokenInAccount
+  } = web3Module({
+    url: infuraEndpoint,
+    tokenABI,
+    tokenAddress,
+    chainName: 'mainnet',
+    decimals: 18
+  });
 
 const fioDivider = 1000000000;
 const algoDivider = 1000000;
@@ -84,6 +100,7 @@ const loadAccountBalance = async (account, updateAccountBalance) => {
 const loadFioAccountBalance = async (account, updateAccountBalance) => {
   try {
     const pubkey = Ecc.privateToPublic(account.privateKey);
+    console.log(fioEndpoint + '/v1/chain/get_fio_balance');
     fetch(fioEndpoint + '/v1/chain/get_fio_balance', {
       method: 'POST',
       headers: {
@@ -95,12 +112,11 @@ const loadFioAccountBalance = async (account, updateAccountBalance) => {
       }),
     })
       .then(response => response.json())
-      .then(json =>
-        updateAccountBalance(
-          json.balance !== undefined
-            ? (parseFloat(json.balance) / fioDivider).toFixed(4)
-            : 0,
-        ),
+      .then(json => {
+          console.log("loadFioAccountBalance", json);
+          const balance = (json.balance !== undefined) ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
+          updateAccountBalance(balance);
+        }
       )
       .catch(error =>
         log({
@@ -164,6 +180,14 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
   }
 };
 
+const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
+  const ethBalanceInGwei = await getBalanceOfAccount(account.address);
+  const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
+  if(updateAccountBalance) {
+    updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+  }
+};
+
 const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...props }) => {
   const [accountBalance, setAccountBalance] = useState();
   const [count, setCount] = useState(0);
@@ -181,6 +205,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       loadAlgoAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'XLM') {
       loadStellarAccountBalance(account, updateAccountBalance);
+    } else if (account.chainName === 'ETH') {
+      loadEthereumAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
     }
@@ -203,7 +229,9 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
   }
 
   const getChainIcon = name => {
-    if(name == "EOS") {
+    if(name == "ETH") {
+      return require("../../../../assets/chains/eth.png");
+    } else if(name == "EOS") {
       return require("../../../../assets/chains/eos.png");
     } else if(name == "Telos") {
       return require("../../../../assets/chains/telos.png");
@@ -251,6 +279,22 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       </View>
     );
   } else if (account.chainName === 'XLM') {
+    return (
+      <View onFocus={refreshBalances} style={styles.rowContainer}>
+        <View style={[styles.container, props.style]}>
+        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <TouchableOpacity onPress={handleOnPress}>
+            <KText style={styles.chainName}>
+              {" "} {account.address.substring(0,12)}.., {accountBalance}
+            </KText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshBalances}>
+            <Icon name={'refresh'} size={25} color="#000000" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  } else if (account.chainName === 'ETH') {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>

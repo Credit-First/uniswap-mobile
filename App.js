@@ -34,6 +34,7 @@ import {
   PrivateKeyDelegateScreen,
   RegisterFIOAddressScreen,
   FIOAddressActionsScreen,
+  FIOAddressRegistryScreen,
   RenewFIOAddressScreen,
   FIORegisterExternalScreen,
   FIORequestScreen,
@@ -42,10 +43,12 @@ import {
   ViewFIORequestScreen,
   FIOSendScreen,
   FIOSendDirectScreen,
+  FIOStakeScreen,
   FIOChatScreen,
   GroupChatScreen,
   AlgoAccountScreen,
   StellarAccountScreen,
+  EthereumAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
   AddressBookScreen,
@@ -113,6 +116,10 @@ const AccountsStackScreen = () => {
         component={FIOAddressActionsScreen}
       />
       <AccountsStack.Screen
+        name="FIOAddressRegistry"
+        component={FIOAddressRegistryScreen}
+      />
+      <AccountsStack.Screen
         name="RenewFIOAddress"
         component={RenewFIOAddressScreen}
       />
@@ -138,8 +145,10 @@ const AccountsStackScreen = () => {
         name="FIOSendDirect"
         component={FIOSendDirectScreen}
       />
+      <AccountsStack.Screen name="FIOStake" component={FIOStakeScreen} />
       <AccountsStack.Screen name="AlgoAccount" component={AlgoAccountScreen} />
       <AccountsStack.Screen name="StellarAccount" component={StellarAccountScreen} />
+      <AccountsStack.Screen name="EthereumAccount" component={EthereumAccountScreen} />
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />

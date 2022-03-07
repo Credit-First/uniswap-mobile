@@ -22,9 +22,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   buttonIcon: {
-    width: 18,
-    height: 18,
-    tintColor: '#FFF',
+    width: 48,
+    height: 48,
   },
   errorMessage: {
     color: '#FF0000',

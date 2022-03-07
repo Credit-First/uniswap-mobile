@@ -9,11 +9,14 @@ import {
   Text,
   Alert,
 } from 'react-native';
-import { KButton, KText } from '../../components';
+import { KButton, KText, AccountButtons, ChainButtons, } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import { Fio, Ecc } from '@fioprotocol/fiojs';
 import ecc from 'eosjs-ecc-rn';
+import algosdk from 'algosdk';
+import { createKeyPair } from '../../stellar/stellar';
+import Wallet from 'ethereumjs-wallet';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
 import { getAccount } from '../../eos/eos';
@@ -48,7 +51,12 @@ const AccountsScreen = props => {
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [usdTotal, setUsdTotal] = useState(0.0);
 
-  //console.log(totals);
+  const [isListChainsVisible, setListChainsVisible] = useState(false);
+
+  const toggleListChains = () => {
+    setListChainsVisible(!isListChainsVisible);
+  };
+
   // Make sure empty account records removed:
   accounts.map((value, index, array) => {
     if(!value) {
@@ -253,6 +261,8 @@ const AccountsScreen = props => {
       navigate('AlgoAccount', { account });
     } else if (account.chainName === 'XLM') {
       navigate('StellarAccount', { account });
+    } else if (account.chainName === 'ETH') {
+      navigate('EthereumAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -289,7 +299,7 @@ const AccountsScreen = props => {
     let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain==='FIO'||chain==='XLM') ? account.address : account.accountName;
+    let name = (chain==='FIO'||chain==='XLM'||chain==='ETH') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -482,8 +492,82 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
+      } else if (account.chainName === 'ETH') {
+        const privateKey = account.privateKey;
+        const publicKey = account.publicKey;
+        const foundKeys = keys.filter((value, index, array) => {
+          return value.public === publicKey;
+        });
+        if (foundKeys.length == 0) {
+          addKey({ private: privateKey, public: publicKey });
+        }
       }
     });
+  };
+
+  const _handleImportAccount = () => {
+    navigate('ConnectAccount');
+  };
+
+  const _handleExportAllKeys = () => {
+    navigate('BackupAllKeys');
+  };
+
+  const _handleCreateAlgorandAccount = () => {
+    try {
+      var account = algosdk.generateAccount();
+      var address = account.addr;
+      var accountName =
+        address.substring(0, 4) +
+        '..' +
+        address.substring(address.length - 4, address.length);
+      var mnemonic = algosdk.secretKeyToMnemonic(account.sk);
+      var algoAccount = {
+        accountName,
+        mnemonic,
+        chainName: 'ALGO',
+        account: account,
+      };
+      connectAccount(algoAccount);
+      addKey({ private: mnemonic, public: address });
+    } catch (err) {
+      log({
+        description: 'Error create/add Algorand account',
+        cause: err,
+        location: 'MenuScreen',
+      });
+    }
+  };
+
+  const _handleCreateStellarAccount = () => {
+    try {
+      const stellarKeys = createKeyPair();
+      const privateKey = stellarKeys.secret();
+      const address = stellarKeys.publicKey();
+      var xlmAccount = {
+        address: address,
+        privateKey: privateKey,
+        chainName: 'XLM',
+      };
+      connectAccount(xlmAccount);
+      addKey({ private: privateKey, public: address });
+    } catch (err) {
+      log({
+        description: 'Error create/add Stellar account',
+        cause: err,
+        location: 'MenuScreen',
+      });
+    }
+  };
+
+  const _handleCreateEthereumAccount = () => {
+    const newEth = Wallet.generate(false);
+    const privateKey = newEth.getPrivateKeyString();
+    const publicKey = newEth.getPublicKeyString();
+    const address = newEth.getAddressString();
+    const account = { address, privateKey, publicKey, chainName: 'ETH' };
+    connectAccount(account);
+    addKey({ private: privateKey, public: publicKey });
   };
 
   if (runCount == 0 && validAccounts.length > 0) {
@@ -492,22 +576,32 @@ const AccountsScreen = props => {
     addKeysIfMissing();
   }
 
-  var optionalButtons = <View style={styles.spacer} />;
-  if (fioAccounts.length == 0) {
-    optionalButtons = (
-      <View>
-        <KButton
-          title={'Register [address]@tribe'}
-          theme={'brown'}
-          style={styles.button}
-          icon={'add'}
-          onPress={() => navigate('RegisterFIOAddress')}
-        />
-      </View>
-    );
+
+  const _handleNewChainPress = (name) => {
+    if(name == "ETH") {
+      _handleCreateEthereumAccount();
+    } else if(name == "TLOS") {
+      navigate('CreateTelosAccount');
+    } else if(name == "FIO") {
+      navigate('RegisterFIOAddress');
+    } else if(name == "ALGO") {
+      _handleCreateAlgorandAccount();
+    } else if(name == "XLM") {
+      _handleCreateStellarAccount();
+    } else {
+      Alert.alert("Unknown "+name+" chain!");
+    }
   }
 
-  if (validAccounts.length == 0) {
+  const showUsdTotal = () => {
+    if(validAccounts.length > 0) {
+      return (<Text style={styles.total}>${usdTotal}</Text>);
+    }
+    return null;
+  }
+
+
+  if(isListChainsVisible) {
     return (
       <SafeAreaView style={styles.container}>
         <Image
@@ -515,31 +609,7 @@ const AccountsScreen = props => {
           source={require('../../../assets/logo/tribe-logo.png')}
           resizeMode="contain"
         />
-        {optionalButtons}
-        <KButton
-          title={'Import accounts'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={() => navigate('ConnectAccount')}
-          renderIcon={() => (
-            <Image
-              source={require('../../../assets/icons/accounts.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-        <Text style={styles.version}>{getAppVersion()}</Text>
-      </SafeAreaView>
-    );
-  } else {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Image
-          style={styles.logo}
-          source={require('../../../assets/logo/tribe-logo.png')}
-          resizeMode="contain"
-        />
-        <Text style={styles.total}>${usdTotal}</Text>
+        {showUsdTotal()}
         <FlatList
           data={validAccounts}
           keyExtractor={(item, index) => `${index}`}
@@ -553,37 +623,107 @@ const AccountsScreen = props => {
             />
           )}
         />
-        {optionalButtons}
-        <KButton
-          title={'Import accounts'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={() => navigate('ConnectAccount')}
-          renderIcon={() => (
+
+        <ChainButtons
+          onChainPress={_handleNewChainPress}
+          onClosePress={toggleListChains}
+          closeIcon={() => (
             <Image
-              source={require('../../../assets/icons/accounts.png')}
+              source={require('../../../assets/icons/minus.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          ethIcon={() => (
+            <Image
+              source={require('../../../assets/chains/eth.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          fioIcon={() => (
+            <Image
+              source={require('../../../assets/chains/fio.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          telosIcon={() => (
+            <Image
+              source={require('../../../assets/chains/telos.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          algoIcon={() => (
+            <Image
+              source={require('../../../assets/chains/algo.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          xlmIcon={() => (
+            <Image
+              source={require('../../../assets/chains/xlm.png')}
               style={styles.buttonIcon}
             />
           )}
         />
-        <KButton
-          title={'Backup All Keys!'}
-          theme={'brown'}
-          style={styles.button}
-          onPress={() => navigate('BackupAllKeys')}
-          renderIcon={() => (
+
+        <Text style={styles.version}>
+          New messages: {newMessageCount}, {getAppVersion()}
+        </Text>
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Image
+          style={styles.logo}
+          source={require('../../../assets/logo/tribe-logo.png')}
+          resizeMode="contain"
+        />
+        {showUsdTotal()}
+        <FlatList
+          data={validAccounts}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item, index }) => (
+            <AccountListItem
+              account={item}
+              style={styles.listItem}
+              onPress={() => _handlePressAccount(index)}
+              onTokenPress={() => _handlePressTokenList(index)}
+              onBalanceUpdate={_handleBalanceUpdate}
+            />
+          )}
+        />
+
+        <AccountButtons
+          onAddPress={toggleListChains}
+          onImportPress={_handleImportAccount}
+          onExportPress={_handleExportAllKeys}
+          addIcon={() => (
             <Image
-              source={require('../../../assets/icons/accounts.png')}
+              source={require('../../../assets/icons/add.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          importIcon={() => (
+            <Image
+              source={require('../../../assets/icons/import_key.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          exportIcon={() => (
+            <Image
+              source={require('../../../assets/icons/export_key.png')}
               style={styles.buttonIcon}
             />
           )}
         />
+
         <Text style={styles.version}>
           New messages: {newMessageCount}, {getAppVersion()}
         </Text>
       </SafeAreaView>
     );
   }
+
 };
 
 export default connectAccounts()(AccountsScreen);

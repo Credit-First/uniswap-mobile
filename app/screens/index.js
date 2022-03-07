@@ -27,6 +27,9 @@ export {
 export {
   default as FIOAddressActionsScreen,
 } from './FIO/FIOAddressActionsScreen';
+export {
+  default as FIOAddressRegistryScreen,
+} from './FIO/FIOAddressRegistryScreen';
 export { default as RenewFIOAddressScreen } from './FIO/RenewFIOAddressScreen';
 export {
   default as FIORegisterExternalScreen,
@@ -37,12 +40,14 @@ export {
 } from './FIO/FIORequestDirectScreen';
 export { default as FIOSendScreen } from './FIO/FIOSendScreen';
 export { default as FIOSendDirectScreen } from './FIO/FIOSendDirectScreen';
+export { default as FIOStakeScreen } from './FIO/FIOStakeScreen';
 export { default as FIOChatScreen } from './FIO/FIOChatScreen';
 export { default as GroupChatScreen } from './FIO/GroupChatScreen';
 export { default as ListFIORequestsScreen } from './FIO/ListFIORequestsScreen';
 export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
 export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
 export { default as StellarAccountScreen } from './Stellar/StellarAccountScreen';
+export { default as EthereumAccountScreen } from './Ethereum/EthereumAccountScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

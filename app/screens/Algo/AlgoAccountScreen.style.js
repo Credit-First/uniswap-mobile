@@ -34,6 +34,10 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
   },
+  buttonIcon: {
+    width: 48,
+    height: 48,
+  },
   hidden: {
     opacity: 0,
     marginTop: 8,

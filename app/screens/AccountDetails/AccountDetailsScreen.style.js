@@ -30,9 +30,8 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   buttonIcon: {
-    width: 18,
-    height: 18,
-    tintColor: '#FFF',
+    width: 48,
+    height: 48,
   },
   inputContainer: {
     marginTop: 8,

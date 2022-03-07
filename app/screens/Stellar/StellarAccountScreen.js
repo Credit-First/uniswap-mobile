@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KHeader, KText, KButton } from '../../components';
+import { KHeader, KText, KButton, TwoIconsButtons } from '../../components';
 import styles from './StellarAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
@@ -189,11 +189,14 @@ const StellarAccountScreen = props => {
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <MaterialIcon
             name={'keyboard-backspace'}
-            size={24}
+            size={35}
             color={PRIMARY_BLUE}
           />
         </TouchableOpacity>
-        <KHeader title={getTitle()} style={styles.header} />
+        <Image
+          source={require('../../../assets/chains/xlm.png')}
+          style={styles.buttonIcon}
+        />
         <KText>Balance: {accountBalance} XLM</KText>
         <KText>USD Value: ${usdValue}</KText>
         <KText>Status: {accountStatus}</KText>
@@ -201,30 +204,28 @@ const StellarAccountScreen = props => {
         <Text style={styles.link} onPress={copyToClipboard}>
           {account.address}
         </Text>
+        <KText> </KText>
         <View style={styles.qrcode}>
           <QRCode value={account.address} size={200} />
         </View>
         <KText>{connectedHeader}</KText>
         <KText>{connectedAddress}</KText>
         <FlatList />
-        <KButton
-          title={'Backup private key'}
-          theme={'primary'}
-          style={styles.button}
-          onPress={_handleBackupKey}
-          renderIcon={() => (
+        <TwoIconsButtons
+          onIcon1Press={_handleBackupKey}
+          onIcon2Press={_handleRemoveAccount}
+          icon1={() => (
             <Image
-              source={require('../../../assets/icons/accounts.png')}
+              source={require('../../../assets/icons/save_key.png')}
               style={styles.buttonIcon}
             />
           )}
-        />
-        <KButton
-          title={'Remove this account'}
-          theme={'brown'}
-          style={styles.button}
-          icon={'remove'}
-          onPress={_handleRemoveAccount}
+          icon2={() => (
+            <Image
+              source={require('../../../assets/icons/delete.png')}
+              style={styles.buttonIcon}
+            />
+          )}
         />
       </View>
     </SafeAreaView>

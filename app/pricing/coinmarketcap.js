@@ -1,14 +1,15 @@
 import { log } from '../logger/logger';
 
-const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM';
+const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH';
 const marketAPIKey = '815df99c-3be5-47bd-ba5b-0a9f988178d3';
-// Default price values as of Sep 19, 2021
+// Default price values as of Jan 24, 2022
 var defPriceData = {
-  'EOS': 5.0,
-  'TLOS': 0.9,
-  'FIO': 0.2,
-  'ALGO': 1.8,
-  'XLM': 0.40
+  'EOS': 2.15,
+  'TLOS': 0.5,
+  'FIO': 0.1,
+  'ALGO': 0.9,
+  'XLM': 0.18,
+  'ETH': 2350.0
 };
 
 const getLatestPrices = async () => {
@@ -26,12 +27,14 @@ const getLatestPrices = async () => {
     const fioPrice = resJson['data']['FIO']['quote']['USD']['price'];
     const algoPrice = resJson['data']['ALGO']['quote']['USD']['price'];
     const xlmPrice = resJson['data']['XLM']['quote']['USD']['price'];
+    const ethPrice = resJson['data']['ETH']['quote']['USD']['price'];
     const newPriceData = {
       'EOS': eosPrice,
       'TLOS': tlosPrice,
       'FIO': fioPrice,
       'ALGO': algoPrice,
-      'XLM': xlmPrice
+      'XLM': xlmPrice,
+      'ETH': ethPrice
     };
     return newPriceData;
   } catch (err) {

@@ -9,7 +9,7 @@ import {
   Text,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KInput, KButton, KHeader, KText } from '../../components';
+import { KInput, KButton, KHeader, KText, TwoIconsButtons } from '../../components';
 import styles from './AddressBookScreen.style';
 import { connectAccounts } from '../../redux';
 import { log } from '../../logger/logger';
@@ -75,18 +75,21 @@ const EditAddressScreen = props => {
           containerStyle={styles.inputContainer}
           autoCapitalize={'none'}
         />
-        <KButton
-          title={'Save'}
-          theme={'brown'}
-          style={styles.button}
-          onPress={_handleEditAddress}
-          icon={'edit'}
-        />
-        <KButton
-          title={'Delete'}
-          style={styles.button}
-          onPress={_handleDeleteAddress}
-          icon={'delete'}
+        <TwoIconsButtons
+          onIcon1Press={_handleEditAddress}
+          onIcon2Press={_handleDeleteAddress}
+          icon1={() => (
+            <Image
+              source={require('../../../assets/icons/save_key.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          icon2={() => (
+            <Image
+              source={require('../../../assets/icons/delete.png')}
+              style={styles.buttonIcon}
+            />
+          )}
         />
       </View>
     </SafeAreaView>

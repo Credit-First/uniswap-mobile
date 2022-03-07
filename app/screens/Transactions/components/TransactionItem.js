@@ -30,8 +30,8 @@ const TransactionItem = ({ item, onPress }) => {
     } else {
       sender = item.sender;
     }
-    if(sender.length > 20) {
-      return sender.substring(0,20) + "..";
+    if(sender.length > 16) {
+      return sender.substring(0,16) + "..";
     }
     return sender;
   }
@@ -47,8 +47,8 @@ const TransactionItem = ({ item, onPress }) => {
     } else {
       receiver = item.receiver;
     }
-    if(receiver.length > 20) {
-      return receiver.substring(0,20) + "..";
+    if(receiver.length > 16) {
+      return receiver.substring(0,16) + "..";
     }
     return receiver;
   }

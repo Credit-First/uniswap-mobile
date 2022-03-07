@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
+import web3Module from '../../ethereum/ethereum';
+
+
 import { log } from '../../logger/logger';
 
 const TransferScreen = props => {
@@ -26,6 +28,36 @@ const TransferScreen = props => {
   const [toFioPubkey, setToFioPubkey] = useState('');
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
+  // Ethereum transfer state:
+  const [previewEthTransfer, setPreviewEthTransfer] = useState(false);
+  const [ethGasPrice, setEthGasPrice] = useState(0.001);
+  const [ethGasLimit, setEthGasLimit] = useState(21000);
+  const [ethBalance, setEthBalance] = useState(0);
+  const [ethFromAddress, setEthFromAddress] = useState();
+  const [ethFromPrivateKey, setEthFromPrivateKey] = useState();
+  const [ethToAddress, setEthToAddress] = useState('');
+  const [ethFloatAmount, setEthFloatAmount] = useState(0.0);
+  const [ethEstimatedFee, setEthEstimatedFee] = useState(0.0);
+  const [ethTotalAmount, setEthTotalAmount] = useState(0.0);
+  // Infura:
+  const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+  const ethDivider = 1000000000000000000;
+  const tokenABI = require('../../ethereum/abi.json');
+  const tokenAddress = "";
+  const {
+    createKeyPair,
+    getCurrentGasPrice,
+    transferETH,
+    transterERC20,
+    getBalanceOfAccount,
+    getBalanceOfTokenInAccount
+    } = web3Module({
+      url: infuraEndpoint,
+      tokenABI,
+      tokenAddress,
+      chainName: 'mainnet',
+      decimals: 18
+    });
 
   const {
     addAddress,
@@ -270,6 +302,56 @@ const TransferScreen = props => {
     }
   };
 
+  const prepareETHTransfer = async (from, to, amount) => {
+      const gasPrice = await getCurrentGasPrice();
+      setEthGasPrice(gasPrice);
+      const ethBalanceInWei = await getBalanceOfAccount(from.address);
+      const ethBalanceInEth = parseFloat(ethBalanceInWei/ethDivider).toFixed(4);
+      setEthBalance(ethBalanceInEth);
+      setEthFromAddress(from.address);
+      setEthFromPrivateKey(from.privateKey);
+      setEthToAddress(to);
+      setEthFloatAmount(amount);
+      const estimatedFee = parseFloat((gasPrice*ethGasLimit)/ethDivider).toFixed(4);
+      setEthEstimatedFee(estimatedFee);
+      const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
+      setEthTotalAmount(totalAmount);
+      if (ethBalanceInEth > totalAmount) {
+        setPreviewEthTransfer(true);
+      } else {
+        Alert.alert('Insufficient balance to send transfer!');
+      }
+  }
+
+  const sendETHTransfer = async () => {
+    if(pendingEthTransfer) {
+      Alert.alert('Waiting for pending ETH transfer!');
+    }
+    setPendingEthTransfer(true);
+    const keypair = await createKeyPair(ethFromPrivateKey);
+    const result = await transferETH(keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    setPendingEthTransfer(false);
+    // Save transaction to History:
+    const txRecord = {
+      "chain": "ETH",
+      "sender": ethFromAddress,
+      "receiver": ethToAddress,
+      "amount": ethFloatAmount,
+      "memo": memo,
+      "isFioAddress": isFioAddress,
+      "toFioAddress": toFioAddress,
+      "txid": result.transactionHash,
+      "date": new Date(),
+    };
+    addTransactionToHistory(txRecord);
+    Alert.alert('ETH Transfer submitted!');
+    setPreviewEthTransfer(false);
+  }
+
+  const rejectETHTransfer = () => {
+    setPreviewEthTransfer(false);
+  }
+
   const _handleTransfer = async () => {
     setLoading(true);
 
@@ -388,9 +470,13 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
+      } else if (fromAccount.chainName === 'ETH') {
+        let receiver = toPubkey ? toPubkey : toAccountName;
+        prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
         // Any of supported EOSIO chains:
         let result = await transfer(actorName, floatAmount, memo, fromAccount, chain);
+        // Save transaction to History:
         const txRecord = {
           "chain": chain.name,
           "sender": fromAccount.accountName,
@@ -420,6 +506,10 @@ const TransferScreen = props => {
     }
   };
 
+  const _navigateHistory = () => {
+    navigate('Transactions');
+  }
+
   if (accounts.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -431,6 +521,45 @@ const TransferScreen = props => {
               title={'Transfer not available'}
               subTitle={'No accounts in wallet'}
               style={styles.header}
+            />
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  } else if (previewEthTransfer) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.inner}>
+            <KHeader
+              title={'Ethereum transfer'}
+              style={styles.header}
+            />
+            <KText>From: {ethFromAddress}</KText>
+            <KText>To: {ethToAddress}</KText>
+            <KText>Memo: {memo}</KText>
+            <KText>Amount: {ethFloatAmount} ETH</KText>
+            <KText>Gas fee: {ethEstimatedFee} ETH (Estimated)</KText>
+            <KText>Total: {ethTotalAmount} ETH</KText>
+            <KText>Balance: {ethBalance} ETH</KText>
+            <View style={styles.spacer} />
+            <TwoIconsButtons
+              onIcon1Press={sendETHTransfer}
+              onIcon2Press={rejectETHTransfer}
+              icon1={() => (
+                <Image
+                  source={require('../../../assets/icons/confirm.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              icon2={() => (
+                <Image
+                  source={require('../../../assets/icons/close.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
             />
           </View>
         </KeyboardAwareScrollView>
@@ -452,7 +581,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}
@@ -492,28 +621,18 @@ const TransferScreen = props => {
               theme={'blue'}
               style={styles.button}
               isLoading={loading}
-              renderIcon={() => (
-                <Image
-                  source={require('../../../assets/icons/transfer.png')}
-                  style={styles.buttonIcon}
-                />
-              )}
               onPress={_handleTransfer}
             />
             <View style={styles.spacer} />
-            <KButton
-              title={'Past transfers'}
-              theme={'brown'}
-              style={styles.button}
-              renderIcon={() => (
+            <OneIconButton
+              onIconPress={_navigateHistory}
+              icon={() => (
                 <Image
-                  source={require('../../../assets/icons/transactions.png')}
+                  source={require('../../../assets/icons/history.png')}
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={() => navigate('Transactions')}
             />
-            <View style={styles.spacer} />
           </View>
         </KeyboardAwareScrollView>
       </SafeAreaView>
