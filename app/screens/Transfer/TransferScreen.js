@@ -3,7 +3,7 @@ import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText, TwoIconsButtons } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
@@ -324,8 +324,13 @@ const TransferScreen = props => {
   }
 
   const sendETHTransfer = async () => {
+    if(pendingEthTransfer) {
+      Alert.alert('Waiting for pending ETH transfer!');
+    }
+    setPendingEthTransfer(true);
     const keypair = await createKeyPair(ethFromPrivateKey);
     const result = await transferETH(keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    setPendingEthTransfer(false);
     // Save transaction to History:
     const txRecord = {
       "chain": "ETH",
@@ -611,16 +616,17 @@ const TransferScreen = props => {
               autoCapitalize={'none'}
             />
             <View style={styles.spacer} />
-            <TwoIconsButtons
-              onIcon1Press={_handleTransfer}
-              onIcon2Press={_navigateHistory}
-              icon1={() => (
-                <Image
-                  source={require('../../../assets/icons/send_transfer.png')}
-                  style={styles.buttonIcon}
-                />
-              )}
-              icon2={() => (
+            <KButton
+              title={'Submit transfer'}
+              theme={'blue'}
+              style={styles.button}
+              isLoading={loading}
+              onPress={_handleTransfer}
+            />
+            <View style={styles.spacer} />
+            <OneIconButton
+              onIconPress={_navigateHistory}
+              icon={() => (
                 <Image
                   source={require('../../../assets/icons/history.png')}
                   style={styles.buttonIcon}

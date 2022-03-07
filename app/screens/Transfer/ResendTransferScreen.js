@@ -4,7 +4,7 @@ import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText, TwoIconsButtons } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton, TwoIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
@@ -17,7 +17,19 @@ import { log } from '../../logger/logger';
 const ResendTransferScreen = props => {
 
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState(transaction.amount);
+  const [amount, setAmount] = useState();
+  // Ethereum transfer state:
+  const [previewEthTransfer, setPreviewEthTransfer] = useState(false);
+  const [pendingEthTransfer, setPendingEthTransfer] = useState(false);
+  const [ethGasPrice, setEthGasPrice] = useState(0.001);
+  const [ethGasLimit, setEthGasLimit] = useState(21000);
+  const [ethBalance, setEthBalance] = useState(0);
+  const [ethFromAddress, setEthFromAddress] = useState();
+  const [ethFromPrivateKey, setEthFromPrivateKey] = useState();
+  const [ethToAddress, setEthToAddress] = useState('');
+  const [ethFloatAmount, setEthFloatAmount] = useState(0.0);
+  const [ethEstimatedFee, setEthEstimatedFee] = useState(0.0);
+  const [ethTotalAmount, setEthTotalAmount] = useState(0.0);
   // Infura:
   const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
   const ethDivider = 1000000000000000000;
@@ -93,6 +105,55 @@ const ResendTransferScreen = props => {
     navigate('Transactions');
   };
 
+  const prepareETHTransfer = async (from, to, amount) => {
+      const gasPrice = await getCurrentGasPrice();
+      setEthGasPrice(gasPrice);
+      const ethBalanceInWei = await getBalanceOfAccount(from.address);
+      const ethBalanceInEth = parseFloat(ethBalanceInWei/ethDivider).toFixed(4);
+      setEthBalance(ethBalanceInEth);
+      setEthFromAddress(from.address);
+      setEthFromPrivateKey(from.privateKey);
+      setEthToAddress(to);
+      setEthFloatAmount(amount);
+      const estimatedFee = parseFloat((gasPrice*ethGasLimit)/ethDivider).toFixed(4);
+      setEthEstimatedFee(estimatedFee);
+      const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
+      setEthTotalAmount(totalAmount);
+      if (ethBalanceInEth > totalAmount) {
+        setPreviewEthTransfer(true);
+      } else {
+        Alert.alert('Insufficient balance to send transfer!');
+      }
+  }
+
+  const sendETHTransfer = async () => {
+    if(pendingEthTransfer) {
+      Alert.alert('Waiting for pending ETH transfer!');
+    }
+    setPendingEthTransfer(true);
+    const keypair = await createKeyPair(ethFromPrivateKey);
+    const result = await transferETH(keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    setPendingEthTransfer(false);
+    // Save transaction to History:
+    const txRecord = {
+      "chain": "ETH",
+      "sender": ethFromAddress,
+      "receiver": ethToAddress,
+      "amount": ethFloatAmount,
+      "isFioAddress": isFioAddress,
+      "toFioAddress": toFioAddress,
+      "txid": result.transactionHash,
+      "date": new Date(),
+    };
+    addTransactionToHistory(txRecord);
+    Alert.alert('ETH Transfer submitted!');
+    setPreviewEthTransfer(false);
+  }
+
+  const rejectETHTransfer = () => {
+    setPreviewEthTransfer(false);
+  }
+
   const _handleTransfer = async () => {
     if(fromAccount == null) {
       Alert.alert('Source account not found in wallet!');
@@ -140,7 +201,8 @@ const ResendTransferScreen = props => {
           addTransactionToHistory,
         );
       } else if (fromAccount.chainName === 'ETH') {
-
+        let receiver = transaction.receiver;
+        prepareETHTransfer(fromAccount, receiver, floatAmount);
       } else if (chain) {
         // Any of supported EOSIO chains:
         let result = await transfer(
@@ -175,6 +237,46 @@ const ResendTransferScreen = props => {
     navigate('Transactions');
   }
 
+
+if (previewEthTransfer) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        enableOnAndroid>
+        <View style={styles.inner}>
+          <KHeader
+            title={'Ethereum transfer'}
+            style={styles.header}
+          />
+          <KText>From: {ethFromAddress}</KText>
+          <KText>To: {ethToAddress}</KText>
+          <KText>Amount: {ethFloatAmount} ETH</KText>
+          <KText>Gas fee: {ethEstimatedFee} ETH (Estimated)</KText>
+          <KText>Total: {ethTotalAmount} ETH</KText>
+          <KText>Balance: {ethBalance} ETH</KText>
+          <View style={styles.spacer} />
+          <TwoIconsButtons
+            onIcon1Press={sendETHTransfer}
+            onIcon2Press={rejectETHTransfer}
+            icon1={() => (
+              <Image
+                source={require('../../../assets/icons/confirm.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            icon2={() => (
+              <Image
+                source={require('../../../assets/icons/close.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+} else {
   return (
       <SafeAreaView style={styles.container}>
         <KeyboardAwareScrollView
@@ -191,22 +293,24 @@ const ResendTransferScreen = props => {
             <KInput
               label={'Enter amount to send'}
               value={amount}
-              placeholder={'Original amount sent: '+amount}
+              placeholder={'Original amount sent: '+transaction.amount}
               onChangeText={setAmount}
               containerStyle={styles.inputContainer}
               autoCapitalize={'none'}
               keyboardType={'numeric'}
             />
-            <TwoIconsButtons
-              onIcon1Press={_handleTransfer}
-              onIcon2Press={_navigateHistory}
-              icon1={() => (
-                <Image
-                  source={require('../../../assets/icons/send_transfer.png')}
-                  style={styles.buttonIcon}
-                />
-              )}
-              icon2={() => (
+            <View style={styles.spacer} />
+            <KButton
+              title={'Submit transfer'}
+              theme={'blue'}
+              style={styles.button}
+              isLoading={loading}
+              onPress={_handleTransfer}
+            />
+            <View style={styles.spacer} />
+            <OneIconButton
+              onIconPress={_navigateHistory}
+              icon={() => (
                 <Image
                   source={require('../../../assets/icons/history.png')}
                   style={styles.buttonIcon}
@@ -218,6 +322,7 @@ const ResendTransferScreen = props => {
         </KeyboardAwareScrollView>
       </SafeAreaView>
     );
+  }
 
 };
 

@@ -25,13 +25,9 @@ const BackupAllKeysScreen = props => {
   var privateKeys = '';
   accounts.map((value, index, array) => {
     var chainName = value.chainName == 'Telos' ? 'TLOS' : value.chainName;
-    var accountName = (chainName === 'FIO') ? value.address : value.accountName;
+    var accountName = (value.address) ? value.address : value.accountName;
     var privateKey = chainName === 'ALGO' ? value.mnemonic : value.privateKey;
-    if (chainName === 'XLM' || chainName === 'ALGO') {
-      privateKeys += chainName + ':' + privateKey + ',';
-    } else {
-      privateKeys += accountName + ':' + privateKey + ',';
-    }
+    privateKeys += chainName + ':' + accountName + ':' + privateKey + ',';
   });
 
   const copyToClipboard = () => {
@@ -53,9 +49,9 @@ const BackupAllKeysScreen = props => {
             />
           </TouchableOpacity>
           <KHeader title={'Backup all private keys'} style={styles.header} />
-          <Text style={styles.link} onPress={copyToClipboard}>
-            {privateKeys}
-          </Text>
+          <View style={styles.qrcode}>
+            <QRCode value={privateKeys} size={200} />
+          </View>
           <View style={styles.spacer} />
           <KButton
             title={'Copy to Clipboard'}
