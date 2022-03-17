@@ -559,6 +559,16 @@ const AccountsScreen = props => {
       });
     }
   };
+  
+  const _handleCreateBSCAccount = () => {
+    const newEth = Wallet.generate(false);
+    const privateKey = newEth.getPrivateKeyString();
+    const publicKey = newEth.getPublicKeyString();
+    const address = newEth.getAddressString();
+    const account = { address, privateKey, publicKey, chainName: 'BNB' };
+    connectAccount(account);
+    addKey({ private: privateKey, public: publicKey });
+  };
 
   const _handleCreateEthereumAccount = () => {
     const newEth = Wallet.generate(false);
@@ -578,7 +588,9 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if(name == "ETH") {
+    if(name == "BNB") {
+      _handleCreateBSCAccount();
+    } else if(name == "ETH") {
       _handleCreateEthereumAccount();
     } else if(name == "TLOS") {
       navigate('CreateTelosAccount');
@@ -630,6 +642,12 @@ const AccountsScreen = props => {
           closeIcon={() => (
             <Image
               source={require('../../../assets/icons/minus.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          bscIcon={() => (
+            <Image
+              source={require('../../../assets/chains/bsc.png')}
               style={styles.buttonIcon}
             />
           )}
