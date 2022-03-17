@@ -581,7 +581,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}

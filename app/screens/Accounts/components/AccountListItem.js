@@ -24,13 +24,13 @@ const tokenAddress = "";
 const {
   getBalanceOfAccount,
   getBalanceOfTokenInAccount
-  } = web3Module({
-    url: infuraEndpoint,
-    tokenABI,
-    tokenAddress,
-    chainName: 'mainnet',
-    decimals: 18
-  });
+} = web3Module({
+  url: infuraEndpoint,
+  tokenABI,
+  tokenAddress,
+  chainName: 'mainnet',
+  decimals: 18
+});
 
 const fioDivider = 1000000000;
 const algoDivider = 1000000;
@@ -113,10 +113,10 @@ const loadFioAccountBalance = async (account, updateAccountBalance) => {
     })
       .then(response => response.json())
       .then(json => {
-          console.log("loadFioAccountBalance", json);
-          const balance = (json.balance !== undefined) ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
-          updateAccountBalance(balance);
-        }
+        console.log("loadFioAccountBalance", json);
+        const balance = (json.balance !== undefined) ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
+        updateAccountBalance(balance);
+      }
       )
       .catch(error =>
         log({
@@ -159,10 +159,10 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
   try {
     const processStellarAccount = (json) => {
       var nativeBalance = 0;
-      if(json['balances']) {
+      if (json['balances']) {
         const balances = json['balances'];
         balances.forEach(balance => {
-          if(balance["asset_type"] === "native") {
+          if (balance["asset_type"] === "native") {
             nativeBalance = balance["balance"];
           }
         });
@@ -182,8 +182,8 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
 
 const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
   const ethBalanceInGwei = await getBalanceOfAccount(account.address);
-  const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
-  if(updateAccountBalance) {
+  const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
+  if (updateAccountBalance) {
     updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
   }
 };
@@ -205,7 +205,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       loadAlgoAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'XLM') {
       loadStellarAccountBalance(account, updateAccountBalance);
-    } else if (account.chainName === 'ETH') {
+    } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
       loadEthereumAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
@@ -229,11 +229,13 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
   }
 
   const getChainIcon = name => {
-    if(name == "ETH") {
+    if (name == "BNB") {
+      return require("../../../../assets/chains/bsc.png");
+    } else if (name == "ETH") {
       return require("../../../../assets/chains/eth.png");
-    } else if(name == "EOS") {
+    } else if (name == "EOS") {
       return require("../../../../assets/chains/eos.png");
-    } else if(name == "Telos") {
+    } else if (name == "Telos") {
       return require("../../../../assets/chains/telos.png");
     } else if (name == "ALGO") {
       return require("../../../../assets/chains/algo.png");
@@ -250,7 +252,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
               {" "} {account.address}, {accountBalance}
@@ -266,7 +268,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
               {" "} {account.accountName}, {accountBalance}
@@ -282,10 +284,10 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
-              {" "} {account.address.substring(0,12)}.., {accountBalance}
+              {" "} {account.address.substring(0, 12)}.., {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>
@@ -294,14 +296,14 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
         </View>
       </View>
     );
-  } else if (account.chainName === 'ETH') {
+  } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.chainName}>
-              {" "} {account.address.substring(0,12)}.., {accountBalance}
+              {" "} {account.address.substring(0, 12)}.., {accountBalance}
             </KText>
           </TouchableOpacity>
           <TouchableOpacity onPress={refreshBalances}>
@@ -317,7 +319,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
         <View>
           <View onFocus={refreshBalances} style={styles.rowContainer}>
             <View style={[styles.container, props.style]}>
-              <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+              <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
               <TouchableOpacity onPress={handleOnPress}>
                 <KText style={styles.chainName}>
                   {" "} {account.accountName}, {accountBalance}
@@ -341,7 +343,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       return (
         <View onFocus={refreshBalances} style={styles.rowContainer}>
           <View style={[styles.container, props.style]}>
-          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+            <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
             <TouchableOpacity onPress={handleOnPress}>
               <KText style={styles.chainName}>
                 {" "} {account.accountName}, {accountBalance}

@@ -261,7 +261,7 @@ const AccountsScreen = props => {
       navigate('AlgoAccount', { account });
     } else if (account.chainName === 'XLM') {
       navigate('StellarAccount', { account });
-    } else if (account.chainName === 'ETH') {
+    } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
       navigate('EthereumAccount', { account });
     } else {
       navigate('AccountDetails', { account });
@@ -492,7 +492,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName === 'ETH') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
         const privateKey = account.privateKey;
         const publicKey = account.publicKey;
         const foundKeys = keys.filter((value, index, array) => {

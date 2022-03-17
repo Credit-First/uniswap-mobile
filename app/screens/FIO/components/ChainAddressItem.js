@@ -24,7 +24,9 @@ const ChainAddressItem = ({ account, onPress, ...props }) => {
   };
 
   const getChainIcon = name => {
-    if(name == "ETH") {
+    if(name == "BNB") {
+      return require("../../../../assets/chains/bsc.png");
+    } else if(name == "ETH") {
       return require("../../../../assets/chains/eth.png");
     } else if(name == "EOS") {
       return require("../../../../assets/chains/eos.png");
