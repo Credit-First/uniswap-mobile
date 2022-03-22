@@ -9,7 +9,8 @@ var defPriceData = {
   'FIO': 0.1,
   'ALGO': 0.9,
   'XLM': 0.18,
-  'ETH': 2350.0
+  'ETH': 2350.0,
+  'BNB': 400.0
 };
 
 const getLatestPrices = async () => {
@@ -28,13 +29,15 @@ const getLatestPrices = async () => {
     const algoPrice = resJson['data']['ALGO']['quote']['USD']['price'];
     const xlmPrice = resJson['data']['XLM']['quote']['USD']['price'];
     const ethPrice = resJson['data']['ETH']['quote']['USD']['price'];
+    const bnbPrice = resJson['data']['BNB']['quote']['USD']['price'];
     const newPriceData = {
       'EOS': eosPrice,
       'TLOS': tlosPrice,
       'FIO': fioPrice,
       'ALGO': algoPrice,
       'XLM': xlmPrice,
-      'ETH': ethPrice
+      'ETH': ethPrice,
+      'BNB': bnbPrice
     };
     return newPriceData;
   } catch (err) {

@@ -51,7 +51,7 @@ const FIOAddressRegistryScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const blockchains = ['EOS','TLOS','FIO','XLM','ALGO','ETH'];
+  const blockchains = ['EOS','TLOS','FIO','XLM','ALGO','ETH','BNB'];
 
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
@@ -95,7 +95,7 @@ const FIOAddressRegistryScreen = props => {
   const getItemFromAccount = (account, external) => {
     const chainName = account.chainName;
     var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH') {
+    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB') {
       address = account.address;
     } else if(chainName==='ALGO' && account.account !== undefined && account.account.addr !== undefined) {
       address = account.account.addr;
@@ -109,7 +109,7 @@ const FIOAddressRegistryScreen = props => {
     }
     const chainName = account.chainName;
     var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH') {
+    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB') {
       address = account.address;
     } else if(chainName==='ALGO') {
       if(account.account !== undefined && account.account.addr !== undefined) {

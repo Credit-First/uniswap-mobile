@@ -46,7 +46,7 @@ const ConnectAddressItem = ({ account, onPress, ...props }) => {
   const getFormattedAddress = (account) => {
     if(account.chainName==='ALGO') {
       return " " + account.account.addr.substring(0,20) + "..";
-    } else if(account.chainName==='XLM'||account.chainName==='ETH'||account.chainName==='FIO') {
+    } else if(account.chainName==='XLM'||account.chainName==='ETH'||account.chainName==='BNB'||account.chainName==='FIO') {
       return " " + account.address.substring(0,20) + "..";
     } else {
       return " " + account.accountName;
