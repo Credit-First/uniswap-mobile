@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     borderRadius: 8,
-    margin: 5,
+    margin: 3,
   },
   rowContainer: {
     marginTop: 5,
