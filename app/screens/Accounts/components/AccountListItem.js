@@ -16,19 +16,15 @@ import {
   PRIMARY_BLACK,
   PRIMARY_BLUE,
 } from '../../../theme/colors';
-// Infura:
-const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../../ethereum/abi.json');
 const tokenAddress = "";
 const {
   getBalanceOfAccount,
-  getBalanceOfTokenInAccount
 } = web3Module({
-  url: infuraEndpoint,
   tokenABI,
   tokenAddress,
-  chainName: 'mainnet',
   decimals: 18
 });
 
@@ -181,7 +177,7 @@ const loadStellarAccountBalance = async (account, updateAccountBalance) => {
 };
 
 const loadEthereumAccountBalance = async (account, updateAccountBalance) => {
-  const ethBalanceInGwei = await getBalanceOfAccount(account.address);
+  const ethBalanceInGwei = await getBalanceOfAccount(account.chainName, account.address);
   const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
   if (updateAccountBalance) {
     updateAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));

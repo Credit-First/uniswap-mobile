@@ -20,19 +20,15 @@ import { getEndpoint } from '../../eos/chains';
 import web3Module from '../../ethereum/ethereum';
 import Wallet from 'ethereumjs-wallet';
 import { log } from '../../logger/logger';
-// Infura:
-const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
+
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "";
 const {
   getBalanceOfAccount,
-  getBalanceOfTokenInAccount
   } = web3Module({
-    url: infuraEndpoint,
     tokenABI,
     tokenAddress,
-    chainName: 'mainnet',
     decimals: 18
   });
 
@@ -125,7 +121,7 @@ const EthereumAccountScreen = props => {
       return;
     }
     try {
-      const ethBalanceInGwei = await getBalanceOfAccount(account.address);
+      const ethBalanceInGwei = await getBalanceOfAccount("ETH", account.address);
       const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
       setAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
       checkConnectedFIOAccounts();
