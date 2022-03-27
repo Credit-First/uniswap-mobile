@@ -35,7 +35,31 @@ const BackupAllKeysScreen = props => {
     Alert.alert('Private keys copied to Clipboard');
   };
 
-  return (
+  if (accounts.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.inner}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <MaterialIcon
+              name={'keyboard-backspace'}
+              size={24}
+              color={PRIMARY_BLUE}
+            />
+          </TouchableOpacity>
+            <KHeader
+              title={'Backup keys not available'}
+              subTitle={'No accounts in wallet'}
+              style={styles.header}
+            />
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  } else {
+   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContentContainer}
@@ -63,6 +87,8 @@ const BackupAllKeysScreen = props => {
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
+}
+
 };
 
 export default connectAccounts()(BackupAllKeysScreen);
