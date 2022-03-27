@@ -16,6 +16,8 @@ const KSelect = ({ label, secureTextEntry, containerStyle, ...props }) => {
           value: null,
           color: '#9EA0A4',
         }}
+        fixAndroidTouchableBug={true}
+        useNativeAndroidPickerStyle={false}
         style={{
           viewContainer: styles.picker,
           placeholder: styles.placeholderStyle,
