@@ -1,6 +1,6 @@
 import { log } from '../logger/logger';
 
-const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH';
+const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH,BNB';
 const marketAPIKey = '815df99c-3be5-47bd-ba5b-0a9f988178d3';
 // Default price values as of Jan 24, 2022
 var defPriceData = {
