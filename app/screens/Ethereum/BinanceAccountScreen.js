@@ -26,6 +26,7 @@ const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "";
 const {
   getBalanceOfAccount,
+  getBalanceOfTokenInAccount
   } = web3Module({
     tokenABI,
     tokenAddress,
@@ -33,7 +34,7 @@ const {
   });
 
 
-const EthereumAccountScreen = props => {
+const BinanceAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
   const [connectedHeader, setConnectedHeader] = useState('');
   const [connectedAddress, setConnectedAddress] = useState('');
@@ -51,7 +52,7 @@ const EthereumAccountScreen = props => {
   const divider = 1000000;
   const fioEndpoint = getEndpoint('FIO');
   // var runOnce = 0;
-  const name =  "ETH:" + account.accountName;
+  const name =  "BNB:" + account.accountName;
   var usdValue = 0;
   for (const elem of totals) {
     if(elem.account===name) {
@@ -95,8 +96,8 @@ const EthereumAccountScreen = props => {
           },
           body: JSON.stringify({
             fio_address: value.address,
-            chain_code: 'ETH',
-            token_code: 'ETH',
+            chain_code: 'BNB',
+            token_code: 'BNB',
           }),
         })
           .then(response => response.json())
@@ -108,7 +109,7 @@ const EthereumAccountScreen = props => {
                 fioEndpoint +
                 '/v1/chain/get_pub_address',
               cause: error,
-              location: 'EthereumAccountScreen',
+              location: 'BinanceAccountScreen',
             }),
           );
       }
@@ -121,7 +122,7 @@ const EthereumAccountScreen = props => {
       return;
     }
     try {
-      const ethBalanceInGwei = await getBalanceOfAccount("ETH", account.address);
+      const ethBalanceInGwei = await getBalanceOfAccount("BNB", account.address);
       const ethBalanceInEth = ethBalanceInGwei/ethMultiplier;
       setAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
       checkConnectedFIOAccounts();
@@ -129,7 +130,7 @@ const EthereumAccountScreen = props => {
       log({
         description: 'loadEthereumAccountBalance',
         cause: err,
-        location: 'EthereumAccountScreen',
+        location: 'BinanceAccountScreen',
       });
       return;
     } finally {
@@ -150,7 +151,7 @@ const EthereumAccountScreen = props => {
         el.chainName === account.chainName,
     );
     Alert.alert(
-      'Delete Ethereum Account',
+      'Delete Binance Account',
       'Are you sure you want to delete this account?',
       [
         {
@@ -191,11 +192,11 @@ const EthereumAccountScreen = props => {
         </TouchableOpacity>
         <View style={styles.spacer} />
         <Image
-          source={require('../../../assets/chains/eth.png')}
+          source={require('../../../assets/chains/bsc.png')}
           style={styles.buttonIcon}
         />
         <View style={styles.spacer} />
-        <KText>Balance: {accountBalance} ETH</KText>
+        <KText>Balance: {accountBalance} BNB</KText>
         <KText>USD Value: ${usdValue}</KText>
         <Text style={styles.link} onPress={copyToClipboard}>
           {account.address}
@@ -228,4 +229,4 @@ const EthereumAccountScreen = props => {
   );
 };
 
-export default connectAccounts()(EthereumAccountScreen);
+export default connectAccounts()(BinanceAccountScreen);

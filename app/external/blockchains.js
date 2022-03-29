@@ -5,6 +5,11 @@ const externalChains = [
     explorer: 'https://btc.com/',
   },
   {
+    chain_code: 'BNB',
+    token_code: 'BNB',
+    explorer: 'https://bscscan.com/address/',
+  },
+  {
     chain_code: 'ETH',
     token_code: 'ETH',
     explorer: 'https://etherscan.io/address/',

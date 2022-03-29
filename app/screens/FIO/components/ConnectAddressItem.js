@@ -24,7 +24,9 @@ const ConnectAddressItem = ({ account, onPress, ...props }) => {
   };
 
   const getChainIcon = name => {
-    if(name == "ETH") {
+    if(name == "BNB") {
+      return require("../../../../assets/chains/bsc.png");
+    } else if(name == "ETH") {
       return require("../../../../assets/chains/eth.png");
     } else if(name == "EOS") {
       return require("../../../../assets/chains/eos.png");
@@ -44,7 +46,7 @@ const ConnectAddressItem = ({ account, onPress, ...props }) => {
   const getFormattedAddress = (account) => {
     if(account.chainName==='ALGO') {
       return " " + account.account.addr.substring(0,20) + "..";
-    } else if(account.chainName==='XLM'||account.chainName==='ETH'||account.chainName==='FIO') {
+    } else if(account.chainName==='XLM'||account.chainName==='ETH'||account.chainName==='BNB'||account.chainName==='FIO') {
       return " " + account.address.substring(0,20) + "..";
     } else {
       return " " + account.accountName;

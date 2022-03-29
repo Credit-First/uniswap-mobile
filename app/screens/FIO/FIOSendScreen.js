@@ -399,7 +399,7 @@ const FIOSendScreen = props => {
         await doFIOTransfer(toAccountPubkey, fromAccountPubkey);
       } else if(chainCode === 'XLM') {
         await doStellarTransfer(toAccountPubkey, fromAccountPubkey);
-      } else if(chainCode === 'ETH') { //TODO
+      } else if(chainCode === 'ETH' || chainCode === 'BNB') { //TODO
         await doEthereumTransfer(toAccountPubkey, fromAccountPubkey);
       } else {
         // Any of EOSIO based transfer:

@@ -48,6 +48,7 @@ export { default as ViewFIORequestScreen } from './FIO/ViewFIORequestScreen';
 export { default as AlgoAccountScreen } from './Algo/AlgoAccountScreen';
 export { default as StellarAccountScreen } from './Stellar/StellarAccountScreen';
 export { default as EthereumAccountScreen } from './Ethereum/EthereumAccountScreen';
+export { default as BinanceAccountScreen } from './Ethereum/BinanceAccountScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';
