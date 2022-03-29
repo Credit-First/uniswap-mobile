@@ -230,6 +230,7 @@ const FIOAddressRegistryScreen = props => {
           account.address,
           fioFee,
         );
+        console.log(res);
         if (res && res.transactionHash) {
           Alert.alert('Successfully added in tx ' + res.transactionHash);
         } else {
@@ -456,7 +457,7 @@ const FIOAddressRegistryScreen = props => {
             <ConnectAddressItem
               account={item}
               style={styles.listItem}
-              onPress={() => _handleConnectAccountToAddress(index)}
+              onPress={() => _handleConnectAccountToAddress(item)}
             />
           )}
         />

@@ -109,7 +109,7 @@ const loadFioAccountBalance = async (account, updateAccountBalance) => {
     })
       .then(response => response.json())
       .then(json => {
-        console.log("loadFioAccountBalance", json);
+        //console.log("loadFioAccountBalance", json);
         const balance = (json.balance !== undefined) ? (parseFloat(json.balance) / fioDivider).toFixed(4) : 0;
         updateAccountBalance(balance);
       }
