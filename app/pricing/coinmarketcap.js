@@ -1,6 +1,6 @@
 import { log } from '../logger/logger';
 
-const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH';
+const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH,BNB,MATIC';
 const marketAPIKey = '815df99c-3be5-47bd-ba5b-0a9f988178d3';
 // Default price values as of Jan 24, 2022
 var defPriceData = {
@@ -10,7 +10,8 @@ var defPriceData = {
   'ALGO': 0.9,
   'XLM': 0.18,
   'ETH': 2350.0,
-  'BNB': 400.0
+  'BNB': 400.0,
+  'MATIC': 1.7
 };
 
 const getLatestPrices = async () => {
@@ -30,6 +31,7 @@ const getLatestPrices = async () => {
     const xlmPrice = resJson['data']['XLM']['quote']['USD']['price'];
     const ethPrice = resJson['data']['ETH']['quote']['USD']['price'];
     const bnbPrice = resJson['data']['BNB']['quote']['USD']['price'];
+    const maticPrice = resJson['data']['MATIC']['quote']['USD']['price'];
     const newPriceData = {
       'EOS': eosPrice,
       'TLOS': tlosPrice,
@@ -37,7 +39,8 @@ const getLatestPrices = async () => {
       'ALGO': algoPrice,
       'XLM': xlmPrice,
       'ETH': ethPrice,
-      'BNB': bnbPrice
+      'BNB': bnbPrice,
+      'MATIC': maticPrice,
     };
     return newPriceData;
   } catch (err) {

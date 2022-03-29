@@ -222,7 +222,7 @@ const FIORequestScreen = props => {
             <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
             <KInput
               label={'Coin/token requested'}
-              placeholder={'Enter requested coin: EOS, BTC, ETH, BNB, etc'}
+              placeholder={'Enter requested coin: EOS, BTC, ETH, BNB, MATIC, etc'}
               value={coin}
               onChangeText={_handleSetCoin}
               containerStyle={styles.inputContainer}
@@ -297,7 +297,7 @@ const FIORequestScreen = props => {
             <KText style={styles.errorMessage}>{addressInvalidMessage}</KText>
             <KInput
               label={'Coin/token requested'}
-              placeholder={'Enter requested coin: EOS, BTC, ETH, BNB, etc'}
+              placeholder={'Enter requested coin: EOS, BTC, ETH, BNB, MATIC, etc'}
               value={coin}
               onChangeText={_handleSetCoin}
               containerStyle={styles.inputContainer}

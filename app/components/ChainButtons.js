@@ -8,6 +8,7 @@ const ChainButtons = ({
   onClosePress,
   closeIcon,
   bscIcon,
+  polygonIcon,
   ethIcon,
   fioIcon,
   telosIcon,
@@ -24,6 +25,15 @@ const ChainButtons = ({
           colors={['#FFFFFF', '#FFFFFF']}
           style={styles.container}>
           <View style={styles.icon}>{closeIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('MATIC')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{polygonIcon()}</View>
         </LinearGradient>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => onChainPress('BNB')}>

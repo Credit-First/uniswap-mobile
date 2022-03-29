@@ -41,7 +41,8 @@ const ConnectAccountScreen = props => {
     { name: 'Algorand', symbol: 'ALGO' },
     { name: 'Stellar', symbol: 'XRP' },
     { name: 'Ethereum', symbol: 'ETH' },
-    { name: 'Binance', symbol: 'BNB' }
+    { name: 'Binance', symbol: 'BNB' },
+    { name: 'Polygon', symbol: 'MATIC' },
   ];
 
   supportedChains.map(function (item) {
@@ -187,7 +188,7 @@ const ConnectAccountScreen = props => {
     goBack();
   };
 
-  const _handleEthereumConnect = async () => {
+  const _handleEthereumConnect = async (name) => {
     if (!chain || !privateKey) {
       Alert.alert('Please fill in all required fields');
       return;
@@ -202,31 +203,7 @@ const ConnectAccountScreen = props => {
         address: address,
         publicKey: publicKey,
         privateKey: privateKey,
-        chainName: 'ETH',
-      });
-    } catch (error) {
-      Alert.alert('Error: ' + error);
-      return;
-    }
-    goBack();
-  };
-
-  const _handleBinanceConnect = async () => {
-    if (!chain || !privateKey) {
-      Alert.alert('Please fill in all required fields');
-      return;
-    }
-    try {
-      var zxPrivateKey = (privateKey.startsWith('0x')) ? privateKey : '0x' + privateKey;
-      const privateKeyBuffer = toBuffer(zxPrivateKey);
-      const wallet = Wallet.fromPrivateKey(privateKeyBuffer);
-      const publicKey = wallet.getPublicKeyString();
-      const address = wallet.getAddressString();
-      connectAccount({
-        address: address,
-        publicKey: publicKey,
-        privateKey: privateKey,
-        chainName: 'BNB',
+        chainName: name,
       });
     } catch (error) {
       Alert.alert('Error: ' + error);
@@ -384,7 +361,7 @@ const ConnectAccountScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleEthereumConnect}
+              onPress={_handleEthereumConnect("ETH")}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon
@@ -438,7 +415,61 @@ const ConnectAccountScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleBinanceConnect}
+              onPress={_handleEthereumConnect("BNB")}
+            />
+            <TouchableOpacity style={styles.backButton} onPress={goBack}>
+              <MaterialIcon
+                name={'keyboard-backspace'}
+                size={24}
+                color={PRIMARY_BLUE}
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    );
+  } else if (chain && chain.name === 'Polygon') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
+          <View style={styles.content}>
+            <KHeader
+              title={'Account'}
+              subTitle={'Connect your account'}
+              style={styles.header}
+            />
+            <KSelect
+              label={'Blockchain'}
+              items={importableChains.map(item => ({
+                label: item.name,
+                value: item,
+              }))}
+              onValueChange={setChain}
+              containerStyle={styles.inputContainer}
+            />
+            <KInput
+              label={'Private Key'}
+              placeholder={'Enter your Polygon private key'}
+              secureTextEntry
+              value={privateKey}
+              onChangeText={setPrivateKey}
+              onPasteHandler={setPrivateKey}
+              containerStyle={styles.inputContainer}
+            />
+            <View style={styles.spacer} />
+            <KButton
+              title={'Connect account'}
+              theme={'blue'}
+              style={styles.button}
+              renderIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/accounts.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              onPress={_handleEthereumConnect("MATIC")}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon

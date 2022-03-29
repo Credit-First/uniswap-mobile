@@ -265,6 +265,8 @@ const AccountsScreen = props => {
       navigate('EthereumAccount', { account });
     } else if (account.chainName === 'BNB') {
       navigate('BinanceAccount', { account });
+    } else if (account.chainName === 'MATIC') {
+      navigate('PolygonAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -301,7 +303,7 @@ const AccountsScreen = props => {
     let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain==='FIO'||chain==='XLM'||chain==='ETH'||chain==='BNB') ? account.address : account.accountName;
+    let name = (chain==='FIO'||chain==='XLM'||chain==='ETH'||chain==='BNB'||chain==='MATIC') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -494,7 +496,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB'||account.chainName==='MATIC') {
         const privateKey = account.privateKey;
         const publicKey = account.publicKey;
         const foundKeys = keys.filter((value, index, array) => {
@@ -562,22 +564,12 @@ const AccountsScreen = props => {
     }
   };
   
-  const _handleCreateBSCAccount = () => {
+  const _handleCreateEthereumAccount = (name) => {
     const newEth = Wallet.generate(false);
     const privateKey = newEth.getPrivateKeyString();
     const publicKey = newEth.getPublicKeyString();
     const address = newEth.getAddressString();
-    const account = { address, privateKey, publicKey, chainName: 'BNB' };
-    connectAccount(account);
-    addKey({ private: privateKey, public: publicKey });
-  };
-
-  const _handleCreateEthereumAccount = () => {
-    const newEth = Wallet.generate(false);
-    const privateKey = newEth.getPrivateKeyString();
-    const publicKey = newEth.getPublicKeyString();
-    const address = newEth.getAddressString();
-    const account = { address, privateKey, publicKey, chainName: 'ETH' };
+    const account = { address, privateKey, publicKey, chainName: name };
     connectAccount(account);
     addKey({ private: privateKey, public: publicKey });
   };
@@ -590,10 +582,8 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if(name == "BNB") {
-      _handleCreateBSCAccount();
-    } else if(name == "ETH") {
-      _handleCreateEthereumAccount();
+    if(name == "ETH" || name == "BNB" || name == "MATIC") {
+      _handleCreateEthereumAccount(name);
     } else if(name == "TLOS") {
       navigate('CreateTelosAccount');
     } else if(name == "FIO") {
@@ -644,6 +634,12 @@ const AccountsScreen = props => {
           closeIcon={() => (
             <Image
               source={require('../../../assets/icons/minus.png')}
+              style={styles.buttonIcon}
+            />
+          )}
+          polygonIcon={() => (
+            <Image
+              source={require('../../../assets/chains/polygon.png')}
               style={styles.buttonIcon}
             />
           )}

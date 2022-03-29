@@ -465,7 +465,7 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
-      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB') {
+      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
@@ -576,7 +576,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB'||item.chainName === 'MATIC') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}
