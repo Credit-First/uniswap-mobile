@@ -361,7 +361,7 @@ const ConnectAccountScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleEthereumConnect("ETH")}
+              onPress={()=>_handleEthereumConnect("ETH")}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon
@@ -415,7 +415,7 @@ const ConnectAccountScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleEthereumConnect("BNB")}
+              onPress={()=>_handleEthereumConnect("BNB")}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon
@@ -469,7 +469,7 @@ const ConnectAccountScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
-              onPress={_handleEthereumConnect("MATIC")}
+              onPress={()=>_handleEthereumConnect("MATIC")}
             />
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
               <MaterialIcon
