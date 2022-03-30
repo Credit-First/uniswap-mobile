@@ -7,6 +7,25 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    display: 'flex',
+    backgroundColor: '#FFF',
+    flexDirection: 'column',
+    width: '100%'
+  },
+  mainContainer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+  },
+  accountContainer: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+  },
+  networkContainer: {
+    justifyContent: 'flex-end',
     backgroundColor: '#FFF',
   },
   iconComponentWrapper: {
@@ -58,13 +77,15 @@ const styles = StyleSheet.create({
   },
   listItem: {
     marginTop: 5,
+    marginBottom: 1,
     marginHorizontal: 20,
   },
   logo: {
-    flex: 1,
+    flex: 0.9,
     alignSelf: 'center',
     height: 135,
     width: 324,
+    marginRight: 30,
   },
   spacer: {
     marginTop: 10,

@@ -34,7 +34,7 @@ const algoDivider = 1000000;
 const fioEndpoint = getEndpoint('FIO');
 
 const { height, width } = Dimensions.get('window');
-var chainWidth = width - 80;
+var chainWidth = width - 150;
 
 const loadAccountBalance = async (account, updateAccountBalance) => {
   const chain = getChain(account.chainName);
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   contentContainer: {
-    marginLeft: 20,
+    marginLeft: 10,
   },
   chainName: {
     width: chainWidth,
