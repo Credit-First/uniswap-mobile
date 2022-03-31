@@ -241,7 +241,7 @@ if (previewEthTransfer) {
         enableOnAndroid>
         <View style={styles.inner}>
           <KHeader
-            title={'Ethereum transfer'}
+            title={'Transfer'}
             style={styles.header}
           />
           <KText>From: {ethFromAddress}</KText>

@@ -155,19 +155,32 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
       const contract = new getWeb3(chainName).eth.Contract(tokenABI, tokenAddress, {
         from: account.address
       });
+
+      const chainId = getChainId(chainName);
+      const providerURL = getNodeUrl(chainName);
+      const FORK_NETWORK = Common.forCustomChain(
+        'mainnet',
+        {
+          name: chainName,
+          networkId: chainId,
+          chainId: chainId,
+          url: providerURL,
+        },
+        'istanbul',
+      );
+      const privateKey = toBuffer(account.privateKey);
       const count = await getWeb3(chainName).eth.getTransactionCount(account.address);
       const rawTransaction = {
-        "from": account.address,
-        "nonce": "0x" + count.toString(16),
-        "gasPrice": getWeb3(chainName).utils.toHex(gasPrice),
-        "gasLimit": getWeb3(chainName).utils.toHex(gasLimit),
-        "to": tokenAddress,
-        "value": '0x0',
-        "data": contract.methods.transfer(toAddress, getWeb3(chainName).utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
+        from: account.address,
+        nonce: getWeb3(chainName).utils.toHex(count),
+        gasPrice: getWeb3(chainName).utils.toHex(gasPrice),
+        gasLimit: getWeb3(chainName).utils.toHex(gasLimit),
+        to: tokenAddress,
+        value: '0x0',
+        data: contract.methods.transfer(toAddress, getWeb3(chainName).utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
       };
-      const chainId = getChainId(chainName);
-      const privateKey = toBuffer(account.privateKey);
-      const tx = new EthereumTx(rawTransaction, { chain: chainId });
+           
+      const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
       return getWeb3(chainName).eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
