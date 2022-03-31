@@ -3,7 +3,7 @@ import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText, OneIconButton } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton, TwoIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
@@ -29,6 +29,7 @@ const TransferScreen = props => {
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
   // Ethereum transfer state:
+  const [pendingEthTransfer, setPendingEthTransfer] = useState(false);
   const [previewEthTransfer, setPreviewEthTransfer] = useState(false);
   const [ethGasPrice, setEthGasPrice] = useState(0.001);
   const [ethGasLimit, setEthGasLimit] = useState(21000);
@@ -529,7 +530,7 @@ const TransferScreen = props => {
           enableOnAndroid>
           <View style={styles.inner}>
             <KHeader
-              title={'Ethereum transfer'}
+              title={'Transfer'}
               style={styles.header}
             />
             <KText>From: {ethFromAddress}</KText>

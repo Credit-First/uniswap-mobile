@@ -339,7 +339,7 @@ const AccountsScreen = props => {
       let endPos = startPos + 3;
       var version = html.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>App Store Version ' + version + ' vs. App Version ' + appVersion);
+      console.log('App Store Version ' + version + ' vs. App Version ' + appVersion);
 
       if (appVersion !== version) {
         Alert.alert(
