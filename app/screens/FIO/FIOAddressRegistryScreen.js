@@ -308,7 +308,9 @@ const FIOAddressRegistryScreen = props => {
       var external = true;
       var item = {chainName: chain, address: address, accountName: address};
       accounts.map((value, index, array) => {
-        if (chain === value.chainName && address === value.accountName) {
+        if(chain === 'TLOS' && value.chainName === 'Telos'  && address === value.accountName) {
+          external = false;
+        } else if (chain === value.chainName && address === value.accountName) {
           external = false;
         } else if(chain === value.chainName && address === value.address) {
           external = false;
@@ -316,6 +318,7 @@ const FIOAddressRegistryScreen = props => {
           external = false;
         }
       });
+      //console.log(external, chain, item);
       if (external) {
         addAccountToConnectedList(item, external);
       }
