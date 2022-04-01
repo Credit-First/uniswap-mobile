@@ -3,7 +3,7 @@ import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText, OneIconButton } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton, TwoIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
@@ -29,6 +29,7 @@ const TransferScreen = props => {
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
   // Ethereum transfer state:
+  const [pendingEthTransfer, setPendingEthTransfer] = useState(false);
   const [previewEthTransfer, setPreviewEthTransfer] = useState(false);
   const [ethGasPrice, setEthGasPrice] = useState(0.001);
   const [ethGasLimit, setEthGasLimit] = useState(21000);
@@ -465,7 +466,7 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
-      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB') {
+      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
@@ -529,7 +530,7 @@ const TransferScreen = props => {
           enableOnAndroid>
           <View style={styles.inner}>
             <KHeader
-              title={'Ethereum transfer'}
+              title={'Transfer'}
               style={styles.header}
             />
             <KText>From: {ethFromAddress}</KText>
@@ -576,7 +577,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB'||item.chainName === 'MATIC') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}

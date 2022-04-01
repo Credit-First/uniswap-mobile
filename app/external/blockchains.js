@@ -10,6 +10,11 @@ const externalChains = [
     explorer: 'https://bscscan.com/address/',
   },
   {
+    chain_code: 'MATIC',
+    token_code: 'MATIC',
+    explorer: 'https://polygonscan.com/address/',
+  },
+  {
     chain_code: 'ETH',
     token_code: 'ETH',
     explorer: 'https://etherscan.io/address/',

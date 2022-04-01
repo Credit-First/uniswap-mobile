@@ -8,6 +8,7 @@ const ChainButtons = ({
   onClosePress,
   closeIcon,
   bscIcon,
+  polygonIcon,
   ethIcon,
   fioIcon,
   telosIcon,
@@ -17,13 +18,13 @@ const ChainButtons = ({
 
   return (
     <View style={styles.rowContainer}>
-      <TouchableOpacity onPress={onClosePress}>
+      <TouchableOpacity onPress={() => onChainPress('MATIC')}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           colors={['#FFFFFF', '#FFFFFF']}
           style={styles.container}>
-          <View style={styles.icon}>{closeIcon()}</View>
+          <View style={styles.icon}>{polygonIcon()}</View>
         </LinearGradient>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => onChainPress('BNB')}>
@@ -80,6 +81,15 @@ const ChainButtons = ({
           <View style={styles.icon}>{xlmIcon()}</View>
         </LinearGradient>
       </TouchableOpacity>
+      <TouchableOpacity onPress={onClosePress}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{closeIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 
@@ -93,11 +103,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     borderRadius: 8,
-    margin: 3,
+    margin: 5,
   },
   rowContainer: {
     marginTop: 5,
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   icon: {
     width: 50,

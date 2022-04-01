@@ -59,8 +59,8 @@ const AccountsScreen = props => {
 
   // Make sure empty account records removed:
   accounts.map((value, index, array) => {
-    if(!value) {
-      console.log("Delete account #"+index);
+    if (!value) {
+      console.log("Delete account #" + index);
       deleteAccount(index);
     }
   });
@@ -265,6 +265,8 @@ const AccountsScreen = props => {
       navigate('EthereumAccount', { account });
     } else if (account.chainName === 'BNB') {
       navigate('BinanceAccount', { account });
+    } else if (account.chainName === 'MATIC') {
+      navigate('PolygonAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -278,16 +280,16 @@ const AccountsScreen = props => {
   const updateTotal = () => {
     var newTotal = 0;
     for (const elem of totals) {
-      if(elem.account && elem.account.indexOf(":") > 0) {
+      if (elem.account && elem.account.indexOf(":") > 0) {
         let chainAccount = elem.account.split(":");
         const matchingAccounts = validAccounts.filter((value, index, array) => {
           let accName = (value.address) ? value.address : value.accountName;
-          return (value.chainName===chainAccount[0] && accName===chainAccount[1]);
+          return (value.chainName === chainAccount[0] && accName === chainAccount[1]);
         });
-        if(matchingAccounts.length > 0) {
+        if (matchingAccounts.length > 0) {
           try {
             newTotal += parseFloat(elem.total)
-          } catch(err) {
+          } catch (err) {
             console.log(err);
           }
         }
@@ -298,10 +300,10 @@ const AccountsScreen = props => {
 
   const _handleBalanceUpdate = async (account, balance) => {
     var prices = await getLatestPrices();
-    let chain = (account.chainName==="Telos") ? "TLOS" : account.chainName;
+    let chain = (account.chainName === "Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
-    let usdval = (price!==null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain==='FIO'||chain==='XLM'||chain==='ETH'||chain==='BNB') ? account.address : account.accountName;
+    let usdval = (price !== null) ? (price * balance).toFixed(2) : 0.0;
+    let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -337,13 +339,14 @@ const AccountsScreen = props => {
       let endPos = startPos + 3;
       var version = html.substring(startPos, endPos);
       let appVersion = DeviceInfo.getVersion();
-      //console.log('App Store Version '+version+' vs. App Version '+appVersion);
+      console.log('App Store Version ' + version + ' vs. App Version ' + appVersion);
+
       if (appVersion !== version) {
         Alert.alert(
           'New version available!',
           'Download latest version ' +
-            version +
-            ' of TRIBE Wallet from App Store.',
+          version +
+          ' of TRIBE Wallet from App Store.',
           [
             {
               text: 'Cancel',
@@ -405,8 +408,8 @@ const AccountsScreen = props => {
         Alert.alert(
           'New version available!',
           'Download latest version ' +
-            version +
-            ' of TRIBE Wallet from Play Store.',
+          version +
+          ' of TRIBE Wallet from Play Store.',
           [
             {
               text: 'Cancel',
@@ -457,7 +460,7 @@ const AccountsScreen = props => {
   };
 
   const addKeysIfMissing = () => {
-    validAccounts.map(function(account) {
+    validAccounts.map(function (account) {
       if (account.chainName === 'EOS' || account.chainName === 'Telos') {
         const privateKey = account.privateKey;
         const publicKey = ecc.privateToPublic(account.privateKey);
@@ -494,7 +497,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
         const privateKey = account.privateKey;
         const publicKey = account.publicKey;
         const foundKeys = keys.filter((value, index, array) => {
@@ -561,23 +564,13 @@ const AccountsScreen = props => {
       });
     }
   };
-  
-  const _handleCreateBSCAccount = () => {
-    const newEth = Wallet.generate(false);
-    const privateKey = newEth.getPrivateKeyString();
-    const publicKey = newEth.getPublicKeyString();
-    const address = newEth.getAddressString();
-    const account = { address, privateKey, publicKey, chainName: 'BNB' };
-    connectAccount(account);
-    addKey({ private: privateKey, public: publicKey });
-  };
 
-  const _handleCreateEthereumAccount = () => {
+  const _handleCreateEthereumAccount = (name) => {
     const newEth = Wallet.generate(false);
     const privateKey = newEth.getPrivateKeyString();
     const publicKey = newEth.getPublicKeyString();
     const address = newEth.getAddressString();
-    const account = { address, privateKey, publicKey, chainName: 'ETH' };
+    const account = { address, privateKey, publicKey, chainName: name };
     connectAccount(account);
     addKey({ private: privateKey, public: publicKey });
   };
@@ -590,101 +583,109 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if(name == "BNB") {
-      _handleCreateBSCAccount();
-    } else if(name == "ETH") {
-      _handleCreateEthereumAccount();
-    } else if(name == "TLOS") {
+    if (name == "ETH" || name == "BNB" || name == "MATIC") {
+      _handleCreateEthereumAccount(name);
+    } else if (name == "TLOS") {
       navigate('CreateTelosAccount');
-    } else if(name == "FIO") {
+    } else if (name == "FIO") {
       navigate('RegisterFIOAddress');
-    } else if(name == "ALGO") {
+    } else if (name == "ALGO") {
       _handleCreateAlgorandAccount();
-    } else if(name == "XLM") {
+    } else if (name == "XLM") {
       _handleCreateStellarAccount();
     } else {
-      Alert.alert("Unknown "+name+" chain!");
+      Alert.alert("Unknown " + name + " chain!");
     }
   }
 
   const showUsdTotal = () => {
-    if(validAccounts.length > 0) {
+    if (validAccounts.length > 0) {
       return (<Text style={styles.total}>${usdTotal}</Text>);
     }
     return null;
   }
 
 
-  if(isListChainsVisible) {
+  if (isListChainsVisible) {
     return (
       <SafeAreaView style={styles.container}>
-        <Image
-          style={styles.logo}
-          source={require('../../../assets/logo/tribe-logo.png')}
-          resizeMode="contain"
-        />
-        {showUsdTotal()}
-        <FlatList
-          data={validAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <AccountListItem
-              account={item}
-              style={styles.listItem}
-              onPress={() => _handlePressAccount(index)}
-              onTokenPress={() => _handlePressTokenList(index)}
-              onBalanceUpdate={_handleBalanceUpdate}
+        <SafeAreaView style={styles.mainContainer}>
+          <SafeAreaView style={styles.networkContainer}>
+            <ChainButtons
+              onChainPress={_handleNewChainPress}
+              onClosePress={toggleListChains}
+              closeIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/minus.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              polygonIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/polygon.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              bscIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/bsc.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              ethIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/eth.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              fioIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/fio.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              telosIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/telos.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              algoIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/algo.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              xlmIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/xlm.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
             />
-          )}
-        />
-
-        <ChainButtons
-          onChainPress={_handleNewChainPress}
-          onClosePress={toggleListChains}
-          closeIcon={() => (
+          </SafeAreaView>
+          <SafeAreaView style={styles.accountContainer}>
             <Image
-              source={require('../../../assets/icons/minus.png')}
-              style={styles.buttonIcon}
+              style={styles.logo}
+              source={require('../../../assets/logo/tribe-logo.png')}
+              resizeMode="contain"
             />
-          )}
-          bscIcon={() => (
-            <Image
-              source={require('../../../assets/chains/bsc.png')}
-              style={styles.buttonIcon}
+            {showUsdTotal()}
+            <FlatList
+              data={validAccounts}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item, index }) => (
+                <AccountListItem
+                  account={item}
+                  style={styles.listItem}
+                  onPress={() => _handlePressAccount(index)}
+                  onTokenPress={() => _handlePressTokenList(index)}
+                  onBalanceUpdate={_handleBalanceUpdate}
+                />
+              )}
             />
-          )}
-          ethIcon={() => (
-            <Image
-              source={require('../../../assets/chains/eth.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          fioIcon={() => (
-            <Image
-              source={require('../../../assets/chains/fio.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          telosIcon={() => (
-            <Image
-              source={require('../../../assets/chains/telos.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          algoIcon={() => (
-            <Image
-              source={require('../../../assets/chains/algo.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          xlmIcon={() => (
-            <Image
-              source={require('../../../assets/chains/xlm.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-
+          </SafeAreaView>
+        </SafeAreaView>
         <Text style={styles.version}>
           New messages: {newMessageCount}, {getAppVersion()}
         </Text>
@@ -693,50 +694,54 @@ const AccountsScreen = props => {
   } else {
     return (
       <SafeAreaView style={styles.container}>
-        <Image
-          style={styles.logo}
-          source={require('../../../assets/logo/tribe-logo.png')}
-          resizeMode="contain"
-        />
-        {showUsdTotal()}
-        <FlatList
-          data={validAccounts}
-          keyExtractor={(item, index) => `${index}`}
-          renderItem={({ item, index }) => (
-            <AccountListItem
-              account={item}
-              style={styles.listItem}
-              onPress={() => _handlePressAccount(index)}
-              onTokenPress={() => _handlePressTokenList(index)}
-              onBalanceUpdate={_handleBalanceUpdate}
+        <SafeAreaView style={styles.mainContainer}>
+          <SafeAreaView style={styles.networkContainer}>
+            <AccountButtons
+              onAddPress={toggleListChains}
+              onImportPress={_handleImportAccount}
+              onExportPress={_handleExportAllKeys}
+              addIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/add.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              importIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/import_key.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              exportIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/export_key.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
             />
-          )}
-        />
-
-        <AccountButtons
-          onAddPress={toggleListChains}
-          onImportPress={_handleImportAccount}
-          onExportPress={_handleExportAllKeys}
-          addIcon={() => (
+          </SafeAreaView>
+          <SafeAreaView style={styles.accountContainer}>
             <Image
-              source={require('../../../assets/icons/add.png')}
-              style={styles.buttonIcon}
+              style={styles.logo}
+              source={require('../../../assets/logo/tribe-logo.png')}
+              resizeMode="contain"
             />
-          )}
-          importIcon={() => (
-            <Image
-              source={require('../../../assets/icons/import_key.png')}
-              style={styles.buttonIcon}
+            {showUsdTotal()}
+            <FlatList
+              data={validAccounts}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item, index }) => (
+                <AccountListItem
+                  account={item}
+                  style={styles.listItem}
+                  onPress={() => _handlePressAccount(index)}
+                  onTokenPress={() => _handlePressTokenList(index)}
+                  onBalanceUpdate={_handleBalanceUpdate}
+                />
+              )}
             />
-          )}
-          exportIcon={() => (
-            <Image
-              source={require('../../../assets/icons/export_key.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
-
+          </SafeAreaView>
+        </SafeAreaView>
         <Text style={styles.version}>
           New messages: {newMessageCount}, {getAppVersion()}
         </Text>

@@ -51,7 +51,7 @@ const FIOAddressRegistryScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const blockchains = ['EOS','TLOS','FIO','XLM','ALGO','ETH','BNB'];
+  const blockchains = ['EOS','TLOS','FIO','XLM','ALGO','ETH','BNB','MATIC'];
 
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
@@ -95,7 +95,7 @@ const FIOAddressRegistryScreen = props => {
   const getItemFromAccount = (account, external) => {
     const chainName = account.chainName;
     var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB') {
+    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB'||chainName==='MATIC') {
       address = account.address;
     } else if(chainName==='ALGO' && account.account !== undefined && account.account.addr !== undefined) {
       address = account.account.addr;
@@ -109,7 +109,7 @@ const FIOAddressRegistryScreen = props => {
     }
     const chainName = account.chainName;
     var address = account.accountName;
-    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB') {
+    if(chainName==='FIO'||chainName==='XLM'||chainName==='ETH'||chainName==='BNB'||chainName==='MATIC') {
       address = account.address;
     } else if(chainName==='ALGO') {
       if(account.account !== undefined && account.account.addr !== undefined) {
@@ -147,7 +147,7 @@ const FIOAddressRegistryScreen = props => {
     var accPubkey = '';
     if (account.chainName === 'ALGO') {
       accPubkey = account.account.addr;
-    } else if(account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'FIO' || account.chainName === 'BNB') {
+    } else if(account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'FIO' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
       accPubkey = account.address;
     } else if (account.privateKey) {
       accPubkey = ecc.privateToPublic(account.privateKey);
@@ -223,7 +223,7 @@ const FIOAddressRegistryScreen = props => {
           log(error);
           Alert.alert('Failed to link Stellar account to FIO address.');
         }
-      } else if(account.chainName === 'ETH' || account.chainName === 'BNB') {
+      } else if(account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
         const res = await fioAddExternalAddress(
           fioAccount,
           account.chainName,
@@ -244,7 +244,7 @@ const FIOAddressRegistryScreen = props => {
             fioFee: fioFee,
           };
           log(error);
-          let networkName = account.chainName === 'ETH' ? 'Ethereum' : 'Binance'
+          let networkName = account.chainName === 'ETH' ? 'Ethereum' : account.chainName === 'BNB' ? 'Binance' : 'Polygon'
           Alert.alert(`Failed to link ${networkName} account to FIO address.`);
         }
       } else {
@@ -308,7 +308,9 @@ const FIOAddressRegistryScreen = props => {
       var external = true;
       var item = {chainName: chain, address: address, accountName: address};
       accounts.map((value, index, array) => {
-        if (chain === value.chainName && address === value.accountName) {
+        if(chain === 'TLOS' && value.chainName === 'Telos'  && address === value.accountName) {
+          external = false;
+        } else if (chain === value.chainName && address === value.accountName) {
           external = false;
         } else if(chain === value.chainName && address === value.address) {
           external = false;
@@ -316,6 +318,7 @@ const FIOAddressRegistryScreen = props => {
           external = false;
         }
       });
+      //console.log(external, chain, item);
       if (external) {
         addAccountToConnectedList(item, external);
       }
@@ -394,6 +397,8 @@ const FIOAddressRegistryScreen = props => {
       navigate('StellarAccount', { account });
     } else if (account.chainName === 'BNB') {
       navigate('BinanceAccount', { account });
+    } else if (account.chainName === 'MATIC') {
+      navigate('PolygonAccount', { account });
     } else if (account.chainName === 'ETH') {
       navigate('EthereumAccount', { account });
     } else {

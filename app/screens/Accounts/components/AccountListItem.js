@@ -34,7 +34,7 @@ const algoDivider = 1000000;
 const fioEndpoint = getEndpoint('FIO');
 
 const { height, width } = Dimensions.get('window');
-var chainWidth = width - 80;
+var chainWidth = width - 150;
 
 const loadAccountBalance = async (account, updateAccountBalance) => {
   const chain = getChain(account.chainName);
@@ -201,7 +201,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       loadAlgoAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'XLM') {
       loadStellarAccountBalance(account, updateAccountBalance);
-    } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
+    } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
       loadEthereumAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
@@ -227,6 +227,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
   const getChainIcon = name => {
     if (name == "BNB") {
       return require("../../../../assets/chains/bsc.png");
+    } else if (name == "MATIC") {
+      return require("../../../../assets/chains/polygon.png");
     } else if (name == "ETH") {
       return require("../../../../assets/chains/eth.png");
     } else if (name == "EOS") {
@@ -292,7 +294,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
         </View>
       </View>
     );
-  } else if (account.chainName === 'ETH' || account.chainName === 'BNB') {
+  } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ) {
     return (
       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
@@ -375,7 +377,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   contentContainer: {
-    marginLeft: 20,
+    marginLeft: 10,
   },
   chainName: {
     width: chainWidth,
