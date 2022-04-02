@@ -17,7 +17,8 @@ import {
   KButton,
   KText,
   KInput,
-  RequestSendButtons,
+  OneIconButton,
+  ThreeIconsButtons,
 } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import TransactionListItem from './components/TransactionListItem';
@@ -344,21 +345,13 @@ const TokenDetailsScreen = props => {
             theme={'blue'}
             style={styles.button}
             onPress={_handleTransfer}
-            renderIcon={() => (
-              <Image
-                source={require('../../../assets/icons/transfer.png')}
-                style={styles.buttonIcon}
-              />
-            )}
           />
-          <KButton
-            title={'Show transactions'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={() => setShowTransfer(false)}
-            renderIcon={() => (
+          <View style={styles.spacer} />
+          <OneIconButton
+            onIconPress={() => setShowTransfer(false)}
+            icon={() => (
               <Image
-                source={require('../../../assets/icons/transactions.png')}
+                source={require('../../../assets/icons/history.png')}
                 style={styles.buttonIcon}
               />
             )}
@@ -394,25 +387,25 @@ const TokenDetailsScreen = props => {
               />
             )}
           />
-          <KButton
-            title={'Start transfer'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={() => setShowTransfer(true)}
-            renderIcon={() => (
+          <ThreeIconsButtons
+            onIcon1Press={() => setShowTransfer(true)}
+            onIcon2Press={_handleFIORequest}
+            onIcon3Press={_handleFIOSend}
+            icon1={() => (
               <Image
-                source={require('../../../assets/icons/transfer.png')}
+                source={require('../../../assets/icons/send_transfer.png')}
                 style={styles.buttonIcon}
               />
             )}
-          />
-          <RequestSendButtons
-            style={styles.request_send_button}
-            onRequestPress={_handleFIORequest}
-            onSendPress={_handleFIOSend}
-            renderIcon={() => (
+            icon2={() => (
               <Image
-                source={require('../../../assets/icons/transfer.png')}
+                source={require('../../../assets/icons/fio_request.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            icon3={() => (
+              <Image
+                source={require('../../../assets/icons/fio_send.png')}
                 style={styles.buttonIcon}
               />
             )}
