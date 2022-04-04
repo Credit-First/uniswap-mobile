@@ -7,6 +7,8 @@ const ChainButtons = ({
   onChainPress,
   onClosePress,
   closeIcon,
+  bscIcon,
+  polygonIcon,
   ethIcon,
   fioIcon,
   telosIcon,
@@ -15,7 +17,70 @@ const ChainButtons = ({
 }) => {
 
   return (
-      <View style={styles.rowContainer}>
+    <View style={styles.rowContainer}>
+      <TouchableOpacity onPress={() => onChainPress('MATIC')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{polygonIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('BNB')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{bscIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('ETH')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{ethIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('FIO')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{fioIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('TLOS')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{telosIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('ALGO')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{algoIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChainPress('XLM')}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{xlmIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
       <TouchableOpacity onPress={onClosePress}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
@@ -25,53 +90,8 @@ const ChainButtons = ({
           <View style={styles.icon}>{closeIcon()}</View>
         </LinearGradient>
       </TouchableOpacity>
-        <TouchableOpacity onPress={() => onChainPress('ETH')}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{ethIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onChainPress('FIO')}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{fioIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onChainPress('TLOS')}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{telosIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onChainPress('ALGO')}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{algoIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onChainPress('XLM')}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{xlmIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    );
+    </View>
+  );
 
 };
 
@@ -87,7 +107,7 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     marginTop: 5,
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   icon: {
     width: 50,

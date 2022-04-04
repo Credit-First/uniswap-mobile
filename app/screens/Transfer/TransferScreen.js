@@ -3,7 +3,7 @@ import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KSelect, KText, OneIconButton } from '../../components';
+import { KHeader, KButton, KInput, KSelect, KText, OneIconButton, TwoIconsButtons } from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
@@ -29,6 +29,7 @@ const TransferScreen = props => {
   const [loading, setLoading] = useState(false);
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
   // Ethereum transfer state:
+  const [pendingEthTransfer, setPendingEthTransfer] = useState(false);
   const [previewEthTransfer, setPreviewEthTransfer] = useState(false);
   const [ethGasPrice, setEthGasPrice] = useState(0.001);
   const [ethGasLimit, setEthGasLimit] = useState(21000);
@@ -39,8 +40,6 @@ const TransferScreen = props => {
   const [ethFloatAmount, setEthFloatAmount] = useState(0.0);
   const [ethEstimatedFee, setEthEstimatedFee] = useState(0.0);
   const [ethTotalAmount, setEthTotalAmount] = useState(0.0);
-  // Infura:
-  const infuraEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
   const ethDivider = 1000000000000000000;
   const tokenABI = require('../../ethereum/abi.json');
   const tokenAddress = "";
@@ -50,12 +49,9 @@ const TransferScreen = props => {
     transferETH,
     transterERC20,
     getBalanceOfAccount,
-    getBalanceOfTokenInAccount
     } = web3Module({
-      url: infuraEndpoint,
       tokenABI,
       tokenAddress,
-      chainName: 'mainnet',
       decimals: 18
     });
 
@@ -303,9 +299,9 @@ const TransferScreen = props => {
   };
 
   const prepareETHTransfer = async (from, to, amount) => {
-      const gasPrice = await getCurrentGasPrice();
+      const gasPrice = await getCurrentGasPrice(from.chainName);
       setEthGasPrice(gasPrice);
-      const ethBalanceInWei = await getBalanceOfAccount(from.address);
+      const ethBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
       const ethBalanceInEth = parseFloat(ethBalanceInWei/ethDivider).toFixed(4);
       setEthBalance(ethBalanceInEth);
       setEthFromAddress(from.address);
@@ -325,15 +321,15 @@ const TransferScreen = props => {
 
   const sendETHTransfer = async () => {
     if(pendingEthTransfer) {
-      Alert.alert('Waiting for pending ETH transfer!');
+      Alert.alert(`Waiting for pending ${fromAccount.chainName} transfer!`);
     }
     setPendingEthTransfer(true);
-    const keypair = await createKeyPair(ethFromPrivateKey);
-    const result = await transferETH(keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    const keypair = await createKeyPair(fromAccount.chainName, ethFromPrivateKey);
+    const result = await transferETH(fromAccount.chainName, keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
     setPendingEthTransfer(false);
     // Save transaction to History:
     const txRecord = {
-      "chain": "ETH",
+      "chain": fromAccount.chainName,
       "sender": ethFromAddress,
       "receiver": ethToAddress,
       "amount": ethFloatAmount,
@@ -344,7 +340,7 @@ const TransferScreen = props => {
       "date": new Date(),
     };
     addTransactionToHistory(txRecord);
-    Alert.alert('ETH Transfer submitted!');
+    Alert.alert(`${fromAccount.chainName} Transfer submitted!`);
     setPreviewEthTransfer(false);
   }
 
@@ -470,7 +466,7 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
-      } else if (fromAccount.chainName === 'ETH') {
+      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
@@ -534,16 +530,16 @@ const TransferScreen = props => {
           enableOnAndroid>
           <View style={styles.inner}>
             <KHeader
-              title={'Ethereum transfer'}
+              title={'Transfer'}
               style={styles.header}
             />
             <KText>From: {ethFromAddress}</KText>
             <KText>To: {ethToAddress}</KText>
             <KText>Memo: {memo}</KText>
-            <KText>Amount: {ethFloatAmount} ETH</KText>
-            <KText>Gas fee: {ethEstimatedFee} ETH (Estimated)</KText>
-            <KText>Total: {ethTotalAmount} ETH</KText>
-            <KText>Balance: {ethBalance} ETH</KText>
+            <KText>Amount: {ethFloatAmount} {fromAccount.chainName}</KText>
+            <KText>Gas fee: {ethEstimatedFee} {fromAccount.chainName} (Estimated)</KText>
+            <KText>Total: {ethTotalAmount} {fromAccount.chainName}</KText>
+            <KText>Balance: {ethBalance} {fromAccount.chainName}</KText>
             <View style={styles.spacer} />
             <TwoIconsButtons
               onIcon1Press={sendETHTransfer}
@@ -581,7 +577,7 @@ const TransferScreen = props => {
               label={'From account'}
               items={accounts.map(item => ({
                 label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH') ? item.address : item.accountName
+                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB'||item.chainName === 'MATIC') ? item.address : item.accountName
                 }`,
                 value: item,
               }))}

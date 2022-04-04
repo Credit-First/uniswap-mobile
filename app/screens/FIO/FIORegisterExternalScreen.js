@@ -99,7 +99,7 @@ const FIORegisterExternalScreen = props => {
           />
           <KInput
             label={'Chain name'}
-            placeholder={'BTC, ETH, etc'}
+            placeholder={'BTC, ETH, BNB, MATIC etc'}
             value={chain}
             onChangeText={setChain}
             containerStyle={styles.inputContainer}
