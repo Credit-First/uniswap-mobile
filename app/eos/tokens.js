@@ -31,11 +31,6 @@ var tokens = [
     contract: 'teachology14',
   },
   {
-    name: 'DRIC',
-    chain: 'TLOS',
-    contract: 'persiandaric',
-  },
-  {
     name: 'ACORN',
     chain: 'TLOS',
     contract: 'acornaccount',
