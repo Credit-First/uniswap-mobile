@@ -30,6 +30,14 @@
         "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
       },
       {
+        "name": "Binance USD",
+        "address": "0x4Fabb145d64652a948d72533023f6E7A623C7C53",
+        "symbol": "BUSD",
+        "decimals": 18,
+        "chainId": 1,
+        "logoURI": "https://thesphynx.co/images/tokens/56/0xe9e7cea3dedca5984780bafc599bd69add087d56.png"
+      },
+      {
         "name": "Dai Stablecoin",
         "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         "symbol": "DAI",
