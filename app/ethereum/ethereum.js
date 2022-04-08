@@ -158,6 +158,7 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         from: account.address
       });
 
+      
       const chainId = getChainId(chainName);
       const providerURL = getNodeUrl(chainName);
       const FORK_NETWORK = Common.forCustomChain(
@@ -170,8 +171,9 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         },
         'istanbul',
       );
-      const privateKey = toBuffer(account.privateKey);
-      const count = await getWeb3(chainName).eth.getTransactionCount(account.address);
+      const privateKey = toBuffer(`0x${account.privateKey}`);;
+      count = await getWeb3(chainName).eth.getTransactionCount(account.address);
+      
       const rawTransaction = {
         from: account.address,
         nonce: getWeb3(chainName).utils.toHex(count),
@@ -181,7 +183,7 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         value: '0x0',
         data: contract.methods.transfer(toAddress, getWeb3(chainName).utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
       };
-
+      
       const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
       tx.sign(privateKey);
       const serializedTx = tx.serialize();

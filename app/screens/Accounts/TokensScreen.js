@@ -51,6 +51,11 @@ const TokensScreen = props => {
     navigate('TokenDetails', { account, token });
   };
 
+  const _handlePressERC20Token = index => {
+    let token = tokens[index];
+    navigate('ERC20TokenDetails', { account, token });
+  };
+
   const getTitle = () => {
     let title;
     if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
@@ -83,8 +88,7 @@ const TokensScreen = props => {
                 account={account}
                 token={item}
                 style={styles.listItem}
-                onPress={() => _handlePressToken(index)}
-                showAllTokens={config.showAllTokens}
+                onPress={() => _handlePressERC20Token(index)}
               />
               :
               <TokenListItem

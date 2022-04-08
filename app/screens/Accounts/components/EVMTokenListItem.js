@@ -16,7 +16,6 @@ const EVMTokenListItem = ({
   account,
   token,
   onPress,
-  showAllTokens,
   ...props
 }) => {
   const [tokenBalance, setTokenBalance] = useState(0);

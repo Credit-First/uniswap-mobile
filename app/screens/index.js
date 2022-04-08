@@ -12,6 +12,9 @@ export {
   default as TokenDetailsScreen,
 } from './AccountDetails/TokenDetailsScreen';
 export {
+  default as ERC20TokenDetailsScreen,
+} from './AccountDetails/ERC20TokenDetailsScreen';
+export {
   default as ResourceManagementScreen,
 } from './AccountDetails/ResourceManagementScreen';
 export { default as BackupAllKeysScreen } from './Accounts/BackupAllKeysScreen';
