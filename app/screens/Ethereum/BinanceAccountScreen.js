@@ -25,8 +25,7 @@ const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "";
 const {
-  getBalanceOfAccount,
-  getBalanceOfTokenInAccount
+  getBalanceOfAccount
   } = web3Module({
     tokenABI,
     tokenAddress,
