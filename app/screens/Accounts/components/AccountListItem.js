@@ -296,7 +296,8 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
     );
   } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ) {
     return (
-      <View onFocus={refreshBalances} style={styles.rowContainer}>
+      <View>
+       <View onFocus={refreshBalances} style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
           <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
@@ -308,7 +309,15 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
             <Icon name={'refresh'} size={25} color="#000000" />
           </TouchableOpacity>
         </View>
-      </View>
+       </View>
+       <TouchableOpacity onPress={handleOnTokensPress}>
+         <View style={[styles.container, props.style]}>
+           <View style={styles.contentContainer}>
+             <KText style={styles.tokenName}> + View Tokens</KText>
+           </View>
+         </View>
+       </TouchableOpacity>
+     </View>
     );
   } else {
     let tokens = getTokens(account.chainName);

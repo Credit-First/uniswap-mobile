@@ -8,6 +8,7 @@ import Web3 from 'web3';
 import { toBuffer } from 'ethereumjs-util';
 import { Transaction as EthereumTx } from 'ethereumjs-tx';
 import Common from 'ethereumjs-common';
+import { ethers } from 'ethers';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
 const bscEndpoint = 'https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/bsc/mainnet';
@@ -113,7 +114,7 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         console.error('The amount is not valid!');
         return new Error('Wrong amount');
       }
-      
+
       const chainId = getChainId(chainName);
       const providerURL = getNodeUrl(chainName);
       const FORK_NETWORK = Common.forCustomChain(
@@ -152,10 +153,12 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
      * @param {Number} gasPrice
      */
     transterERC20: async (chainName, account, toAddress, amount, gasLimit = 300000, gasPrice = 20000000000) => {
-      const contract = new getWeb3(chainName).eth.Contract(tokenABI, tokenAddress, {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress, {
         from: account.address
       });
 
+      
       const chainId = getChainId(chainName);
       const providerURL = getNodeUrl(chainName);
       const FORK_NETWORK = Common.forCustomChain(
@@ -168,8 +171,9 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         },
         'istanbul',
       );
-      const privateKey = toBuffer(account.privateKey);
-      const count = await getWeb3(chainName).eth.getTransactionCount(account.address);
+      const privateKey = toBuffer(`0x${account.privateKey}`);;
+      count = await getWeb3(chainName).eth.getTransactionCount(account.address);
+      
       const rawTransaction = {
         from: account.address,
         nonce: getWeb3(chainName).utils.toHex(count),
@@ -179,7 +183,7 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         value: '0x0',
         data: contract.methods.transfer(toAddress, getWeb3(chainName).utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
       };
-           
+      
       const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
@@ -190,15 +194,18 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
      * @param {String} address
      */
     getBalanceOfAccount: async (chainName, address) => {
-      return getWeb3(chainName).eth.getBalance(address)
+      return getWeb3(chainName).eth.getBalance(address);
     },
     /**
      * Get Balance ot Token of account
      * @param {String} address
      */
     getBalanceOfTokenOfAccount: async (chainName, address) => {
-      const contract = new getWeb3(chainName).eth.Contract(tokenABI, tokenAddress);
-      return contract.methods.balanceOf(address).call()
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+      const amount = await contract.methods.balanceOf(address).call();
+      const realAmount = ethers.utils.formatUnits(amount, decimals);
+      return realAmount;
     }
   };
 };

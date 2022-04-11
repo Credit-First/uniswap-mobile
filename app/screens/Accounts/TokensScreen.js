@@ -14,10 +14,26 @@ import { KButton, KHeader } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import TokenListItem from './components/TokenListItem';
+import EVMTokenListItem from './components/EVMTokenListItem';
 import { findIndex } from 'lodash';
 import { getTokens, getBalance } from '../../eos/tokens';
+import { getEVMTokens, getEVMBalance } from '../../ethereum/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
+
+
+const getTokenList = chainName => {
+  let tokenList;
+  if (chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC') {
+    tokenList = getEVMTokens(chainName);
+  }
+  else {
+    tokenList = getTokens(chainName);
+  }
+
+  return tokenList;
+}
+
 
 const TokensScreen = props => {
   const {
@@ -28,15 +44,28 @@ const TokensScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const tokens = getTokens(account.chainName);
+  const tokens = getTokenList(account.chainName);
 
   const _handlePressToken = index => {
     let token = tokens[index];
     navigate('TokenDetails', { account, token });
   };
 
+  const _handlePressERC20Token = index => {
+    let token = tokens[index];
+    navigate('ERC20TokenDetails', { account, token });
+  };
+
   const getTitle = () => {
-    return account.chainName + ':' + account.accountName + ' tokens';
+    let title;
+    if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
+      title = account.chainName + ' tokens';
+    }
+    else {
+      title = account.chainName + ':' + account.accountName + ' tokens';
+    }
+
+    return title;
   };
 
   return (
@@ -54,13 +83,21 @@ const TokensScreen = props => {
           data={tokens.sort((a, b) => a.name.localeCompare(b.name))}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
-            <TokenListItem
-              account={account}
-              token={item}
-              style={styles.listItem}
-              onPress={() => _handlePressToken(index)}
-              showAllTokens={config.showAllTokens}
-            />
+            account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?
+              <EVMTokenListItem
+                account={account}
+                token={item}
+                style={styles.listItem}
+                onPress={() => _handlePressERC20Token(index)}
+              />
+              :
+              <TokenListItem
+                account={account}
+                token={item}
+                style={styles.listItem}
+                onPress={() => _handlePressToken(index)}
+                showAllTokens={config.showAllTokens}
+              />
           )}
         />
       </View>
