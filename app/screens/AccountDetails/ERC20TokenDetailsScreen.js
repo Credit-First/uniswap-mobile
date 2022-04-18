@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -37,7 +37,7 @@ const ERC20TokenDetailsScreen = props => {
 
   const nativeDivider = 1000000000000000000;
   const [gasPrice, setGasPrice] = useState(0.001);
-  const [gasLimit, setGasLimit] = useState(21000);
+  const [gasLimit, setGasLimit] = useState(300000);
   const [estimatedFee, setEstimatedFee] = useState(0.0);
   const [loading, setLoading] = useState(false);
   const [pendingTransfer, setPendingTransfer] = useState(false);
@@ -164,8 +164,8 @@ const ERC20TokenDetailsScreen = props => {
               <KText>To: {toAccountName}</KText>
               <KText>Amount: {amount} {token.name} on {account.chainName}</KText>
               <KText>Gas fee: {estimatedFee} {account.chainName} (Estimated)</KText>
-              <KText>Balance: {tokenBalance}</KText>
-              <View style={styles.spacer} />
+              <KText>Balance: {tokenBalance} {token.name}</KText>
+              <View style={styles.autoSpacer} />
               <TwoIconsButtons
                 onIcon1Press={sendTransfer}
                 onIcon2Press={rejectTransfer}

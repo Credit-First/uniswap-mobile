@@ -171,23 +171,26 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
         },
         'istanbul',
       );
-      const privateKey = toBuffer(`0x${account.privateKey}`);;
-      count = await getWeb3(chainName).eth.getTransactionCount(account.address);
-      
+
+      const privateKey = toBuffer(`0x${account.privateKey}`);
+      count = await web3.eth.getTransactionCount(account.address);
+
       const rawTransaction = {
         from: account.address,
-        nonce: getWeb3(chainName).utils.toHex(count),
-        gasPrice: getWeb3(chainName).utils.toHex(gasPrice),
-        gasLimit: getWeb3(chainName).utils.toHex(gasLimit),
+        nonce: web3.utils.toHex(count),
+        gasPrice: web3.utils.toHex(gasPrice),
+        gasLimit: web3.utils.toHex(gasLimit),
         to: tokenAddress,
         value: '0x0',
-        data: contract.methods.transfer(toAddress, getWeb3(chainName).utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
+        data: contract.methods.transfer(toAddress, web3.utils.toBN(amount * Math.pow(10, decimals))).encodeABI(),
       };
-      
+
       const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
-      return getWeb3(chainName).eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
+
+      return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
     },
     /**
      * Get Balance of ETH of account
