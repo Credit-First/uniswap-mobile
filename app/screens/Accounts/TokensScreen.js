@@ -80,7 +80,7 @@ const TokensScreen = props => {
         </TouchableOpacity>
         <KHeader title={getTitle()} style={styles.header} />
         <FlatList
-          data={tokens.sort((a, b) => a.name.localeCompare(b.name))}
+          data={tokens}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
             account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?
