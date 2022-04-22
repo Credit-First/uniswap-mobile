@@ -8,7 +8,7 @@ const getEVMTokens = chainName => {
   var chainTokens = [];
   switch (chainName) {
     case 'ETH':
-      chainTokens = etherTokenList.tokens.slice(0, STABLE_LENGTH)
+      chainTokens = etherTokenList.tokens.slice(0, STABLE_LENGTH + 1)
       break;
     case 'BNB':
       chainTokens = bscTokenList.tokens.slice(0, STABLE_LENGTH)

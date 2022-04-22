@@ -3,7 +3,7 @@ const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollContentContainer: {
-    // flex: 1,
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
   },
   spacer: {
     marginTop: 10,
+  },
+  autoSpacer: {
+    flex: 1,
   },
   errorMessage: {
     color: '#FF0000',
