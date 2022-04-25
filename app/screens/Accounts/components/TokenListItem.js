@@ -21,8 +21,6 @@ const TokenListItem = ({
   ...props
 }) => {
   const [tokenBalance, setTokenBalance] = useState(0);
-  const [count, setCount] = useState(0);
-
 
   const handleTokenBalance = jsonArray => {
     if (jsonArray && jsonArray.length > 0) {
@@ -38,12 +36,11 @@ const TokenListItem = ({
 
   const refreshBalances = () => {
     getBalance(account.accountName, token, handleTokenBalance);
-    setCount(1);
   };
 
-  if (count === 0) {
+  useEffect(()=> {
     refreshBalances();
-  }
+  }, [])
 
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
