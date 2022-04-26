@@ -10,17 +10,14 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KButton, KHeader } from '../../components';
+import { KButton, KHeader, KText } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import TokenListItem from './components/TokenListItem';
 import EVMTokenListItem from './components/EVMTokenListItem';
-import { findIndex } from 'lodash';
-import { getTokens, getBalance } from '../../eos/tokens';
-import { getEVMTokens, getEVMBalance } from '../../ethereum/tokens';
+import { getTokens } from '../../eos/tokens';
+import { getEVMTokens } from '../../ethereum/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { log } from '../../logger/logger';
-
 
 const getTokenList = chainName => {
   let tokenList;
@@ -68,6 +65,9 @@ const TokensScreen = props => {
     return title;
   };
 
+  const handleAddToken = () => {
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -100,6 +100,16 @@ const TokensScreen = props => {
               />
           )}
         />
+        {account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?
+          <TouchableOpacity onPress={handleAddToken}>
+            <View style={[styles.addContainer, props.style]}>
+              <View style={styles.contentContainer}>
+                <KText style={styles.tokenName}> + Import Tokens</KText>
+              </View>
+            </View>
+          </TouchableOpacity>
+          : null
+        }
       </View>
     </SafeAreaView>
   );
