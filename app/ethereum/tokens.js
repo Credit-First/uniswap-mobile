@@ -26,12 +26,4 @@ const getTokenByName = tokenName => {
   return tokens.find(item => item.symbol === tokenName);
 };
 
-const getBalance = async (accountName, token, handler) => {
-
-};
-
-const transferToken = (toAccountName, amount, memo, fromAccount, token) => {
-
-};
-
-export { getEVMTokens, getTokenByName, getBalance, transferToken };
+export { getEVMTokens, getTokenByName };

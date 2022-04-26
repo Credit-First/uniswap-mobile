@@ -66,6 +66,7 @@ const TokensScreen = props => {
   };
 
   const handleAddToken = () => {
+    navigate('TokenImport', { account });
   };
 
   return (

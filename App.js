@@ -29,6 +29,7 @@ import {
   TokensScreen,
   TokenDetailsScreen,
   ERC20TokenDetailsScreen,
+  TokenImportScreen,
   ResourceManagementScreen,
   BackupAllKeysScreen,
   PrivateKeyBackupScreen,
@@ -95,6 +96,10 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen
         name="ERC20TokenDetails"
         component={ERC20TokenDetailsScreen}
+      />
+      <AccountsStack.Screen
+        name="TokenImport"
+        component={TokenImportScreen}
       />
       <AccountsStack.Screen
         name="ResourceManagement"
