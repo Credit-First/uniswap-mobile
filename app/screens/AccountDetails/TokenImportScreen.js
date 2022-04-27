@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,17 +15,38 @@ import {
 import styles from './AccountDetailsScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
+import { web3TokenInfoModule } from '../../ethereum/ethereum';
 
-const tokenABI = require('../../ethereum/abi.json');
+const TOKEN_ADDRESS_LENGTH = 42;
 
 const TokenImportScreen = props => {
   const [tokenAddress, setTokenAddress] = useState('');
+  const [tokenName, setTokenName] = useState('');
   const [tokenSymbol, setTokenSymbol] = useState('');
-  const [tokenDecimal, setTokenDecimal] = useState('');
+  const [tokenDecimals, setTokenDecimals] = useState('');
 
   const {
     navigation: { navigate, goBack },
+    route: {
+      params: { account: account },
+    },
   } = props;
+
+  const {
+    getName,
+    getSymbol,
+    getDecimals
+  } = web3TokenInfoModule();
+
+  const refreshInfo = async () => {
+    const name = await getName(account.chainName, tokenAddress);
+    setTokenName(name);
+    const symbol = await getSymbol(account.chainName, tokenAddress);
+    setTokenSymbol(symbol);
+    const decimals = await getDecimals(account.chainName, tokenAddress);
+    setTokenDecimals(decimals);
+  };
+
 
   const _handleTokenAddressChange = (value) => {
     if (value.indexOf(' ') >= 0) {
@@ -37,6 +58,17 @@ const TokenImportScreen = props => {
 
   const _handleImportToken = () => {
   }
+
+  useEffect(() => {
+    if (tokenAddress && tokenAddress.length === TOKEN_ADDRESS_LENGTH && tokenAddress.substring(0, 2) === '0x') {
+      refreshInfo();
+    }
+    else {
+      setTokenName('');
+      setTokenSymbol('');
+      setTokenDecimals('');
+    }
+  }, [tokenAddress])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,11 +87,16 @@ const TokenImportScreen = props => {
         />
         <KInput
           label='Token Address'
-          placeholder={'Enter token address to import on wallet'}
+          placeholder={'Enter new token address'}
           value={tokenAddress}
           onChangeText={_handleTokenAddressChange}
           containerStyle={styles.inputContainer}
           autoCapitalize={'none'}
+        />
+        <KLabel
+          title='Token Name:'
+          subTitle={tokenName}
+          style={styles.header}
         />
         <KLabel
           title='Token Symbol:'
@@ -68,7 +105,7 @@ const TokenImportScreen = props => {
         />
         <KLabel
           title='Token Decimal:'
-          subTitle={tokenDecimal}
+          subTitle={tokenDecimals}
           style={styles.header}
         />
         <View style={styles.spacer} />
