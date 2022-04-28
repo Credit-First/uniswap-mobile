@@ -25,6 +25,10 @@ export const SET_TOTAL = 'accounts/SET_TOTAL';
 export const SET_CONFIG = 'accounts/SET_CONFIG';
 export const GET_CONFIG = 'accounts/GET_CONFIG';
 
+export const FETCH_TOKENS = 'accounts/FETCH_TOKENS';
+export const ADD_TOKEN = 'accounts/ADD_TOKEN';
+export const DELETE_TOKEN = 'accounts/DELETE_TOKEN';
+
 /**
  * Action Creators
  */
@@ -42,4 +46,7 @@ export const accountsActionCreators = {
   getConfig: createAction(GET_CONFIG),
   addHistory: createAction(ADD_HISTORY),
   setTotal: createAction(SET_TOTAL),
+  fetchTokens: createAction(FETCH_TOKENS),
+  addToken: createAction(ADD_TOKEN),
+  deleteToken: createAction(DELETE_TOKEN),
 };

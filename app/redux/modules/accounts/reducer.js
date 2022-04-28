@@ -13,6 +13,9 @@ import {
   GET_CONFIG,
   ADD_HISTORY,
   SET_TOTAL,
+  FETCH_TOKENS,
+  ADD_TOKEN,
+  DELETE_TOKEN,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
 
@@ -30,6 +33,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         totals: state.totals,
         history: state.history,
         config: state.config,
+        tokens: state.tokens,
       };
     case DELETE_ACCOUNT:
       return deleteAccount(state, payload);
@@ -43,6 +47,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         totals: state.totals,
         history: state.history,
         config: state.config,
+        tokens: state.tokens,
       };
     case DELETE_ADDRESS:
       return deleteAddress(state, payload);
@@ -56,6 +61,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         totals: state.totals,
         history: state.history,
         config: state.config,
+        tokens: state.tokens,
       };
     case FETCH_KEYS:
       break;
@@ -67,6 +73,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         totals: state.totals,
         history: state.history,
         config: payload,
+        tokens: state.tokens,
       };
     case GET_CONFIG:
       break;
@@ -78,9 +85,24 @@ export default function accountsState(state = DEFAULT, action = {}) {
         totals: state.totals,
         history: state.history.concat([payload]),
         config: state.config,
+        tokens: state.tokens,
       };
     case SET_TOTAL:
-        return updateTotal(state, payload);
+      return updateTotal(state, payload);
+    case ADD_TOKEN:
+      return {
+        accounts: state.accounts,
+        addresses: state.addresses,
+        keys: state.keys,
+        totals: state.totals,
+        history: state.history,
+        config: state.config,
+        tokens: state.tokens.concat([payload]),
+      };
+    case DELETE_TOKEN:
+      return deleteToken(state, payload);
+    case FETCH_TOKENS:
+      break;
     default:
       return state;
   }
@@ -94,6 +116,7 @@ function updateTotal(state, payload) {
   let keys = state.keys;
   let history = state.history;
   let config = state.config;
+  let tokens = state.tokens;
   return {
     accounts,
     addresses,
@@ -101,6 +124,7 @@ function updateTotal(state, payload) {
     totals,
     history,
     config,
+    tokens,
   };
 }
 
@@ -111,6 +135,7 @@ function deleteAccount(state, payload) {
   let totals = state.totals;
   let history = state.history;
   let config = state.config;
+  let tokens = state.tokens;
   return {
     accounts,
     addresses,
@@ -118,6 +143,7 @@ function deleteAccount(state, payload) {
     totals,
     history,
     config,
+    tokens,
   };
 }
 
@@ -130,6 +156,7 @@ function deleteAddress(state, payload) {
   let totals = state.totals;
   let history = state.history;
   let config = state.config;
+  let tokens = state.tokens;
   return {
     accounts,
     addresses,
@@ -137,5 +164,24 @@ function deleteAddress(state, payload) {
     totals,
     history,
     config,
+    tokens,
+  };
+}
+
+function deleteToken(state, payload) {
+  let tokens = state.tokens.filter((cell) => cell.address !== payload.address && cell.chainName !== payload.chainName);
+  let accounts = state.accounts;
+  let keys = state.keys;
+  let totals = state.totals;
+  let history = state.history;
+  let config = state.config;
+  return {
+    accounts,
+    addresses,
+    keys,
+    totals,
+    history,
+    config,
+    tokens,
   };
 }
