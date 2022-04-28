@@ -13,13 +13,7 @@ const accountsState = {
   },
 };
 
-const tokensState = {
-  names: [],
-  addresses: [],
-  symbols: [],
-  decimals: [],
-  chainNames: [],
-};
+const tokensState = [];
 
 export const defaultReducers = {
   accountsState,
