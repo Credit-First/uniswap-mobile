@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import {
   Image,
@@ -38,18 +38,27 @@ const TokensScreen = props => {
     route: {
       params: { account: account },
     },
-    accountsState: { accounts, addresses, keys, totals, history, config },
+    accountsState: { accounts, addresses, keys, totals, history, config, tokens },
   } = props;
 
-  const tokens = getTokenList(account.chainName);
+  const [tokenList, setTokenList] = useState([]);
+
+  useEffect(() => {
+    let list = getTokenList(account.chainName);
+    const addedList = tokens.filter((cell) => cell.chainName === account.chainName);
+    addedList.forEach(element => {
+      list.push(element);
+    });
+    setTokenList(list);
+  }, [tokens])
 
   const _handlePressToken = index => {
-    let token = tokens[index];
+    let token = tokenList[index];
     navigate('TokenDetails', { account, token });
   };
 
   const _handlePressERC20Token = index => {
-    let token = tokens[index];
+    let token = tokenList[index];
     navigate('ERC20TokenDetails', { account, token });
   };
 
@@ -81,7 +90,7 @@ const TokensScreen = props => {
         </TouchableOpacity>
         <KHeader title={getTitle()} style={styles.header} />
         <FlatList
-          data={tokens}
+          data={tokenList}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
             account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?

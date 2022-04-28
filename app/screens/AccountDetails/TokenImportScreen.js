@@ -30,6 +30,8 @@ const TokenImportScreen = props => {
     route: {
       params: { account: account },
     },
+    addToken,
+    accountsState: { tokens },
   } = props;
 
   const {
@@ -57,6 +59,21 @@ const TokenImportScreen = props => {
   };
 
   const _handleImportToken = () => {
+    const index = tokens.findIndex((cell) => cell.chainName === account.chainName && cell.address === tokenAddress);
+    if(index >= 0) {
+      Alert("Already exist the token!");
+      return;
+    }
+    const item = {
+      chainName: account.chainName,
+      address: tokenAddress,
+      name: tokenName,
+      symbol: tokenSymbol,
+      decimals: tokenDecimals,
+    }
+
+    addToken(item);
+    navigate('Tokens', { account });
   }
 
   useEffect(() => {
