@@ -31,7 +31,6 @@ const ERC20TokenDetailsScreen = props => {
   const [toAccountName, setToAccountName] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [showTransfer, setShowTransfer] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const [amount, setAmount] = useState('');
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
@@ -74,13 +73,8 @@ const ERC20TokenDetailsScreen = props => {
   const refreshBalances = async () => {
     const balance = await getBalanceOfTokenOfAccount(account.chainName, account.address);
     setTokenBalance(balance);
-    setLoaded(true);
     setShowTransfer(true);
   };
-
-  if (!loaded) {
-    refreshBalances();
-  }
 
   const _handlePressTransaction = trans => {
 
@@ -124,7 +118,7 @@ const ERC20TokenDetailsScreen = props => {
     if (nativeBalanceInEth > estimatedFee && tokenBalance >= floatAmount) {
       setPreviewTransfer(true);
     } else {
-      Alert.alert('Insufficient balance to send transfer!');
+      Alert.alert('Not enough ETH for transfer cost (gas)!');
     }
   }
 
@@ -134,9 +128,13 @@ const ERC20TokenDetailsScreen = props => {
     }
 
     setPendingTransfer(true);
-    const result = await transterERC20(account.chainName, account, toAccountName, amount, gasLimit, gasPrice);
+    try {
+      await transterERC20(account.chainName, account, toAccountName, amount, gasLimit, gasPrice);
+      Alert.alert(`${token.name} Transfer submitted!`);
+    } catch (error) {
+      Alert.alert(`${token.name} Transfer error!`);
+    }
     setPendingTransfer(false);
-    Alert.alert(`${token.name} Transfer submitted!`);
     setPreviewTransfer(false);
   };
 
@@ -147,6 +145,16 @@ const ERC20TokenDetailsScreen = props => {
   const getTransferFormLabel = () => {
     return 'Transfer ' + token.name + ' tokens: ';
   };
+
+  useEffect(() => {
+    if (previewTransfer === false) {
+      refreshBalances();
+    }
+  }, [previewTransfer])
+
+  useEffect(() => {
+    refreshBalances();
+  }, [])
 
   if (showTransfer) {
     if (previewTransfer) {

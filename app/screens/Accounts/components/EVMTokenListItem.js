@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { KText } from '../../../components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -19,7 +19,6 @@ const EVMTokenListItem = ({
   ...props
 }) => {
   const [tokenBalance, setTokenBalance] = useState(0);
-  const [count, setCount] = useState(0);
   const {
     getBalanceOfTokenOfAccount
   } = web3Module({
@@ -35,12 +34,11 @@ const EVMTokenListItem = ({
   const refreshBalances = async () => {
     const balance = await getBalanceOfTokenOfAccount(account.chainName, account.address);
     setTokenBalance(`${balance} ${token.name}`);
-    setCount(1);
   };
 
-  if (count === 0) {
+  useEffect(()=> {
     refreshBalances();
-  }
+  }, [])
 
   return (
     <View onFocus={refreshBalances} style={styles.rowContainer}>
