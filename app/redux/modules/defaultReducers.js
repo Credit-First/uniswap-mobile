@@ -11,17 +11,9 @@ const accountsState = {
   config: {
     showAllTokens: true,
   },
-};
-
-const tokensState = {
-  names: [],
-  addresses: [],
-  symbols: [],
-  decimals: [],
-  chainNames: [],
+  tokens: [],
 };
 
 export const defaultReducers = {
   accountsState,
-  tokensState,
 };

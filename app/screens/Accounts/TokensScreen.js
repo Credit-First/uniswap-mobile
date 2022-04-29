@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import {
   Image,
@@ -10,17 +10,14 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KButton, KHeader } from '../../components';
+import { KButton, KHeader, KText } from '../../components';
 import styles from './AccountsScreen.style';
 import { connectAccounts } from '../../redux';
 import TokenListItem from './components/TokenListItem';
 import EVMTokenListItem from './components/EVMTokenListItem';
-import { findIndex } from 'lodash';
-import { getTokens, getBalance } from '../../eos/tokens';
-import { getEVMTokens, getEVMBalance } from '../../ethereum/tokens';
+import { getTokens } from '../../eos/tokens';
+import { getEVMTokens } from '../../ethereum/tokens';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { log } from '../../logger/logger';
-
 
 const getTokenList = chainName => {
   let tokenList;
@@ -41,18 +38,27 @@ const TokensScreen = props => {
     route: {
       params: { account: account },
     },
-    accountsState: { accounts, addresses, keys, totals, history, config },
+    accountsState: { accounts, addresses, keys, totals, history, config, tokens },
   } = props;
 
-  const tokens = getTokenList(account.chainName);
+  const [tokenList, setTokenList] = useState([]);
+
+  useEffect(() => {
+    let list = getTokenList(account.chainName);
+    const addedList = tokens.filter((cell) => cell.chainName === account.chainName);
+    addedList.forEach(element => {
+      list.push(element);
+    });
+    setTokenList(list);
+  }, [tokens])
 
   const _handlePressToken = index => {
-    let token = tokens[index];
+    let token = tokenList[index];
     navigate('TokenDetails', { account, token });
   };
 
   const _handlePressERC20Token = index => {
-    let token = tokens[index];
+    let token = tokenList[index];
     navigate('ERC20TokenDetails', { account, token });
   };
 
@@ -68,6 +74,10 @@ const TokensScreen = props => {
     return title;
   };
 
+  const handleAddToken = () => {
+    navigate('TokenImport', { account });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
@@ -80,7 +90,7 @@ const TokensScreen = props => {
         </TouchableOpacity>
         <KHeader title={getTitle()} style={styles.header} />
         <FlatList
-          data={tokens}
+          data={tokenList}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
             account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?
@@ -100,6 +110,16 @@ const TokensScreen = props => {
               />
           )}
         />
+        {account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' ?
+          <TouchableOpacity onPress={handleAddToken}>
+            <View style={[styles.addContainer, props.style]}>
+              <View style={styles.contentContainer}>
+                <KText style={styles.tokenName}> + Import Tokens</KText>
+              </View>
+            </View>
+          </TouchableOpacity>
+          : null
+        }
       </View>
     </SafeAreaView>
   );

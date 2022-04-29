@@ -1,5 +1,8 @@
 import { StyleSheet, Dimensions } from 'react-native';
 const { width } = Dimensions.get('window');
+import {
+  PRIMARY_BLUE,
+} from '../../theme/colors';
 
 const styles = StyleSheet.create({
   scrollContentContainer: {
@@ -109,6 +112,26 @@ const styles = StyleSheet.create({
   chainName: {
     fontSize: 16,
     color: 'black',
+  },
+  addContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#2A2240',
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    borderRadius: 6,
+    elevation: 4,
+    backgroundColor: '#F1F6FF',
+    padding: 5,
+    marginTop: 10,
+  },
+  contentContainer: {
+    marginLeft: 10,
+  },
+  tokenName: {
+    fontSize: 15,
+    color: PRIMARY_BLUE,
   },
 });
 

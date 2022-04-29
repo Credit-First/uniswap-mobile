@@ -9,6 +9,7 @@ import { toBuffer } from 'ethereumjs-util';
 import { Transaction as EthereumTx } from 'ethereumjs-tx';
 import Common from 'ethereumjs-common';
 import { ethers } from 'ethers';
+const tokenABI = require('./abi.json');
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
 const bscEndpoint = 'https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/bsc/mainnet';
@@ -16,6 +17,101 @@ const polygonEndpoint = "https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc85
 const ethWeb3 = new Web3(new Web3.providers.HttpProvider(ethEndpoint));
 const bscWeb3 = new Web3(new Web3.providers.HttpProvider(bscEndpoint));
 const polygonWeb3 = new Web3(new Web3.providers.HttpProvider(polygonEndpoint));
+
+const getWeb3 = (chainName) => {
+  let ret;
+  switch (chainName) {
+    case "ETH":
+      ret = ethWeb3;
+      break;
+    case "BNB":
+      ret = bscWeb3;
+      break;
+    case "MATIC":
+      ret = polygonWeb3;
+      break;
+    default:
+      ret = ethWeb3;
+  }
+
+  return ret;
+}
+
+const getChainId = (chainName) => {
+  let ret = 1;
+  switch (chainName) {
+    case "ETH":
+      ret = 1;
+      break;
+    case "BNB":
+      ret = 56;
+      break;
+    case "MATIC":
+      ret = 137;
+      break;
+    default:
+      ret = 1;
+  }
+
+  return ret;
+}
+
+const getNodeUrl = (chainName) => {
+  let ret = ethEndpoint;
+  switch (chainName) {
+    case "ETH":
+      ret = ethEndpoint;
+      break;
+    case "BNB":
+      ret = bscEndpoint;
+      break;
+    case "MATIC":
+      ret = polygonEndpoint;
+      break;
+    default:
+      ret = ethEndpoint;
+  }
+
+  return ret;
+}
+
+/**
+ * Web3 Custom Module
+ */
+export const web3TokenInfoModule = () => {
+  return {
+    /**
+     * Get token name
+     * @param {String} chainName
+     */
+     getName: async (chainName, tokenAddress) => {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+      const result = await contract.methods.name().call();
+      return result;
+    },
+    /**
+     * Get symbol name
+     * @param {String} chainName
+     */
+    getSymbol: async (chainName, tokenAddress) => {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+      const result = await contract.methods.symbol().call();
+      return result;
+    },
+    /**
+     * Get decimal
+     * @param {String} chainName
+     */
+     getDecimals: async (chainName, tokenAddress) => {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+      const result = await contract.methods.decimals().call();
+      return result;
+    },
+  }
+}
 
 /**
  * Web3 Custom Module
@@ -26,63 +122,6 @@ const polygonWeb3 = new Web3(new Web3.providers.HttpProvider(polygonEndpoint));
 const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
   if (!decimals) {
     decimals = 18;
-  }
-
-  const getWeb3 = (chainName) => {
-    let ret;
-    switch (chainName) {
-      case "ETH":
-        ret = ethWeb3;
-        break;
-      case "BNB":
-        ret = bscWeb3;
-        break;
-      case "MATIC":
-        ret = polygonWeb3;
-        break;
-      default:
-        ret = ethWeb3;
-    }
-
-    return ret;
-  }
-
-  const getChainId = (chainName) => {
-    let ret = 1;
-    switch (chainName) {
-      case "ETH":
-        ret = 1;
-        break;
-      case "BNB":
-        ret = 56;
-        break;
-      case "MATIC":
-        ret = 137;
-        break;
-      default:
-        ret = 1;
-    }
-
-    return ret;
-  }
-
-  const getNodeUrl = (chainName) => {
-    let ret = ethEndpoint;
-    switch (chainName) {
-      case "ETH":
-        ret = ethEndpoint;
-        break;
-      case "BNB":
-        ret = bscEndpoint;
-        break;
-      case "MATIC":
-        ret = polygonEndpoint;
-        break;
-      default:
-        ret = ethEndpoint;
-    }
-
-    return ret;
   }
 
   return {
