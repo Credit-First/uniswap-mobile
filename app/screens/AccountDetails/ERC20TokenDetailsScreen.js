@@ -16,6 +16,7 @@ import {
   KInput,
   OneIconButton,
   TwoIconsButtons,
+  GasOptions,
 } from '../../components';
 import styles from './AccountDetailsScreen.style';
 import TransactionListItem from './components/TransactionListItem';
@@ -171,8 +172,13 @@ const ERC20TokenDetailsScreen = props => {
               <KText>From: {account.address}</KText>
               <KText>To: {toAccountName}</KText>
               <KText>Amount: {amount} {token.name} on {account.chainName}</KText>
-              <KText>Gas fee: {estimatedFee} {account.chainName} (Estimated)</KText>
               <KText>Balance: {tokenBalance} {token.name}</KText>
+              <KText>Gas fee: {estimatedFee} {account.chainName} (Estimated)</KText>
+              <View style={styles.gasOption}>
+                <KText style={styles.label}> Gas option: </KText>
+                <GasOptions />
+              </View>
+
               <View style={styles.autoSpacer} />
               <TwoIconsButtons
                 onIcon1Press={sendTransfer}

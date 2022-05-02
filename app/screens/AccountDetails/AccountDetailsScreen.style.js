@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 const { width } = Dimensions.get('window');
+import { PRIMARY_BLUE } from '../../theme/colors';
 
 const styles = StyleSheet.create({
   scrollContentContainer: {
@@ -45,6 +46,18 @@ const styles = StyleSheet.create({
   errorMessage: {
     color: '#FF0000',
     fontSize: 14,
+  },
+  label: {
+    fontSize: 16,
+    color: PRIMARY_BLUE,
+  },
+  gasOption: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 0,
+    margin: 0,
   },
 });
 
