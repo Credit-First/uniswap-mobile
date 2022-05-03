@@ -84,7 +84,7 @@ export const web3TokenInfoModule = () => {
      * Get token name
      * @param {String} chainName
      */
-     getName: async (chainName, tokenAddress) => {
+    getName: async (chainName, tokenAddress) => {
       const web3 = getWeb3(chainName);
       const contract = new web3.eth.Contract(tokenABI, tokenAddress);
       const result = await contract.methods.name().call();
@@ -104,7 +104,7 @@ export const web3TokenInfoModule = () => {
      * Get decimal
      * @param {String} chainName
      */
-     getDecimals: async (chainName, tokenAddress) => {
+    getDecimals: async (chainName, tokenAddress) => {
       const web3 = getWeb3(chainName);
       const contract = new web3.eth.Contract(tokenABI, tokenAddress);
       const result = await contract.methods.decimals().call();
@@ -136,6 +136,40 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
      * Get current gas price
      */
     getCurrentGasPrice: async (chainName) => getWeb3(chainName).eth.getGasPrice(),
+    /**
+     * Get current eth gas price
+     */
+     getCurrentETHGasLimit: async (chainName, account, amount, toAddress) => {
+      const web3 = getWeb3(chainName);
+      const tx = {
+        from: account.address,
+        to: toAddress,
+        value: web3.utils.toHex(web3.utils.toWei(amount, 'ether')),
+      };
+
+      return getWeb3(chainName).eth.estimateGas(tx);
+    },
+    /**
+     * Get current token gas price
+     */
+    getCurrentTokenGasLimit: async (chainName, account, amount, toAddress) => {
+      const web3 = getWeb3(chainName);
+      const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress, {
+        from: account.address
+      });
+      const realAmount = ethers.utils.parseUnits(amount, decimals);
+      const transactionData = tokenContract.methods
+        .transfer(toAddress, realAmount.toHexString())
+        .encodeABI();
+
+      const tx = {
+        from: account.address,
+        to: tokenAddress,
+        data: transactionData,
+      };
+
+      return getWeb3(chainName).eth.estimateGas(tx);
+    },
     /**
      * Transfer ETH from account to toAddress
      * @param {Keypair} account
@@ -212,7 +246,7 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
       );
 
       const privateKey = toBuffer(`0x${account.privateKey}`);
-      count = await web3.eth.getTransactionCount(account.address);
+      const count = await web3.eth.getTransactionCount(account.address);
 
       const rawTransaction = {
         from: account.address,

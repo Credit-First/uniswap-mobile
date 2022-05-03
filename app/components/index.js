@@ -15,3 +15,4 @@ export { default as FiveIconsButtons } from './FiveIconsButtons';
 export { default as InputSend } from './InputSend';
 export { default as InputAddress } from './InputAddress';
 export { default as EmailCodeSend } from './EmailCodeSend';
+export { default as GasOptions } from './GasOptions';

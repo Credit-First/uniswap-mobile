@@ -46,14 +46,14 @@ const TransferScreen = props => {
   const {
     createKeyPair,
     getCurrentGasPrice,
+    getCurrentETHGasLimit,
     transferETH,
-    transterERC20,
     getBalanceOfAccount,
-    } = web3Module({
-      tokenABI,
-      tokenAddress,
-      decimals: 18
-    });
+  } = web3Module({
+    tokenABI,
+    tokenAddress,
+    decimals: 18
+  });
 
   const {
     addAddress,
@@ -80,9 +80,9 @@ const TransferScreen = props => {
       if (!toAccountInfo) {
         Alert.alert(
           'Error fetching account data for ' +
-            toActor +
-            ' on chain ' +
-            fromAccount.chainName,
+          toActor +
+          ' on chain ' +
+          fromAccount.chainName,
         );
         return;
       }
@@ -183,15 +183,15 @@ const TransferScreen = props => {
 
   const _validateStellarAddress = address => {
     const callback = json => {
-      if(json["status"] && json["status"] === 404) {
+      if (json["status"] && json["status"] === 404) {
         setIsLiveStellarAccount(false);
-      } else if(json['balances']) {
+      } else if (json['balances']) {
         setIsLiveStellarAccount(true);
       } else {
         setIsLiveStellarAccount(false);
       }
     };
-    if(isValidXLMAddress(address)) {
+    if (isValidXLMAddress(address)) {
       loadAccount(address, callback);
     }
   };
@@ -228,7 +228,7 @@ const TransferScreen = props => {
       return;
     }
     // trim white space if present:
-    if(value.indexOf(' ') >= 0) {
+    if (value.indexOf(' ') >= 0) {
       value = value.trim();
     }
     // Then validate FIO address (if set):
@@ -299,16 +299,20 @@ const TransferScreen = props => {
   };
 
   const prepareETHTransfer = async (from, to, amount) => {
+    try {
+      const gasLimitation = await getCurrentETHGasLimit(from.chainName, fromAccount, amount.toString(), toAccountName);
+      setEthGasLimit(gasLimitation);
+
       const gasPrice = await getCurrentGasPrice(from.chainName);
       setEthGasPrice(gasPrice);
       const ethBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
-      const ethBalanceInEth = parseFloat(ethBalanceInWei/ethDivider).toFixed(4);
+      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(4);
       setEthBalance(ethBalanceInEth);
       setEthFromAddress(from.address);
       setEthFromPrivateKey(from.privateKey);
       setEthToAddress(to);
       setEthFloatAmount(amount);
-      const estimatedFee = parseFloat((gasPrice*ethGasLimit)/ethDivider).toFixed(4);
+      const estimatedFee = parseFloat((gasPrice * gasLimitation) / ethDivider).toFixed(4);
       setEthEstimatedFee(estimatedFee);
       const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
       setEthTotalAmount(totalAmount);
@@ -317,11 +321,15 @@ const TransferScreen = props => {
       } else {
         Alert.alert('Insufficient balance to send transfer!');
       }
+    } catch (error) {
+      console.log("error:", error);
+    }
   }
 
   const sendETHTransfer = async () => {
-    if(pendingEthTransfer) {
+    if (pendingEthTransfer) {
       Alert.alert(`Waiting for pending ${fromAccount.chainName} transfer!`);
+      return;
     }
     setPendingEthTransfer(true);
     const keypair = await createKeyPair(fromAccount.chainName, ethFromPrivateKey);
@@ -378,9 +386,9 @@ const TransferScreen = props => {
       if (!toPubkey) {
         Alert.alert(
           'Could not determine receiver public key for ' +
-            fromAccount.chainName +
-            ' registered to ' +
-            toAccountName,
+          fromAccount.chainName +
+          ' registered to ' +
+          toAccountName,
         );
         setLoading(false);
         return;
@@ -420,8 +428,8 @@ const TransferScreen = props => {
         );
       } else if (fromAccount.chainName === 'XLM') {
         let receiver = toPubkey ? toPubkey : toAccountName;
-        if(isValidXLMAddress(receiver)) {
-          if(isLiveStellarAccount) {
+        if (isValidXLMAddress(receiver)) {
+          if (isLiveStellarAccount) {
             await submitStellarPayment(
               fromAccount,
               receiver,
@@ -433,7 +441,7 @@ const TransferScreen = props => {
             //Double check isLiveStellarAccount for FIO use case:
             const callback = async json => {
               // XLM address doesn't exists
-              if(json["status"] && json["status"] === 404) {
+              if (json["status"] && json["status"] === 404) {
                 setIsLiveStellarAccount(false);
                 await createStellarAccount(
                   fromAccount,
@@ -456,7 +464,7 @@ const TransferScreen = props => {
             loadAccount(receiver, callback);
           }
         } else {
-          Alert.alert('Invalid XLM to address: '+receiver);
+          Alert.alert('Invalid XLM to address: ' + receiver);
         }
       } else if (fromAccount.chainName === 'FIO') {
         await sendFioTransfer(
@@ -576,9 +584,8 @@ const TransferScreen = props => {
             <KSelect
               label={'From account'}
               items={accounts.map(item => ({
-                label: `${item.chainName}: ${
-                  (item.chainName === 'FIO'||item.chainName === 'XLM'||item.chainName === 'ETH'||item.chainName === 'BNB'||item.chainName === 'MATIC') ? item.address : item.accountName
-                }`,
+                label: `${item.chainName}: ${(item.chainName === 'FIO' || item.chainName === 'XLM' || item.chainName === 'ETH' || item.chainName === 'BNB' || item.chainName === 'MATIC') ? item.address : item.accountName
+                  }`,
                 value: item,
               }))}
               onValueChange={_handleFromAccountChange}
