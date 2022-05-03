@@ -53,7 +53,7 @@ const ERC20TokenDetailsScreen = props => {
 
   const {
     getCurrentGasPrice,
-    getCurrentGasLimit,
+    getCurrentTokenGasLimit,
     getBalanceOfAccount,
     getBalanceOfTokenOfAccount,
     transterERC20
@@ -111,7 +111,7 @@ const ERC20TokenDetailsScreen = props => {
 
   const prepareTransfer = async (from, floatAmount) => {
     try {
-      const gasLimitation = await getCurrentGasLimit(from.chainName, account, floatAmount.toString(), toAccountName);
+      const gasLimitation = await getCurrentTokenGasLimit(from.chainName, account, floatAmount.toString(), toAccountName);
       setGasLimit(gasLimitation);
 
       const gasValue = await getCurrentGasPrice(from.chainName);

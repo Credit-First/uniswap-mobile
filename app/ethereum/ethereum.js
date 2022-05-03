@@ -137,9 +137,22 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
      */
     getCurrentGasPrice: async (chainName) => getWeb3(chainName).eth.getGasPrice(),
     /**
-     * Get current gas price
+     * Get current eth gas price
      */
-    getCurrentGasLimit: async (chainName, account, amount, toAddress) => {
+     getCurrentETHGasLimit: async (chainName, account, amount, toAddress) => {
+      const web3 = getWeb3(chainName);
+      const tx = {
+        from: account.address,
+        to: toAddress,
+        value: web3.utils.toHex(web3.utils.toWei(amount, 'ether')),
+      };
+
+      return getWeb3(chainName).eth.estimateGas(tx);
+    },
+    /**
+     * Get current token gas price
+     */
+    getCurrentTokenGasLimit: async (chainName, account, amount, toAddress) => {
       const web3 = getWeb3(chainName);
       const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress, {
         from: account.address
