@@ -134,6 +134,7 @@ const ERC20TokenDetailsScreen = props => {
   const sendTransfer = async () => {
     if (pendingTransfer) {
       Alert.alert(`Waiting for pending ${token.name} transfer!`);
+      return;
     }
 
     setPendingTransfer(true);

@@ -322,6 +322,7 @@ const TransferScreen = props => {
   const sendETHTransfer = async () => {
     if(pendingEthTransfer) {
       Alert.alert(`Waiting for pending ${fromAccount.chainName} transfer!`);
+      return;
     }
     setPendingEthTransfer(true);
     const keypair = await createKeyPair(fromAccount.chainName, ethFromPrivateKey);
