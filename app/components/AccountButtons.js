@@ -4,9 +4,11 @@ import LinearGradient from 'react-native-linear-gradient';
 
 
 const AccountButtons = ({
+  menuIcon,
   addIcon,
   onAddPress,
   importIcon,
+  onMenuPress,
   onImportPress,
   exportIcon,
   onExportPress,
@@ -14,6 +16,15 @@ const AccountButtons = ({
 
   return (
       <View style={styles.rowContainer}>
+        <TouchableOpacity onPress={onMenuPress}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            colors={['#FFFFFF', '#FFFFFF']}
+            style={styles.container}>
+            <View style={styles.icon}>{menuIcon()}</View>
+          </LinearGradient>
+        </TouchableOpacity>
         <TouchableOpacity onPress={onExportPress}>
           <LinearGradient
             start={{ x: 0, y: 0 }}

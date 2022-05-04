@@ -63,6 +63,7 @@ import {
   TransactionsScreen,
   VoteScreen,
   MenuScreen,
+  NFTScreen,
   AdminScreen,
   RecoverPrivateKeyScreen,
   KeyListScreen,
@@ -107,6 +108,7 @@ const AccountsStackScreen = () => {
       />
       <AccountsStack.Screen name="Vote" component={VoteScreen} />
       <AccountsStack.Screen name="Exchange" component={ExchangeScreen} />
+      <AccountsStack.Screen name="Menu" component={MenuScreen} />
       <AccountsStack.Screen
         name="BackupAllKeys"
         component={BackupAllKeysScreen}
@@ -211,8 +213,8 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('./assets/icons/transfer.png');
     } else if (route.name === 'Chat') {
       icon = require('./assets/icons/chat.png');
-    } else if (route.name === 'Menu') {
-      icon = require('./assets/icons/menu.png');
+    } else if (route.name === 'NFT') {
+      icon = require('./assets/icons/nft.png');
     }
     return <Image source={icon} style={{ tintColor: color }} />;
   },
@@ -228,7 +230,7 @@ const MainTabScreen = () => {
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
       <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
-      <MainTab.Screen name={'Menu'} component={MenuScreen} />
+      <MainTab.Screen name={'NFT'} component={NFTScreen} />
     </MainTab.Navigator>
   );
 };

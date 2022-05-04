@@ -1,15 +1,15 @@
 import React from 'react';
-import { SafeAreaView, View } from 'react-native';
-
+import { SafeAreaView, View, TouchableOpacity } from 'react-native';
 import styles from './MenuScreen.style';
 import { KHeader, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
-import { log } from '../../logger/logger';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { PRIMARY_BLUE } from '../../theme/colors';
 
 const MenuScreen = props => {
   const {
     connectAccount,
-    navigation: { navigate },
+    navigation: { navigate, goBack },
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
@@ -34,10 +34,10 @@ const MenuScreen = props => {
   if (accounts.length > 1) {
     var eosPresent = false;
     var anotherValidChain = false;
-    accounts.map(function(account) {
+    accounts.map(function (account) {
       if (account.chainName === 'EOS') {
         eosPresent = true;
-      } else if (account.chainName === 'Telos'||account.chainName === 'TLOS') {
+      } else if (account.chainName === 'Telos' || account.chainName === 'TLOS') {
         anotherValidChain = true;
       }
     });
@@ -66,26 +66,33 @@ const MenuScreen = props => {
     );
   }
 
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.inner}>
-          <KHeader title={'Menu actions'} style={styles.header} />
-          <View style={styles.spacer} />
-          <KButton
-            title={'Recover Private Key'}
-            style={styles.button}
-            onPress={() => navigate('RecoverPrivateKey')}
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <MaterialIcon
+            name={'keyboard-backspace'}
+            size={24}
+            color={PRIMARY_BLUE}
           />
-          <KButton
-            title={'List all keys in wallet'}
-            style={styles.button}
-            onPress={() => navigate('KeyList')}
-          />
-          {exchangeButton}
-          {adminButton}
-        </View>
-      </SafeAreaView>
-    );
+        </TouchableOpacity>
+        <KHeader title={'Menu actions'} style={styles.header} />
+        <View style={styles.spacer} />
+        <KButton
+          title={'Recover Private Key'}
+          style={styles.button}
+          onPress={() => navigate('RecoverPrivateKey')}
+        />
+        <KButton
+          title={'List all keys in wallet'}
+          style={styles.button}
+          onPress={() => navigate('KeyList')}
+        />
+        {exchangeButton}
+        {adminButton}
+      </View>
+    </SafeAreaView>
+  );
 
 };
 

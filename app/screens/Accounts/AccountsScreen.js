@@ -510,6 +510,10 @@ const AccountsScreen = props => {
     });
   };
 
+  const _handleMenu = () => {
+    navigate('Menu');
+  }
+
   const _handleImportAccount = () => {
     navigate('ConnectAccount');
   };
@@ -697,9 +701,16 @@ const AccountsScreen = props => {
         <SafeAreaView style={styles.mainContainer}>
           <SafeAreaView style={styles.networkContainer}>
             <AccountButtons
+              onMenuPress={_handleMenu}
               onAddPress={toggleListChains}
               onImportPress={_handleImportAccount}
               onExportPress={_handleExportAllKeys}
+              menuIcon={() => (
+                <Image
+                  source={require('../../../assets/icons/menu1.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
               addIcon={() => (
                 <Image
                   source={require('../../../assets/icons/add.png')}
