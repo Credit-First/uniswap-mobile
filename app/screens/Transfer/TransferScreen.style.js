@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { PRIMARY_BLUE } from '../../theme/colors';
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -34,6 +35,18 @@ const styles = StyleSheet.create({
     color: '#FF0000',
     fontSize: 14,
   },
+  balanceView: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 0,
+    marginTop: 10,
+  },
+  blueLabel: {
+    fontSize: 16,
+    color: PRIMARY_BLUE,
+  }
 });
 
 export default styles;
