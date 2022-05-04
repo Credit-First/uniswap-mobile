@@ -216,9 +216,17 @@ const TransferScreen = props => {
   };
 
   const _handleFromAccountChange = value => {
+    const parseInfo = async () => {
+      const ethBalanceInWei = await getBalanceOfAccount(value.chainName, value.address);
+      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(4);
+      setEthBalance(ethBalanceInEth);
+    }
     setFromAccount(value);
     if (value && value.chainName !== 'FIO') {
       setAddressInvalidMessage('');
+      if (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC') {
+        parseInfo();
+      }
     }
   };
 
@@ -300,9 +308,6 @@ const TransferScreen = props => {
 
   const prepareETHTransfer = async (from, to, amount) => {
     try {
-      const gasLimitation = await getCurrentETHGasLimit(from.chainName, fromAccount, amount.toString(), toAccountName);
-      setEthGasLimit(gasLimitation);
-
       const gasPrice = await getCurrentGasPrice(from.chainName);
       setEthGasPrice(gasPrice);
       const ethBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
@@ -312,13 +317,21 @@ const TransferScreen = props => {
       setEthFromPrivateKey(from.privateKey);
       setEthToAddress(to);
       setEthFloatAmount(amount);
-      const estimatedFee = parseFloat((gasPrice * gasLimitation) / ethDivider).toFixed(4);
-      setEthEstimatedFee(estimatedFee);
-      const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
-      setEthTotalAmount(totalAmount);
-      if (ethBalanceInEth > totalAmount) {
-        setPreviewEthTransfer(true);
-      } else {
+
+      if (amount < ethBalanceInEth) {
+        const gasLimitation = await getCurrentETHGasLimit(from.chainName, fromAccount, amount.toString(), toAccountName);
+        setEthGasLimit(gasLimitation);
+        const estimatedFee = parseFloat((gasPrice * gasLimitation) / ethDivider).toFixed(4);
+        setEthEstimatedFee(estimatedFee);
+        const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
+        setEthTotalAmount(totalAmount);
+        if (ethBalanceInEth > totalAmount) {
+          setPreviewEthTransfer(true);
+        } else {
+          Alert.alert('Insufficient balance to send transfer!');
+        }
+      }
+      else {
         Alert.alert('Insufficient balance to send transfer!');
       }
     } catch (error) {
@@ -354,6 +367,7 @@ const TransferScreen = props => {
 
   const rejectETHTransfer = () => {
     setPreviewEthTransfer(false);
+    setEthBalance(0);
   }
 
   const _handleTransfer = async () => {
@@ -610,14 +624,21 @@ const TransferScreen = props => {
               autoCapitalize={'none'}
               keyboardType={'numeric'}
             />
-            <KInput
-              label={'Memo'}
-              placeholder={'Optional memo'}
-              value={memo}
-              onChangeText={setMemo}
-              containerStyle={styles.inputContainer}
-              autoCapitalize={'none'}
-            />
+            {fromAccount && (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC') ?
+              <View style={styles.balanceView}>
+                <KText style={styles.blueLabel}> Available Balance: </KText>
+                <KText> {ethBalance} {fromAccount.chainName}</KText>
+              </View>
+              :
+              <KInput
+                label={'Memo'}
+                placeholder={'Optional memo'}
+                value={memo}
+                onChangeText={setMemo}
+                containerStyle={styles.inputContainer}
+                autoCapitalize={'none'}
+              />
+            }
             <View style={styles.spacer} />
             <KButton
               title={'Submit transfer'}
@@ -638,7 +659,7 @@ const TransferScreen = props => {
             />
           </View>
         </KeyboardAwareScrollView>
-      </SafeAreaView>
+      </SafeAreaView >
     );
   }
 };
