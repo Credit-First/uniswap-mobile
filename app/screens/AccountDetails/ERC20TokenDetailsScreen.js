@@ -111,20 +111,24 @@ const ERC20TokenDetailsScreen = props => {
 
   const prepareTransfer = async (from, floatAmount) => {
     try {
-      const gasLimitation = await getCurrentTokenGasLimit(from.chainName, account, floatAmount.toString(), toAccountName);
-      setGasLimit(gasLimitation);
-
-      const gasValue = await getCurrentGasPrice(from.chainName);
-      setGasPrice(gasValue);
-      const nativeBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
-      const nativeBalanceInEth = parseFloat(nativeBalanceInWei / nativeDivider).toFixed(4);
-      const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
-      setEstimatedFee(estimatedFee);
-
-      if (nativeBalanceInEth > estimatedFee && tokenBalance >= floatAmount) {
-        setPreviewTransfer(true);
+      if (tokenBalance < floatAmount) {
+        Alert.alert('Insufficient balance to send transfer!');
       } else {
-        Alert.alert('Not enough ETH for transfer cost (gas)!');
+        const gasLimitation = await getCurrentTokenGasLimit(from.chainName, account, floatAmount.toString(), toAccountName);
+        setGasLimit(gasLimitation);
+
+        const gasValue = await getCurrentGasPrice(from.chainName);
+        setGasPrice(gasValue);
+        const nativeBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
+        const nativeBalanceInEth = parseFloat(nativeBalanceInWei / nativeDivider).toFixed(4);
+        const estimatedFee = parseFloat((gasValue * gasLimit) / nativeDivider).toFixed(4);
+        setEstimatedFee(estimatedFee);
+
+        if (nativeBalanceInEth < estimatedFee) {
+          Alert.alert('Not enough ETH for transfer cost (gas)!');
+        } else {
+          setPreviewTransfer(true);
+        }
       }
     } catch (error) {
       console.log("error:", error);
