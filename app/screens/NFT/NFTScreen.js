@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Image } from 'react-native';
+import { SafeAreaView, View, Image, Alert } from 'react-native';
 import styles from './NFTScreen.style';
 import { KHeader, KButton, KSelect } from '../../components';
 import { connectAccounts } from '../../redux';
+import NFTSampleURLs, { NFT_COUNT } from './NFTSampleURLs';
 
 const NFTScreen = props => {
   const {
@@ -12,19 +13,37 @@ const NFTScreen = props => {
   } = props;
 
   const [ethAccounts, setEthAccounts] = useState([]);
-  const [account, setAccount] = useState('');
+  const [account, setAccount] = useState(null);
+  const [imageIndex, setImageIndex] = useState(0);
 
   const changeAccount = value => {
     setAccount(value);
   };
 
   const _handleNFTMint = () => {
+    if (account === null) {
+      Alert.alert('Please select an account to mint!');
+      return;
+    }
     // navigate('Mint');
   }
 
   useEffect(() => {
-    setEthAccounts(accounts.filter((cell) => cell.chainName === 'ETH'))
+    if (accounts) {
+      const ethList = accounts.filter((cell) => cell.chainName === 'ETH');
+      if (ethList.length === 0) {
+        Alert.alert('Please import the Ethereum account or create new one!');
+      }
+      setEthAccounts(ethList);
+    }
   }, [accounts])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setImageIndex(prev => (prev + 1) % NFT_COUNT );
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,7 +51,7 @@ const NFTScreen = props => {
         <KHeader title={'Crypto Tribe NFT'} style={styles.header} />
         <Image
           style={styles.logo}
-          source={require('../../../assets/nft/not-revealed.png')}
+          source={NFTSampleURLs[imageIndex]}
           resizeMode="contain"
         />
         <View style={styles.spacer} />
@@ -54,7 +73,6 @@ const NFTScreen = props => {
       </View>
     </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(NFTScreen);
