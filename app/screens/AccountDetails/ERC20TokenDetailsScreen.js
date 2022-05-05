@@ -121,7 +121,7 @@ const ERC20TokenDetailsScreen = props => {
         setGasPrice(gasValue);
         const nativeBalanceInWei = await getBalanceOfAccount(from.chainName, from.address);
         const nativeBalanceInEth = parseFloat(nativeBalanceInWei / nativeDivider).toFixed(4);
-        const estimatedFee = parseFloat((gasValue * gasLimit) / nativeDivider).toFixed(4);
+        const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
         setEstimatedFee(estimatedFee);
 
         if (nativeBalanceInEth < estimatedFee) {

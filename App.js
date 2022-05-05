@@ -21,7 +21,7 @@ const MainTab = createBottomTabNavigator();
 const MainStack = createStackNavigator();
 const TransferStack = createStackNavigator();
 const AddressStack = createStackNavigator();
-// const MenuStack = createStackNavigator();
+const NFTStack = createStackNavigator();
 
 import {
   AccountsScreen,
@@ -64,6 +64,7 @@ import {
   VoteScreen,
   MenuScreen,
   NFTScreen,
+  NFTMintScreen,
   AdminScreen,
   RecoverPrivateKeyScreen,
   KeyListScreen,
@@ -196,13 +197,14 @@ const AddressStackScreen = () => {
   );
 };
 
-// const MenuStackScreen = () => {
-//   return (
-//     <MenuStack.Navigator headerMode={'none'}>
-//       <MenuStack.Screen name="Menu" component={MenuScreen} />
-//     </MenuStack.Navigator>
-//   );
-// };
+const NFTStackScreen = () => {
+  return (
+    <NFTStack.Navigator headerMode={'none'}>
+      <NFTStack.Screen name="NFTScreen" component={NFTScreen} />
+      <NFTStack.Screen name="NFTMintScreen" component={NFTMintScreen} />
+    </NFTStack.Navigator>
+  );
+};
 
 const tabScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => {
@@ -230,7 +232,7 @@ const MainTabScreen = () => {
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
       <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
-      <MainTab.Screen name={'NFT'} component={NFTScreen} />
+      <MainTab.Screen name={'NFT'} component={NFTStackScreen} />
     </MainTab.Navigator>
   );
 };

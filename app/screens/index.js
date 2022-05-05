@@ -69,6 +69,7 @@ export {
 } from './Transactions/TransactionsScreen';
 export { default as VoteScreen } from './Vote/VoteScreen';
 export { default as NFTScreen } from './NFT/NFTScreen';
+export { default as NFTMintScreen } from './NFT/NFTMintScreen';
 export { default as MenuScreen } from './Menu/MenuScreen';
 export { default as ExchangeScreen } from './Exchange/ExchangeScreen';
 export { default as AddressBookScreen } from './AddressBook/AddressBookScreen';

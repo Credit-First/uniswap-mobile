@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import styles from './NFTScreen.style';
-import { KHeader, KButton, KSelect } from '../../components';
+import { KHeader, KButton, KSelect, KText } from '../../components';
 import { connectAccounts } from '../../redux';
 import NFTSampleURLs, { NFT_COUNT } from './NFTSampleURLs';
 
@@ -25,7 +25,8 @@ const NFTScreen = props => {
       Alert.alert('Please select an account to mint!');
       return;
     }
-    // navigate('Mint');
+
+    navigate('NFTMintScreen', {account});
   }
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const NFTScreen = props => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setImageIndex(prev => (prev + 1) % NFT_COUNT );
+      setImageIndex(prev => (prev + 1) % NFT_COUNT);
     }, 1000);
     return () => clearInterval(interval);
   }, [])
@@ -55,6 +56,9 @@ const NFTScreen = props => {
           resizeMode="contain"
         />
         <View style={styles.spacer} />
+        <View style={styles.center}>
+          <KText>Sample NFT images</KText>
+        </View>
         <KSelect
           label={'Select account'}
           items={ethAccounts.map(item => ({
@@ -66,7 +70,7 @@ const NFTScreen = props => {
         />
         <View style={styles.spacer} />
         <KButton
-          title={'Mint'}
+          title={'Buy one Tribe NFT'}
           style={styles.button}
           onPress={() => _handleNFTMint()}
         />

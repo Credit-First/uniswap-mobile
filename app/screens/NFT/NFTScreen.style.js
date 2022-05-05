@@ -46,6 +46,10 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     backgroundColor: 'black'
   },
+  center: {
+    display: 'flex',
+    alignItems: 'center'
+  }
 });
 
 export default styles;
