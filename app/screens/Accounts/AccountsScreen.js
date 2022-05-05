@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import {
   Image,
-  View,
+  TouchableOpacity,
   FlatList,
   SafeAreaView,
   Linking,
@@ -602,6 +602,10 @@ const AccountsScreen = props => {
     }
   }
 
+  const _handleAvatarPress = () => {
+    navigate('NFT');
+  }
+
   const showUsdTotal = () => {
     if (validAccounts.length > 0) {
       return (<Text style={styles.total}>${usdTotal}</Text>);
@@ -669,11 +673,13 @@ const AccountsScreen = props => {
             />
           </SafeAreaView>
           <SafeAreaView style={styles.accountContainer}>
-            <Image
-              style={styles.logo}
-              source={require('../../../assets/logo/tribe-logo.png')}
-              resizeMode="contain"
-            />
+            <TouchableOpacity onPress={_handleAvatarPress} style={styles.logo}  >
+              <Image
+                style={styles.logo}
+                source={require('../../../assets/nft/not-revealed.png')}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
             {showUsdTotal()}
             <FlatList
               data={validAccounts}
@@ -732,11 +738,13 @@ const AccountsScreen = props => {
             />
           </SafeAreaView>
           <SafeAreaView style={styles.accountContainer}>
-            <Image
-              style={styles.logo}
-              source={require('../../../assets/logo/tribe-logo.png')}
-              resizeMode="contain"
-            />
+            <TouchableOpacity onPress={_handleAvatarPress}>
+              <Image
+                style={styles.logo}
+                source={require('../../../assets/nft/not-revealed.png')}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
             {showUsdTotal()}
             <FlatList
               data={validAccounts}

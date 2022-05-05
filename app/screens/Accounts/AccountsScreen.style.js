@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     flex: 1,
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFF',
   },
   networkContainer: {
@@ -84,10 +85,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   logo: {
+    display: 'flex',
     alignSelf: 'center',
     height: 135,
-    width: 324,
-    marginRight: 30,
+    width: 135,
+    marginTop: 30,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 16,
   },
   spacer: {
     marginTop: 10,

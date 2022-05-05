@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollContentContainer: {
@@ -10,7 +11,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   alert: {
     color: 'red',
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   header: {
-    marginTop: 40,
+    marginTop: 20,
   },
   list: {
     marginTop: 20,
@@ -35,6 +36,15 @@ const styles = StyleSheet.create({
   },
   spacer: {
     marginTop: 10,
+  },
+  logo: {
+    alignSelf: 'center',
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: 15,
+    borderWidth: 3,
+    borderColor: 'black',
+    backgroundColor: 'black'
   },
 });
 
