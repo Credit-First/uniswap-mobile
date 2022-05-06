@@ -124,6 +124,16 @@ export const web3NFTModule = () => {
      * Get nft price
      * @param {String} chainName
      */
+     getTotalSupply: async (chainName) => {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(nftABI, nftAddress);
+      const result = await contract.methods.totalSupply().call();
+      return result;
+    },
+    /**
+     * Get nft price
+     * @param {String} chainName
+     */
     getNFTPrice: async (chainName) => {
       const web3 = getWeb3(chainName);
       const contract = new web3.eth.Contract(nftABI, nftAddress);

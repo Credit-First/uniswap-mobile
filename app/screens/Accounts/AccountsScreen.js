@@ -77,9 +77,13 @@ const AccountsScreen = props => {
   });
 
   useEffect(() => {
-    if (nftTokens && nftTokens.length > 0) {
-      const avatarURL = getNFTImageURL(nftTokens[0].tokenId);
+    const parseInfo = async () => {
+      const avatarURL = await getNFTImageURL(nftTokens[0].tokenId);
       setNftAvatar(avatarURL);
+    }
+
+    if (nftTokens && nftTokens.length > 0) {
+      parseInfo();
     }
     else {
       setNftAvatar(nonNFTURL);
@@ -725,12 +729,12 @@ const AccountsScreen = props => {
             <View style={styles.logoContainer}>
               <Image
                 style={styles.noAvatar}
-                source={nftAvatar}
+                source={nonNFTURL}
                 resizeMode="contain"
               />
               <Image
                 style={styles.logo}
-                source={{ uri: 'https://ipfs.io/ipfs/QmTXBqXvN2soec7ANXnWet1SzsBDT8aCUqZv1pdgZafnBg/502.png' }}
+                source={nftAvatar}
                 resizeMode="contain"
               />
             </View>

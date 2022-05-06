@@ -36,10 +36,12 @@ const NFTMintScreen = props => {
     route: {
       params: { account: account },
     },
+    addNFTToken,
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const {
+    getTotalSupply,
     getNFTPrice,
     getCurrentNFTMintGasLimit,
     mintNFT,
@@ -66,6 +68,14 @@ const NFTMintScreen = props => {
       }
       else {
         await mintNFT(account.chainName, account, 1, gasLimit, gasPrice);
+        const nftTokenId = await getTotalSupply(account.chainName);
+        const nftItem = {
+          chainName: account.chainName,
+          address: account.address,
+          tokenId: nftTokenId
+        }
+
+        addNFTToken(nftItem);
         Alert.alert(`You bought a Tribe NFT successfully!`);
         goBack();
       }
