@@ -19,8 +19,6 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 import web3Module, { web3NFTModule } from '../../ethereum/ethereum';
 
 const tokenABI = require('../../ethereum/abi.json');
-const nftABI = require('../../ethereum/nftAbi.json');
-const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const NFTMintScreen = props => {
   const [ethBalance, setEthBalance] = useState(0.0);
@@ -45,17 +43,14 @@ const NFTMintScreen = props => {
     getNFTPrice,
     getCurrentNFTMintGasLimit,
     mintNFT,
-  } = web3NFTModule({
-    nftABI,
-    tokenAddress: nftAddress,
-  })
+  } = web3NFTModule();
 
   const {
     getCurrentGasPrice,
     getBalanceOfAccount,
   } = web3Module({
     tokenABI,
-    tokenAddress: nftAddress,
+    tokenAddress: null,
     decimals: 18
   });
 
@@ -95,8 +90,7 @@ const NFTMintScreen = props => {
         setGasLimit(gasLimitation);
 
         const gasValue = await getCurrentGasPrice(account.chainName);
-        const realGasValue = parseFloat(gasValue / nativeDivider).toFixed(4);
-        setGasPrice(realGasValue);
+        setGasPrice(gasValue);
 
         const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
         setEstimatedFee(estimatedFee);

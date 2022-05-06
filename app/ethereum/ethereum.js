@@ -10,6 +10,8 @@ import { Transaction as EthereumTx } from 'ethereumjs-tx';
 import Common from 'ethereumjs-common';
 import { BigNumber, ethers } from 'ethers';
 const tokenABI = require('./abi.json');
+const nftABI = require('./nftAbi.json');
+const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
 const bscEndpoint = 'https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/bsc/mainnet';
@@ -115,10 +117,8 @@ export const web3TokenInfoModule = () => {
 
 /**
  * Web3 Custom NFT Module
- * @param {Array} nftABI
- * @param {String} tokenAddress
  */
-export const web3NFTModule = ({ nftABI, tokenAddress }) => {
+export const web3NFTModule = () => {
   return {
     /**
      * Get nft price
@@ -126,7 +126,7 @@ export const web3NFTModule = ({ nftABI, tokenAddress }) => {
      */
     getNFTPrice: async (chainName) => {
       const web3 = getWeb3(chainName);
-      const contract = new web3.eth.Contract(nftABI, tokenAddress);
+      const contract = new web3.eth.Contract(nftABI, nftAddress);
       const result = await contract.methods.publicCost().call();
       return result;
     },
@@ -143,15 +143,16 @@ export const web3NFTModule = ({ nftABI, tokenAddress }) => {
      */
     getCurrentNFTMintGasLimit: async (chainName, account, count) => {
       const web3 = getWeb3(chainName);
-      const contract = new web3.eth.Contract(nftABI, tokenAddress);
+      const contract = new web3.eth.Contract(nftABI, nftAddress);
       const transactionData = contract.methods.buy(count).encodeABI();
       const nftPrice = await contract.methods.publicCost().call();
       const value = nftPrice * count;
+
       const tx = {
-        to: tokenAddress,
+        to: nftAddress,
         data: transactionData,
         from: account.address,
-        value: BigNumber.from(value + "").toHexString(),
+        value: web3.utils.toHex(value),
       };
 
       return web3.eth.estimateGas(tx);
@@ -165,7 +166,7 @@ export const web3NFTModule = ({ nftABI, tokenAddress }) => {
      */
     mintNFT: async (chainName, account, count, gasLimit = 300000, gasPrice = 20000000000) => {
       const web3 = getWeb3(chainName);
-      const contract = new web3.eth.Contract(nftABI, tokenAddress);
+      const contract = new web3.eth.Contract(nftABI, nftAddress);
       const chainId = getChainId(chainName);
       const providerURL = getNodeUrl(chainName);
       const FORK_NETWORK = Common.forCustomChain(
@@ -188,8 +189,8 @@ export const web3NFTModule = ({ nftABI, tokenAddress }) => {
 
       const rawTransaction = {
         from: account.address,
-        to: tokenAddress,
-        value: BigNumber.from(value + "").toHexString(),
+        to: nftAddress,
+        value:  web3.utils.toHex(value),
         nonce: web3.utils.toHex(nounce),
         data: transactionData,
         gasLimit: web3.utils.toHex(gasLimit),
@@ -199,7 +200,7 @@ export const web3NFTModule = ({ nftABI, tokenAddress }) => {
       const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
       tx.sign(privateKey);
       const serializedTx = tx.serialize();
-      // return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
+      return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
     },
   }
 }
