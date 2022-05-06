@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import {
+  View,
   Image,
   TouchableOpacity,
   FlatList,
@@ -25,7 +26,9 @@ import { getBalance } from '../../eos/tokens';
 import { findIndex } from 'lodash';
 import { getLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
+import { web3NFTModule } from '../../ethereum/ethereum';
 
+const nonNFTURL = require('../../../assets/nft/not-revealed.png');
 
 const AccountsScreen = props => {
   const {
@@ -35,11 +38,15 @@ const AccountsScreen = props => {
     addKey,
     setTotal,
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, totals, history, config },
+    accountsState: { accounts, addresses, keys, totals, history, config, nftTokens },
     chooseActiveAccount,
   } = props;
 
+  const {
+    getNFTImageURL,
+  } = web3NFTModule();
 
+  const [nftAvatar, setNftAvatar] = useState()
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
@@ -68,6 +75,16 @@ const AccountsScreen = props => {
   const validAccounts = accounts.filter((value, index, array) => {
     return (value != null);
   });
+
+  useEffect(() => {
+    if (nftTokens && nftTokens.length > 0) {
+      const avatarURL = getNFTImageURL(nftTokens[0].tokenId);
+      setNftAvatar(avatarURL);
+    }
+    else {
+      setNftAvatar(nonNFTURL);
+    }
+  }, [nftTokens])
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -613,12 +630,11 @@ const AccountsScreen = props => {
     return null;
   }
 
-
-  if (isListChainsVisible) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <SafeAreaView style={styles.mainContainer}>
-          <SafeAreaView style={styles.networkContainer}>
+  return (
+    <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.mainContainer}>
+        <SafeAreaView style={styles.networkContainer}>
+          {isListChainsVisible ?
             <ChainButtons
               onChainPress={_handleNewChainPress}
               onClosePress={toggleListChains}
@@ -671,41 +687,7 @@ const AccountsScreen = props => {
                 />
               )}
             />
-          </SafeAreaView>
-          <SafeAreaView style={styles.accountContainer}>
-            <TouchableOpacity onPress={_handleAvatarPress} style={styles.logo}  >
-              <Image
-                style={styles.logo}
-                source={require('../../../assets/nft/not-revealed.png')}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-            {showUsdTotal()}
-            <FlatList
-              data={validAccounts}
-              keyExtractor={(item, index) => `${index}`}
-              renderItem={({ item, index }) => (
-                <AccountListItem
-                  account={item}
-                  style={styles.listItem}
-                  onPress={() => _handlePressAccount(index)}
-                  onTokenPress={() => _handlePressTokenList(index)}
-                  onBalanceUpdate={_handleBalanceUpdate}
-                />
-              )}
-            />
-          </SafeAreaView>
-        </SafeAreaView>
-        <Text style={styles.version}>
-          New messages: {newMessageCount}, {getAppVersion()}
-        </Text>
-      </SafeAreaView>
-    );
-  } else {
-    return (
-      <SafeAreaView style={styles.container}>
-        <SafeAreaView style={styles.mainContainer}>
-          <SafeAreaView style={styles.networkContainer}>
+            :
             <AccountButtons
               onMenuPress={_handleMenu}
               onAddPress={toggleListChains}
@@ -736,38 +718,44 @@ const AccountsScreen = props => {
                 />
               )}
             />
-          </SafeAreaView>
-          <SafeAreaView style={styles.accountContainer}>
-            <TouchableOpacity onPress={_handleAvatarPress}>
+          }
+        </SafeAreaView>
+        <SafeAreaView style={styles.accountContainer}>
+          <TouchableOpacity onPress={_handleAvatarPress}>
+            <View style={styles.logoContainer}>
               <Image
-                style={styles.logo}
-                source={require('../../../assets/nft/not-revealed.png')}
+                style={styles.noAvatar}
+                source={nftAvatar}
                 resizeMode="contain"
               />
-            </TouchableOpacity>
-            {showUsdTotal()}
-            <FlatList
-              data={validAccounts}
-              keyExtractor={(item, index) => `${index}`}
-              renderItem={({ item, index }) => (
-                <AccountListItem
-                  account={item}
-                  style={styles.listItem}
-                  onPress={() => _handlePressAccount(index)}
-                  onTokenPress={() => _handlePressTokenList(index)}
-                  onBalanceUpdate={_handleBalanceUpdate}
-                />
-              )}
-            />
-          </SafeAreaView>
+              <Image
+                style={styles.logo}
+                source={{ uri: 'https://ipfs.io/ipfs/QmTXBqXvN2soec7ANXnWet1SzsBDT8aCUqZv1pdgZafnBg/502.png' }}
+                resizeMode="contain"
+              />
+            </View>
+          </TouchableOpacity>
+          {showUsdTotal()}
+          <FlatList
+            data={validAccounts}
+            keyExtractor={(item, index) => `${index}`}
+            renderItem={({ item, index }) => (
+              <AccountListItem
+                account={item}
+                style={styles.listItem}
+                onPress={() => _handlePressAccount(index)}
+                onTokenPress={() => _handlePressTokenList(index)}
+                onBalanceUpdate={_handleBalanceUpdate}
+              />
+            )}
+          />
         </SafeAreaView>
-        <Text style={styles.version}>
-          New messages: {newMessageCount}, {getAppVersion()}
-        </Text>
       </SafeAreaView>
-    );
-  }
-
+      <Text style={styles.version}>
+        New messages: {newMessageCount}, {getAppVersion()}
+      </Text>
+    </SafeAreaView>
+  );
 };
 
 export default connectAccounts()(AccountsScreen);

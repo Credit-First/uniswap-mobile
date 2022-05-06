@@ -135,7 +135,7 @@ export const web3NFTModule = () => {
      * @param {Number} tokenId
      */
     getNFTImageURL: async (tokenId) => {
-      const result = `https://ipfs.io/ipfs/QmTXBqXvN2soec7ANXnWet1SzsBDT8aCUqZv1pdgZafnBg/${tokenId}.png`
+      const result = {uri: `https://ipfs.io/ipfs/QmTXBqXvN2soec7ANXnWet1SzsBDT8aCUqZv1pdgZafnBg/${tokenId}.png`};
       return result;
     },
     /**

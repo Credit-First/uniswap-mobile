@@ -84,12 +84,26 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     marginHorizontal: 20,
   },
-  logo: {
+  logoContainer: {
+    display: 'flex',
+    position: 'relative',
+    marginTop: 30,
+    alignSelf: 'center',
+  },
+  noAvatar: {
     display: 'flex',
     alignSelf: 'center',
     height: width/3,
     width: width/3,
-    marginTop: 30,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 16,
+  },
+  logo: {
+    display: 'flex',
+    position: 'absolute',
+    height: width/3,
+    width: width/3,
     borderWidth: 2,
     borderColor: 'black',
     borderRadius: 16,
