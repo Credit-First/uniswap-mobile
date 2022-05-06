@@ -29,6 +29,10 @@ export const FETCH_TOKENS = 'accounts/FETCH_TOKENS';
 export const ADD_TOKEN = 'accounts/ADD_TOKEN';
 export const DELETE_TOKEN = 'accounts/DELETE_TOKEN';
 
+export const FETCH_NFT_TOKENS = 'accounts/FETCH_NFT_TOKENS';
+export const ADD_NFT_TOKEN = 'accounts/ADD_NFT_TOKEN';
+export const DELETE_NFT_TOKEN = 'accounts/DELETE_NFT_TOKEN';
+
 /**
  * Action Creators
  */
@@ -49,4 +53,7 @@ export const accountsActionCreators = {
   fetchTokens: createAction(FETCH_TOKENS),
   addToken: createAction(ADD_TOKEN),
   deleteToken: createAction(DELETE_TOKEN),
+  fetchNFTTokens: createAction(FETCH_NFT_TOKENS),
+  addNFTToken: createAction(ADD_NFT_TOKEN),
+  deleteNFTToken: createAction(DELETE_NFT_TOKEN),
 };

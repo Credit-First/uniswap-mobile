@@ -66,9 +66,14 @@ const NFTMintScreen = props => {
     }
     setPendingMint(true);
     try {
-      await mintNFT(account.chainName, account, 1, gasLimit, gasPrice);
-      Alert.alert(`You bought a Tribe NFT successfully!`);
-      goBack();
+      if (parseFloat(totalFee) > parseFloat(ethBalance)) {
+        Alert.alert(`Insufficient balance to buy a Tribe NFT!`);
+      }
+      else {
+        await mintNFT(account.chainName, account, 1, gasLimit, gasPrice);
+        Alert.alert(`You bought a Tribe NFT successfully!`);
+        goBack();
+      }
     } catch (error) {
       console.log("nft mint error:", error)
     }
