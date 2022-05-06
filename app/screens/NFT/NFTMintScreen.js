@@ -62,11 +62,11 @@ const NFTMintScreen = props => {
       return;
     }
     setPendingMint(true);
-    try {
-      if (parseFloat(totalFee) > parseFloat(ethBalance)) {
-        Alert.alert(`Insufficient balance to buy a Tribe NFT!`);
-      }
-      else {
+    if (parseFloat(ethBalance) === 0 || parseFloat(totalFee) > parseFloat(ethBalance)) {
+      Alert.alert(`Insufficient balance to mint NFT!`);
+    }
+    else {
+      try {
         await mintNFT(account.chainName, account, 1, gasLimit, gasPrice);
         const nftTokenId = await getTotalSupply(account.chainName);
         const nftItem = {
@@ -78,9 +78,9 @@ const NFTMintScreen = props => {
         addNFTToken(nftItem);
         Alert.alert(`You bought a Tribe NFT successfully!`);
         goBack();
+      } catch (error) {
+        console.log("nft mint error:", error)
       }
-    } catch (error) {
-      console.log("nft mint error:", error)
     }
     setPendingMint(false);
   }
@@ -104,7 +104,7 @@ const NFTMintScreen = props => {
 
         const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
         setEstimatedFee(estimatedFee);
-        
+
         const realTotalFee = (parseFloat(price / nativeDivider) + parseFloat((gasValue * gasLimitation) / nativeDivider)).toFixed(4);
         setTotalFee(realTotalFee);
       } catch (error) {
