@@ -65,6 +65,7 @@ import {
   MenuScreen,
   NFTScreen,
   NFTMintScreen,
+  NFTListScreen,
   AdminScreen,
   RecoverPrivateKeyScreen,
   KeyListScreen,
@@ -202,6 +203,7 @@ const NFTStackScreen = () => {
     <NFTStack.Navigator headerMode={'none'}>
       <NFTStack.Screen name="NFTScreen" component={NFTScreen} />
       <NFTStack.Screen name="NFTMintScreen" component={NFTMintScreen} />
+      <NFTStack.Screen name="NFTListScreen" component={NFTListScreen} />
     </NFTStack.Navigator>
   );
 };

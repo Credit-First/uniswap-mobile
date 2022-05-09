@@ -624,7 +624,7 @@ const AccountsScreen = props => {
   }
 
   const _handleAvatarPress = () => {
-    navigate('NFT');
+    navigate('NFT', { screen: 'NFTListScreen' });
   }
 
   const showUsdTotal = () => {

@@ -223,13 +223,18 @@ function deleteToken(state, payload) {
 }
 
 function deleteNFTToken(state, payload) {
-  let nftTokens = state.nftTokens.filter((cell) => !(cell.address === payload.address && cell.chainName === payload.chainName && cell.tokenId === payload.tokenId));
   let accounts = state.accounts;
   let keys = state.keys;
   let totals = state.totals;
   let history = state.history;
   let config = state.config;
   let tokens = state.tokens;
+  let nftTokens = state.nftTokens.filter((cell) => !(cell.address === payload.address && cell.chainName === payload.chainName && cell.tokenId === payload.tokenId));
+  let selectedNft = nftTokens.filter((cell) => cell.isSelected);
+
+  if(nftTokens.length > 0 && selectedNft.length === 0) {
+    nftTokens[0].isSelected = true;
+  }
 
   return {
     accounts,
