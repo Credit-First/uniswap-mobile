@@ -28,7 +28,7 @@ const NFTMintScreen = props => {
   const [gasPrice, setGasPrice] = useState(0.001);
   const [gasLimit, setGasLimit] = useState(300000);
   const [estimatedFee, setEstimatedFee] = useState(0.0);
-  const [totalFee, setTotalFee] = useState(0.0);
+  const [totalCost, setTotalCost] = useState(0.0);
   const [pendingMint, setPendingMint] = useState(false);
 
   const {
@@ -62,7 +62,7 @@ const NFTMintScreen = props => {
       return;
     }
     setPendingMint(true);
-    if (parseFloat(ethBalance) === 0 || parseFloat(totalFee) > parseFloat(ethBalance)) {
+    if (parseFloat(ethBalance) === 0 || parseFloat(totalCost) > parseFloat(ethBalance)) {
       Alert.alert(`Insufficient balance to mint NFT!`);
     }
     else {
@@ -105,8 +105,8 @@ const NFTMintScreen = props => {
         const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
         setEstimatedFee(estimatedFee);
 
-        const realTotalFee = (parseFloat(price / nativeDivider) + parseFloat((gasValue * gasLimitation) / nativeDivider)).toFixed(4);
-        setTotalFee(realTotalFee);
+        const realTotalCost = (parseFloat(price / nativeDivider) + parseFloat((gasValue * gasLimitation) / nativeDivider)).toFixed(4);
+        setTotalCost(realTotalCost);
       } catch (error) {
         console.log(error)
       }
@@ -138,7 +138,7 @@ const NFTMintScreen = props => {
           <KText>NFT price: {nftPrice} {account.chainName}</KText>
           <KText>NFT count: 1</KText>
           <KText>Gas fee: {estimatedFee} {account.chainName} (Estimated)</KText>
-          <KText>Total fee: {totalFee} {account.chainName} (Estimated)</KText>
+          <KText>Total cast: {totalCost} {account.chainName} (Estimated)</KText>
           <KText>Available balance: {ethBalance} {account.chainName}</KText>
           <View style={styles.autoSpacer} />
           <TwoIconsButtons

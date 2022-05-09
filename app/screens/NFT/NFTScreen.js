@@ -40,6 +40,12 @@ const NFTScreen = props => {
   }, [accounts])
 
   useEffect(() => {
+    if(ethAccounts && ethAccounts.length === 1) {
+      setAccount(ethAccounts[0]);
+    }
+  }, [ethAccounts])
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setImageIndex(prev => (prev + 1) % NFT_COUNT);
     }, 1000);
@@ -65,6 +71,7 @@ const NFTScreen = props => {
             label: item.address,
             value: item,
           }))}
+          value={account}
           onValueChange={changeAccount}
           containerStyle={styles.inputContainer}
         />
