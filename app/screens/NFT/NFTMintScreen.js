@@ -25,7 +25,7 @@ const NFTMintScreen = props => {
   const [nftPrice, setNftPrice] = useState(0.0);
 
   const nativeDivider = 1000000000000000000;
-  const [gasPrice, setGasPrice] = useState(0.001);
+  const [gasPrice, setGasPrice] = useState(20000000000);
   const [gasLimit, setGasLimit] = useState(300000);
   const [estimatedFee, setEstimatedFee] = useState(0.0);
   const [totalCost, setTotalCost] = useState(0.0);
@@ -62,7 +62,7 @@ const NFTMintScreen = props => {
       return;
     }
     setPendingMint(true);
-    if (parseFloat(ethBalance) === 0 || parseFloat(totalCost) > parseFloat(ethBalance)) {
+    if (parseFloat(ethBalance) === 0 || parseFloat(nftPrice) > parseFloat(ethBalance) || parseFloat(totalCost) > parseFloat(ethBalance)) {
       Alert.alert(`Insufficient balance to mint NFT!`);
     }
     else {
@@ -75,10 +75,10 @@ const NFTMintScreen = props => {
           tokenId: nftTokenId
         }
 
-        if(nftTokens.length === 0) {
+        if (nftTokens.length === 0) {
           isSelected = true;
         }
-        else{
+        else {
           isSelected = false;
         }
 
@@ -103,11 +103,11 @@ const NFTMintScreen = props => {
         const nativeBalanceInEth = parseFloat(ethBalance / nativeDivider).toFixed(4);
         setEthBalance(nativeBalanceInEth);
 
-        const gasLimitation = await getCurrentNFTMintGasLimit(account.chainName, account, 1);
-        setGasLimit(gasLimitation);
-
         const gasValue = await getCurrentGasPrice(account.chainName);
         setGasPrice(gasValue);
+
+        const gasLimitation = await getCurrentNFTMintGasLimit(account.chainName, account, 1);
+        setGasLimit(gasLimitation);
 
         const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(4);
         setEstimatedFee(estimatedFee);

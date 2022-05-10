@@ -36,7 +36,7 @@ const ERC20TokenDetailsScreen = props => {
   const [addressInvalidMessage, setAddressInvalidMessage] = useState();
 
   const nativeDivider = 1000000000000000000;
-  const [gasPrice, setGasPrice] = useState(0.001);
+  const [gasPrice, setGasPrice] = useState(20000000000);
   const [gasLimit, setGasLimit] = useState(300000);
   const [estimatedFee, setEstimatedFee] = useState(0.0);
   const [loading, setLoading] = useState(false);
