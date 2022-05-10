@@ -145,7 +145,7 @@ const NFTMintScreen = props => {
           <KText>NFT price: {nftPrice} {account.chainName}</KText>
           <KText>NFT count: 1</KText>
           <KText>Gas fee: {estimatedFee} {account.chainName} (Estimated)</KText>
-          <KText>Total cast: {totalCost} {account.chainName} (Estimated)</KText>
+          <KText>Total cost: {totalCost} {account.chainName} (Estimated)</KText>
           <KText>Available balance: {ethBalance} {account.chainName}</KText>
           <View style={styles.autoSpacer} />
           <TwoIconsButtons
