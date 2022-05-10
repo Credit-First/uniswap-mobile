@@ -72,14 +72,12 @@ const NFTMintScreen = props => {
         const nftItem = {
           chainName: account.chainName,
           address: account.address,
-          tokenId: nftTokenId
+          tokenId: nftTokenId,
+          isSelected: false
         }
 
         if (nftTokens.length === 0) {
-          isSelected = true;
-        }
-        else {
-          isSelected = false;
+          nftItem.isSelected = true;
         }
 
         addNFTToken(nftItem);

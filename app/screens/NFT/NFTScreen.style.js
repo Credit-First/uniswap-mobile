@@ -49,7 +49,16 @@ const styles = StyleSheet.create({
   center: {
     display: 'flex',
     alignItems: 'center'
-  }
+  },
+  nftContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  selectContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
 });
 
 export default styles;

@@ -170,6 +170,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />
+      <AccountsStack.Screen name="NFTListScreen" component={NFTListScreen} />
     </AccountsStack.Navigator>
   );
 };
@@ -203,7 +204,6 @@ const NFTStackScreen = () => {
     <NFTStack.Navigator headerMode={'none'}>
       <NFTStack.Screen name="NFTScreen" component={NFTScreen} />
       <NFTStack.Screen name="NFTMintScreen" component={NFTMintScreen} />
-      <NFTStack.Screen name="NFTListScreen" component={NFTListScreen} />
     </NFTStack.Navigator>
   );
 };

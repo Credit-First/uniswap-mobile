@@ -78,7 +78,9 @@ const AccountsScreen = props => {
 
   useEffect(() => {
     const parseInfo = async () => {
-      const avatarURL = await getNFTImageURL(nftTokens[0].tokenId);
+      const index = nftTokens.findIndex(cell => cell.isSelected);
+      const tokenId = index !== -1 ? nftTokens[index].tokenId: nftTokens[0].tokenId;
+      const avatarURL = await getNFTImageURL(tokenId);
       setNftAvatar(avatarURL);
     }
 
@@ -624,8 +626,7 @@ const AccountsScreen = props => {
   }
 
   const _handleAvatarPress = () => {
-    navigate('NFT');
-    // navigate('NFT', { screen: 'NFTListScreen' });
+    navigate('NFTListScreen');
   }
 
   const showUsdTotal = () => {

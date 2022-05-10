@@ -18,6 +18,7 @@ import {
   DELETE_TOKEN,
   FETCH_NFT_TOKENS,
   ADD_NFT_TOKEN,
+  SELECT_NFT_TOKEN,
   DELETE_NFT_TOKEN,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
@@ -123,6 +124,8 @@ export default function accountsState(state = DEFAULT, action = {}) {
         tokens: state.tokens,
         nftTokens: state.nftTokens.concat([payload]),
       };
+    case SELECT_NFT_TOKEN:
+      return selectNFTToken(state, payload);
     case DELETE_NFT_TOKEN:
       return deleteNFTToken(state, payload);
     case FETCH_NFT_TOKENS:
@@ -203,6 +206,7 @@ function deleteAddress(state, payload) {
 
 function deleteToken(state, payload) {
   let tokens = state.tokens.filter((cell) => !(cell.address === payload.address && cell.chainName === payload.chainName));
+  let addresses = state.addresses;
   let accounts = state.accounts;
   let keys = state.keys;
   let totals = state.totals;
@@ -222,8 +226,48 @@ function deleteToken(state, payload) {
   };
 }
 
+function selectNFTToken(state, payload) {
+  let accounts = state.accounts;
+  let addresses = state.addresses;
+  let keys = state.keys;
+  let totals = state.totals;
+  let history = state.history;
+  let config = state.config;
+  let tokens = state.tokens;
+
+  let nftTokens = state.nftTokens.map((cell, index) => {
+    if(index === payload) {
+      cell.isSelected = true;
+    }
+    else {
+      cell.isSelected = false;
+    }
+
+    return cell;
+  })
+
+  let selectedNft = nftTokens.filter((cell) => cell.isSelected);
+
+  if(nftTokens.length > 0 && selectedNft.length === 0) {
+    nftTokens[0].isSelected = true;
+  }
+
+  return {
+    accounts,
+    addresses,
+    keys,
+    totals,
+    history,
+    config,
+    tokens,
+    nftTokens,
+  };
+}
+
+
 function deleteNFTToken(state, payload) {
   let accounts = state.accounts;
+  let addresses = state.addresses;
   let keys = state.keys;
   let totals = state.totals;
   let history = state.history;
