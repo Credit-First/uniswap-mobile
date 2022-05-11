@@ -9393,6 +9393,11 @@ react-native-easy-grid@^0.2.2:
   dependencies:
     lodash "^4.17.15"
 
+react-native-form-select-picker@0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/react-native-form-select-picker/-/react-native-form-select-picker-0.0.12.tgz#8edd620ed6705a0a5709ebedd95f0a4747bd362d"
+  integrity sha512-A2p6lh7pV4UFGc+/Gfo9AFqtJMjW3g2V3BSY6opKpoFOMf8RikggwPgHAdR8BdRjqjShqYwmk7pGeFB6646v5A==
+
 react-native-gesture-handler@^1.6.1:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.10.3.tgz#942bbf2963bbf49fa79593600ee9d7b5dab3cfc0"

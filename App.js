@@ -21,7 +21,7 @@ const MainTab = createBottomTabNavigator();
 const MainStack = createStackNavigator();
 const TransferStack = createStackNavigator();
 const AddressStack = createStackNavigator();
-// const MenuStack = createStackNavigator();
+const NFTStack = createStackNavigator();
 
 import {
   AccountsScreen,
@@ -63,6 +63,9 @@ import {
   TransactionsScreen,
   VoteScreen,
   MenuScreen,
+  NFTScreen,
+  NFTMintScreen,
+  NFTListScreen,
   AdminScreen,
   RecoverPrivateKeyScreen,
   KeyListScreen,
@@ -107,6 +110,7 @@ const AccountsStackScreen = () => {
       />
       <AccountsStack.Screen name="Vote" component={VoteScreen} />
       <AccountsStack.Screen name="Exchange" component={ExchangeScreen} />
+      <AccountsStack.Screen name="Menu" component={MenuScreen} />
       <AccountsStack.Screen
         name="BackupAllKeys"
         component={BackupAllKeysScreen}
@@ -166,6 +170,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />
+      <AccountsStack.Screen name="NFTListScreen" component={NFTListScreen} />
     </AccountsStack.Navigator>
   );
 };
@@ -194,13 +199,14 @@ const AddressStackScreen = () => {
   );
 };
 
-// const MenuStackScreen = () => {
-//   return (
-//     <MenuStack.Navigator headerMode={'none'}>
-//       <MenuStack.Screen name="Menu" component={MenuScreen} />
-//     </MenuStack.Navigator>
-//   );
-// };
+const NFTStackScreen = () => {
+  return (
+    <NFTStack.Navigator headerMode={'none'}>
+      <NFTStack.Screen name="NFTScreen" component={NFTScreen} />
+      <NFTStack.Screen name="NFTMintScreen" component={NFTMintScreen} />
+    </NFTStack.Navigator>
+  );
+};
 
 const tabScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => {
@@ -211,8 +217,8 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('./assets/icons/transfer.png');
     } else if (route.name === 'Chat') {
       icon = require('./assets/icons/chat.png');
-    } else if (route.name === 'Menu') {
-      icon = require('./assets/icons/menu.png');
+    } else if (route.name === 'NFT') {
+      icon = require('./assets/icons/nft.png');
     }
     return <Image source={icon} style={{ tintColor: color }} />;
   },
@@ -228,7 +234,7 @@ const MainTabScreen = () => {
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
       <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
-      <MainTab.Screen name={'Menu'} component={MenuScreen} />
+      <MainTab.Screen name={'NFT'} component={NFTStackScreen} />
     </MainTab.Navigator>
   );
 };

@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     flex: 1,
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFF',
   },
   networkContainer: {
@@ -83,11 +84,29 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     marginHorizontal: 20,
   },
-  logo: {
+  logoContainer: {
+    display: 'flex',
+    position: 'relative',
+    marginTop: 30,
     alignSelf: 'center',
-    height: 135,
-    width: 324,
-    marginRight: 30,
+  },
+  noAvatar: {
+    display: 'flex',
+    alignSelf: 'center',
+    height: width/3,
+    width: width/3,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 16,
+  },
+  logo: {
+    display: 'flex',
+    position: 'absolute',
+    height: width/3,
+    width: width/3,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 16,
   },
   spacer: {
     marginTop: 10,
