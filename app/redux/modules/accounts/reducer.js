@@ -19,6 +19,7 @@ import {
   FETCH_NFT_TOKENS,
   ADD_NFT_TOKEN,
   SELECT_NFT_TOKEN,
+  DELETE_NFTS_BY_ACCOUNT,
   DELETE_NFT_TOKEN,
   UPDATE_NFT_SHOW_STATUS,
 } from './actions';
@@ -134,6 +135,8 @@ export default function accountsState(state = DEFAULT, action = {}) {
       };
     case SELECT_NFT_TOKEN:
       return selectNFTToken(state, payload);
+    case DELETE_NFTS_BY_ACCOUNT:
+      return deleteNFTsByAccount(state, payload);
     case DELETE_NFT_TOKEN:
       return deleteNFTToken(state, payload);
     case FETCH_NFT_TOKENS:
@@ -275,6 +278,35 @@ function selectNFTToken(state, payload) {
     return cell;
   })
 
+  let selectedNft = nftTokens.filter((cell) => cell.isSelected);
+
+  if(nftTokens.length > 0 && selectedNft.length === 0) {
+    nftTokens[0].isSelected = true;
+  }
+
+  return {
+    accounts,
+    addresses,
+    keys,
+    totals,
+    history,
+    config,
+    tokens,
+    nftTokens,
+    nftShowStatus,
+  };
+}
+
+function deleteNFTsByAccount(state, payload) {
+  let accounts = state.accounts;
+  let addresses = state.addresses;
+  let keys = state.keys;
+  let totals = state.totals;
+  let history = state.history;
+  let config = state.config;
+  let tokens = state.tokens;
+  let nftShowStatus = state.nftShowStatus;
+  let nftTokens = state.nftTokens.filter((cell) => !(cell.address === payload.address && cell.chainName === payload.chainName));
   let selectedNft = nftTokens.filter((cell) => cell.isSelected);
 
   if(nftTokens.length > 0 && selectedNft.length === 0) {

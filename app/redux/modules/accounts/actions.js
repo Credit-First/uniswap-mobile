@@ -32,6 +32,7 @@ export const DELETE_TOKEN = 'accounts/DELETE_TOKEN';
 export const FETCH_NFT_TOKENS = 'accounts/FETCH_NFT_TOKENS';
 export const ADD_NFT_TOKEN = 'accounts/ADD_NFT_TOKEN';
 export const SELECT_NFT_TOKEN = 'accounts/SELECT_NFT_TOKEN';
+export const DELETE_NFTS_BY_ACCOUNT = 'accounts/DELETE_NFTS_BY_ACCOUNT';
 export const DELETE_NFT_TOKEN = 'accounts/DELETE_NFT_TOKEN';
 
 export const UPDATE_NFT_SHOW_STATUS = 'accounts/UPDATE_NFT_SHOW_STATUS';
@@ -59,6 +60,7 @@ export const accountsActionCreators = {
   fetchNFTTokens: createAction(FETCH_NFT_TOKENS),
   addNFTToken: createAction(ADD_NFT_TOKEN),
   selectNFTToken: createAction(SELECT_NFT_TOKEN),
+  deleteNFTsByAccount: createAction(DELETE_NFTS_BY_ACCOUNT),
   deleteNFTToken: createAction(DELETE_NFT_TOKEN),
   updateNFTShowStatus: createAction(UPDATE_NFT_SHOW_STATUS),
 };
