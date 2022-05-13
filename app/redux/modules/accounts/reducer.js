@@ -20,6 +20,7 @@ import {
   ADD_NFT_TOKEN,
   SELECT_NFT_TOKEN,
   DELETE_NFT_TOKEN,
+  UPDATE_NFT_SHOW_STATUS,
 } from './actions';
 import { defaultReducers } from '../defaultReducers';
 
@@ -39,6 +40,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens,
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case DELETE_ACCOUNT:
       return deleteAccount(state, payload);
@@ -54,6 +56,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens,
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case DELETE_ADDRESS:
       return deleteAddress(state, payload);
@@ -69,6 +72,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens,
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case FETCH_KEYS:
       break;
@@ -82,6 +86,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: payload,
         tokens: state.tokens,
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case GET_CONFIG:
       break;
@@ -95,6 +100,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens,
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case SET_TOTAL:
       return updateTotal(state, payload);
@@ -108,6 +114,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens.concat([payload]),
         nftTokens: state.nftTokens,
+        nftShowStatus: state.nftShowStatus,
       };
     case DELETE_TOKEN:
       return deleteToken(state, payload);
@@ -123,6 +130,7 @@ export default function accountsState(state = DEFAULT, action = {}) {
         config: state.config,
         tokens: state.tokens,
         nftTokens: state.nftTokens.concat([payload]),
+        nftShowStatus: state.nftShowStatus,
       };
     case SELECT_NFT_TOKEN:
       return selectNFTToken(state, payload);
@@ -130,6 +138,18 @@ export default function accountsState(state = DEFAULT, action = {}) {
       return deleteNFTToken(state, payload);
     case FETCH_NFT_TOKENS:
       break;
+    case UPDATE_NFT_SHOW_STATUS:
+      return {
+        accounts: state.accounts,
+        addresses: state.addresses,
+        keys: state.keys,
+        totals: state.totals,
+        history: state.history,
+        config: state.config,
+        tokens: state.tokens,
+        nftTokens: state.nftTokens,
+        nftShowStatus: payload,
+      };
     default:
       return state;
   }
@@ -145,6 +165,7 @@ function updateTotal(state, payload) {
   let config = state.config;
   let tokens = state.tokens;
   let nftTokens = state.nftTokens;
+  let nftShowStatus = state.nftShowStatus;
 
   return {
     accounts,
@@ -155,6 +176,7 @@ function updateTotal(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }
 
@@ -167,6 +189,7 @@ function deleteAccount(state, payload) {
   let config = state.config;
   let tokens = state.tokens;
   let nftTokens = state.nftTokens;
+  let nftShowStatus = state.nftShowStatus;
 
   return {
     accounts,
@@ -177,6 +200,7 @@ function deleteAccount(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }
 
@@ -191,6 +215,7 @@ function deleteAddress(state, payload) {
   let config = state.config;
   let tokens = state.tokens;
   let nftTokens = state.nftTokens;
+  let nftShowStatus = state.nftShowStatus;
 
   return {
     accounts,
@@ -201,6 +226,7 @@ function deleteAddress(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }
 
@@ -213,6 +239,7 @@ function deleteToken(state, payload) {
   let history = state.history;
   let config = state.config;
   let nftTokens = state.nftTokens;
+  let nftShowStatus = state.nftShowStatus;
 
   return {
     accounts,
@@ -223,6 +250,7 @@ function deleteToken(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }
 
@@ -234,6 +262,7 @@ function selectNFTToken(state, payload) {
   let history = state.history;
   let config = state.config;
   let tokens = state.tokens;
+  let nftShowStatus = state.nftShowStatus;
 
   let nftTokens = state.nftTokens.map((cell, index) => {
     if(index === payload) {
@@ -261,9 +290,9 @@ function selectNFTToken(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }
-
 
 function deleteNFTToken(state, payload) {
   let accounts = state.accounts;
@@ -273,6 +302,7 @@ function deleteNFTToken(state, payload) {
   let history = state.history;
   let config = state.config;
   let tokens = state.tokens;
+  let nftShowStatus = state.nftShowStatus;
   let nftTokens = state.nftTokens.filter((cell) => !(cell.address === payload.address && cell.chainName === payload.chainName && cell.tokenId === payload.tokenId));
   let selectedNft = nftTokens.filter((cell) => cell.isSelected);
 
@@ -289,5 +319,6 @@ function deleteNFTToken(state, payload) {
     config,
     tokens,
     nftTokens,
+    nftShowStatus,
   };
 }

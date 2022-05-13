@@ -13,6 +13,7 @@ const accountsState = {
   },
   tokens: [],
   nftTokens: [],
+  nftShowStatus: false,
 };
 
 export const defaultReducers = {

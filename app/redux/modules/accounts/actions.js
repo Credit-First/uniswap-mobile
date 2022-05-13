@@ -34,6 +34,8 @@ export const ADD_NFT_TOKEN = 'accounts/ADD_NFT_TOKEN';
 export const SELECT_NFT_TOKEN = 'accounts/SELECT_NFT_TOKEN';
 export const DELETE_NFT_TOKEN = 'accounts/DELETE_NFT_TOKEN';
 
+export const UPDATE_NFT_SHOW_STATUS = 'accounts/UPDATE_NFT_SHOW_STATUS';
+
 /**
  * Action Creators
  */
@@ -58,4 +60,5 @@ export const accountsActionCreators = {
   addNFTToken: createAction(ADD_NFT_TOKEN),
   selectNFTToken: createAction(SELECT_NFT_TOKEN),
   deleteNFTToken: createAction(DELETE_NFT_TOKEN),
+  updateNFTShowStatus: createAction(UPDATE_NFT_SHOW_STATUS),
 };

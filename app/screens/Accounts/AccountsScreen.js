@@ -29,6 +29,7 @@ import { log } from '../../logger/logger';
 import { web3NFTModule } from '../../ethereum/ethereum';
 
 const nonNFTURL = require('../../../assets/nft/not-revealed.png');
+const tribeLogoURL = require('../../../assets/logo/tribe-logo.png');
 
 const AccountsScreen = props => {
   const {
@@ -46,7 +47,8 @@ const AccountsScreen = props => {
     getNFTImageURL,
   } = web3NFTModule();
 
-  const [nftAvatar, setNftAvatar] = useState()
+  const [nftAvatar, setNftAvatar] = useState();
+  const [showNFT, setShowNFT] = useState(false);
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
@@ -79,18 +81,40 @@ const AccountsScreen = props => {
   useEffect(() => {
     const parseInfo = async () => {
       const index = nftTokens.findIndex(cell => cell.isSelected);
-      const tokenId = index !== -1 ? nftTokens[index].tokenId: nftTokens[0].tokenId;
+      const tokenId = index !== -1 ? nftTokens[index].tokenId : nftTokens[0].tokenId;
       const avatarURL = await getNFTImageURL(tokenId);
       setNftAvatar(avatarURL);
     }
 
     if (nftTokens && nftTokens.length > 0) {
       parseInfo();
+      setShowNFT(true);
     }
     else {
       setNftAvatar(nonNFTURL);
+      setShowNFT(false);
     }
   }, [nftTokens])
+
+  useEffect(() => {
+    const parseInfo = async () => {
+      //multi call to get eth balance
+
+    }
+
+    if (accounts && accounts.length > 0) {
+      const ethList = accounts.filter((cell) => cell.chainName === 'ETH');
+      if (ethList.length > 0) {
+        parseInfo(ethList);
+      }
+      else {
+        setShowNFT(false);
+      }
+    }
+    else {
+      setShowNFT(false);
+    }
+  }, [accounts])
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -728,18 +752,28 @@ const AccountsScreen = props => {
         </SafeAreaView>
         <SafeAreaView style={styles.accountContainer}>
           <TouchableOpacity onPress={_handleAvatarPress}>
-            <View style={styles.logoContainer}>
-              <Image
-                style={styles.noAvatar}
-                source={nonNFTURL}
-                resizeMode="contain"
-              />
-              <Image
-                style={styles.logo}
-                source={nftAvatar}
-                resizeMode="contain"
-              />
-            </View>
+            {showNFT ?
+              <View style={styles.logoContainer}>
+                <Image
+                  style={styles.noAvatar}
+                  source={nonNFTURL}
+                  resizeMode="contain"
+                />
+                <Image
+                  style={styles.nftAvatar}
+                  source={nftAvatar}
+                  resizeMode="contain"
+                />
+              </View>
+              :
+              <View style={styles.logoContainer}>
+                <Image
+                  style={styles.logo}
+                  source={tribeLogoURL}
+                  resizeMode="contain"
+                />
+              </View>
+            }
           </TouchableOpacity>
           {showUsdTotal()}
           <FlatList
