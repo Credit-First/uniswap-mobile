@@ -39,7 +39,7 @@ const AccountsScreen = props => {
     addKey,
     setTotal,
     navigation: { navigate },
-    accountsState: { accounts, addresses, keys, totals, history, config, nftTokens },
+    accountsState: { accounts, addresses, keys, totals, history, config, nftTokens, nftShowStatus },
     chooseActiveAccount,
   } = props;
 
@@ -747,6 +747,7 @@ const AccountsScreen = props => {
                   style={styles.buttonIcon}
                 />
               )}
+              nftShowStatus={nftShowStatus}
             />
           }
         </SafeAreaView>

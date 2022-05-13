@@ -58,6 +58,7 @@ import {
   TransactionsScreen,
   VoteScreen,
   MenuScreen,
+  TabMenuScreen,
   NFTScreen,
   NFTMintScreen,
   NFTListScreen,
@@ -211,6 +212,8 @@ const tabScreenOptions = ({ route }) => ({
       icon = require('../../assets/icons/transfer.png');
     } else if (route.name === 'Chat') {
       icon = require('../../assets/icons/chat.png');
+    } else if (route.name === 'TabMenu') {
+      icon = require('../../assets/icons/menu.png');
     } else if (route.name === 'NFT') {
       icon = require('../../assets/icons/nft.png');
     }
@@ -253,7 +256,11 @@ const MainTabScreen = props => {
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
       <MainTab.Screen name={'Chat'} component={AddressStackScreen} />
-      <MainTab.Screen name={'NFT'} component={NFTStackScreen} />
+      {nftShowStatus ?
+        <MainTab.Screen name={'NFT'} component={NFTStackScreen} />
+        :
+        <MainTab.Screen name={'TabMenu'} component={TabMenuScreen} />
+      }
     </MainTab.Navigator>
   );
 };

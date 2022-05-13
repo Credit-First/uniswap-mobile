@@ -72,6 +72,7 @@ export { default as NFTScreen } from './NFT/NFTScreen';
 export { default as NFTMintScreen } from './NFT/NFTMintScreen';
 export { default as NFTListScreen } from './NFT/NFTListScreen';
 export { default as MenuScreen } from './Menu/MenuScreen';
+export { default as TabMenuScreen } from './Menu/TabMenuScreen';
 export { default as ExchangeScreen } from './Exchange/ExchangeScreen';
 export { default as AddressBookScreen } from './AddressBook/AddressBookScreen';
 export { default as AddAddressScreen } from './AddressBook/AddAddressScreen';

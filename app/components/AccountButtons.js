@@ -12,10 +12,11 @@ const AccountButtons = ({
   onImportPress,
   exportIcon,
   onExportPress,
+  nftShowStatus,
 }) => {
-
   return (
-      <View style={styles.rowContainer}>
+    <View style={styles.rowContainer}>
+      {nftShowStatus ?
         <TouchableOpacity onPress={onMenuPress}>
           <LinearGradient
             start={{ x: 0, y: 0 }}
@@ -25,36 +26,38 @@ const AccountButtons = ({
             <View style={styles.icon}>{menuIcon()}</View>
           </LinearGradient>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onExportPress}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{exportIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onImportPress}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{importIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onAddPress}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#FFFFFF', '#FFFFFF']}
-            style={styles.container}>
-            <View style={styles.icon}>{addIcon()}</View>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    );
-
+        :
+        null
+      }
+      <TouchableOpacity onPress={onExportPress}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{exportIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onImportPress}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{importIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onAddPress}>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={['#FFFFFF', '#FFFFFF']}
+          style={styles.container}>
+          <View style={styles.icon}>{addIcon()}</View>
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
