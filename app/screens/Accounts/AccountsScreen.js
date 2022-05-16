@@ -727,8 +727,8 @@ const AccountsScreen = props => {
           }
         </SafeAreaView>
         <SafeAreaView style={styles.accountContainer}>
-          <TouchableOpacity onPress={_handleAvatarPress}>
-            {nftShowStatus ?
+          {nftShowStatus ?
+            <TouchableOpacity onPress={_handleAvatarPress}>
               <View style={styles.logoContainer}>
                 <Image
                   style={styles.noAvatar}
@@ -741,16 +741,16 @@ const AccountsScreen = props => {
                   resizeMode="contain"
                 />
               </View>
-              :
-              <View style={styles.logoContainer}>
-                <Image
-                  style={styles.logo}
-                  source={tribeLogoURL}
-                  resizeMode="contain"
-                />
-              </View>
-            }
-          </TouchableOpacity>
+            </TouchableOpacity>
+            :
+            <View style={styles.logoContainer}>
+              <Image
+                style={styles.logo}
+                source={tribeLogoURL}
+                resizeMode="contain"
+              />
+            </View>
+          }
           {showUsdTotal()}
           <FlatList
             data={validAccounts}
