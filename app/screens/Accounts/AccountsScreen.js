@@ -40,6 +40,7 @@ const AccountsScreen = props => {
     setTotal,
     navigation: { navigate },
     accountsState: { accounts, addresses, keys, totals, history, config, nftTokens, nftShowStatus },
+    updateNFTShowStatus,
     chooseActiveAccount,
   } = props;
 
@@ -47,8 +48,7 @@ const AccountsScreen = props => {
     getNFTImageURL,
   } = web3NFTModule();
 
-  const [nftAvatar, setNftAvatar] = useState();
-  const [showNFT, setShowNFT] = useState(false);
+  const [nftAvatar, setNftAvatar] = useState(nonNFTURL);
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
@@ -86,35 +86,10 @@ const AccountsScreen = props => {
       setNftAvatar(avatarURL);
     }
 
-    if (nftTokens && nftTokens.length > 0) {
+    if (nftTokens && nftTokens.length > 0 && nftShowStatus) {
       parseInfo();
-      setShowNFT(true);
     }
-    else {
-      setNftAvatar(nonNFTURL);
-      setShowNFT(false);
-    }
-  }, [nftTokens])
-
-  useEffect(() => {
-    const parseInfo = async () => {
-      //multi call to get eth balance
-
-    }
-
-    if (accounts && accounts.length > 0) {
-      const ethList = accounts.filter((cell) => cell.chainName === 'ETH');
-      if (ethList.length > 0) {
-        parseInfo(ethList);
-      }
-      else {
-        setShowNFT(false);
-      }
-    }
-    else {
-      setShowNFT(false);
-    }
-  }, [accounts])
+  }, [nftTokens, nftShowStatus])
 
   const addAddressesToAddressbook = (json, actor, publicKey) => {
     try {
@@ -753,7 +728,7 @@ const AccountsScreen = props => {
         </SafeAreaView>
         <SafeAreaView style={styles.accountContainer}>
           <TouchableOpacity onPress={_handleAvatarPress}>
-            {showNFT ?
+            {nftShowStatus ?
               <View style={styles.logoContainer}>
                 <Image
                   style={styles.noAvatar}

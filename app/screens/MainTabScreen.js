@@ -11,6 +11,8 @@ import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { connectAccounts } from '../redux';
+import web3CustomModule, { web3NFTModule } from '../ethereum/ethereum';
+const tokenABI = require('../ethereum/abi.json');
 
 const AccountsStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
@@ -223,14 +225,37 @@ const tabScreenOptions = ({ route }) => ({
 
 const MainTabScreen = props => {
   const {
-    accountsState: { accounts, nftShowStatus },
+    accountsState: { accounts, nftTokens, nftShowStatus },
     updateNFTShowStatus,
   } = props;
 
-  useEffect(() => {
-    const parseInfo = async () => {
-      //multi call to get eth balance
+  const { getNFTPrice } = web3NFTModule();
+  const { getBalanceOfAccount } = web3CustomModule({
+    tokenABI,
+    tokenAddress: null,
+    decimals: 18
+  });
 
+  useEffect(() => {
+    const parseInfo = async (ethList) => {
+      if (nftTokens && nftTokens.length > 0) { //if has any nft token
+        updateNFTShowStatus(true);
+      }
+      else { //to get eth balance and nft price
+        try {
+          const nftPrice = await getNFTPrice("ETH");
+          let flag = false;
+          await Promise.all(ethList.map(async (cell) => {
+            const ethBalanceInGwei = await getBalanceOfAccount("ETH", cell.address);
+            if (ethBalanceInGwei > nftPrice) {
+              flag = true;
+            }
+          }));
+          updateNFTShowStatus(flag);
+        } catch (error) {
+          console.log("error:", error);
+        }
+      }
     }
 
     if (accounts && accounts.length > 0) {
@@ -245,7 +270,7 @@ const MainTabScreen = props => {
     else {
       updateNFTShowStatus(false);
     }
-  }, [accounts])
+  }, [accounts, nftTokens])
 
   return (
     <MainTab.Navigator
