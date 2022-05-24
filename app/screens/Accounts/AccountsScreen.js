@@ -289,6 +289,8 @@ const AccountsScreen = props => {
       navigate('BinanceAccount', { account });
     } else if (account.chainName === 'MATIC') {
       navigate('PolygonAccount', { account });
+    } else if (account.chainName === 'AURORA') {
+      navigate('AuroraAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -325,7 +327,7 @@ const AccountsScreen = props => {
     let chain = (account.chainName === "Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price !== null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC') ? account.address : account.accountName;
+    let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC' || chain === 'AURORA') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -519,7 +521,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA') {
         const privateKey = account.privateKey;
         const publicKey = account.publicKey;
         const foundKeys = keys.filter((value, index, array) => {
@@ -609,7 +611,7 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if (name == "ETH" || name == "BNB" || name == "MATIC") {
+    if (name == "ETH" || name == "BNB" || name == "MATIC" || name == "AURORA") {
       _handleCreateEthereumAccount(name);
     } else if (name == "TLOS") {
       navigate('CreateTelosAccount');
@@ -646,6 +648,12 @@ const AccountsScreen = props => {
               closeIcon={() => (
                 <Image
                   source={require('../../../assets/icons/minus.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              auroraIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/aurora.png')}
                   style={styles.buttonIcon}
                 />
               )}

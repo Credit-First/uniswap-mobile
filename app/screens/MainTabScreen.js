@@ -50,6 +50,7 @@ import {
   EthereumAccountScreen,
   BinanceAccountScreen,
   PolygonAccountScreen,
+  AuroraAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
   AddressBookScreen,
@@ -164,6 +165,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="EthereumAccount" component={EthereumAccountScreen} />
       <AccountsStack.Screen name="BinanceAccount" component={BinanceAccountScreen} />
       <AccountsStack.Screen name="PolygonAccount" component={PolygonAccountScreen} />
+      <AccountsStack.Screen name="AuroraAccount" component={AuroraAccountScreen} />
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />
