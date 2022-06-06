@@ -236,7 +236,7 @@ const MainTabScreen = props => {
     decimals: 18
   });
 
-  useEffect(() => {
+  const checkEthBalance = async () => {
     const parseInfo = async (ethList) => {
       if (nftTokens && nftTokens.length > 0) { //if has any nft token
         updateNFTShowStatus(true);
@@ -245,6 +245,7 @@ const MainTabScreen = props => {
         try {
           const nftPrice = await getNFTPrice("ETH");
           let flag = false;
+          
           await Promise.all(ethList.map(async (cell) => {
             const ethBalanceInGwei = await getBalanceOfAccount("ETH", cell.address);
             if (ethBalanceInGwei > nftPrice) {
@@ -261,7 +262,7 @@ const MainTabScreen = props => {
     if (accounts && accounts.length > 0) {
       const ethList = accounts.filter((cell) => cell.chainName === 'ETH');
       if (ethList.length > 0) {
-        parseInfo(ethList);
+        await parseInfo(ethList);
       }
       else {
         updateNFTShowStatus(false);
@@ -270,6 +271,17 @@ const MainTabScreen = props => {
     else {
       updateNFTShowStatus(false);
     }
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkEthBalance();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [])
+
+  useEffect(() => {
+    checkEthBalance();
   }, [accounts, nftTokens])
 
   return (
