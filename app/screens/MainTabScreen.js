@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -231,6 +231,7 @@ const MainTabScreen = props => {
     updateNFTShowStatus,
   } = props;
 
+  const [checkFlag, setCheckFlag] = useState(false);
   const { getNFTPrice } = web3NFTModule();
   const { getBalanceOfAccount } = web3CustomModule({
     tokenABI,
@@ -247,7 +248,7 @@ const MainTabScreen = props => {
         try {
           const nftPrice = await getNFTPrice("ETH");
           let flag = false;
-          
+
           await Promise.all(ethList.map(async (cell) => {
             const ethBalanceInGwei = await getBalanceOfAccount("ETH", cell.address);
             if (ethBalanceInGwei > nftPrice) {
@@ -277,14 +278,14 @@ const MainTabScreen = props => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      checkEthBalance();
+      setCheckFlag(prev => !prev);
     }, 10000);
     return () => clearInterval(interval);
   }, [])
 
   useEffect(() => {
     checkEthBalance();
-  }, [accounts, nftTokens])
+  }, [accounts, nftTokens, checkFlag])
 
   return (
     <MainTab.Navigator
