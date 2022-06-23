@@ -12,14 +12,15 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KHeader, KText, KButton, TwoIconsButtons } from '../../components';
-import styles from './EthereumAccountScreen.style';
+import { KInput, KText, KButton } from '../../components';
+import styles from '../Ethereum/EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
 import web3Module from '../../ethereum/ethereum';
 import Wallet from 'ethereumjs-wallet';
 import { log } from '../../logger/logger';
+import { StackActions } from '@react-navigation/native';
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
@@ -32,7 +33,7 @@ const {
   decimals: 18
 });
 
-const AuroraAccountScreen = props => {
+const AuroaStakeScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
   const [loaded, setLoaded] = useState(false);
 
@@ -41,65 +42,16 @@ const AuroraAccountScreen = props => {
     route: {
       params: { account: account },
     },
-    deleteAccount,
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const [usdValue, setUsdValue] = useState(0);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [stakedBalance, setStakedBalance] = useState(0);
   const [lockedBalance, setLockedBalance] = useState(0);
   const [rewardsBalance, setRewardsBalance] = useState(0);
 
-  // Stake chart data:
-  const stakeData = [
-    {
-      name: 'Available',
-      balance: parseFloat(availableBalance),
-      color: 'rgba(42, 254, 106, 1)',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    },
-    {
-      name: 'Staked',
-      balance: parseFloat(stakedBalance),
-      color: 'rgba(254, 142, 42, 1)',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    },
-    {
-      name: 'Locked',
-      balance: parseFloat(lockedBalance),
-      color: 'rgba(205, 227, 255, 1)',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    },
-    {
-      name: 'Rewards',
-      balance: parseFloat(rewardsBalance),
-      color: 'rgb(113, 175, 255)',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    }
-  ];
-
-  const screenWidth = Dimensions.get('window').width;
-  const chartConfig = {
-    backgroundColor: '#FFFFFF',
-    backgroundGradientFrom: '#FFFFFF',
-    backgroundGradientTo: '#FFFFFF',
-    decimalPlaces: 2, // optional, defaults to 2dp
-    color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    style: {
-      borderRadius: 16,
-    },
-    propsForDots: {
-      r: '6',
-      strokeWidth: '2',
-      stroke: '#ffa726',
-    },
-  };
+  const [stakeAmount, setStakeAmount] = useState('');
+  const [unstakeAmount, setUnstakeAmount] = useState('');
 
   useEffect(() => {
     const name = "AURORA:" + account.accountName;
@@ -140,39 +92,12 @@ const AuroraAccountScreen = props => {
     }
   };
 
-  const _handleDeleteAccount = index => {
-    deleteAccount(index);
-    goBack();
+  const _handleStake = () => {
+
   };
 
-  const _handleRemoveAccount = () => {
-    const index = findIndex(
-      accounts,
-      el =>
-        el.address === account.address &&
-        el.chainName === account.chainName,
-    );
-    Alert.alert(
-      'Delete Aurora Account',
-      'Are you sure you want to delete this account?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Delete account cancelled'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => _handleDeleteAccount(index) },
-      ],
-      { cancelable: false },
-    );
-  };
+  const _handleUnstake = () => {
 
-  const _handleBackupKey = () => {
-    navigate('PrivateKeyBackup', { account });
-  };
-
-  const _handlePressStake = () => {
-    navigate('AuroraStake', { account });
   };
 
   return (
@@ -196,51 +121,46 @@ const AuroraAccountScreen = props => {
           </Text>
         </View>
         <View style={styles.spacer} />
-        <KText>Balance: {accountBalance} ETH</KText>
-        <KText>USD Value: ${usdValue}</KText>
         <KText>Available: {availableBalance} AURORA</KText>
         <KText>Staked: {stakedBalance} AURORA</KText>
         <KText>Locked: {lockedBalance} AURORA</KText>
         <KText>Rewards: {rewardsBalance} AURORA</KText>
-
         <View style={styles.spacer} />
-        <PieChart
-          data={stakeData}
-          width={screenWidth}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="balance"
-          backgroundColor="transparent"
-          absolute
+        <KInput
+          label={'Stake AURORA to earn rewards'}
+          placeholder={'Enter amount to stake'}
+          value={stakeAmount}
+          onChangeText={setStakeAmount}
+          containerStyle={styles.inputContainer}
+          autoCapitalize={'none'}
+          keyboardType={'numeric'}
         />
-
         <KButton
           title={'Stake AURORA'}
+          theme={'brown'}
+          style={styles.button}
+          onPress={_handleStake}
+        />
+        <View style={styles.spacer} />
+        <KInput
+          label={'Unstake AURORA'}
+          placeholder={'Enter amount to unstake'}
+          value={stakeAmount}
+          onChangeText={setStakeAmount}
+          containerStyle={styles.inputContainer}
+          autoCapitalize={'none'}
+          keyboardType={'numeric'}
+        />
+        <KButton
+          title={'Unstake AURORA'}
           theme={'blue'}
           style={styles.button}
-          onPress={_handlePressStake}
+          onPress={_handleUnstake}
         />
 
-        <FlatList />
-        <TwoIconsButtons
-          onIcon1Press={_handleBackupKey}
-          onIcon2Press={_handleRemoveAccount}
-          icon1={() => (
-            <Image
-              source={require('../../../assets/icons/save_key.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-          icon2={() => (
-            <Image
-              source={require('../../../assets/icons/delete.png')}
-              style={styles.buttonIcon}
-            />
-          )}
-        />
       </View>
     </SafeAreaView>
   );
 };
 
-export default connectAccounts()(AuroraAccountScreen);
+export default connectAccounts()(AuroaStakeScreen);

@@ -12,13 +12,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { connectAccounts } from '../redux';
 import web3CustomModule, { web3NFTModule } from '../ethereum/ethereum';
-const tokenABI = require('../ethereum/abi.json');
-
-const AccountsStack = createStackNavigator();
-const MainTab = createBottomTabNavigator();
-const TransferStack = createStackNavigator();
-const AddressStack = createStackNavigator();
-const NFTStack = createStackNavigator();
 
 import {
   AccountsScreen,
@@ -69,7 +62,15 @@ import {
   RecoverPrivateKeyScreen,
   KeyListScreen,
   ExchangeScreen,
-} from './';
+  AuroraStakeScreen,
+} from './index.js';
+
+const tokenABI = require('../ethereum/abi.json');
+const AccountsStack = createStackNavigator();
+const MainTab = createBottomTabNavigator();
+const TransferStack = createStackNavigator();
+const AddressStack = createStackNavigator();
+const NFTStack = createStackNavigator();
 
 const AccountsStackScreen = () => {
   return (
@@ -170,6 +171,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />
       <AccountsStack.Screen name="NFTListScreen" component={NFTListScreen} />
+      <AccountsStack.Screen name="AuroraStake" component={AuroraStakeScreen} />
     </AccountsStack.Navigator>
   );
 };

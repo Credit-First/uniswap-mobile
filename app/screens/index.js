@@ -57,6 +57,7 @@ export { default as EthereumAccountScreen } from './Ethereum/EthereumAccountScre
 export { default as BinanceAccountScreen } from './Ethereum/BinanceAccountScreen';
 export { default as PolygonAccountScreen } from './Ethereum/PolygonAccountScreen';
 export { default as AuroraAccountScreen } from './Ethereum/AuroraAccountScreen';
+export { default as AuroraStakeScreen } from './Staking/AuroaStakeScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';
@@ -78,4 +79,3 @@ export { default as ExchangeScreen } from './Exchange/ExchangeScreen';
 export { default as AddressBookScreen } from './AddressBook/AddressBookScreen';
 export { default as AddAddressScreen } from './AddressBook/AddAddressScreen';
 export { default as EditAddressScreen } from './AddressBook/EditAddressScreen';
-export { default as MainTabScreen } from './MainTabScreen';

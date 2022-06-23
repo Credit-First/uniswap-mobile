@@ -1,5 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
+const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   scrollContentContainer: {
     flex: 1,
@@ -11,6 +12,10 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     padding: 5,
+  },
+  moreInner: {
+    flex: 1,
+    padding: 15,
   },
   header: {
     marginTop: 5,
@@ -46,6 +51,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   spacer: {
+    marginTop: 10,
+  },
+  column: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+  addressLink: {
+    color: 'blue',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 15,
+    margin: 5,
+    flex: 1,
+  },
+  button: {
+    width: width - 40,
+    alignSelf: 'center',
     marginTop: 10,
   },
 });
