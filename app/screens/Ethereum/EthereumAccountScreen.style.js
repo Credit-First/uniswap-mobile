@@ -70,6 +70,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 10,
   },
+  buttonColumn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent:'space-between',
+    padding: 6
+  },
+  smallButton: {
+    width: width / 2 - 40,
+    alignSelf: 'center',
+  },
 });
 
 export default styles;

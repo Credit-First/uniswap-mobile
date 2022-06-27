@@ -3,21 +3,19 @@ import { PieChart } from 'react-native-chart-kit';
 import {
   SafeAreaView,
   View,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Dimensions,
   Clipboard,
   Image,
   Text,
   Alert,
-  ScrollView,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KText, KButton, TwoIconsButtons } from '../../components';
-import styles from './EthereumAccountScreen.style';
+import { KInput, KText, KButton } from '../../components';
+import styles from '../Ethereum/EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { findIndex } from 'lodash';
 import web3Module from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
 
@@ -32,7 +30,7 @@ const {
   decimals: 18
 });
 
-const AuroraAccountScreen = props => {
+const AuroraStakeScreen = props => {
   const [loaded, setLoaded] = useState(false);
 
   const {
@@ -40,53 +38,52 @@ const AuroraAccountScreen = props => {
     route: {
       params: { account: account },
     },
-    deleteAccount,
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState(0);
-
-  const [aprTotal, setAprTotal] = useState(101);
-  const [aprAurora, setAprAurora] = useState(42.05);
-  const [aprUSN, setAprUSN] = useState(53.19);
-  const [aprBSTN, setAprBSTN] = useState(2.96);
-  const [aprTRI, setAprTRI] = useState(0.16);
-  const [aprPLY, setAprPLY] = useState(2.56);
+  const [stakeAmount, setStakeAmount] = useState('');
+  
+  const [pendingAurora, setPendingAurora] = useState( 0.50388694);
+  const [pendingUSN, setPendingUSN] = useState(0.0001);
+  const [pendingBSTN, setPendingBSTN] = useState(0.0013);
+  const [pendingTRI, setPendingTRI] = useState(0.0001);
+  const [pendingPLY, setPendingPLY] = useState(0.0033);
 
   // Stake chart data:
   const stakeData = [
     {
-      name: '% (AURORA)',
-      balance: parseFloat(aprAurora),
+      name: 'AURORA',
+      balance: parseFloat(pendingAurora),
       color: 'rgba(42, 254, 106, 1)',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (USN)',
-      balance: parseFloat(aprUSN),
+      name: 'USN',
+      balance: parseFloat(pendingUSN),
       color: '#1b474c',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (BSTN)',
-      balance: parseFloat(aprBSTN),
+      name: 'BSTN',
+      balance: parseFloat(pendingBSTN),
       color: '#0f837a',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (TRI)',
-      balance: parseFloat(aprTRI),
+      name: 'TRI',
+      balance: parseFloat(pendingTRI),
       color: '#aa21b9',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (PLY)',
-      balance: parseFloat(aprPLY),
+      name: 'PLY',
+      balance: parseFloat(pendingPLY),
       color: '#169545',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
@@ -98,7 +95,7 @@ const AuroraAccountScreen = props => {
     backgroundColor: '#FFFFFF',
     backgroundGradientFrom: '#FFFFFF',
     backgroundGradientTo: '#FFFFFF',
-    decimalPlaces: 2, // optional, defaults to 2dp
+    decimalPlaces: 5, // optional, defaults to 2dp
     color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     style: {
@@ -110,6 +107,16 @@ const AuroraAccountScreen = props => {
       stroke: '#ffa726',
     },
   };
+
+  useEffect(() => {
+    const name = "AURORA:" + account.accountName;
+    for (const elem of totals) {
+      if (elem.account === name) {
+        setUsdValue(elem.total);
+        break;
+      }
+    }
+  }, [totals]);
 
   useEffect(() => {
     loadEthereumAccountBalance(account);
@@ -140,47 +147,12 @@ const AuroraAccountScreen = props => {
     }
   };
 
-  const _handleDeleteAccount = index => {
-    deleteAccount(index);
-    goBack();
+  const _handleStake = () => {
+
   };
 
-  const _handleRemoveAccount = () => {
-    const index = findIndex(
-      accounts,
-      el =>
-        el.address === account.address &&
-        el.chainName === account.chainName,
-    );
-    Alert.alert(
-      'Delete Aurora Account',
-      'Are you sure you want to delete this account?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Delete account cancelled'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => _handleDeleteAccount(index) },
-      ],
-      { cancelable: false },
-    );
-  };
+  const _handleClaim = () => {
 
-  const _handleBackupKey = () => {
-    navigate('PrivateKeyBackup', { account });
-  };
-
-  const _handlePressStake = () => {
-    navigate('AuroraStake', { account });
-  };
-
-  const _handlePressUnstake = () => {
-    navigate('AuroraUnstake', { account });
-  };
-
-  const _handlePressWithdraw = () => {
-    navigate('AuroraWithdraw', { account });
   };
 
   return (
@@ -206,7 +178,6 @@ const AuroraAccountScreen = props => {
         <View style={styles.spacer} />
         <KText>Balance: {accountBalance} ETH</KText>
         <KText>Available: {availableBalance} AURORA</KText>
-        <KText>Total APR: {aprTotal} %</KText>
         <View style={styles.spacer} />
         <ScrollView style={styles.scrollView}>
           <PieChart
@@ -218,47 +189,32 @@ const AuroraAccountScreen = props => {
             backgroundColor="transparent"
             absolute
           />
-          <View style={styles.buttonColumn}>
-            <KButton
-              title={'Stake AURORA'}
-              theme={'blue'}
-              style={styles.smallButton}
-              onPress={_handlePressStake}
-            />
-            <KButton
-              title={'Unstake AURORA'}
-              theme={'brown'}
-              style={styles.smallButton}
-              onPress={_handlePressUnstake}
-            />
-          </View>
+          <KInput
+            label={'Stake AURORA to earn rewards'}
+            placeholder={'Enter amount to stake'}
+            value={stakeAmount}
+            onChangeText={setStakeAmount}
+            containerStyle={styles.inputContainer}
+            autoCapitalize={'none'}
+            keyboardType={'numeric'}
+          />
           <KButton
-            title={'5 withdrawals in cooldown'}
+            title={'Stake AURORA'}
             theme={'blue'}
             style={styles.button}
-            onPress={_handlePressWithdraw}
+            onPress={_handleStake}
           />
-          <FlatList />
-          <TwoIconsButtons
-            onIcon1Press={_handleBackupKey}
-            onIcon2Press={_handleRemoveAccount}
-            icon1={() => (
-              <Image
-                source={require('../../../assets/icons/save_key.png')}
-                style={styles.buttonIcon}
-              />
-            )}
-            icon2={() => (
-              <Image
-                source={require('../../../assets/icons/delete.png')}
-                style={styles.buttonIcon}
-              />
-            )}
+          <View style={styles.spacer} />
+          <KButton
+            title={'Claim pending rewards'}
+            theme={'brown'}
+            style={styles.button}
+            onPress={_handleClaim}
           />
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 
-export default connectAccounts()(AuroraAccountScreen);
+export default connectAccounts()(AuroraStakeScreen);

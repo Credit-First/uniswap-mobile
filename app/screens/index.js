@@ -57,7 +57,9 @@ export { default as EthereumAccountScreen } from './Ethereum/EthereumAccountScre
 export { default as BinanceAccountScreen } from './Ethereum/BinanceAccountScreen';
 export { default as PolygonAccountScreen } from './Ethereum/PolygonAccountScreen';
 export { default as AuroraAccountScreen } from './Ethereum/AuroraAccountScreen';
-export { default as AuroraStakeScreen } from './Staking/AuroaStakeScreen';
+export { default as AuroraStakeScreen } from './Staking/AuroraStakeScreen';
+export { default as AuroraUnstakeScreen } from './Staking/AuroraUnstakeScreen';
+export { default as AuroraWithdrawScreen } from './Staking/AuroraWithdrawScreen';
 export {
   default as ConnectAccountScreen,
 } from './ConnectAccount/ConnectAccountScreen';

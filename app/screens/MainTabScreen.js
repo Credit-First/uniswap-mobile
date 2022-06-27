@@ -63,6 +63,8 @@ import {
   KeyListScreen,
   ExchangeScreen,
   AuroraStakeScreen,
+  AuroraUnstakeScreen,
+  AuroraWithdrawScreen,
 } from './index.js';
 
 const tokenABI = require('../ethereum/abi.json');
@@ -172,6 +174,8 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="KeyList" component={KeyListScreen} />
       <AccountsStack.Screen name="NFTListScreen" component={NFTListScreen} />
       <AccountsStack.Screen name="AuroraStake" component={AuroraStakeScreen} />
+      <AccountsStack.Screen name="AuroraUnstake" component={AuroraUnstakeScreen} />
+      <AccountsStack.Screen name="AuroraWithdraw" component={AuroraWithdrawScreen} />
     </AccountsStack.Navigator>
   );
 };

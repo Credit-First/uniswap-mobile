@@ -3,7 +3,7 @@ import { PieChart } from 'react-native-chart-kit';
 import {
   SafeAreaView,
   View,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Dimensions,
   Clipboard,
@@ -16,11 +16,8 @@ import { KInput, KText, KButton } from '../../components';
 import styles from '../Ethereum/EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import { findIndex } from 'lodash';
 import web3Module from '../../ethereum/ethereum';
-import Wallet from 'ethereumjs-wallet';
 import { log } from '../../logger/logger';
-import { StackActions } from '@react-navigation/native';
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
@@ -33,8 +30,7 @@ const {
   decimals: 18
 });
 
-const AuroaStakeScreen = props => {
-  const [accountBalance, setAccountBalance] = useState();
+const AuroraWithdrawScreen = props => {
   const [loaded, setLoaded] = useState(false);
 
   const {
@@ -45,13 +41,71 @@ const AuroaStakeScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const [availableBalance, setAvailableBalance] = useState(0);
-  const [stakedBalance, setStakedBalance] = useState(0);
-  const [lockedBalance, setLockedBalance] = useState(0);
-  const [rewardsBalance, setRewardsBalance] = useState(0);
+  const [accountBalance, setAccountBalance] = useState();
+  const [unlockedTime, setUnlockedTime] = useState('2 days');
+  
+  const [pendingAurora, setPendingAurora] = useState( 0.50388694);
+  const [pendingUSN, setPendingUSN] = useState(0.0001);
+  const [pendingBSTN, setPendingBSTN] = useState(0.0013);
+  const [pendingTRI, setPendingTRI] = useState(0.0001);
+  const [pendingPLY, setPendingPLY] = useState(0.0033);
 
-  const [stakeAmount, setStakeAmount] = useState('');
-  const [unstakeAmount, setUnstakeAmount] = useState('');
+  // Stake chart data:
+  const stakeData = [
+    {
+      name: 'AURORA',
+      balance: parseFloat(pendingAurora),
+      color: 'rgba(42, 254, 106, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'USN',
+      balance: parseFloat(pendingUSN),
+      color: '#1b474c',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'BSTN',
+      balance: parseFloat(pendingBSTN),
+      color: '#0f837a',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'TRI',
+      balance: parseFloat(pendingTRI),
+      color: '#aa21b9',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'PLY',
+      balance: parseFloat(pendingPLY),
+      color: '#169545',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    }
+  ];
+
+  const screenWidth = Dimensions.get('window').width;
+  const chartConfig = {
+    backgroundColor: '#FFFFFF',
+    backgroundGradientFrom: '#FFFFFF',
+    backgroundGradientTo: '#FFFFFF',
+    decimalPlaces: 5, // optional, defaults to 2dp
+    color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: '6',
+      strokeWidth: '2',
+      stroke: '#ffa726',
+    },
+  };
 
   useEffect(() => {
     const name = "AURORA:" + account.accountName;
@@ -92,11 +146,7 @@ const AuroaStakeScreen = props => {
     }
   };
 
-  const _handleStake = () => {
-
-  };
-
-  const _handleUnstake = () => {
+  const _handleWithdrawAll = () => {
 
   };
 
@@ -121,46 +171,30 @@ const AuroaStakeScreen = props => {
           </Text>
         </View>
         <View style={styles.spacer} />
-        <KText>Available: {availableBalance} AURORA</KText>
-        <KText>Staked: {stakedBalance} AURORA</KText>
-        <KText>Locked: {lockedBalance} AURORA</KText>
-        <KText>Rewards: {rewardsBalance} AURORA</KText>
+        <KText>Balance: {accountBalance} ETH</KText>
+        <KText>Locked duration: {unlockedTime} </KText>
         <View style={styles.spacer} />
-        <KInput
-          label={'Stake AURORA to earn rewards'}
-          placeholder={'Enter amount to stake'}
-          value={stakeAmount}
-          onChangeText={setStakeAmount}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
-          keyboardType={'numeric'}
-        />
-        <KButton
-          title={'Stake AURORA'}
-          theme={'brown'}
-          style={styles.button}
-          onPress={_handleStake}
-        />
-        <View style={styles.spacer} />
-        <KInput
-          label={'Unstake AURORA'}
-          placeholder={'Enter amount to unstake'}
-          value={stakeAmount}
-          onChangeText={setStakeAmount}
-          containerStyle={styles.inputContainer}
-          autoCapitalize={'none'}
-          keyboardType={'numeric'}
-        />
-        <KButton
-          title={'Unstake AURORA'}
-          theme={'blue'}
-          style={styles.button}
-          onPress={_handleUnstake}
-        />
-
+        <ScrollView style={styles.scrollView}>
+          <PieChart
+            data={stakeData}
+            width={screenWidth}
+            height={220}
+            chartConfig={chartConfig}
+            accessor="balance"
+            backgroundColor="transparent"
+            absolute
+          />
+          <KButton
+            title={'Withdraw all'}
+            theme={'blue'}
+            style={styles.button}
+            onPress={_handleWithdrawAll}
+          />
+          <View style={styles.spacer} />
+        </ScrollView>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 
-export default connectAccounts()(AuroaStakeScreen);
+export default connectAccounts()(AuroraWithdrawScreen);
