@@ -18,7 +18,7 @@ const getEVMTokens = chainName => {
       chainTokens = polygonTokenList.tokens.slice(0, STABLE_LENGTH)
       break;
     case 'AURORA':
-      chainTokens = auroraTokenList.tokens.slice(0, STABLE_LENGTH + 1)
+      chainTokens = auroraTokenList.tokens.slice(0, STABLE_LENGTH + 5)
       break;
     default:
       chainTokens = etherTokenList.tokens.slice(0, STABLE_LENGTH)
