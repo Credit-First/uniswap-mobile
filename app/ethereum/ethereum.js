@@ -13,6 +13,9 @@ import { BigNumber, ethers } from 'ethers';
 const tokenABI = require('./abi.json');
 const nftABI = require('./nftAbi.json');
 const multiCallABI = require('./multiCallAbi.json');
+const auroraStakingABI = require('./auroraStakingAbi.json');
+
+const auroraStakingAddress = '0xccc2b1aD21666A5847A804a73a41F904C4a4A0Ec';
 const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
@@ -110,6 +113,114 @@ const getMulitCallAddress = (chainName) => {
   }
 
   return ret;
+}
+
+/**
+ * Web3 Aurora Staking Module
+ */
+ export const web3AuroraStakingModule = () => {
+  const web3 = auroraWeb3;
+  return {
+    /**
+     * Get staking APRs
+     */
+     getAprs: async () => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Get the pending rewards
+     * @param {String} account
+     */
+     getPendingRewards: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Get the withdrawals
+     * @param {String} account
+     */
+     getWithdrawals: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Staking
+     * @param {String} account
+     * @param {Number} amount
+     */
+    stake: async (account, amount) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Unstaking
+     * @param {String} account
+     * @param {Number} amount
+     */
+     unstake: async (account, amount) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Claim all
+     * @param {String} account
+     */
+     claimAll: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+    /**
+     * Withdrawal all
+     * @param {String} account
+     */
+     withdrawAll: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("multi call error:", e);
+        return [];
+      }
+    },
+  }
 }
 
 /**
