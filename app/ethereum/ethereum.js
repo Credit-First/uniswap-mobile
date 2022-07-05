@@ -130,7 +130,7 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Get staking APRs error:", e);
         return [];
       }
     },
@@ -144,7 +144,7 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Get the pending rewards error:", e);
         return [];
       }
     },
@@ -158,7 +158,7 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Get the withdrawals error:", e);
         return [];
       }
     },
@@ -173,8 +173,30 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Staking error:", e);
         return [];
+      }
+    },
+    /**
+     * Get staking gas limit
+     * @param {String} account
+     * @param {Number} amount
+     */
+     getStakeGasLimit: async (account, amount) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const transactionData = contract.methods.stake(amount).encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: auroraStakingAddress,
+          data: transactionData,
+        };
+  
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get staking gas limit error:", e);
+        return 0;
       }
     },
     /**
@@ -188,8 +210,65 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Unstaking error:", e);
         return [];
+      }
+    },
+    /**
+     * Get unstaking gas limit
+     * @param {String} account
+     * @param {Number} amount
+     */
+     getUnstakeGasLimit: async (account, amount) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const transactionData = contract.methods.unstake(amount).encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: auroraStakingAddress,
+          data: transactionData,
+        };
+  
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get staking gas limit error:", e);
+        return 0;
+      }
+    },
+    /**
+     * Unstaking all
+     * @param {String} account
+     */
+     unstakeAll: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+        return ;
+      } catch (e) {
+        console.log("Unstaking all error:", e);
+        return [];
+      }
+    },
+    /**
+     * Get unstaking all gas limit
+     * @param {String} account
+     */
+     getUnstakeAllGasLimit: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const transactionData = contract.methods.unstakeAll().encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: auroraStakingAddress,
+          data: transactionData,
+        };
+  
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get unstaking all gas limit error:", e);
+        return 0;
       }
     },
     /**
@@ -202,8 +281,29 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Claim all error:", e);
         return [];
+      }
+    },
+    /**
+     * Get claim all gas limit
+     * @param {String} account
+     */
+     getClaimAllGasLimit: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const transactionData = contract.methods.moveAllRewardsToPending().encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: auroraStakingAddress,
+          data: transactionData,
+        };
+  
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get claim all gas limit error:", e);
+        return 0;
       }
     },
     /**
@@ -216,8 +316,29 @@ const getMulitCallAddress = (chainName) => {
 
         return ;
       } catch (e) {
-        console.log("multi call error:", e);
+        console.log("Withdrawal all error:", e);
         return [];
+      }
+    },
+    /**
+     * Get withdraw all gas limit
+     * @param {String} account
+     */
+     getWithdrawAllGasLimit: async (account) => {
+      try {
+        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const transactionData = contract.methods.withdrawAll().encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: auroraStakingAddress,
+          data: transactionData,
+        };
+  
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get withdraw all gas limit error:", e);
+        return 0;
       }
     },
   }
