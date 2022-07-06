@@ -12,16 +12,17 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KInput, KText, KButton } from '../../components';
+import { KInput, KText, KButton, TwoIconsButtons } from '../../components';
 import styles from '../Ethereum/EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import web3Module from '../../ethereum/ethereum';
+import web3Module, { web3AuroraStakingModule } from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
+import { MAIN_PAGE, SECOND_PAGE, THIRD_PAGE } from '../../constant/page'
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
-const tokenAddress = "";
+const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
   getBalanceOfAccount
 } = web3Module({
@@ -29,6 +30,13 @@ const {
   tokenAddress,
   decimals: 18
 });
+
+const {
+  unstake,
+  getUnstakeGasLimit,
+  claimAll,
+  getClaimAllGasLimit,
+} = web3AuroraStakingModule();
 
 const AuroraUnstakeScreen = props => {
   const [loaded, setLoaded] = useState(false);
@@ -41,10 +49,11 @@ const AuroraUnstakeScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
+  const [showFlag, setShowFlag] = useState(MAIN_PAGE);
   const [accountBalance, setAccountBalance] = useState();
   const [unstakeAmount, setUnstakeAmount] = useState('');
-  
-  const [pendingAurora, setPendingAurora] = useState( 0.50388694);
+
+  const [pendingAurora, setPendingAurora] = useState(0.50388694);
   const [pendingUSN, setPendingUSN] = useState(0.0001);
   const [pendingBSTN, setPendingBSTN] = useState(0.0013);
   const [pendingTRI, setPendingTRI] = useState(0.0001);
@@ -147,12 +156,24 @@ const AuroraUnstakeScreen = props => {
   };
 
   const _handleUnstake = () => {
-    
+    setShowFlag(SECOND_PAGE);
   };
 
   const _handleClaim = () => {
-
+    setShowFlag(THIRD_PAGE);
   };
+
+  const unstakeAurora = async () => {
+
+  }
+
+  const claimAurora = async () => {
+
+  }
+
+  const reject = async () => {
+    setShowFlag(MAIN_PAGE);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -176,40 +197,91 @@ const AuroraUnstakeScreen = props => {
         </View>
         <View style={styles.spacer} />
         <KText>Balance: {accountBalance} ETH</KText>
-        <View style={styles.spacer} />
-        <ScrollView style={styles.scrollView}>
-          <PieChart
-            data={stakeData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor="balance"
-            backgroundColor="transparent"
-            absolute
+        {showFlag === SECOND_PAGE &&
+          <KText>Unstake Amount: {unstakeAmount} AURORA</KText>
+        }
+        {showFlag === THIRD_PAGE &&
+          <>
+            <View style={styles.spacer} />
+            <KText style={styles.link}> Pending Rewards</KText>
+            <KText> USN Rewards: {pendingUSN} USN</KText>
+            <KText> Bastion Rewards: {pendingUSN} BSTN</KText>
+            <KText> Trisolaris Rewards: {pendingUSN} TRI</KText>
+            <KText> Aurigami Rewards: {pendingUSN} PLY</KText>
+          </>
+        }
+        <View style={styles.spacerToBottom} />
+        {showFlag === MAIN_PAGE &&
+          <ScrollView style={styles.scrollView}>
+            <PieChart
+              data={stakeData}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="balance"
+              backgroundColor="transparent"
+              absolute
+            />
+            <KInput
+              label={'Unstake AURORA'}
+              placeholder={'Enter amount to unstake'}
+              value={unstakeAmount}
+              onChangeText={setUnstakeAmount}
+              containerStyle={styles.inputContainer}
+              autoCapitalize={'none'}
+              keyboardType={'numeric'}
+            />
+            <KButton
+              title={'Unstake AURORA'}
+              theme={'blue'}
+              style={styles.button}
+              onPress={_handleUnstake}
+            />
+            <View style={styles.spacer} />
+            <KButton
+              title={'Claim pending rewards'}
+              theme={'brown'}
+              style={styles.button}
+              onPress={_handleClaim}
+            />
+          </ScrollView>
+        }
+        {showFlag === SECOND_PAGE &&
+          <TwoIconsButtons
+            onIcon1Press={unstakeAurora}
+            onIcon2Press={reject}
+            icon1={() => (
+              <Image
+                source={require('../../../assets/icons/confirm.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            icon2={() => (
+              <Image
+                source={require('../../../assets/icons/close.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
-          <KInput
-            label={'Unstake AURORA'}
-            placeholder={'Enter amount to unstake'}
-            value={unstakeAmount}
-            onChangeText={setUnstakeAmount}
-            containerStyle={styles.inputContainer}
-            autoCapitalize={'none'}
-            keyboardType={'numeric'}
+        }
+        {showFlag === THIRD_PAGE &&
+          <TwoIconsButtons
+            onIcon1Press={claimAurora}
+            onIcon2Press={reject}
+            icon1={() => (
+              <Image
+                source={require('../../../assets/icons/confirm.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            icon2={() => (
+              <Image
+                source={require('../../../assets/icons/close.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
-          <KButton
-            title={'Unstake AURORA'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={_handleUnstake}
-          />
-          <View style={styles.spacer} />
-          <KButton
-            title={'Claim pending rewards'}
-            theme={'brown'}
-            style={styles.button}
-            onPress={_handleClaim}
-          />
-        </ScrollView>
+        }
       </View>
     </SafeAreaView >
   );

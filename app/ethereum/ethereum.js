@@ -118,17 +118,41 @@ const getMulitCallAddress = (chainName) => {
 /**
  * Web3 Aurora Staking Module
  */
- export const web3AuroraStakingModule = () => {
+export const web3AuroraStakingModule = () => {
   const web3 = auroraWeb3;
+  const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+
+  const getOneDayReward = async (streamId) => {
+    const schedule = await contract.methods.getStreamSchedule(streamId).call();
+    const now = Math.floor(Date.now() / 1000)
+    const oneDay = 86400
+    const streamStart = schedule[0][0].toNumber()
+    const streamEnd = schedule[0][schedule[0].length - 1].toNumber()
+    if (now <= streamStart) return ethers.BigNumber.from(0) // didn't start
+    if (now >= streamEnd - oneDay) return ethers.BigNumber.from(0) // ended
+    const currentIndex = schedule[0].findIndex(indexTime => now < indexTime) - 1
+    const indexDuration = schedule[0][currentIndex + 1] - schedule[0][currentIndex]
+    const indexRewards = schedule[1][currentIndex].sub(schedule[1][currentIndex + 1])
+    const oneDayReward = indexRewards.mul(oneDay).div(indexDuration)
+    return oneDayReward
+  }
+
   return {
     /**
      * Get staking APRs
      */
-     getAprs: async () => {
+    getAprs: async () => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const totalStaked = await contract.methods.getTotalAmountOfStakedAurora().call();
 
-        return ;
+        // streamTokenPrice can be queried from coingecko.
+        // const totalStakedValue = Number(ethers.utils.formatUnits(totalStaked, 18)) * streamTokenPrice
+        // const oneYearStreamRewardValue = Number(ethers.utils.formatUnits(oneDayReward, 18)) * 365 * streamTokenPrice
+        // const streamAPR = oneYearStreamRewardValue * 100 / totalStakedValue
+        // const totalAPR = allStreamsCumulatedOneYearRewardValue * 100 / totalStakedValue
+
+        return;
       } catch (e) {
         console.log("Get staking APRs error:", e);
         return [];
@@ -138,11 +162,11 @@ const getMulitCallAddress = (chainName) => {
      * Get the pending rewards
      * @param {String} account
      */
-     getPendingRewards: async (account) => {
+    getPendingRewards: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Get the pending rewards error:", e);
         return [];
@@ -152,11 +176,11 @@ const getMulitCallAddress = (chainName) => {
      * Get the withdrawals
      * @param {String} account
      */
-     getWithdrawals: async (account) => {
+    getWithdrawals: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Get the withdrawals error:", e);
         return [];
@@ -171,7 +195,7 @@ const getMulitCallAddress = (chainName) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Staking error:", e);
         return [];
@@ -182,7 +206,7 @@ const getMulitCallAddress = (chainName) => {
      * @param {String} account
      * @param {Number} amount
      */
-     getStakeGasLimit: async (account, amount) => {
+    getStakeGasLimit: async (account, amount) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.stake(amount).encodeABI();
@@ -192,7 +216,7 @@ const getMulitCallAddress = (chainName) => {
           to: auroraStakingAddress,
           data: transactionData,
         };
-  
+
         return web3.eth.estimateGas(tx);
       } catch (e) {
         console.log("Get staking gas limit error:", e);
@@ -204,11 +228,11 @@ const getMulitCallAddress = (chainName) => {
      * @param {String} account
      * @param {Number} amount
      */
-     unstake: async (account, amount) => {
+    unstake: async (account, amount) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Unstaking error:", e);
         return [];
@@ -219,7 +243,7 @@ const getMulitCallAddress = (chainName) => {
      * @param {String} account
      * @param {Number} amount
      */
-     getUnstakeGasLimit: async (account, amount) => {
+    getUnstakeGasLimit: async (account, amount) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.unstake(amount).encodeABI();
@@ -229,7 +253,7 @@ const getMulitCallAddress = (chainName) => {
           to: auroraStakingAddress,
           data: transactionData,
         };
-  
+
         return web3.eth.estimateGas(tx);
       } catch (e) {
         console.log("Get staking gas limit error:", e);
@@ -240,11 +264,11 @@ const getMulitCallAddress = (chainName) => {
      * Unstaking all
      * @param {String} account
      */
-     unstakeAll: async (account) => {
+    unstakeAll: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Unstaking all error:", e);
         return [];
@@ -254,7 +278,7 @@ const getMulitCallAddress = (chainName) => {
      * Get unstaking all gas limit
      * @param {String} account
      */
-     getUnstakeAllGasLimit: async (account) => {
+    getUnstakeAllGasLimit: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.unstakeAll().encodeABI();
@@ -264,7 +288,7 @@ const getMulitCallAddress = (chainName) => {
           to: auroraStakingAddress,
           data: transactionData,
         };
-  
+
         return web3.eth.estimateGas(tx);
       } catch (e) {
         console.log("Get unstaking all gas limit error:", e);
@@ -275,11 +299,11 @@ const getMulitCallAddress = (chainName) => {
      * Claim all
      * @param {String} account
      */
-     claimAll: async (account) => {
+    claimAll: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Claim all error:", e);
         return [];
@@ -289,7 +313,7 @@ const getMulitCallAddress = (chainName) => {
      * Get claim all gas limit
      * @param {String} account
      */
-     getClaimAllGasLimit: async (account) => {
+    getClaimAllGasLimit: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.moveAllRewardsToPending().encodeABI();
@@ -299,7 +323,7 @@ const getMulitCallAddress = (chainName) => {
           to: auroraStakingAddress,
           data: transactionData,
         };
-  
+
         return web3.eth.estimateGas(tx);
       } catch (e) {
         console.log("Get claim all gas limit error:", e);
@@ -310,11 +334,11 @@ const getMulitCallAddress = (chainName) => {
      * Withdrawal all
      * @param {String} account
      */
-     withdrawAll: async (account) => {
+    withdrawAll: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
-        return ;
+        return;
       } catch (e) {
         console.log("Withdrawal all error:", e);
         return [];
@@ -324,7 +348,7 @@ const getMulitCallAddress = (chainName) => {
      * Get withdraw all gas limit
      * @param {String} account
      */
-     getWithdrawAllGasLimit: async (account) => {
+    getWithdrawAllGasLimit: async (account) => {
       try {
         const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.withdrawAll().encodeABI();
@@ -334,7 +358,7 @@ const getMulitCallAddress = (chainName) => {
           to: auroraStakingAddress,
           data: transactionData,
         };
-  
+
         return web3.eth.estimateGas(tx);
       } catch (e) {
         console.log("Get withdraw all gas limit error:", e);

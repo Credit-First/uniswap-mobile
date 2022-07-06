@@ -23,9 +23,10 @@ import { log } from '../../logger/logger';
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
-const tokenAddress = "";
+const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
-  getBalanceOfAccount
+  getBalanceOfAccount,
+  getBalanceOfTokenOfAccount
 } = web3Module({
   tokenABI,
   tokenAddress,
@@ -45,7 +46,7 @@ const AuroraAccountScreen = props => {
   } = props;
 
   const [accountBalance, setAccountBalance] = useState();
-  const [availableBalance, setAvailableBalance] = useState(0);
+  const [availableBalance, setAvailableBalance] = useState();
 
   const [aprTotal, setAprTotal] = useState(101);
   const [aprAurora, setAprAurora] = useState(42.05);
@@ -128,6 +129,9 @@ const AuroraAccountScreen = props => {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
       setAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+
+      const auroraBalance = await getBalanceOfTokenOfAccount("AURORA", account.address);
+      setAvailableBalance(parseFloat(auroraBalance).toFixed(4));
     } catch (err) {
       log({
         description: 'loadEthereumAccountBalance',
@@ -238,7 +242,6 @@ const AuroraAccountScreen = props => {
             style={styles.button}
             onPress={_handlePressWithdraw}
           />
-          <FlatList />
           <TwoIconsButtons
             onIcon1Press={_handleBackupKey}
             onIcon2Press={_handleRemoveAccount}

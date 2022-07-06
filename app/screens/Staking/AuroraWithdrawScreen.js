@@ -12,16 +12,17 @@ import {
   Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import { KInput, KText, KButton } from '../../components';
+import { TwoIconsButtons, KText, KButton } from '../../components';
 import styles from '../Ethereum/EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
-import web3Module from '../../ethereum/ethereum';
+import web3Module, { web3AuroraStakingModule } from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
+import { MAIN_PAGE, SECOND_PAGE } from '../../constant/page'
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
-const tokenAddress = "";
+const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
   getBalanceOfAccount
 } = web3Module({
@@ -29,6 +30,11 @@ const {
   tokenAddress,
   decimals: 18
 });
+
+const {
+  withdrawAll,
+  getWithdrawAllGasLimit,
+} = web3AuroraStakingModule();
 
 const AuroraWithdrawScreen = props => {
   const [loaded, setLoaded] = useState(false);
@@ -41,10 +47,11 @@ const AuroraWithdrawScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
+  const [showFlag, setShowFlag] = useState(MAIN_PAGE);
   const [accountBalance, setAccountBalance] = useState();
   const [unlockedTime, setUnlockedTime] = useState('2 days');
-  
-  const [pendingAurora, setPendingAurora] = useState( 0.50388694);
+
+  const [pendingAurora, setPendingAurora] = useState(0.50388694);
   const [pendingUSN, setPendingUSN] = useState(0.0001);
   const [pendingBSTN, setPendingBSTN] = useState(0.0013);
   const [pendingTRI, setPendingTRI] = useState(0.0001);
@@ -147,8 +154,17 @@ const AuroraWithdrawScreen = props => {
   };
 
   const _handleWithdrawAll = () => {
-
+    setShowFlag(SECOND_PAGE);
   };
+
+  const withdrawAll = async () => {
+
+  }
+
+  const reject = async () => {
+    setShowFlag(MAIN_PAGE);
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,25 +189,56 @@ const AuroraWithdrawScreen = props => {
         <View style={styles.spacer} />
         <KText>Balance: {accountBalance} ETH</KText>
         <KText>Locked duration: {unlockedTime} </KText>
-        <View style={styles.spacer} />
-        <ScrollView style={styles.scrollView}>
-          <PieChart
-            data={stakeData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor="balance"
-            backgroundColor="transparent"
-            absolute
+        {showFlag === SECOND_PAGE &&
+          <>
+            <View style={styles.spacer} />
+            <KText style={styles.link}> Earned Rewards</KText>
+            <KText> AURORA Rewards: {pendingAurora} AURORA</KText>
+            <KText> USN Rewards: {pendingUSN} USN</KText>
+            <KText> Bastion Rewards: {pendingUSN} BSTN</KText>
+            <KText> Trisolaris Rewards: {pendingUSN} TRI</KText>
+            <KText> Aurigami Rewards: {pendingUSN} PLY</KText>
+          </>
+        }
+        <View style={styles.spacerToBottom} />
+        {showFlag === MAIN_PAGE &&
+          <ScrollView style={styles.scrollView}>
+            <PieChart
+              data={stakeData}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="balance"
+              backgroundColor="transparent"
+              absolute
+            />
+            <KButton
+              title={'Withdraw all'}
+              theme={'blue'}
+              style={styles.button}
+              onPress={_handleWithdrawAll}
+            />
+            <View style={styles.spacer} />
+          </ScrollView>
+        }
+        {showFlag === SECOND_PAGE &&
+          <TwoIconsButtons
+            onIcon1Press={withdrawAll}
+            onIcon2Press={reject}
+            icon1={() => (
+              <Image
+                source={require('../../../assets/icons/confirm.png')}
+                style={styles.buttonIcon}
+              />
+            )}
+            icon2={() => (
+              <Image
+                source={require('../../../assets/icons/close.png')}
+                style={styles.buttonIcon}
+              />
+            )}
           />
-          <KButton
-            title={'Withdraw all'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={_handleWithdrawAll}
-          />
-          <View style={styles.spacer} />
-        </ScrollView>
+        }
       </View>
     </SafeAreaView >
   );

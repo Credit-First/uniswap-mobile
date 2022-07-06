@@ -53,6 +53,9 @@ const styles = StyleSheet.create({
   spacer: {
     marginTop: 10,
   },
+  spacerToBottom: {
+    flex: 1,
+  },
   column: {
     justifyContent: 'center',
     alignItems: 'center',
