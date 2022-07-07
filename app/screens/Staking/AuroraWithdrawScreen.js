@@ -74,28 +74,28 @@ const AuroraWithdrawScreen = props => {
     {
       name: 'PLY',
       balance: parseFloat(pendings[1]),
-      color: '#1b474c',
+      color: '#169545',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
       name: 'TRI',
       balance: parseFloat(pendings[2]),
-      color: '#0f837a',
+      color: '#aa21b9',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
       name: 'BSTN',
       balance: parseFloat(pendings[3]),
-      color: '#aa21b9',
+      color: '#0f837a',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
       name: 'USN',
       balance: parseFloat(pendings[4]),
-      color: '#169545',
+      color: '#1b474c',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     }
@@ -226,7 +226,7 @@ const AuroraWithdrawScreen = props => {
         <View style={styles.spacer} />
         <KText>Balance: {accountBalance} ETH</KText>
         {unlockedTime > 0 ?
-          < KText > Available in: {Math.ceil(unlockedTime / 3600 / 24)} days</KText>
+          <KText>Available in: {Math.ceil(unlockedTime / 3600 / 24)} days</KText>
           :
           <KText>All withdrawals Availabled</KText>
         }
@@ -235,11 +235,11 @@ const AuroraWithdrawScreen = props => {
             <KText>Estimated Gas Fee: {estimatedFee} ETH</KText>
             <View style={styles.spacer} />
             <KText style={styles.link}>Earned Rewards</KText>
-            <KText>AURORA Rewards: {pendingAurora} AURORA</KText>
-            <KText>USN Rewards: {pendingUSN} USN</KText>
-            <KText>Bastion Rewards: {pendingUSN} BSTN</KText>
-            <KText>Trisolaris Rewards: {pendingUSN} TRI</KText>
-            <KText>Aurigami Rewards: {pendingUSN} PLY</KText>
+            <KText>AURORA Rewards: {pendings[0]} AURORA</KText>
+            <KText>Aurigami Rewards: {pendings[1]} PLY</KText>
+            <KText>Trisolaris Rewards: {pendings[2]} TRI</KText>
+            <KText>Bastion Rewards: {pendings[3]} BSTN</KText>
+            <KText>USN Rewards: {pendings[4]} USN</KText>
           </>
         }
         <View style={styles.spacerToBottom} />

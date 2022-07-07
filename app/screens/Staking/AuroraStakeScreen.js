@@ -38,6 +38,7 @@ const {
   getStakeGasLimit,
   claimAll,
   getClaimAllGasLimit,
+  getPendingRewards,
 } = web3AuroraStakingModule();
 
 const AuroraStakeScreen = props => {
@@ -63,47 +64,42 @@ const AuroraStakeScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState(0);
   const [stakeAmount, setStakeAmount] = useState('');
-
-  const [pendingAurora, setPendingAurora] = useState(0.50388694);
-  const [pendingUSN, setPendingUSN] = useState(0.0001);
-  const [pendingBSTN, setPendingBSTN] = useState(0.0013);
-  const [pendingTRI, setPendingTRI] = useState(0.0001);
-  const [pendingPLY, setPendingPLY] = useState(0.0033);
+  const [pendings, setPendings] = useState([0, 0, 0, 0, 0]);
 
   // Stake chart data:
   const stakeData = [
     {
       name: 'AURORA',
-      balance: parseFloat(pendingAurora),
+      balance: parseFloat(pendings[0]),
       color: 'rgba(42, 254, 106, 1)',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'USN',
-      balance: parseFloat(pendingUSN),
-      color: '#1b474c',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    },
-    {
-      name: 'BSTN',
-      balance: parseFloat(pendingBSTN),
-      color: '#0f837a',
+      name: 'PLY',
+      balance: parseFloat(pendings[1]),
+      color: '#169545',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
       name: 'TRI',
-      balance: parseFloat(pendingTRI),
+      balance: parseFloat(pendings[2]),
       color: '#aa21b9',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'PLY',
-      balance: parseFloat(pendingPLY),
-      color: '#169545',
+      name: 'BSTN',
+      balance: parseFloat(pendings[3]),
+      color: '#0f837a',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: 'USN',
+      balance: parseFloat(pendings[4]),
+      color: '#1b474c',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     }
@@ -157,6 +153,9 @@ const AuroraStakeScreen = props => {
 
       const auroraBalance = await getBalanceOfTokenOfAccount("AURORA", account.address);
       setAvailableBalance(parseFloat(auroraBalance).toFixed(4));
+
+      const claims = await getPendingRewards(account);
+      setPendings(claims);
     } catch (err) {
       log({
         description: 'loadEthereumAccountBalance',
@@ -170,6 +169,11 @@ const AuroraStakeScreen = props => {
   };
 
   const _handleStake = async () => {
+    if (stakeAmount === '') {
+      Alert.alert(`Please enter the amount to stake!`);
+      return;
+    }
+
     setShowFlag(SECOND_PAGE);
     const gasValue = await getCurrentGasPrice("AURORA");
     setGasPrice(gasValue);
@@ -216,7 +220,7 @@ const AuroraStakeScreen = props => {
 
   const claimAurora = async () => {
     if (pending) {
-      Alert.alert(`Waiting for pending All rewards claiming`);
+      Alert.alert(`Waiting for pending All rewards claiming!`);
       return;
     }
 
@@ -262,6 +266,12 @@ const AuroraStakeScreen = props => {
           <>
             <KText>Stake Amount: {stakeAmount} AURORA</KText>
             <KText>Estimated Gas Fee: {estimatedFee} ETH(claim and stake)</KText>
+            <View style={styles.spacer} />
+            <KText style={styles.link}>Pending Rewards</KText>
+            <KText>Aurigami Rewards: {pendings[1]} PLY</KText>
+            <KText>Trisolaris Rewards: {pendings[2]} TRI</KText>
+            <KText>Bastion Rewards: {pendings[3]} BSTN</KText>
+            <KText>USN Rewards: {pendings[4]} USN</KText>
           </>
         }
         {showFlag === THIRD_PAGE &&
@@ -269,10 +279,10 @@ const AuroraStakeScreen = props => {
             <KText>Estimated Gas Fee: {estimatedFee} ETH</KText>
             <View style={styles.spacer} />
             <KText style={styles.link}>Pending Rewards</KText>
-            <KText>USN Rewards: {pendingUSN} USN</KText>
-            <KText>Bastion Rewards: {pendingUSN} BSTN</KText>
-            <KText>Trisolaris Rewards: {pendingUSN} TRI</KText>
-            <KText>Aurigami Rewards: {pendingUSN} PLY</KText>
+            <KText>Aurigami Rewards: {pendings[1]} PLY</KText>
+            <KText>Trisolaris Rewards: {pendings[2]} TRI</KText>
+            <KText>Bastion Rewards: {pendings[3]} BSTN</KText>
+            <KText>USN Rewards: {pendings[4]} USN</KText>
           </>
         }
         <View style={styles.spacerToBottom} />

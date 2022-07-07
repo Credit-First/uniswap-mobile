@@ -166,12 +166,19 @@ export const web3AuroraStakingModule = () => {
      */
     getPendingRewards: async (account) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const pendings = [];
+        
+        let pending = await contract.methods.getUserTotalDeposit(account.address).call();
+        pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
 
-        return;
+        for(let i=1; i<AURORA_STREAM_NUM; i++) {
+          pending = await contract.methods.getStreamClaimableAmount(i, account.address).call();
+          pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
+        }
+        return pendings;
       } catch (e) {
         console.log("Get the pending rewards error:", e);
-        return [];
+        return [0, 0, 0, 0, 0];
       }
     },
     /**
