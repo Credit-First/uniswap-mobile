@@ -259,11 +259,41 @@ export const web3AuroraStakingModule = () => {
      * @param {String} account
      * @param {Number} amount
      */
-    unstake: async (account, amount) => {
+    unstake: async (account, amount, gasLimit, gasPrice) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
 
-        return;
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const unstakeAmount = ethers.utils.parseUnits(amount, 18);
+        const transactionData = contract.methods.unstake(unstakeAmount).encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: auroraStakingAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Unstaking error:", e);
         return [];
@@ -276,8 +306,8 @@ export const web3AuroraStakingModule = () => {
      */
     getUnstakeGasLimit: async (account, amount) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
-        const transactionData = contract.methods.unstake(amount).encodeABI();
+        const unstakeAmount = ethers.utils.parseUnits(amount, 18);
+        const transactionData = contract.methods.unstake(unstakeAmount).encodeABI();
 
         const tx = {
           from: account.address,
