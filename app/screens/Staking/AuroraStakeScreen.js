@@ -24,6 +24,7 @@ const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
+  getCurrentGasPrice,
   getBalanceOfAccount,
   getBalanceOfTokenOfAccount
 } = web3Module({
@@ -51,6 +52,14 @@ const AuroraStakeScreen = props => {
   } = props;
 
   const [showFlag, setShowFlag] = useState(MAIN_PAGE);
+  const [pending, setPending] = useState(false);
+  const [gasPrice, setGasPrice] = useState(70000000);
+  const [gasStakeLimit, setGasStakeLimit] = useState(6721975);
+  const [gasClaimLimit, setGasClaimLimit] = useState(6721975);
+  const [estimatedFee, setEstimatedFee] = useState(0.0);
+
+  const nativeDivider = 1000000000000000000;
+
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState(0);
   const [stakeAmount, setStakeAmount] = useState('');
@@ -160,20 +169,66 @@ const AuroraStakeScreen = props => {
     }
   };
 
-  const _handleStake = () => {
+  const _handleStake = async () => {
     setShowFlag(SECOND_PAGE);
+    const gasValue = await getCurrentGasPrice("AURORA");
+    setGasPrice(gasValue);
+
+    const gasStakeLimitation = await getStakeGasLimit(account, stakeAmount);
+    setGasStakeLimit(gasStakeLimitation);
+
+    const gasClaimLimitation = await getClaimAllGasLimit(account);
+    setGasClaimLimit(gasClaimLimitation);
+
+    const estimatedFee = parseFloat((gasValue * (gasStakeLimitation + gasClaimLimitation)) / nativeDivider).toFixed(6);
+    setEstimatedFee(estimatedFee);
   };
 
-  const _handleClaim = () => {
+  const _handleClaim = async () => {
     setShowFlag(THIRD_PAGE);
+    const gasValue = await getCurrentGasPrice("AURORA");
+    setGasPrice(gasValue);
+
+    const gasLimitation = await getClaimAllGasLimit(account);
+    setGasClaimLimit(gasLimitation);
+
+    const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(6);
+    setEstimatedFee(estimatedFee);
   };
 
   const stakeAurora = async () => {
+    if (pending) {
+      Alert.alert(`Waiting for pending Aurora staking`);
+      return;
+    }
 
+    setPending(true);
+    try {
+      await claimAll(account, gasClaimLimit, gasPrice);
+      await stake(account, stakeAmount, gasStakeLimit, gasPrice);
+      Alert.alert(`${stakeAmount} AURORA staked!`);
+    } catch (error) {
+      Alert.alert(`Staking error!`);
+    }
+    setShowFlag(MAIN_PAGE);
+    setPending(false);
   }
 
   const claimAurora = async () => {
+    if (pending) {
+      Alert.alert(`Waiting for pending All rewards claiming`);
+      return;
+    }
 
+    setPending(true);
+    try {
+      await claimAll(account, gasClaimLimit, gasPrice);
+      Alert.alert(`All rewards claimed!`);
+    } catch (error) {
+      Alert.alert(`Claiming error!`);
+    }
+    setShowFlag(MAIN_PAGE);
+    setPending(false);
   }
 
   const reject = async () => {
@@ -204,16 +259,20 @@ const AuroraStakeScreen = props => {
         <KText>Balance: {accountBalance} ETH</KText>
         <KText>Available: {availableBalance} AURORA</KText>
         {showFlag === SECOND_PAGE &&
-          <KText>Stake Amount: {stakeAmount} AURORA</KText>
+          <>
+            <KText>Stake Amount: {stakeAmount} AURORA</KText>
+            <KText>Estimated Gas Fee: {estimatedFee} ETH(claim and stake)</KText>
+          </>
         }
         {showFlag === THIRD_PAGE &&
           <>
+            <KText>Estimated Gas Fee: {estimatedFee} ETH</KText>
             <View style={styles.spacer} />
-            <KText style={styles.link}> Pending Rewards</KText>
-            <KText> USN Rewards: {pendingUSN} USN</KText>
-            <KText> Bastion Rewards: {pendingUSN} BSTN</KText>
-            <KText> Trisolaris Rewards: {pendingUSN} TRI</KText>
-            <KText> Aurigami Rewards: {pendingUSN} PLY</KText>
+            <KText style={styles.link}>Pending Rewards</KText>
+            <KText>USN Rewards: {pendingUSN} USN</KText>
+            <KText>Bastion Rewards: {pendingUSN} BSTN</KText>
+            <KText>Trisolaris Rewards: {pendingUSN} TRI</KText>
+            <KText>Aurigami Rewards: {pendingUSN} PLY</KText>
           </>
         }
         <View style={styles.spacerToBottom} />
@@ -238,7 +297,7 @@ const AuroraStakeScreen = props => {
               keyboardType={'numeric'}
             />
             <KButton
-              title={'Stake AURORA'}
+              title={'Stake AURORA(claim)'}
               theme={'blue'}
               style={styles.button}
               onPress={_handleStake}

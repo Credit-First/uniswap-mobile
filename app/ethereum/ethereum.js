@@ -119,6 +119,7 @@ const getMulitCallAddress = (chainName) => {
  * Web3 Aurora Staking Module
  */
 export const web3AuroraStakingModule = () => {
+  const chainName = "AURORA"
   const web3 = auroraWeb3;
   const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
 
@@ -191,11 +192,41 @@ export const web3AuroraStakingModule = () => {
      * @param {String} account
      * @param {Number} amount
      */
-    stake: async (account, amount) => {
+    stake: async (account, amount, gasLimit, gasPrice) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
 
-        return;
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const stakeAmount = ethers.utils.parseUnits(amount, 18);
+        const transactionData = contract.methods.stake(stakeAmount).encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: auroraStakingAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Staking error:", e);
         return [];
@@ -208,8 +239,8 @@ export const web3AuroraStakingModule = () => {
      */
     getStakeGasLimit: async (account, amount) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
-        const transactionData = contract.methods.stake(amount).encodeABI();
+        const stakeAmount = ethers.utils.parseUnits(amount, 18);
+        const transactionData = contract.methods.stake(stakeAmount).encodeABI();
 
         const tx = {
           from: account.address,
@@ -299,11 +330,40 @@ export const web3AuroraStakingModule = () => {
      * Claim all
      * @param {String} account
      */
-    claimAll: async (account) => {
+    claimAll: async (account, gasLimit, gasPrice) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
 
-        return;
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const transactionData = contract.methods.moveAllRewardsToPending().encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: auroraStakingAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Claim all error:", e);
         return [];
@@ -315,7 +375,6 @@ export const web3AuroraStakingModule = () => {
      */
     getClaimAllGasLimit: async (account) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.moveAllRewardsToPending().encodeABI();
 
         const tx = {
