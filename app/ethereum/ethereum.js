@@ -16,6 +16,7 @@ const multiCallABI = require('./multiCallAbi.json');
 const auroraStakingABI = require('./auroraStakingAbi.json');
 
 const auroraStakingAddress = '0xccc2b1aD21666A5847A804a73a41F904C4a4A0Ec';
+const AURORA_STREAM_NUM = 5;
 const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
@@ -174,17 +175,38 @@ export const web3AuroraStakingModule = () => {
       }
     },
     /**
+     * Get lock time for withdrawal
+     * @param {String} account
+     */
+     getWithdrawLockTime: async (account) => {
+      try {
+        let lastTime = 0;
+        const now = (await web3.eth.getBlock()).timestamp;
+        for(let i=0; i<AURORA_STREAM_NUM; i++) {
+          const releaseTime = await contract.methods.getReleaseTime(i, account.address).call();
+          if(lastTime < releaseTime) lastTime = releaseTime;
+        }
+        return lastTime - now;
+      } catch (e) {
+        console.log("Get the withdrawals lock time error:", e);
+        return 1;
+      }
+    },
+    /**
      * Get the withdrawals
      * @param {String} account
      */
     getWithdrawals: async (account) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
-
-        return;
+        const pendings = [];
+        for(let i=0; i<AURORA_STREAM_NUM; i++) {
+          const pending = await contract.methods.getPending(i, account.address).call();
+          pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
+        }
+        return pendings;
       } catch (e) {
         console.log("Get the withdrawals error:", e);
-        return [];
+        return [0, 0, 0, 0, 0];
       }
     },
     /**
@@ -325,11 +347,40 @@ export const web3AuroraStakingModule = () => {
      * Unstaking all
      * @param {String} account
      */
-    unstakeAll: async (account) => {
+    unstakeAll: async (account, gasLimit, gasPrice) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
 
-        return;
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const transactionData = contract.methods.unstakeAll().encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: auroraStakingAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Unstaking all error:", e);
         return [];
@@ -341,7 +392,6 @@ export const web3AuroraStakingModule = () => {
      */
     getUnstakeAllGasLimit: async (account) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.unstakeAll().encodeABI();
 
         const tx = {
@@ -423,11 +473,40 @@ export const web3AuroraStakingModule = () => {
      * Withdrawal all
      * @param {String} account
      */
-    withdrawAll: async (account) => {
-      try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
-
-        return;
+    withdrawAll: async (account, gasLimit, gasPrice) => {
+        try {
+          const chainId = getChainId(chainName);
+          const providerURL = getNodeUrl(chainName);
+          const FORK_NETWORK = Common.forCustomChain(
+            'mainnet',
+            {
+              name: chainName,
+              networkId: chainId,
+              chainId: chainId,
+              url: providerURL,
+            },
+            'istanbul',
+          );
+  
+          const privateKey = toBuffer(`0x${account.privateKey}`);
+          const nounce = await web3.eth.getTransactionCount(account.address);
+  
+          const transactionData = contract.methods.withdrawAll().encodeABI();
+  
+          const rawTransaction = {
+            from: account.address,
+            to: auroraStakingAddress,
+            value: '0x0',
+            nonce: web3.utils.toHex(nounce),
+            data: transactionData,
+            gasLimit: web3.utils.toHex(gasLimit),
+            gasPrice: web3.utils.toHex(gasPrice),
+          };
+  
+          const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+          tx.sign(privateKey);
+          const serializedTx = tx.serialize();
+          return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Withdrawal all error:", e);
         return [];
@@ -439,7 +518,6 @@ export const web3AuroraStakingModule = () => {
      */
     getWithdrawAllGasLimit: async (account) => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
         const transactionData = contract.methods.withdrawAll().encodeABI();
 
         const tx = {

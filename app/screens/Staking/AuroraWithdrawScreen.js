@@ -24,6 +24,7 @@ const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
+  getCurrentGasPrice,
   getBalanceOfAccount
 } = web3Module({
   tokenABI,
@@ -32,6 +33,8 @@ const {
 });
 
 const {
+  getWithdrawLockTime,
+  getWithdrawals,
   withdrawAll,
   getWithdrawAllGasLimit,
 } = web3AuroraStakingModule();
@@ -48,48 +51,50 @@ const AuroraWithdrawScreen = props => {
   } = props;
 
   const [showFlag, setShowFlag] = useState(MAIN_PAGE);
-  const [accountBalance, setAccountBalance] = useState();
-  const [unlockedTime, setUnlockedTime] = useState('2 days');
+  const [pending, setPending] = useState(false);
+  const [gasPrice, setGasPrice] = useState(70000000);
+  const [gasLimit, setGasLimit] = useState(6721975);
+  const [estimatedFee, setEstimatedFee] = useState(0.0);
 
-  const [pendingAurora, setPendingAurora] = useState(0.50388694);
-  const [pendingUSN, setPendingUSN] = useState(0.0001);
-  const [pendingBSTN, setPendingBSTN] = useState(0.0013);
-  const [pendingTRI, setPendingTRI] = useState(0.0001);
-  const [pendingPLY, setPendingPLY] = useState(0.0033);
+  const nativeDivider = 1000000000000000000;
+  const [accountBalance, setAccountBalance] = useState();
+  const [unlockedTime, setUnlockedTime] = useState(1);
+
+  const [pendings, setPendings] = useState([0, 0, 0, 0, 0])
 
   // Stake chart data:
   const stakeData = [
     {
       name: 'AURORA',
-      balance: parseFloat(pendingAurora),
+      balance: parseFloat(pendings[0]),
       color: 'rgba(42, 254, 106, 1)',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'USN',
-      balance: parseFloat(pendingUSN),
+      name: 'PLY',
+      balance: parseFloat(pendings[1]),
       color: '#1b474c',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'BSTN',
-      balance: parseFloat(pendingBSTN),
+      name: 'TRI',
+      balance: parseFloat(pendings[2]),
       color: '#0f837a',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'TRI',
-      balance: parseFloat(pendingTRI),
+      name: 'BSTN',
+      balance: parseFloat(pendings[3]),
       color: '#aa21b9',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: 'PLY',
-      balance: parseFloat(pendingPLY),
+      name: 'USN',
+      balance: parseFloat(pendings[4]),
       color: '#169545',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
@@ -141,6 +146,12 @@ const AuroraWithdrawScreen = props => {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
       setAccountBalance(parseFloat(ethBalanceInEth).toFixed(4));
+
+      const remainTime = await getWithdrawLockTime(account);
+      setUnlockedTime(remainTime);
+
+      const withdrawals = await getWithdrawals(account);
+      setPendings(withdrawals);
     } catch (err) {
       log({
         description: 'loadEthereumAccountBalance',
@@ -153,12 +164,38 @@ const AuroraWithdrawScreen = props => {
     }
   };
 
-  const _handleWithdrawAll = () => {
+  const _handleWithdrawAll = async () => {
+    if (unlockedTime > 0) {
+      Alert.alert(`The withdrawals is locked for ${Math.ceil(unlockedTime / 3600 / 24)} days!`);
+      return;
+    }
+
     setShowFlag(SECOND_PAGE);
+    const gasValue = await getCurrentGasPrice("AURORA");
+    setGasPrice(gasValue);
+
+    const gasLimitation = await getWithdrawAllGasLimit(account);
+    setGasLimit(gasLimitation);
+
+    const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(6);
+    setEstimatedFee(estimatedFee);
   };
 
-  const withdrawAll = async () => {
+  const withdraw = async () => {
+    if (pending) {
+      Alert.alert(`Waiting for pending All rewards withdrawal!`);
+      return;
+    }
 
+    setPending(true);
+    try {
+      await withdrawAll(account, gasLimit, gasPrice);
+      Alert.alert(`All rewards withdrawn!`);
+    } catch (error) {
+      Alert.alert(`Withdraw error!`);
+    }
+    setShowFlag(MAIN_PAGE);
+    setPending(false);
   }
 
   const reject = async () => {
@@ -188,16 +225,21 @@ const AuroraWithdrawScreen = props => {
         </View>
         <View style={styles.spacer} />
         <KText>Balance: {accountBalance} ETH</KText>
-        <KText>Locked duration: {unlockedTime} </KText>
+        {unlockedTime > 0 ?
+          < KText > Available in: {Math.ceil(unlockedTime / 3600 / 24)} days</KText>
+          :
+          <KText>All withdrawals Availabled</KText>
+        }
         {showFlag === SECOND_PAGE &&
           <>
+            <KText>Estimated Gas Fee: {estimatedFee} ETH</KText>
             <View style={styles.spacer} />
-            <KText style={styles.link}> Earned Rewards</KText>
-            <KText> AURORA Rewards: {pendingAurora} AURORA</KText>
-            <KText> USN Rewards: {pendingUSN} USN</KText>
-            <KText> Bastion Rewards: {pendingUSN} BSTN</KText>
-            <KText> Trisolaris Rewards: {pendingUSN} TRI</KText>
-            <KText> Aurigami Rewards: {pendingUSN} PLY</KText>
+            <KText style={styles.link}>Earned Rewards</KText>
+            <KText>AURORA Rewards: {pendingAurora} AURORA</KText>
+            <KText>USN Rewards: {pendingUSN} USN</KText>
+            <KText>Bastion Rewards: {pendingUSN} BSTN</KText>
+            <KText>Trisolaris Rewards: {pendingUSN} TRI</KText>
+            <KText>Aurigami Rewards: {pendingUSN} PLY</KText>
           </>
         }
         <View style={styles.spacerToBottom} />
@@ -223,7 +265,7 @@ const AuroraWithdrawScreen = props => {
         }
         {showFlag === SECOND_PAGE &&
           <TwoIconsButtons
-            onIcon1Press={withdrawAll}
+            onIcon1Press={withdraw}
             onIcon2Press={reject}
             icon1={() => (
               <Image
