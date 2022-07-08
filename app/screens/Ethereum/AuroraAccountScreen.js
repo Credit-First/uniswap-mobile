@@ -18,7 +18,7 @@ import styles from './EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
-import web3Module from '../../ethereum/ethereum';
+import web3Module, { web3AuroraStakingModule, AURORA_STREAM_NUM } from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
 
 const ethMultiplier = 1000000000000000000;
@@ -32,6 +32,10 @@ const {
   tokenAddress,
   decimals: 18
 });
+
+const {
+  getAprs,
+} = web3AuroraStakingModule();
 
 const AuroraAccountScreen = props => {
   const [loaded, setLoaded] = useState(false);
@@ -48,47 +52,43 @@ const AuroraAccountScreen = props => {
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState();
 
-  const [aprTotal, setAprTotal] = useState(101);
-  const [aprAurora, setAprAurora] = useState(42.05);
-  const [aprUSN, setAprUSN] = useState(53.19);
-  const [aprBSTN, setAprBSTN] = useState(2.96);
-  const [aprTRI, setAprTRI] = useState(0.16);
-  const [aprPLY, setAprPLY] = useState(2.56);
+  const [aprTotal, setAprTotal] = useState(0);
+  const [stakingAprs, setStakingAprs] = useState([0, 0, 0, 0, 0]);
 
   // Stake chart data:
   const stakeData = [
     {
       name: '% (AURORA)',
-      balance: parseFloat(aprAurora),
+      balance: parseFloat(stakingAprs[0]),
       color: 'rgba(42, 254, 106, 1)',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (USN)',
-      balance: parseFloat(aprUSN),
-      color: '#1b474c',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12,
-    },
-    {
-      name: '% (BSTN)',
-      balance: parseFloat(aprBSTN),
-      color: '#0f837a',
+      name: '% (PLY)',
+      balance: parseFloat(stakingAprs[1]),
+      color: '#169545',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
       name: '% (TRI)',
-      balance: parseFloat(aprTRI),
+      balance: parseFloat(stakingAprs[2]),
       color: '#aa21b9',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     },
     {
-      name: '% (PLY)',
-      balance: parseFloat(aprPLY),
-      color: '#169545',
+      name: '% (BSTN)',
+      balance: parseFloat(stakingAprs[3]),
+      color: '#0f837a',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12,
+    },
+    {
+      name: '% (USN)',
+      balance: parseFloat(stakingAprs[4]),
+      color: '#1b474c',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12,
     }
@@ -132,6 +132,13 @@ const AuroraAccountScreen = props => {
 
       const auroraBalance = await getBalanceOfTokenOfAccount("AURORA", account.address);
       setAvailableBalance(parseFloat(auroraBalance).toFixed(4));
+
+      const aprs = await getAprs();
+      if(aprs.length === AURORA_STREAM_NUM) {
+        setStakingAprs(aprs);
+        const totalApr = aprs.reduce((pv, cv) => parseFloat(pv) + parseFloat(cv), 0);
+        setAprTotal(Math.floor(totalApr));
+      }
     } catch (err) {
       log({
         description: 'loadEthereumAccountBalance',

@@ -16,7 +16,6 @@ const multiCallABI = require('./multiCallAbi.json');
 const auroraStakingABI = require('./auroraStakingAbi.json');
 
 const auroraStakingAddress = '0xccc2b1aD21666A5847A804a73a41F904C4a4A0Ec';
-const AURORA_STREAM_NUM = 5;
 const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
@@ -116,6 +115,9 @@ const getMulitCallAddress = (chainName) => {
   return ret;
 }
 
+export const AURORA_STREAM_NUM = 5;
+
+
 /**
  * Web3 Aurora Staking Module
  */
@@ -126,16 +128,18 @@ export const web3AuroraStakingModule = () => {
 
   const getOneDayReward = async (streamId) => {
     const schedule = await contract.methods.getStreamSchedule(streamId).call();
-    const now = Math.floor(Date.now() / 1000)
-    const oneDay = 86400
-    const streamStart = schedule[0][0].toNumber()
-    const streamEnd = schedule[0][schedule[0].length - 1].toNumber()
-    if (now <= streamStart) return ethers.BigNumber.from(0) // didn't start
-    if (now >= streamEnd - oneDay) return ethers.BigNumber.from(0) // ended
+    const now = Math.floor(Date.now() / 1000);
+    const oneDay = 86400;
+    const streamStart = parseInt(schedule[0][0]);
+    const streamEnd = parseInt(schedule[0][schedule[0].length - 1]);
+
+    if (now <= streamStart) return BigNumber.from(0) // didn't start
+    if (now >= streamEnd - oneDay) return BigNumber.from(0) // ended
     const currentIndex = schedule[0].findIndex(indexTime => now < indexTime) - 1
     const indexDuration = schedule[0][currentIndex + 1] - schedule[0][currentIndex]
-    const indexRewards = schedule[1][currentIndex].sub(schedule[1][currentIndex + 1])
-    const oneDayReward = indexRewards.mul(oneDay).div(indexDuration)
+    const indexRewards = (BigNumber.from(schedule[1][currentIndex])).sub(schedule[1][currentIndex + 1]);
+    const oneDayReward = (BigNumber.from(indexRewards)).mul(oneDay).div(indexDuration);
+
     return oneDayReward
   }
 
@@ -145,16 +149,27 @@ export const web3AuroraStakingModule = () => {
      */
     getAprs: async () => {
       try {
-        const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+        const aprs = [];
         const totalStaked = await contract.methods.getTotalAmountOfStakedAurora().call();
 
         // streamTokenPrice can be queried from coingecko.
-        // const totalStakedValue = Number(ethers.utils.formatUnits(totalStaked, 18)) * streamTokenPrice
-        // const oneYearStreamRewardValue = Number(ethers.utils.formatUnits(oneDayReward, 18)) * 365 * streamTokenPrice
-        // const streamAPR = oneYearStreamRewardValue * 100 / totalStakedValue
-        // const totalAPR = allStreamsCumulatedOneYearRewardValue * 100 / totalStakedValue
+        const prices = [
+          1.59,
+          0.00146052,
+          0.03004069,
+          0.00380173,
+          1,
+        ];
+        const totalStakedValue = ethers.utils.formatUnits(totalStaked, 18) * prices[0];
 
-        return;
+        for (let i = 0; i < AURORA_STREAM_NUM; i++) {
+          const oneDayReward = await getOneDayReward(i);
+          const oneYearStreamRewardValue = ethers.utils.formatUnits(oneDayReward, 18) * 365 * prices[i];
+          const streamAPR = oneYearStreamRewardValue * 100 / totalStakedValue;
+          aprs.push(parseFloat(streamAPR).toFixed(2));
+        }
+
+        return aprs;
       } catch (e) {
         console.log("Get staking APRs error:", e);
         return [];
@@ -167,11 +182,11 @@ export const web3AuroraStakingModule = () => {
     getPendingRewards: async (account) => {
       try {
         const pendings = [];
-        
+
         let pending = await contract.methods.getUserTotalDeposit(account.address).call();
         pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
 
-        for(let i=1; i<AURORA_STREAM_NUM; i++) {
+        for (let i = 1; i < AURORA_STREAM_NUM; i++) {
           pending = await contract.methods.getStreamClaimableAmount(i, account.address).call();
           pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
         }
@@ -185,13 +200,13 @@ export const web3AuroraStakingModule = () => {
      * Get lock time for withdrawal
      * @param {String} account
      */
-     getWithdrawLockTime: async (account) => {
+    getWithdrawLockTime: async (account) => {
       try {
         let lastTime = 0;
         const now = (await web3.eth.getBlock()).timestamp;
-        for(let i=0; i<AURORA_STREAM_NUM; i++) {
+        for (let i = 0; i < AURORA_STREAM_NUM; i++) {
           const releaseTime = await contract.methods.getReleaseTime(i, account.address).call();
-          if(lastTime < releaseTime) lastTime = releaseTime;
+          if (lastTime < releaseTime) lastTime = releaseTime;
         }
         return lastTime - now;
       } catch (e) {
@@ -206,7 +221,7 @@ export const web3AuroraStakingModule = () => {
     getWithdrawals: async (account) => {
       try {
         const pendings = [];
-        for(let i=0; i<AURORA_STREAM_NUM; i++) {
+        for (let i = 0; i < AURORA_STREAM_NUM; i++) {
           const pending = await contract.methods.getPending(i, account.address).call();
           pendings.push(parseFloat(ethers.utils.formatUnits(pending)).toFixed(5));
         }
@@ -481,39 +496,39 @@ export const web3AuroraStakingModule = () => {
      * @param {String} account
      */
     withdrawAll: async (account, gasLimit, gasPrice) => {
-        try {
-          const chainId = getChainId(chainName);
-          const providerURL = getNodeUrl(chainName);
-          const FORK_NETWORK = Common.forCustomChain(
-            'mainnet',
-            {
-              name: chainName,
-              networkId: chainId,
-              chainId: chainId,
-              url: providerURL,
-            },
-            'istanbul',
-          );
-  
-          const privateKey = toBuffer(`0x${account.privateKey}`);
-          const nounce = await web3.eth.getTransactionCount(account.address);
-  
-          const transactionData = contract.methods.withdrawAll().encodeABI();
-  
-          const rawTransaction = {
-            from: account.address,
-            to: auroraStakingAddress,
-            value: '0x0',
-            nonce: web3.utils.toHex(nounce),
-            data: transactionData,
-            gasLimit: web3.utils.toHex(gasLimit),
-            gasPrice: web3.utils.toHex(gasPrice),
-          };
-  
-          const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
-          tx.sign(privateKey);
-          const serializedTx = tx.serialize();
-          return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
+      try {
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
+
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const transactionData = contract.methods.withdrawAll().encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: auroraStakingAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
       } catch (e) {
         console.log("Withdrawal all error:", e);
         return [];
