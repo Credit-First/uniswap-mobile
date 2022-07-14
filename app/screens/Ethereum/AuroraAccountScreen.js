@@ -40,8 +40,6 @@ const {
 });
 
 const {
-  getSignStakingStatus,
-  signStake,
   getAprs,
 } = web3AuroraStakingModule();
 
@@ -64,7 +62,6 @@ const AuroraAccountScreen = props => {
   const nativeDivider = 1000000000000000000;
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState();
-  const [signatureStatus, setSignatureStatus] = useState(false);
   const [allowance, setAllowance] = useState(0);
 
   const [aprTotal, setAprTotal] = useState(0);
@@ -152,9 +149,6 @@ const AuroraAccountScreen = props => {
         setAprTotal(Math.floor(totalApr));
       }
 
-      const status = await getSignStakingStatus(account);
-      setSignatureStatus(status);
-
       const allowanceAmount = await getAllowance("AURORA", account.address, AURORA_STAKING_ADDRESS);
       setAllowance(allowanceAmount);
     } catch (err) {
@@ -166,26 +160,6 @@ const AuroraAccountScreen = props => {
       return;
     }
   };
-
-  const _handleSign = async () => {
-    if (pending) {
-      Alert.alert(`Waiting for pending signature!`);
-      return;
-    }
-
-    setPending(true);
-    try {
-      let ret = await signStake(account);
-      setSignatureStatus(ret);
-      if (ret)
-        Alert.alert(`Signed staking!`);
-      else
-        Alert.alert(`Failed signature request!`);
-    } catch (error) {
-      Alert.alert(`signature error!`);
-    }
-    setPending(false);
-  }
 
   const _handleApprove = async () => {
     setShowFlag(SECOND_PAGE);
@@ -308,43 +282,35 @@ const AuroraAccountScreen = props => {
               backgroundColor="transparent"
               absolute
             />
-            {signatureStatus ?
-              allowance > 0 ?
-                <>
-                  <View style={styles.buttonColumn}>
-                    <KButton
-                      title={'Stake AURORA'}
-                      theme={'blue'}
-                      style={styles.smallButton}
-                      onPress={_handlePressStake}
-                    />
-                    <KButton
-                      title={'Unstake AURORA'}
-                      theme={'brown'}
-                      style={styles.smallButton}
-                      onPress={_handlePressUnstake}
-                    />
-                  </View>
+            {allowance > 0 ?
+              <>
+                <View style={styles.buttonColumn}>
                   <KButton
-                    title={'5 withdrawals in cooldown'}
+                    title={'Stake AURORA'}
                     theme={'blue'}
-                    style={styles.button}
-                    onPress={_handlePressWithdraw}
+                    style={styles.smallButton}
+                    onPress={_handlePressStake}
                   />
-                </>
-                :
+                  <KButton
+                    title={'Unstake AURORA'}
+                    theme={'brown'}
+                    style={styles.smallButton}
+                    onPress={_handlePressUnstake}
+                  />
+                </View>
                 <KButton
-                  title={'Approve'}
+                  title={'5 withdrawals in cooldown'}
                   theme={'blue'}
                   style={styles.button}
-                  onPress={_handleApprove}
+                  onPress={_handlePressWithdraw}
                 />
+              </>
               :
               <KButton
-                title={'Sign'}
+                title={'Approve'}
                 theme={'blue'}
                 style={styles.button}
-                onPress={_handleSign}
+                onPress={_handleApprove}
               />
             }
             <TwoIconsButtons

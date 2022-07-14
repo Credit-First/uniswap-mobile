@@ -233,32 +233,6 @@ export const web3AuroraStakingModule = () => {
       }
     },
     /**
-     * Get signature status
-     * @param {String} account
-     */
-    getSignStakingStatus: async (account) => {
-      try {
-        let ret = true;
-        return ret;
-      } catch (e) {
-        console.log("Sign staking error:", e);
-        return false;
-      }
-    },
-    /**
-     * Sign staking
-     * @param {String} account
-     */
-    signStake: async (account) => {
-      try {
-        let ret = false;
-        return ret;
-      } catch (e) {
-        console.log("Sign staking error:", e);
-        return false;
-      }
-    },
-    /**
      * Staking
      * @param {String} account
      * @param {Number} amount
