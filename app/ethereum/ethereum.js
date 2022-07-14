@@ -10,12 +10,13 @@ import { Interface } from '@ethersproject/abi'
 import { Transaction as EthereumTx } from 'ethereumjs-tx';
 import Common from 'ethereumjs-common';
 import { BigNumber, ethers } from 'ethers';
+import { AURORA_STAKING_ADDRESS } from '../constant/address';
+
 const tokenABI = require('./abi.json');
 const nftABI = require('./nftAbi.json');
 const multiCallABI = require('./multiCallAbi.json');
 const auroraStakingABI = require('./auroraStakingAbi.json');
 
-const auroraStakingAddress = '0xccc2b1aD21666A5847A804a73a41F904C4a4A0Ec';
 const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
@@ -124,7 +125,7 @@ export const AURORA_STREAM_NUM = 5;
 export const web3AuroraStakingModule = () => {
   const chainName = "AURORA"
   const web3 = auroraWeb3;
-  const contract = new web3.eth.Contract(auroraStakingABI, auroraStakingAddress);
+  const contract = new web3.eth.Contract(auroraStakingABI, AURORA_STAKING_ADDRESS);
 
   const getOneDayReward = async (streamId) => {
     const schedule = await contract.methods.getStreamSchedule(streamId).call();
@@ -232,6 +233,32 @@ export const web3AuroraStakingModule = () => {
       }
     },
     /**
+     * Get signature status
+     * @param {String} account
+     */
+    getSignStakingStatus: async (account) => {
+      try {
+        let ret = true;
+        return ret;
+      } catch (e) {
+        console.log("Sign staking error:", e);
+        return false;
+      }
+    },
+    /**
+     * Sign staking
+     * @param {String} account
+     */
+    signStake: async (account) => {
+      try {
+        let ret = false;
+        return ret;
+      } catch (e) {
+        console.log("Sign staking error:", e);
+        return false;
+      }
+    },
+    /**
      * Staking
      * @param {String} account
      * @param {Number} amount
@@ -259,7 +286,7 @@ export const web3AuroraStakingModule = () => {
 
         const rawTransaction = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           value: '0x0',
           nonce: web3.utils.toHex(nounce),
           data: transactionData,
@@ -288,7 +315,7 @@ export const web3AuroraStakingModule = () => {
 
         const tx = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           data: transactionData,
         };
 
@@ -326,7 +353,7 @@ export const web3AuroraStakingModule = () => {
 
         const rawTransaction = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           value: '0x0',
           nonce: web3.utils.toHex(nounce),
           data: transactionData,
@@ -355,7 +382,7 @@ export const web3AuroraStakingModule = () => {
 
         const tx = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           data: transactionData,
         };
 
@@ -391,7 +418,7 @@ export const web3AuroraStakingModule = () => {
 
         const rawTransaction = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           value: '0x0',
           nonce: web3.utils.toHex(nounce),
           data: transactionData,
@@ -418,7 +445,7 @@ export const web3AuroraStakingModule = () => {
 
         const tx = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           data: transactionData,
         };
 
@@ -454,7 +481,7 @@ export const web3AuroraStakingModule = () => {
 
         const rawTransaction = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           value: '0x0',
           nonce: web3.utils.toHex(nounce),
           data: transactionData,
@@ -481,7 +508,7 @@ export const web3AuroraStakingModule = () => {
 
         const tx = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           data: transactionData,
         };
 
@@ -517,7 +544,7 @@ export const web3AuroraStakingModule = () => {
 
         const rawTransaction = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           value: '0x0',
           nonce: web3.utils.toHex(nounce),
           data: transactionData,
@@ -544,7 +571,7 @@ export const web3AuroraStakingModule = () => {
 
         const tx = {
           from: account.address,
-          to: auroraStakingAddress,
+          to: AURORA_STAKING_ADDRESS,
           data: transactionData,
         };
 
@@ -897,7 +924,90 @@ const web3CustomModule = ({ tokenABI, tokenAddress, decimals }) => {
       const amount = await contract.methods.balanceOf(address).call();
       const realAmount = ethers.utils.formatUnits(amount, decimals);
       return realAmount;
-    }
+    },
+    /**
+     * Get allowance of Token for a contract
+     * @param {String} accountAddress
+     * @param {String} allowAddress
+     */
+    getAllowance: async (chainName, accountAddress, allowAddress) => {
+      const web3 = getWeb3(chainName);
+      const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+      const amount = await contract.methods.allowance(accountAddress, allowAddress).call();
+
+      return amount;
+    },
+    /**
+     * Get gas limit to approve
+     * @param {Keypair} account
+     * @param {String} approveAddress
+     * @param {Number} wad
+     */
+    getApproveGasLimit: async (chainName, account, approveAddress, wad) => {
+      try {
+        const web3 = getWeb3(chainName);
+        const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+        const transactionData = await contract.methods.approve(approveAddress, wad).encodeABI();
+
+        const tx = {
+          from: account.address,
+          to: tokenAddress,
+          data: transactionData,
+        };
+
+        return web3.eth.estimateGas(tx);
+      } catch (e) {
+        console.log("Get approve gas limit error:", e);
+        return 0;
+      }
+    },
+    /**
+     * Approve
+     * @param {Keypair} account
+     * @param {String} approveAddress
+     * @param {Number} wad
+     */
+    approve: async (chainName, account, approveAddress, wad, gasLimit, gasPrice) => {
+      try {
+        const web3 = getWeb3(chainName);
+        const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+        const chainId = getChainId(chainName);
+        const providerURL = getNodeUrl(chainName);
+        const FORK_NETWORK = Common.forCustomChain(
+          'mainnet',
+          {
+            name: chainName,
+            networkId: chainId,
+            chainId: chainId,
+            url: providerURL,
+          },
+          'istanbul',
+        );
+
+        const privateKey = toBuffer(`0x${account.privateKey}`);
+        const nounce = await web3.eth.getTransactionCount(account.address);
+
+        const transactionData = contract.methods.approve(approveAddress, wad).encodeABI();
+
+        const rawTransaction = {
+          from: account.address,
+          to: tokenAddress,
+          value: '0x0',
+          nonce: web3.utils.toHex(nounce),
+          data: transactionData,
+          gasLimit: web3.utils.toHex(gasLimit),
+          gasPrice: web3.utils.toHex(gasPrice),
+        };
+
+        const tx = new EthereumTx(rawTransaction, { common: FORK_NETWORK });
+        tx.sign(privateKey);
+        const serializedTx = tx.serialize();
+        return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
+      } catch (e) {
+        console.log("Claim all error:", e);
+        return [];
+      }
+    },
   };
 };
 

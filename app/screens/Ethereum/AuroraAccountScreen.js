@@ -18,15 +18,21 @@ import styles from './EthereumAccountScreen.style';
 import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { findIndex } from 'lodash';
+import { AURORA_STAKING_ADDRESS } from '../../constant/address';
 import web3Module, { web3AuroraStakingModule, AURORA_STREAM_NUM } from '../../ethereum/ethereum';
 import { log } from '../../logger/logger';
+import { MAIN_PAGE, SECOND_PAGE } from '../../constant/page'
 
 const ethMultiplier = 1000000000000000000;
 const tokenABI = require('../../ethereum/abi.json');
 const tokenAddress = "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79";
 const {
   getBalanceOfAccount,
-  getBalanceOfTokenOfAccount
+  getBalanceOfTokenOfAccount,
+  getCurrentGasPrice,
+  getAllowance,
+  getApproveGasLimit,
+  approve,
 } = web3Module({
   tokenABI,
   tokenAddress,
@@ -34,6 +40,8 @@ const {
 });
 
 const {
+  getSignStakingStatus,
+  signStake,
   getAprs,
 } = web3AuroraStakingModule();
 
@@ -49,8 +57,17 @@ const AuroraAccountScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
+  const [showFlag, setShowFlag] = useState(MAIN_PAGE);
+  const [pending, setPending] = useState(false);
+  const [gasPrice, setGasPrice] = useState(70000000);
+  const [gasApproveLimit, setGasApproveLimit] = useState(0);
+  const [estimatedFee, setEstimatedFee] = useState(0.0);
+
+  const nativeDivider = 1000000000000000000;
   const [accountBalance, setAccountBalance] = useState();
   const [availableBalance, setAvailableBalance] = useState();
+  const [signatureStatus, setSignatureStatus] = useState(false);
+  const [allowance, setAllowance] = useState(0);
 
   const [aprTotal, setAprTotal] = useState(0);
   const [stakingAprs, setStakingAprs] = useState([0, 0, 0, 0, 0]);
@@ -125,6 +142,7 @@ const AuroraAccountScreen = props => {
     if (loaded) {
       return;
     }
+
     try {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
@@ -134,11 +152,17 @@ const AuroraAccountScreen = props => {
       setAvailableBalance(parseFloat(auroraBalance).toFixed(4));
 
       const aprs = await getAprs();
-      if(aprs.length === AURORA_STREAM_NUM) {
+      if (aprs.length === AURORA_STREAM_NUM) {
         setStakingAprs(aprs);
         const totalApr = aprs.reduce((pv, cv) => parseFloat(pv) + parseFloat(cv), 0);
         setAprTotal(Math.floor(totalApr));
       }
+
+      const status = await getSignStakingStatus(account);
+      setSignatureStatus(status);
+
+      const allowanceAmount = await getAllowance("AURORA", account.address, AURORA_STAKING_ADDRESS);
+      setAllowance(allowanceAmount);
     } catch (err) {
       log({
         description: 'loadEthereumAccountBalance',
@@ -151,10 +175,69 @@ const AuroraAccountScreen = props => {
     }
   };
 
+  const _handleSign = async () => {
+    if (pending) {
+      Alert.alert(`Waiting for pending signature!`);
+      return;
+    }
+
+    setPending(true);
+    try {
+      let ret = await signStake(account);
+      setSignatureStatus(ret);
+      if (ret)
+        Alert.alert(`Signed staking!`);
+      else
+        Alert.alert(`Failed signature request!`);
+    } catch (error) {
+      Alert.alert(`signature error!`);
+    }
+    setPending(false);
+  }
+
+  const _handleApprove = async () => {
+    setShowFlag(SECOND_PAGE);
+    const gasValue = await getCurrentGasPrice("AURORA");
+    setGasPrice(gasValue);
+
+    const gasLimitation = await getApproveGasLimit("AURORA", account, AURORA_STAKING_ADDRESS, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    setGasApproveLimit(gasLimitation);
+
+    const estimatedFee = parseFloat((gasValue * gasLimitation) / nativeDivider).toFixed(6);
+    setEstimatedFee(estimatedFee);
+  }
+
   const _handleDeleteAccount = index => {
     deleteAccount(index);
     goBack();
   };
+
+  const approveStaking = async () => {
+    if (pending) {
+      Alert.alert(`Waiting for pending approval!`);
+      return;
+    }
+
+    setPending(true);
+    try {
+      let ret = await approve("AURORA", account, AURORA_STAKING_ADDRESS, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", gasApproveLimit, gasPrice);
+      if(ret === []) {
+        Alert.alert(`Failed Approval!`);
+      }
+      else{
+        setAllowance(1);
+        Alert.alert(`Approved!`);
+      }
+    } catch (error) {
+      Alert.alert(`Approve error!`);
+    }
+    setShowFlag(MAIN_PAGE);
+    setPending(false);
+  }
+
+  const reject = async () => {
+    setShowFlag(MAIN_PAGE);
+  }
 
   const _handleRemoveAccount = () => {
     const index = findIndex(
@@ -218,54 +301,96 @@ const AuroraAccountScreen = props => {
         <KText>Balance: {accountBalance} ETH</KText>
         <KText>Available: {availableBalance} AURORA</KText>
         <KText>Total APR: {aprTotal} %</KText>
-        <View style={styles.spacer} />
-        <ScrollView style={styles.scrollView}>
-          <PieChart
-            data={stakeData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor="balance"
-            backgroundColor="transparent"
-            absolute
-          />
-          <View style={styles.buttonColumn}>
-            <KButton
-              title={'Stake AURORA'}
-              theme={'blue'}
-              style={styles.smallButton}
-              onPress={_handlePressStake}
+        {showFlag === SECOND_PAGE &&
+          <KText>Estimated Gas Fee: {estimatedFee} ETH</KText>
+        }
+        <View style={styles.spacerToBottom} />
+        {showFlag === MAIN_PAGE &&
+          <ScrollView style={styles.scrollView}>
+            <PieChart
+              data={stakeData}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="balance"
+              backgroundColor="transparent"
+              absolute
             />
-            <KButton
-              title={'Unstake AURORA'}
-              theme={'brown'}
-              style={styles.smallButton}
-              onPress={_handlePressUnstake}
+            {signatureStatus ?
+              allowance > 0?
+                <>
+                  <View style={styles.buttonColumn}>
+                    <KButton
+                      title={'Stake AURORA'}
+                      theme={'blue'}
+                      style={styles.smallButton}
+                      onPress={_handlePressStake}
+                    />
+                    <KButton
+                      title={'Unstake AURORA'}
+                      theme={'brown'}
+                      style={styles.smallButton}
+                      onPress={_handlePressUnstake}
+                    />
+                  </View>
+                  <KButton
+                    title={'5 withdrawals in cooldown'}
+                    theme={'blue'}
+                    style={styles.button}
+                    onPress={_handlePressWithdraw}
+                  />
+                </>
+                :
+                <KButton
+                  title={'Approve'}
+                  theme={'blue'}
+                  style={styles.button}
+                  onPress={_handleApprove}
+                />
+              :
+              <KButton
+                title={'Sign'}
+                theme={'blue'}
+                style={styles.button}
+                onPress={_handleSign}
+              />
+            }
+            <TwoIconsButtons
+              onIcon1Press={_handleBackupKey}
+              onIcon2Press={_handleRemoveAccount}
+              icon1={() => (
+                <Image
+                  source={require('../../../assets/icons/save_key.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              icon2={() => (
+                <Image
+                  source={require('../../../assets/icons/delete.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
             />
-          </View>
-          <KButton
-            title={'5 withdrawals in cooldown'}
-            theme={'blue'}
-            style={styles.button}
-            onPress={_handlePressWithdraw}
-          />
+          </ScrollView>
+        }
+        {showFlag === SECOND_PAGE &&
           <TwoIconsButtons
-            onIcon1Press={_handleBackupKey}
-            onIcon2Press={_handleRemoveAccount}
+            onIcon1Press={approveStaking}
+            onIcon2Press={reject}
             icon1={() => (
               <Image
-                source={require('../../../assets/icons/save_key.png')}
+                source={require('../../../assets/icons/confirm.png')}
                 style={styles.buttonIcon}
               />
             )}
             icon2={() => (
               <Image
-                source={require('../../../assets/icons/delete.png')}
+                source={require('../../../assets/icons/close.png')}
                 style={styles.buttonIcon}
               />
             )}
           />
-        </ScrollView>
+        }
       </View>
     </SafeAreaView>
   );
