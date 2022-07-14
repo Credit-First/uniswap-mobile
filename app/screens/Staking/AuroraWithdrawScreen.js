@@ -40,8 +40,6 @@ const {
 } = web3AuroraStakingModule();
 
 const AuroraWithdrawScreen = props => {
-  const [loaded, setLoaded] = useState(false);
-
   const {
     navigation: { navigate, goBack },
     route: {
@@ -139,9 +137,6 @@ const AuroraWithdrawScreen = props => {
   };
 
   const loadEthereumAccountBalance = async account => {
-    if (loaded) {
-      return;
-    }
     try {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
@@ -159,8 +154,6 @@ const AuroraWithdrawScreen = props => {
         location: 'AuroraAccountScreen',
       });
       return;
-    } finally {
-      setLoaded(true);
     }
   };
 
@@ -189,8 +182,14 @@ const AuroraWithdrawScreen = props => {
 
     setPending(true);
     try {
-      await withdrawAll(account, gasLimit, gasPrice);
-      Alert.alert(`All rewards withdrawn!`);
+      let ret = await withdrawAll(account, gasLimit, gasPrice);
+      if (ret !== []) {
+        setTimeout(() => loadEthereumAccountBalance(account), 1000)
+        Alert.alert(`All rewards withdrawn!`);
+      }
+      else {
+        Alert.alert(`Failed withdrawal!`);
+      }
     } catch (error) {
       Alert.alert(`Withdraw error!`);
     }

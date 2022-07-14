@@ -141,9 +141,6 @@ const AuroraUnstakeScreen = props => {
   };
 
   const loadEthereumAccountBalance = async account => {
-    if (loaded) {
-      return;
-    }
     try {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
@@ -158,8 +155,6 @@ const AuroraUnstakeScreen = props => {
         location: 'AuroraAccountScreen',
       });
       return;
-    } finally {
-      setLoaded(true);
     }
   };
 
@@ -184,6 +179,11 @@ const AuroraUnstakeScreen = props => {
   };
 
   const _handleClaim = async () => {
+    if (pendings[0] === 0) {
+      Alert.alert(`You haven't any claimable tokens. Please stake firstly.`);
+      return;
+    }
+
     setShowFlag(THIRD_PAGE);
     const gasValue = await getCurrentGasPrice("AURORA");
     setGasPrice(gasValue);
@@ -196,6 +196,11 @@ const AuroraUnstakeScreen = props => {
   };
 
   const unstakeAurora = async () => {
+    if (pendings[0] === 0) {
+      Alert.alert(`You didn't stake any AURORA token. Please stake firstly.`);
+      return;
+    }
+
     if (pending) {
       Alert.alert(`Waiting for pending Aurora unstaking!`);
       return;
@@ -204,8 +209,14 @@ const AuroraUnstakeScreen = props => {
     setPending(true);
     try {
       await claimAll(account, gasClaimLimit, gasPrice);
-      await unstake(account, unstakeAmount, gasUnstakeLimit, gasPrice);
-      Alert.alert(`${unstakeAmount} AURORA unstaked!`);
+      let ret = await unstake(account, unstakeAmount, gasUnstakeLimit, gasPrice);
+      if (ret !== []) {
+        setTimeout(() => loadEthereumAccountBalance(account), 1000)
+        Alert.alert(`${unstakeAmount} AURORA unstaked!`);
+      }
+      else {
+        Alert.alert(`Failed unstaking!`);
+      }
     } catch (error) {
       Alert.alert(`Unstaking error!`);
     }

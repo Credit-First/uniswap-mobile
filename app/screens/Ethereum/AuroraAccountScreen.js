@@ -46,8 +46,6 @@ const {
 } = web3AuroraStakingModule();
 
 const AuroraAccountScreen = props => {
-  const [loaded, setLoaded] = useState(false);
-
   const {
     navigation: { navigate, goBack },
     route: {
@@ -139,10 +137,6 @@ const AuroraAccountScreen = props => {
   };
 
   const loadEthereumAccountBalance = async account => {
-    if (loaded) {
-      return;
-    }
-
     try {
       const ethBalanceInGwei = await getBalanceOfAccount("AURORA", account.address);
       const ethBalanceInEth = ethBalanceInGwei / ethMultiplier;
@@ -170,8 +164,6 @@ const AuroraAccountScreen = props => {
         location: 'AuroraAccountScreen',
       });
       return;
-    } finally {
-      setLoaded(true);
     }
   };
 
@@ -221,12 +213,12 @@ const AuroraAccountScreen = props => {
     setPending(true);
     try {
       let ret = await approve("AURORA", account, AURORA_STAKING_ADDRESS, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", gasApproveLimit, gasPrice);
-      if(ret === []) {
-        Alert.alert(`Failed Approval!`);
-      }
-      else{
-        setAllowance(1);
+      if (ret !== []) {
+        setTimeout(() => loadEthereumAccountBalance(account), 1000)
         Alert.alert(`Approved!`);
+      }
+      else {
+        Alert.alert(`Failed Approval!`);
       }
     } catch (error) {
       Alert.alert(`Approve error!`);
@@ -317,7 +309,7 @@ const AuroraAccountScreen = props => {
               absolute
             />
             {signatureStatus ?
-              allowance > 0?
+              allowance > 0 ?
                 <>
                   <View style={styles.buttonColumn}>
                     <KButton
