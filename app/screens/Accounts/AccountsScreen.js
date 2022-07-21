@@ -24,7 +24,7 @@ import { getAccount } from '../../eos/eos';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { getBalance } from '../../eos/tokens';
 import { findIndex } from 'lodash';
-import { getLatestPrices } from '../../pricing/coinmarketcap';
+import { getNativeTokenLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
 import { web3NFTModule } from '../../ethereum/ethereum';
 
@@ -291,6 +291,8 @@ const AccountsScreen = props => {
       navigate('PolygonAccount', { account });
     } else if (account.chainName === 'AURORA') {
       navigate('AuroraAccount', { account });
+    } else if (account.chainName === 'TELOSEVM') {
+      navigate('TelosEVMAccount', { account });
     } else {
       navigate('AccountDetails', { account });
     }
@@ -323,11 +325,11 @@ const AccountsScreen = props => {
   };
 
   const _handleBalanceUpdate = async (account, balance) => {
-    var prices = await getLatestPrices();
+    var prices = await getNativeTokenLatestPrices();
     let chain = (account.chainName === "Telos") ? "TLOS" : account.chainName;
     let price = prices[chain];
     let usdval = (price !== null) ? (price * balance).toFixed(2) : 0.0;
-    let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC' || chain === 'AURORA') ? account.address : account.accountName;
+    let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC' || chain === 'AURORA' || chain === 'TELOSEVM') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
       "total": usdval
@@ -521,7 +523,7 @@ const AccountsScreen = props => {
         if (foundKeys.length == 0) {
           addKey({ private: privateKey, public: publicKey });
         }
-      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
         const privateKey = account.privateKey;
         const publicKey = account.publicKey;
         const foundKeys = keys.filter((value, index, array) => {
@@ -611,7 +613,7 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if (name == "ETH" || name == "BNB" || name == "MATIC" || name == "AURORA") {
+    if (name == "ETH" || name == "BNB" || name == "MATIC" || name == "AURORA" || name == "TELOSEVM") {
       _handleCreateEthereumAccount(name);
     } else if (name == "TLOS") {
       navigate('CreateTelosAccount');
@@ -648,6 +650,12 @@ const AccountsScreen = props => {
               closeIcon={() => (
                 <Image
                   source={require('../../../assets/icons/minus.png')}
+                  style={styles.buttonIcon}
+                />
+              )}
+              telosevmIcon={() => (
+                <Image
+                  source={require('../../../assets/chains/telosevm.png')}
                   style={styles.buttonIcon}
                 />
               )}

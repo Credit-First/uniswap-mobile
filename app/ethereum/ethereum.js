@@ -10,6 +10,7 @@ import { Interface } from '@ethersproject/abi'
 import { Transaction as EthereumTx } from 'ethereumjs-tx';
 import Common from 'ethereumjs-common';
 import { BigNumber, ethers } from 'ethers';
+import { getAuroraStakingLatestPrices } from '../pricing/coinmarketcap'
 import { AURORA_STAKING_ADDRESS } from '../constant/address';
 
 const tokenABI = require('./abi.json');
@@ -23,10 +24,12 @@ const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a99568880
 const bscEndpoint = 'https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/bsc/mainnet';
 const polygonEndpoint = "https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/polygon/mainnet";
 const auroraEndpoint = "https://mainnet.aurora.dev";
+const telosEndpoint = "https://mainnet.telos.net/evm";
 const ethWeb3 = new Web3(new Web3.providers.HttpProvider(ethEndpoint));
 const bscWeb3 = new Web3(new Web3.providers.HttpProvider(bscEndpoint));
 const polygonWeb3 = new Web3(new Web3.providers.HttpProvider(polygonEndpoint));
 const auroraWeb3 = new Web3(new Web3.providers.HttpProvider(auroraEndpoint));
+const telosWeb3 = new Web3(new Web3.providers.HttpProvider(telosEndpoint));
 
 const getWeb3 = (chainName) => {
   let ret;
@@ -42,6 +45,9 @@ const getWeb3 = (chainName) => {
       break;
     case "AURORA":
       ret = auroraWeb3;
+      break;
+    case "TELOSEVM":
+      ret = telosWeb3;
       break;
     default:
       ret = ethWeb3;
@@ -65,6 +71,9 @@ const getChainId = (chainName) => {
     case "AURORA":
       ret = 1313161554;
       break;
+    case "TELOSEVM":
+      ret = 40;
+      break;
     default:
       ret = 1;
   }
@@ -87,6 +96,9 @@ const getNodeUrl = (chainName) => {
     case "AURORA":
       ret = auroraEndpoint;
       break;
+    case "TELOSEVM":
+      ret = telosEndpoint;
+      break;
     default:
       ret = ethEndpoint;
   }
@@ -108,6 +120,9 @@ const getMulitCallAddress = (chainName) => {
       break;
     case "AURORA":
       ret = "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A";
+      break;
+    case "TELOSEVM":
+      ret = "";
       break;
     default:
       ret = ethEndpoint;
@@ -151,15 +166,16 @@ export const web3AuroraStakingModule = () => {
     getAprs: async () => {
       try {
         const aprs = [];
+        const stakingPrices = await getAuroraStakingLatestPrices();
         const totalStaked = await contract.methods.getTotalAmountOfStakedAurora().call();
 
         // streamTokenPrice can be queried from coingecko.
         const prices = [
-          1.59,
-          0.00146052,
-          0.03004069,
-          0.00380173,
-          1,
+          stakingPrices['AURORA'],
+          stakingPrices['PLY'],
+          stakingPrices['TRI'],
+          stakingPrices['BSTN'],
+          stakingPrices['USN'],
         ];
         const totalStakedValue = ethers.utils.formatUnits(totalStaked, 18) * prices[0];
 

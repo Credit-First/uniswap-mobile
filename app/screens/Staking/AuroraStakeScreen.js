@@ -293,7 +293,7 @@ const AuroraStakeScreen = props => {
         }
         <View style={styles.spacerToBottom} />
         {showFlag === MAIN_PAGE &&
-          <ScrollView style={styles.scrollView}>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <PieChart
               data={stakeData}
               width={screenWidth}
