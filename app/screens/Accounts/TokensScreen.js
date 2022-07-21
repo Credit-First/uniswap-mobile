@@ -21,7 +21,7 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 
 const getTokenList = chainName => {
   let tokenList;
-  if (chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA') {
+  if (chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA' || chainName === 'TELOSEVM') {
     tokenList = getEVMTokens(chainName);
   }
   else {
@@ -64,7 +64,7 @@ const TokensScreen = props => {
 
   const getTitle = () => {
     let title;
-    if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA') {
+    if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
       title = account.chainName + ' tokens';
     }
     else {
@@ -93,7 +93,7 @@ const TokensScreen = props => {
           data={tokenList}
           keyExtractor={(item, index) => `${index}`}
           renderItem={({ item, index }) => (
-            account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' ?
+            account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM' ?
               <EVMTokenListItem
                 account={account}
                 token={item}
@@ -110,7 +110,7 @@ const TokensScreen = props => {
               />
           )}
         />
-        {account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA'?
+        {account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM' ?
           <TouchableOpacity onPress={handleAddToken}>
             <View style={[styles.addContainer, props.style]}>
               <View style={styles.contentContainer}>

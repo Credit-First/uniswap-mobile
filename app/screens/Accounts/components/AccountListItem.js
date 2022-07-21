@@ -11,6 +11,7 @@ import { loadAccount } from '../../../stellar/stellar';
 import { getAlgoAccountInfo } from '../../../algo/algo';
 import { log } from '../../../logger/logger';
 import web3Module from '../../../ethereum/ethereum';
+import { getNativeTokenName } from '../../../external/blockchains';
 import {
   PRIMARY_GRAY,
   PRIMARY_BLACK,
@@ -189,7 +190,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
   const [count, setCount] = useState(0);
 
   const updateAccountBalance = (balance) => {
-    let balText = balance + ' ' + (account.chainName == 'AURORA' ? 'ETH' : account.chainName);
+    let balText = balance + ' ' + getNativeTokenName(account.chainName);
     setAccountBalance(balText);
     onBalanceUpdate(account, balance);
   };
@@ -201,7 +202,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       loadAlgoAccountBalance(account, updateAccountBalance);
     } else if (account.chainName === 'XLM') {
       loadStellarAccountBalance(account, updateAccountBalance);
-    } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA') {
+    } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
       loadEthereumAccountBalance(account, updateAccountBalance);
     } else {
       loadAccountBalance(account, updateAccountBalance);
@@ -233,7 +234,9 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       return require("../../../../assets/chains/eth.png");
     } else if (name == "AURORA") {
       return require("../../../../assets/chains/aurora.png");
-    }else if (name == "EOS") {
+    } else if (name == "TELOSEVM") {
+      return require("../../../../assets/chains/telosevm.png");
+    } else if (name == "EOS") {
       return require("../../../../assets/chains/eos.png");
     } else if (name == "Telos") {
       return require("../../../../assets/chains/telos.png");
@@ -296,7 +299,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
         </View>
       </View>
     );
-  } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA') {
+  } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
     return (
       <View>
         <View onFocus={refreshBalances} style={styles.rowContainer}>

@@ -51,7 +51,7 @@ const FIOAddressRegistryScreen = props => {
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
-  const blockchains = ['EOS', 'TLOS', 'FIO', 'XLM', 'ALGO', 'ETH', 'BNB', 'MATIC', 'AURORA'];
+  const blockchains = ['EOS', 'TLOS', 'FIO', 'XLM', 'ALGO', 'ETH', 'BNB', 'MATIC', 'AURORA', 'TELOSEVM'];
 
   const fioDivider = 1000000000;
   const privateKey = fioAccount.privateKey;
@@ -95,7 +95,7 @@ const FIOAddressRegistryScreen = props => {
   const getItemFromAccount = (account, external) => {
     const chainName = account.chainName;
     var address = account.accountName;
-    if (chainName === 'FIO' || chainName === 'XLM' || chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA') {
+    if (chainName === 'FIO' || chainName === 'XLM' || chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA' || chainName === 'TELOSEVM') {
       address = account.address;
     } else if (chainName === 'ALGO' && account.account !== undefined && account.account.addr !== undefined) {
       address = account.account.addr;
@@ -109,7 +109,7 @@ const FIOAddressRegistryScreen = props => {
     }
     const chainName = account.chainName;
     var address = account.accountName;
-    if (chainName === 'FIO' || chainName === 'XLM' || chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA') {
+    if (chainName === 'FIO' || chainName === 'XLM' || chainName === 'ETH' || chainName === 'BNB' || chainName === 'MATIC' || chainName === 'AURORA' || chainName === 'TELOSEVM') {
       address = account.address;
     } else if (chainName === 'ALGO') {
       if (account.account !== undefined && account.account.addr !== undefined) {
@@ -147,7 +147,7 @@ const FIOAddressRegistryScreen = props => {
     var accPubkey = '';
     if (account.chainName === 'ALGO') {
       accPubkey = account.account.addr;
-    } else if (account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'FIO' || account.chainName === 'BNB' || account.chainName === 'MATIC' || chainName === 'AURORA') {
+    } else if (account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'FIO' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
       accPubkey = account.address;
     } else if (account.privateKey) {
       accPubkey = ecc.privateToPublic(account.privateKey);
@@ -223,7 +223,7 @@ const FIOAddressRegistryScreen = props => {
           log(error);
           Alert.alert('Failed to link Stellar account to FIO address.');
         }
-      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || chainName === 'AURORA') {
+      } else if (account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM') {
         const res = await fioAddExternalAddress(
           fioAccount,
           account.chainName,
@@ -286,6 +286,9 @@ const FIOAddressRegistryScreen = props => {
         break;
       case 'AURORA':
         ret = 'Aurora';
+        break;
+      case 'TELOSEVM':
+        ret = 'Telos EVM';
         break;
       default:
         break;
@@ -424,7 +427,9 @@ const FIOAddressRegistryScreen = props => {
       navigate('EthereumAccount', { account });
     } else if (account.chainName === 'AURORA') {
       navigate('AuroraAccount', { account });
-    }else {
+    } else if (account.chainName === 'TELOSEVM') {
+      navigate('TelosEVMAccount', { account });
+    } else {
       navigate('AccountDetails', { account });
     }
   };

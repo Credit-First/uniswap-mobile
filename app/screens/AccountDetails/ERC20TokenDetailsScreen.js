@@ -24,6 +24,7 @@ import { connectAccounts } from '../../redux';
 import { PRIMARY_BLUE } from '../../theme/colors';
 import { log } from '../../logger/logger';
 import web3Module from '../../ethereum/ethereum';
+import { getNativeTokenName } from '../../external/blockchains';
 
 const tokenABI = require('../../ethereum/abi.json');
 
@@ -83,7 +84,7 @@ const ERC20TokenDetailsScreen = props => {
   };
 
   const getSubtitle = () => {
-    return token.name + ' on ' + (account.chainName === 'AURORA' ? 'ETH': account.chainName);
+    return token.name + ' on ' + getNativeTokenName(account.chainName);
   };
 
   const _handleTransfer = async () => {
@@ -184,8 +185,8 @@ const ERC20TokenDetailsScreen = props => {
               />
               <KText>From: {account.address}</KText>
               <KText>To: {toAccountName}</KText>
-              <KText>Amount: {amount} {token.name} on {account.chainName === 'AURORA' ? 'ETH': account.chainName}</KText>
-              <KText>Gas fee: {estimatedFee} {account.chainName === 'AURORA' ? 'ETH': account.chainName} (Estimated)</KText>
+              <KText>Amount: {amount} {token.name} on {getNativeTokenName(account.chainName)}</KText>
+              <KText>Gas fee: {estimatedFee} {getNativeTokenName(account.chainName)} (Estimated)</KText>
               <KText>Balance: {tokenBalance} {token.name}</KText>
               {/* <View style={styles.gasOption}>
                 <KText style={styles.label}> Gas option: </KText>

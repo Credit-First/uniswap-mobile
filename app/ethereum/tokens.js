@@ -20,6 +20,8 @@ const getEVMTokens = chainName => {
     case 'AURORA':
       chainTokens = auroraTokenList.tokens.slice(0, STABLE_LENGTH + 5)
       break;
+    case 'TELOSEVM':
+      break;
     default:
       chainTokens = etherTokenList.tokens.slice(0, STABLE_LENGTH)
   }

@@ -43,6 +43,7 @@ import {
   EthereumAccountScreen,
   BinanceAccountScreen,
   PolygonAccountScreen,
+  TelosEVMAccountScreen,
   AuroraAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
@@ -168,6 +169,7 @@ const AccountsStackScreen = () => {
       <AccountsStack.Screen name="EthereumAccount" component={EthereumAccountScreen} />
       <AccountsStack.Screen name="BinanceAccount" component={BinanceAccountScreen} />
       <AccountsStack.Screen name="PolygonAccount" component={PolygonAccountScreen} />
+      <AccountsStack.Screen name="TelosEVMAccount" component={TelosEVMAccountScreen} />
       <AccountsStack.Screen name="AuroraAccount" component={AuroraAccountScreen} />
       <AccountsStack.Screen name="FIOChat" component={FIOChatScreen} />
       <AccountsStack.Screen name="GroupChat" component={GroupChatScreen} />

@@ -11,7 +11,7 @@ import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
 import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
 import web3Module from '../../ethereum/ethereum';
-
+import { getNativeTokenName } from '../../external/blockchains';
 
 import { log } from '../../logger/logger';
 
@@ -224,7 +224,7 @@ const TransferScreen = props => {
     setFromAccount(value);
     if (value && value.chainName !== 'FIO') {
       setAddressInvalidMessage('');
-      if (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA') {
+      if (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM') {
         parseInfo();
       }
     }
@@ -488,7 +488,7 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
-      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA') {
+      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA' || fromAccount.chainName === 'TELOSEVM') {
         let receiver = toPubkey ? toPubkey : toAccountName;
         prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
@@ -558,10 +558,10 @@ const TransferScreen = props => {
             <KText>From: {ethFromAddress}</KText>
             <KText>To: {ethToAddress}</KText>
             <KText>Memo: {memo}</KText>
-            <KText>Amount: {ethFloatAmount} {fromAccount.chainName === 'AURORA' ? 'ETH' : fromAccount.chainName}</KText>
-            <KText>Gas fee: {ethEstimatedFee} {fromAccount.chainName === 'AURORA' ? 'ETH' : fromAccount.chainName} (Estimated)</KText>
-            <KText>Total: {ethTotalAmount} {fromAccount.chainName === 'AURORA' ? 'ETH' : fromAccount.chainName}</KText>
-            <KText>Balance: {ethBalance} {fromAccount.chainName === 'AURORA' ? 'ETH' : fromAccount.chainName}</KText>
+            <KText>Amount: {ethFloatAmount} {getNativeTokenName(fromAccount.chainName)}</KText>
+            <KText>Gas fee: {ethEstimatedFee} {getNativeTokenName(fromAccount.chainName)} (Estimated)</KText>
+            <KText>Total: {ethTotalAmount} {getNativeTokenName(fromAccount.chainName)}</KText>
+            <KText>Balance: {ethBalance} {getNativeTokenName(fromAccount.chainName)}</KText>
             <View style={styles.spacer} />
             <TwoIconsButtons
               onIcon1Press={sendETHTransfer}
@@ -598,7 +598,7 @@ const TransferScreen = props => {
             <KSelect
               label={'From account'}
               items={accounts.map(item => ({
-                label: `${item.chainName}: ${(item.chainName === 'FIO' || item.chainName === 'XLM' || item.chainName === 'ETH' || item.chainName === 'BNB' || item.chainName === 'MATIC' || item.chainName === 'AURORA') ? item.address : item.accountName
+                label: `${item.chainName}: ${(item.chainName === 'FIO' || item.chainName === 'XLM' || item.chainName === 'ETH' || item.chainName === 'BNB' || item.chainName === 'MATIC' || item.chainName === 'AURORA' || item.chainName === 'TELOSEVM') ? item.address : item.accountName
                   }`,
                 value: item,
               }))}
@@ -624,10 +624,10 @@ const TransferScreen = props => {
               autoCapitalize={'none'}
               keyboardType={'numeric'}
             />
-            {fromAccount && (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA') ?
+            {fromAccount && (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA' || fromAccount.chainName === 'TELOSEVM') ?
               <View style={styles.balanceView}>
                 <KText style={styles.blueLabel}> Available Balance: </KText>
-                <KText> {ethBalance} {fromAccount.chainName === 'AURORA' ? 'ETH': fromAccount.chainName}</KText>
+                <KText> {ethBalance} {getNativeTokenName(fromAccount.chainName)}</KText>
               </View>
               :
               <KInput

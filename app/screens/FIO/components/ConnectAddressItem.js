@@ -32,6 +32,8 @@ const ConnectAddressItem = ({ account, onPress, ...props }) => {
       return require("../../../../assets/chains/eth.png");
     } else if (name == "AURORA") {
       return require("../../../../assets/chains/aurora.png");
+    } else if (name == "TELOSEVM") {
+      return require("../../../../assets/chains/telosevm.png");
     } else if (name == "EOS") {
       return require("../../../../assets/chains/eos.png");
     } else if (name == "Telos" || name == "TLOS") {
@@ -50,7 +52,7 @@ const ConnectAddressItem = ({ account, onPress, ...props }) => {
   const getFormattedAddress = (account) => {
     if (account.chainName === 'ALGO') {
       return " " + account.account.addr.substring(0, 20) + "..";
-    } else if (account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'FIO') {
+    } else if (account.chainName === 'XLM' || account.chainName === 'ETH' || account.chainName === 'BNB' || account.chainName === 'MATIC' || account.chainName === 'AURORA' || account.chainName === 'TELOSEVM' || account.chainName === 'FIO') {
       return " " + account.address.substring(0, 20) + "..";
     } else {
       return " " + account.accountName;

@@ -1,20 +1,6 @@
 import { log } from '../logger/logger';
 
 const marketAPIKey = '815df99c-3be5-47bd-ba5b-0a9f988178d3';
-const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH,BNB,MATIC,AURORA';
-// Default price values as of Jan 24, 2022
-var defPriceData = {
-  'EOS': 2.15,
-  'TLOS': 0.5,
-  'FIO': 0.1,
-  'ALGO': 0.9,
-  'XLM': 0.18,
-  'ETH': 2350.0,
-  'BNB': 400.0,
-  'MATIC': 1.7,
-  'AURORA': 3.48,
-  'TELOSEVM': 0.18,
-};
 
 const getNativeTokenLatestPrices = async () => {
   const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH,BNB,MATIC,AURORA';

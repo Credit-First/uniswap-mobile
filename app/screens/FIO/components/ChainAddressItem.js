@@ -24,17 +24,19 @@ const ChainAddressItem = ({ account, onPress, ...props }) => {
   };
 
   const getChainIcon = name => {
-    if(name == "BNB") {
+    if (name == "BNB") {
       return require("../../../../assets/chains/bsc.png");
-    } else if(name == "MATIC") {
+    } else if (name == "MATIC") {
       return require("../../../../assets/chains/polygon.png");
-    } else if(name == "ETH") {
+    } else if (name == "ETH") {
       return require("../../../../assets/chains/eth.png");
     } else if (name == "AURORA") {
       return require("../../../../assets/chains/aurora.png");
-    } else if(name == "EOS") {
+    } else if (name == "TELOSEVM") {
+      return require("../../../../assets/chains/telosevm.png");
+    } else if (name == "EOS") {
       return require("../../../../assets/chains/eos.png");
-    } else if(name == "Telos" || name == "TLOS") {
+    } else if (name == "Telos" || name == "TLOS") {
       return require("../../../../assets/chains/telos.png");
     } else if (name == "ALGO") {
       return require("../../../../assets/chains/algo.png");
@@ -48,8 +50,8 @@ const ChainAddressItem = ({ account, onPress, ...props }) => {
   }
 
   const getFormattedAddress = (address) => {
-    if(address && address.length > 30) {
-      return " " + address.substring(0,28) + "..";
+    if (address && address.length > 30) {
+      return " " + address.substring(0, 28) + "..";
     } else {
       return " " + address;
     }
@@ -59,7 +61,7 @@ const ChainAddressItem = ({ account, onPress, ...props }) => {
     return (
       <View style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
           <TouchableOpacity onPress={handleOnPress}>
             <KText style={styles.onPress}>
               {getFormattedAddress(account.address)}
@@ -72,10 +74,10 @@ const ChainAddressItem = ({ account, onPress, ...props }) => {
     return (
       <View style={styles.rowContainer}>
         <View style={[styles.container, props.style]}>
-        <Image source={getChainIcon(account.chainName)} style={styles.chainIcon}/>
-            <KText style={styles.offPress}>
-              {getFormattedAddress(account.address)}
-            </KText>
+          <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
+          <KText style={styles.offPress}>
+            {getFormattedAddress(account.address)}
+          </KText>
         </View>
       </View>
     );

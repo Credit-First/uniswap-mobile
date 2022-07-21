@@ -15,6 +15,11 @@ const externalChains = [
     explorer: 'https://aurorascan.dev/address/',
   },
   {
+    chain_code: 'TELOSEVM',
+    token_code: 'TELOSEVM',
+    explorer: 'https://www.teloscan.io/address/',
+  },
+  {
     chain_code: 'MATIC',
     token_code: 'MATIC',
     explorer: 'https://polygonscan.com/address/',
@@ -40,4 +45,11 @@ const getExternalChain = chainName => {
   return externalChains.find(item => item.chain_code === chainName);
 };
 
-export { externalChains, getExternalChain };
+const getNativeTokenName = chainName => {
+  let ret = chainName;
+  if (chainName === 'AURORA') ret = 'ETH';
+  if (chainName === 'TELOSEVM') ret = 'TLOS';
+  return ret;
+};
+
+export { externalChains, getExternalChain, getNativeTokenName };
