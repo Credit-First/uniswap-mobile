@@ -52,4 +52,12 @@ const getNativeTokenName = chainName => {
   return ret;
 };
 
-export { externalChains, getExternalChain, getNativeTokenName };
+const isEVMNetwork = chainName => {
+  let ret = false;
+  if (chainName == "ETH" || chainName == "BNB" || chainName == "MATIC" || chainName == "AURORA" || chainName == "TELOSEVM") {
+    ret = true;
+  }
+  return ret;
+};
+
+export { externalChains, getExternalChain, getNativeTokenName, isEVMNetwork };

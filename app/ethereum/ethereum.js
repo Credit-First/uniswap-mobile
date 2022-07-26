@@ -21,8 +21,8 @@ const auroraStakingABI = require('./auroraStakingAbi.json');
 const nftAddress = '0xe5af1c8813a80d34a960e019b7eab7e0b4b1ead5';
 
 const ethEndpoint = 'https://mainnet.infura.io/v3/2b2ef31c5ecc4c58ac7d2a995688806c';
-const bscEndpoint = 'https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/bsc/mainnet';
-const polygonEndpoint = "https://speedy-nodes-nyc.moralis.io/bc13383d2e304f8cc8589928/polygon/mainnet";
+const bscEndpoint = 'https://bsc-dataseed3.binance.org';
+const polygonEndpoint = "https://polygon-rpc.com";
 const auroraEndpoint = "https://mainnet.aurora.dev";
 const telosEndpoint = "https://mainnet.telos.net/evm";
 const ethWeb3 = new Web3(new Web3.providers.HttpProvider(ethEndpoint));

@@ -20,13 +20,11 @@ import { createKeyPair } from '../../stellar/stellar';
 import Wallet from 'ethereumjs-wallet';
 import { getFioChatEndpoint, fioAddPublicAddress } from '../../eos/fio';
 import AccountListItem from './components/AccountListItem';
-import { getAccount } from '../../eos/eos';
-import { getChain, getEndpoint } from '../../eos/chains';
-import { getBalance } from '../../eos/tokens';
-import { findIndex } from 'lodash';
+import { getEndpoint } from '../../eos/chains';
 import { getNativeTokenLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
 import { web3NFTModule } from '../../ethereum/ethereum';
+import { isEVMNetwork } from '../../external/blockchains';
 
 const nonNFTURL = require('../../../assets/nft/not-revealed.png');
 const tribeLogoURL = require('../../../assets/logo/tribe-logo.png');
@@ -40,8 +38,6 @@ const AccountsScreen = props => {
     setTotal,
     navigation: { navigate },
     accountsState: { accounts, addresses, keys, totals, history, config, nftTokens, nftShowStatus },
-    updateNFTShowStatus,
-    chooseActiveAccount,
   } = props;
 
   const {
@@ -52,10 +48,7 @@ const AccountsScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
   const chatEndpoint = getFioChatEndpoint();
 
-  var initialConnectedAccounts = accounts;
-  const [connectedAccounts, setConnectedAccounts] = useState(
-    initialConnectedAccounts,
-  );
+  const [validAccounts, setValidAccounts] = useState([]);
   const [runCount, setRunCount] = useState(0);
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [usdTotal, setUsdTotal] = useState(0.0);
@@ -66,17 +59,23 @@ const AccountsScreen = props => {
     setListChainsVisible(!isListChainsVisible);
   };
 
-  // Make sure empty account records removed:
-  accounts.map((value, index, array) => {
-    if (!value) {
-      console.log("Delete account #" + index);
-      deleteAccount(index);
-    }
-  });
+  
+  useEffect(() => {
+    const valids = accounts.filter((value, index, array) => {
+      return (value != null);
+    });
+    setValidAccounts(valids)
 
-  const validAccounts = accounts.filter((value, index, array) => {
-    return (value != null);
-  });
+    // Make sure empty account records removed:
+    accounts.map((value, index, array) => {
+      if (!value) {
+        console.log("Delete account #" + index);
+        deleteAccount(index);
+      }
+    });
+    
+  }, [accounts])
+
 
   useEffect(() => {
     const parseInfo = async () => {
@@ -251,27 +250,6 @@ const AccountsScreen = props => {
       });
       return;
     }
-  };
-
-  const telosAccounts = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'Telos');
-  });
-
-  const fioAccounts = accounts.filter((value, index, array) => {
-    if (value != null && value.chainName === 'FIO') {
-      loadIncomingMessages(value);
-    }
-    return (value != null && value.chainName === 'FIO');
-  });
-
-  const algoAccounts = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'ALGO');
-  });
-
-  const updateAccountLists = account => {
-    var newConnectedAccounts = [...initialConnectedAccounts, account];
-    initialConnectedAccounts.push(account);
-    setConnectedAccounts(newConnectedAccounts);
   };
 
   const _handlePressAccount = index => {
@@ -596,11 +574,25 @@ const AccountsScreen = props => {
   };
 
   const _handleCreateEthereumAccount = (name) => {
-    const newEth = Wallet.generate(false);
-    const privateKey = newEth.getPrivateKeyString();
-    const publicKey = newEth.getPublicKeyString();
-    const address = newEth.getAddressString();
-    const account = { address, privateKey, publicKey, chainName: name };
+    let privateKey = '';
+    let publicKey = '';
+    let address = '';
+
+    let evmAccounts = accounts.filter(cell => isEVMNetwork(cell.chainName));
+    let sameNetworkAccounts = evmAccounts.filter(cell => cell.chainName === name);
+    if (evmAccounts.length > 0 && sameNetworkAccounts.length === 0) {
+      privateKey = evmAccounts[0].privateKey;
+      publicKey = evmAccounts[0].publicKey;
+      address = evmAccounts[0].address;
+    }
+    else {
+      const newEth = Wallet.generate(false);
+      privateKey = newEth.getPrivateKeyString();
+      publicKey = newEth.getPublicKeyString();
+      address = newEth.getAddressString();
+    }
+
+    const account = { address: address, privateKey: privateKey, publicKey: publicKey, chainName: name };
     connectAccount(account);
     addKey({ private: privateKey, public: publicKey });
   };
@@ -613,19 +605,25 @@ const AccountsScreen = props => {
 
 
   const _handleNewChainPress = (name) => {
-    if (name == "ETH" || name == "BNB" || name == "MATIC" || name == "AURORA" || name == "TELOSEVM") {
-      _handleCreateEthereumAccount(name);
-    } else if (name == "TLOS") {
-      navigate('CreateTelosAccount');
-    } else if (name == "FIO") {
-      navigate('RegisterFIOAddress');
-    } else if (name == "ALGO") {
-      _handleCreateAlgorandAccount();
-    } else if (name == "XLM") {
-      _handleCreateStellarAccount();
-    } else {
-      Alert.alert("Unknown " + name + " chain!");
+    try {
+
+      if (isEVMNetwork(name)) {
+        _handleCreateEthereumAccount(name);
+      } else if (name == "TLOS") {
+        navigate('CreateTelosAccount');
+      } else if (name == "FIO") {
+        navigate('RegisterFIOAddress');
+      } else if (name == "ALGO") {
+        _handleCreateAlgorandAccount();
+      } else if (name == "XLM") {
+        _handleCreateStellarAccount();
+      } else {
+        Alert.alert("Unknown " + name + " chain!");
+      }
+    } catch (error) {
+      console.log(">>>>>>error:", error)
     }
+
   }
 
   const _handleAvatarPress = () => {
