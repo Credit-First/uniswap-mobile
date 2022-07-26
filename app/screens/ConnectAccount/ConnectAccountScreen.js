@@ -42,6 +42,7 @@ const ConnectAccountScreen = props => {
     { name: 'Ethereum', symbol: 'ETH' },
     { name: 'Binance', symbol: 'BNB' },
     { name: 'Polygon', symbol: 'MATIC' },
+    { name: 'Aurora', symbol: 'AURORA' },
     { name: 'Telosevm', symbol: 'TELOSEVM' },
   ];
 
