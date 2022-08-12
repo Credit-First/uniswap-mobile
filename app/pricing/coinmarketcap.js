@@ -6,15 +6,15 @@ const getNativeTokenLatestPrices = async () => {
   const reqUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=EOS,TLOS,FIO,ALGO,XLM,ETH,BNB,MATIC,AURORA';
   // Default price values as of Jan 24, 2022
   var defPriceData = {
-    'EOS': 2.15,
-    'TLOS': 0.5,
-    'FIO': 0.1,
-    'ALGO': 0.9,
-    'XLM': 0.18,
-    'ETH': 2350.0,
-    'BNB': 400.0,
-    'MATIC': 1.7,
-    'AURORA': 3.48,
+    'EOS': 1.20,
+    'TLOS': 0.18,
+    'FIO': 0.05,
+    'ALGO': 0.35,
+    'XLM': 0.12,
+    'ETH': 1900.0,
+    'BNB': 320.0,
+    'MATIC': 0.92,
+    'AURORA': 2.05,
     'TELOSEVM': 0.18,
   };
 
