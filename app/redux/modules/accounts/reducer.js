@@ -9,6 +9,7 @@ import {
   DELETE_ADDRESS,
   FETCH_KEYS,
   ADD_KEY,
+  DELETE_KEY,
   SET_CONFIG,
   GET_CONFIG,
   ADD_HISTORY,
@@ -75,6 +76,8 @@ export default function accountsState(state = DEFAULT, action = {}) {
         nftTokens: state.nftTokens,
         nftShowStatus: state.nftShowStatus,
       };
+    case DELETE_KEY:
+      return deleteKey(state, payload);
     case FETCH_KEYS:
       break;
     case SET_CONFIG:
@@ -213,6 +216,32 @@ function deleteAddress(state, payload) {
   );
   let accounts = state.accounts;
   let keys = state.keys;
+  let totals = state.totals;
+  let history = state.history;
+  let config = state.config;
+  let tokens = state.tokens;
+  let nftTokens = state.nftTokens;
+  let nftShowStatus = state.nftShowStatus;
+
+  return {
+    accounts,
+    addresses,
+    keys,
+    totals,
+    history,
+    config,
+    tokens,
+    nftTokens,
+    nftShowStatus,
+  };
+}
+
+function deleteKey(state, payload) {
+  let keys = state.keys.filter(
+    (_key, index) => index !== payload,
+  );
+  let accounts = state.accounts;
+  let addresses = state.addresses;
   let totals = state.totals;
   let history = state.history;
   let config = state.config;

@@ -310,30 +310,6 @@ const AccountDetailsScreen = props => {
           <KText>
             RAM Used/Quota: {ramUsed}/{ramQuota} bytes
           </KText>
-          <View style={styles.spacer} />
-          <KText>Staked vs liquid balances: </KText>
-          <PieChart
-            data={stakeData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor="balance"
-            backgroundColor="transparent"
-            absolute
-          />
-          <View style={styles.spacer} />
-          <KText>Resources usage: </KText>
-          <ProgressChart
-            data={resourceData}
-            width={screenWidth}
-            height={220}
-            strokeWidth={16}
-            radius={32}
-            chartConfig={chartConfig}
-            hideLegend={false}
-          />
-          <KText style={styles.alert}>{resourcesWarning}</KText>
-
           <FourIconsButtons
             onIcon1Press={_handleManageResources}
             onIcon2Press={_handleVoteBP}
@@ -364,6 +340,28 @@ const AccountDetailsScreen = props => {
               />
             )}
           />
+          <KText>Staked vs liquid balances: </KText>
+          <PieChart
+            data={stakeData}
+            width={screenWidth}
+            height={220}
+            chartConfig={chartConfig}
+            accessor="balance"
+            backgroundColor="transparent"
+            absolute
+          />
+        
+          <KText>Resources usage: </KText>
+          <ProgressChart
+            data={resourceData}
+            width={screenWidth}
+            height={220}
+            strokeWidth={16}
+            radius={32}
+            chartConfig={chartConfig}
+            hideLegend={false}
+          />
+          <KText style={styles.alert}>{resourcesWarning}</KText>
 
         </View>
       </KeyboardAwareScrollView>

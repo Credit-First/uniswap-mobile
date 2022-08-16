@@ -17,6 +17,7 @@ export const DELETE_ADDRESS = 'accounts/DELETE_ADDRESS';
 
 export const FETCH_KEYS = 'accounts/FETCH_KEYS';
 export const ADD_KEY = 'accounts/ADD_KEY';
+export const DELETE_KEY = 'accounts/DELETE_KEY';
 
 export const ADD_HISTORY = 'accounts/ADD_HISTORY';
 
@@ -50,6 +51,7 @@ export const accountsActionCreators = {
   deleteAddress: createAction(DELETE_ADDRESS),
   fetchKeys: createAction(FETCH_KEYS),
   addKey: createAction(ADD_KEY),
+  deleteKey: createAction(DELETE_KEY),
   setConfig: createAction(SET_CONFIG),
   getConfig: createAction(GET_CONFIG),
   addHistory: createAction(ADD_HISTORY),
