@@ -9,8 +9,8 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const TabMenuScreen = props => {
   const {
     connectAccount,
-    navigation: { navigate },
     resetWallet,
+    navigation: { navigate },
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 

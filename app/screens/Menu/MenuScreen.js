@@ -9,8 +9,8 @@ import { PRIMARY_BLUE } from '../../theme/colors';
 const MenuScreen = props => {
   const {
     connectAccount,
-    navigation: { navigate, goBack },
     resetWallet,
+    navigation: { navigate, goBack },
     accountsState: { accounts, addresses, keys, totals, history, config },
   } = props;
 
