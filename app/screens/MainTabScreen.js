@@ -44,6 +44,7 @@ import {
   PolygonAccountScreen,
   TelosEVMAccountScreen,
   AuroraAccountScreen,
+  NewAccountScreen,
   ConnectAccountScreen,
   CreateTelosAccountScreen,
   AddressBookScreen,
@@ -86,14 +87,7 @@ const AccountsStackScreen = () => {
       <AddressStack.Screen name="AddressBook" component={AddressBookScreen} />
       <AddressStack.Screen name="AddAddress" component={AddAddressScreen} />
       <AddressStack.Screen name="EditAddress" component={EditAddressScreen} />
-      <AccountsStack.Screen
-        name="ConnectAccount"
-        component={ConnectAccountScreen}
-      />
-      <AccountsStack.Screen
-        name="CreateTelosAccount"
-        component={CreateTelosAccountScreen}
-      />
+      
       <AccountsStack.Screen
         name="AccountDetails"
         component={AccountDetailsScreen}
@@ -128,10 +122,7 @@ const AccountsStackScreen = () => {
         name="PrivateKeyDelegate"
         component={PrivateKeyDelegateScreen}
       />
-      <AccountsStack.Screen
-        name="RegisterFIOAddress"
-        component={RegisterFIOAddressScreen}
-      />
+      
       <AccountsStack.Screen
         name="FIOAddressActions"
         component={FIOAddressActionsScreen}
@@ -184,6 +175,30 @@ const AccountsStackScreen = () => {
   );
 };
 
+const NewAccountStackScreen = () => {
+  return (
+    <AccountsStack.Navigator headerMode={'none'}>
+      <AccountsStack.Screen
+        name="NewAccount"
+        component={NewAccountScreen}
+      />
+      <AccountsStack.Screen
+        name="ConnectAccount"
+        component={ConnectAccountScreen}
+      />
+      <AccountsStack.Screen
+        name="CreateTelosAccount"
+        component={CreateTelosAccountScreen}
+      />
+      <AccountsStack.Screen
+        name="RegisterFIOAddress"
+        component={RegisterFIOAddressScreen}
+      />
+    </AccountsStack.Navigator>
+  );
+};
+
+
 const TransferStackScreen = () => {
   return (
     <TransferStack.Navigator headerMode={'none'}>
@@ -219,6 +234,8 @@ const tabScreenOptions = ({ route }) => ({
     let icon;
     if (route.name === 'Accounts') {
       icon = require('../../assets/icons/accounts.png');
+    } else if (route.name === 'NewAccount') {
+      icon = require('../../assets/icons/add.png');
     } else if (route.name === 'Transfer') {
       icon = require('../../assets/icons/transfer.png');
     } else if (route.name === 'Swap') {
@@ -301,6 +318,7 @@ const MainTabScreen = props => {
         showLabel: false,
       }}>
       <MainTab.Screen name={'Accounts'} component={AccountsStackScreen} />
+      <MainTab.Screen name={'NewAccount'} component={NewAccountStackScreen} />
       <MainTab.Screen name={'Transfer'} component={TransferStackScreen} />
       <MainTab.Screen name={'Swap'} component={SwapStackScreen} />
       {nftShowStatus ?
