@@ -35,7 +35,7 @@ const algoDivider = 1000000;
 const fioEndpoint = getEndpoint('FIO');
 
 const { height, width } = Dimensions.get('window');
-var chainWidth = width - 100;
+var chainWidth = width - 90;
 
 const loadAccountBalance = async (account, updateAccountBalance) => {
   const chain = getChain(account.chainName);
@@ -353,7 +353,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
       );
     } else {
       return (
-        <View onFocus={refreshBalances} style={styles.rowContainer}>
+         <View onFocus={refreshBalances} style={styles.rowContainer}>
           <View style={[styles.container, props.style]}>
             <Image source={getChainIcon(account.chainName)} style={styles.chainIcon} />
             <TouchableOpacity onPress={handleOnPress}>
@@ -365,7 +365,7 @@ const AccountListItem = ({ account, onPress, onTokenPress, onBalanceUpdate, ...p
               <Icon name={'refresh'} size={25} color="#000000" />
             </TouchableOpacity>
           </View>
-        </View>
+         </View>
       );
     }
   }

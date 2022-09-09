@@ -24,7 +24,12 @@ const NewAccountScreen = props => {
   } = props;
 
   const multichainAccount = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'MULTICHAIN');
+    return (value != null && 
+      ( value.chainName == "ETH" || 
+        value.chainName == "BNB" || 
+        value.chainName == "MATIC" || 
+        value.chainName == "AURORA" || 
+        value.chainName == "TELOSEVM"));
   });
 
   const telosAccount = accounts.filter((value, index, array) => {
@@ -121,7 +126,7 @@ const NewAccountScreen = props => {
       <KButton
         title={'Create New Multichain Account'}
         style={styles.button}
-        onPress={_handleCreateEthereumAccount}
+        onPress={() => _handleCreateEthereumAccount('ETH')}
       />
     );
   }

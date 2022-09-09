@@ -19,6 +19,8 @@ import algosdk from 'algosdk';
 import { createKeyPair } from '../../stellar/stellar';
 import Wallet from 'ethereumjs-wallet';
 import AccountListItem from './components/AccountListItem';
+import EVMTokenListItem from './components/EVMTokenListItem';
+import EVMTokenBalanceItem from './components/EVMTokenBalanceItem';
 import { getEndpoint } from '../../eos/chains';
 import { getNativeTokenLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
@@ -51,6 +53,7 @@ const AccountsScreen = props => {
   const [usdTotal, setUsdTotal] = useState(0.0);
 
   const [isListChainsVisible, setListChainsVisible] = useState(false);
+  const [showAccounts, setShowAccounts] = useState(1);
 
   const toggleListChains = () => {
     setListChainsVisible(!isListChainsVisible);
@@ -117,20 +120,39 @@ const AccountsScreen = props => {
     navigate('Tokens', { account });
   };
 
+  const _handlePressERC20Token = name => {
+    const evmAccounts = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM');
+    });
+    if (name === 'USDT') {
+      console.log('USDT', evmAccounts);
+    } else if (name === 'USDC') {
+      console.log('USDC', evmAccounts);
+    } else if (name === 'BUSD') {
+      console.log('BUSD', evmAccounts);
+    } else {
+      console.log("Unknown token " + name);
+    }
+  };
+
   const updateTotal = () => {
     var newTotal = 0;
     for (const elem of totals) {
       if (elem.account && elem.account.indexOf(":") > 0) {
         let chainAccount = elem.account.split(":");
-        const matchingAccounts = validAccounts.filter((value, index, array) => {
-          let accName = (value.address) ? value.address : value.accountName;
-          return (value.chainName === chainAccount[0] && accName === chainAccount[1]);
-        });
-        if (matchingAccounts.length > 0) {
-          try {
-            newTotal += parseFloat(elem.total)
-          } catch (err) {
-            console.log(err);
+        if(chainAccount[0] === "usd") {
+          newTotal += parseFloat(elem.total);
+        } else {
+          const matchingAccounts = validAccounts.filter((value, index, array) => {
+            let accName = (value.address) ? value.address : value.accountName;
+            return (value.chainName === chainAccount[0] && accName === chainAccount[1]);
+          });
+          if (matchingAccounts.length > 0) {
+            try {
+              newTotal += parseFloat(elem.total)
+            } catch (err) {
+              console.log(err);
+            }
           }
         }
       }
@@ -146,6 +168,16 @@ const AccountsScreen = props => {
     let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC' || chain === 'AURORA' || chain === 'TELOSEVM') ? account.address : account.accountName;
     let record = {
       "account": chain + ":" + name,
+      "total": usdval
+    };
+    setTotal(record);
+    updateTotal();
+  };
+
+  const _handleUSDBalanceUpdate = async (usdName, usdBalance) => {
+    let usdval = usdBalance.toFixed(2);
+    let record = {
+      "account": "usd:" + usdName,
       "total": usdval
     };
     setTotal(record);
@@ -369,6 +401,7 @@ const AccountsScreen = props => {
     return null;
   }
 
+if(showAccounts) {
   return (
     <SafeAreaView style={styles.container}>
       <SafeAreaView style={styles.mainContainer}>
@@ -411,11 +444,87 @@ const AccountsScreen = props => {
               />
             )}
           />
+          <KButton
+            title={'Balances'}
+            style={styles.button}
+            onPress={() => setShowAccounts(0)}
+          />
         </SafeAreaView>
       </SafeAreaView>
       <Text style={styles.version}>{getAppVersion()}</Text>
     </SafeAreaView>
   );
+} else {
+  return (
+    <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.mainContainer}>
+        <SafeAreaView style={styles.accountContainer}>
+          {nftShowStatus ?
+            <TouchableOpacity onPress={_handleAvatarPress}>
+              <View style={styles.logoContainer}>
+                <Image
+                  style={styles.noAvatar}
+                  source={nonNFTURL}
+                  resizeMode="contain"
+                />
+                <Image
+                  style={styles.nftAvatar}
+                  source={nftAvatar}
+                  resizeMode="contain"
+                />
+              </View>
+            </TouchableOpacity>
+            :
+            <View style={styles.logoContainer}>
+              <Image
+                style={styles.logo}
+                source={tribeLogoURL}
+                resizeMode="contain"
+              />
+            </View>
+          }
+          {showUsdTotal()}
+          <EVMTokenBalanceItem
+                accounts={validAccounts}
+                tokenName={'USDT'}
+                showIfZero={true}
+                tokenIcon={require("../../../assets/tokens/tether-icon.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressERC20Token('USDT')}
+                onBalanceUpdate={_handleUSDBalanceUpdate}
+              />
+          <EVMTokenBalanceItem
+                accounts={validAccounts}
+                tokenName={'USDC'}
+                showIfZero={false}
+                tokenIcon={require("../../../assets/tokens/usdc-icon.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressERC20Token('USDC')}
+                onBalanceUpdate={_handleUSDBalanceUpdate}
+              /> 
+          <EVMTokenBalanceItem
+                accounts={validAccounts}
+                tokenName={'BUSD'}
+                showIfZero={false}
+                tokenIcon={require("../../../assets/tokens/busd-icon.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressERC20Token('BUSD')}
+                onBalanceUpdate={_handleUSDBalanceUpdate}
+              />       
+          <FlatList/>
+          <KButton
+            title={'Accounts'}
+            style={styles.button}
+            onPress={() => setShowAccounts(1)}
+          />
+        </SafeAreaView>
+      </SafeAreaView>
+      <Text style={styles.version}>{getAppVersion()}</Text>
+    </SafeAreaView>
+  );
+}
+
+
 };
 
 export default connectAccounts()(AccountsScreen);
