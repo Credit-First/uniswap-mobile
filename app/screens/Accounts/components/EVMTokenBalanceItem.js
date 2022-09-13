@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-nat
 import { KText } from '../../../components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import web3Module from '../../../ethereum/ethereum';
-import { getEVMTokens, getEVMTokenByName } from '../../../ethereum/tokens';
+import { getEVMTokenByName } from '../../../ethereum/tokens';
 import {
   PRIMARY_BLACK
 } from '../../../theme/colors';

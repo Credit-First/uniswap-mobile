@@ -160,9 +160,10 @@ const AccountsScreen = props => {
     setUsdTotal(newTotal.toFixed(2));
   };
 
-  const _handleBalanceUpdate = async (account, balance) => {
+  const _handleBalanceUpdate = async (account, balance, chainName) => {
     var prices = await getNativeTokenLatestPrices();
-    let chain = (account.chainName === "Telos") ? "TLOS" : account.chainName;
+    let chain = (chainName) ? chainName : account.chainName;
+    if (chain === "Telos") { chain = "TLOS"; }
     let price = prices[chain];
     let usdval = (price !== null) ? (price * balance).toFixed(2) : 0.0;
     let name = (chain === 'FIO' || chain === 'XLM' || chain === 'ETH' || chain === 'BNB' || chain === 'MATIC' || chain === 'AURORA' || chain === 'TELOSEVM') ? account.address : account.accountName;
@@ -170,6 +171,7 @@ const AccountsScreen = props => {
       "account": chain + ":" + name,
       "total": usdval
     };
+    console.log(record);
     setTotal(record);
     updateTotal();
   };
