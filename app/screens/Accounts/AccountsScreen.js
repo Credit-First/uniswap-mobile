@@ -18,9 +18,14 @@ import ecc from 'eosjs-ecc-rn';
 import algosdk from 'algosdk';
 import { createKeyPair } from '../../stellar/stellar';
 import Wallet from 'ethereumjs-wallet';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AccountListItem from './components/AccountListItem';
 import EVMTokenListItem from './components/EVMTokenListItem';
 import EVMTokenBalanceItem from './components/EVMTokenBalanceItem';
+import EVMCoinBalanceItem from './components/EVMCoinBalanceItem';
+import EOSIOCoinBalanceItem from './components/EOSIOCoinBalanceItem';
+import AlgoCoinBalanceItem from './components/AlgoCoinBalanceItem';
+import StellarCoinBalanceItem from './components/StellarCoinBalanceItem';
 import { getEndpoint } from '../../eos/chains';
 import { getNativeTokenLatestPrices } from '../../pricing/coinmarketcap';
 import { log } from '../../logger/logger';
@@ -121,6 +126,9 @@ const AccountsScreen = props => {
   };
 
   const _handlePressERC20Token = name => {
+    const chainAccount = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === name);
+    });
     const evmAccounts = validAccounts.filter((value, index, array) => {  
       return (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM');
     });
@@ -132,6 +140,53 @@ const AccountsScreen = props => {
       console.log('BUSD', evmAccounts);
     } else {
       console.log("Unknown token " + name);
+    }
+  };
+
+  const _handlePressEVMCoin = name => {
+    const chainAccount = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === name);
+    });
+    const evmAccounts = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM');
+    });
+    const account = (chainAccount.length > 0) ? chainAccount[0] : evmAccounts[0];
+    if (name === 'ETH') {
+      navigate('EthereumAccount', { account });
+    } else if (name === 'BNB') {
+      navigate('BinanceAccount', { account });
+    } else if (name === 'MATIC') {
+      navigate('PolygonAccount', { account });
+    } else if (name === 'AURORA') {
+      navigate('AuroraAccount', { account });
+    } else if (name === 'TELOSEVM') {
+      navigate('TelosEVMAccount', { account });
+    } else {
+      Alert.alert("Unknown token " + name);
+    }
+  };
+
+  const _handlePressEOSIOCoin = name => {
+    const chainAccount = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === name);
+    });
+    if(chainAccount.length > 0) {
+      const account = chainAccount[0];
+      navigate('AccountDetails', { account });
+    } else {
+      Alert.alert(name + " Account not found!");
+    }
+  };
+
+  const _handlePressAlgoCoin = () => {
+    const chainAccount = validAccounts.filter((value, index, array) => {  
+      return (value.chainName === 'ALGO');
+    });
+    if(chainAccount.length > 0) {
+      const account = chainAccount[0];
+      navigate('AlgoAccount', { account });
+    } else {
+      Alert.alert(name + " Account not found!");
     }
   };
 
@@ -486,6 +541,9 @@ if(showAccounts) {
             </View>
           }
           {showUsdTotal()}
+          <KeyboardAwareScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          enableOnAndroid>
           <EVMTokenBalanceItem
                 accounts={validAccounts}
                 tokenName={'USDT'}
@@ -512,7 +570,78 @@ if(showAccounts) {
                 style={styles.listItem}
                 onPress={() => _handlePressERC20Token('BUSD')}
                 onBalanceUpdate={_handleUSDBalanceUpdate}
-              />       
+              />
+          <EVMCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'ETH'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/eth.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEVMCoin('ETH')}
+              />   
+          <EVMCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'BNB'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/bsc.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEVMCoin('BNB')}
+              /> 
+          <EVMCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'MATIC'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/polygon.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEVMCoin('MATIC')}
+              />   
+          <EVMCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'AURORA'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/aurora.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEVMCoin('AURORA')}
+              /> 
+          <EVMCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'TELOSEVM'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/telosevm.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEVMCoin('TELOSEVM')}
+              />    
+          <EOSIOCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'EOS'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/eos.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEOSIOCoin('EOS')}
+              />      
+          <EOSIOCoinBalanceItem
+                accounts={validAccounts}
+                coinName={'Telos'}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/telos.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressEOSIOCoin('Telos')}
+              /> 
+          <AlgoCoinBalanceItem
+                accounts={validAccounts}
+                showIfZero={false}
+                coinIcon={require("../../../assets/chains/algo.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressAlgoCoin()}
+              />   
+          <StellarCoinBalanceItem
+                accounts={validAccounts}
+                showIfZero={true}
+                coinIcon={require("../../../assets/chains/xlm.png")}
+                style={styles.listItem}
+                onPress={() => _handlePressStellarCoin()}
+              />     
+          </KeyboardAwareScrollView>              
           <FlatList/>
           <KButton
             title={'Accounts'}
