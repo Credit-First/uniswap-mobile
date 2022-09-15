@@ -38,31 +38,14 @@ const EVMTokenAccountListScreen = props => {
   });
 
 
-
-  
   const _handlePressAccount = (index, chainName) => {
     const account = evmAccounts[index];
     if (account == null) return;
-    if (chainName === 'ETH') {
-      navigate('EthereumAccount', { account });
-    } else if (chainName === 'BNB') {
-      navigate('BinanceAccount', { account });
-    } else if (chainName === 'MATIC') {
-      navigate('PolygonAccount', { account });
-    } else if (chainName === 'AURORA') {
-      navigate('AuroraAccount', { account });
-    } else if (chainName === 'TELOSEVM') {
-      navigate('TelosEVMAccount', { account });
-    } 
+    const token = getEVMTokenByName(chainName, tokenName);
+    navigate('ERC20TokenDetails', { account, token, chainName });
   };
 
-  const _handlePressTokenList = index => {
-    const account = evmAccounts[index];
-    const token = getEVMTokenByName(account.chainName, tokenName);
-    navigate('ERC20TokenDetails', { account, token });
-  };
-
-
+ 
   return (
       <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
