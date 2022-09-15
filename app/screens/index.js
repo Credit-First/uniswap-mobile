@@ -15,6 +15,9 @@ export {
   default as ERC20TokenDetailsScreen,
 } from './AccountDetails/ERC20TokenDetailsScreen';
 export {
+  default as EVMTokenAccountListScreen,
+} from './AccountDetails/EVMTokenAccountListScreen';
+export {
   default as TokenImportScreen,
 } from './AccountDetails/TokenImportScreen';
 export {

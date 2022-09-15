@@ -125,22 +125,8 @@ const AccountsScreen = props => {
     navigate('Tokens', { account });
   };
 
-  const _handlePressERC20Token = name => {
-    const chainAccount = validAccounts.filter((value, index, array) => {  
-      return (value.chainName === name);
-    });
-    const evmAccounts = validAccounts.filter((value, index, array) => {  
-      return (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM');
-    });
-    if (name === 'USDT') {
-      console.log('USDT', evmAccounts);
-    } else if (name === 'USDC') {
-      console.log('USDC', evmAccounts);
-    } else if (name === 'BUSD') {
-      console.log('BUSD', evmAccounts);
-    } else {
-      console.log("Unknown token " + name);
-    }
+  const _handlePressERC20Token = tokenName => {
+    navigate("EVMTokenAccountList", { tokenName })
   };
 
   const _handlePressEVMCoin = name => {
