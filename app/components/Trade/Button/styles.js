@@ -1,8 +1,12 @@
 import { StyleSheet } from 'react-native';
 
-import Colors from '../../constants/Colors';
-import { moderateScale, scale, verticalScale } from '../../helpers/dimensions';
-import font from '../../helpers/font';
+import Colors from '../../../constant/colors';
+import {
+  moderateScale,
+  scale,
+  verticalScale,
+} from '../../../helpers/dimensions';
+import font from '../../../helpers/font';
 
 const styles = theme =>
   StyleSheet.create({

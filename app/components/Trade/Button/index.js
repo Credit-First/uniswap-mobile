@@ -1,21 +1,13 @@
 import * as React from 'react';
-import {
-  Pressable,
-  StyleProp,
-  Text,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
-import { SvgProps } from 'react-native-svg';
+import { Pressable, Text, View } from 'react-native';
 
-import Colors from '../../constants/Colors';
-import useColorScheme from '../../hooks/useColorScheme';
-import useThemedStyles from '../../hooks/useThemedStyles';
-import Icon, { ICON_NAMES } from '../Icons';
+import Colors from '../../../constant/colors';
+import useColorScheme from '../../../hooks/useColorScheme';
+import useThemedStyles from '../../../hooks/useThemedStyles';
+import Icon from '../Icons';
 import stylesMain from './styles';
 
-const Button: React.FunctionComponent<IButton> = ({
+const Button = ({
   onPress = () => null,
   title = undefined,
   type = 'fill',
@@ -117,9 +109,7 @@ const Button: React.FunctionComponent<IButton> = ({
   }, [type, disabled]);
 
   const textSize = React.useMemo(() => {
-    const sizes: {
-      [key: string]: TextStyle;
-    } = {
+    const sizes = {
       sm: styles.buttonTextSm,
       md: styles.buttonTextMd,
       lg: styles.buttonTextLg,
@@ -128,9 +118,7 @@ const Button: React.FunctionComponent<IButton> = ({
   }, [size]);
 
   const buttonSize = React.useMemo(() => {
-    const sizes: {
-      [key: string]: TextStyle;
-    } = {
+    const sizes = {
       sm: styles.buttonSm,
       md: styles.buttonMd,
       lg: styles.buttonLg,
@@ -139,9 +127,7 @@ const Button: React.FunctionComponent<IButton> = ({
   }, [size]);
 
   const buttonIconSize = React.useMemo(() => {
-    const sizes: {
-      [key: string]: TextStyle;
-    } = {
+    const sizes = {
       sm: styles.buttonIconSm,
       md: styles.buttonIconMd,
       lg: styles.buttonIconLg,
@@ -150,9 +136,7 @@ const Button: React.FunctionComponent<IButton> = ({
   }, [size]);
 
   const iconSizes = React.useMemo(() => {
-    const sizes: {
-      [key: string]: number;
-    } = {
+    const sizes = {
       sm: 12,
       md: 16,
       lg: 20,
@@ -189,11 +173,11 @@ const Button: React.FunctionComponent<IButton> = ({
                   styles.buttonIcon,
                 customIconStyles,
               ]}>
-              {!!icon ? (
+              {icon ? (
                 icon
               ) : (
                 <Icon
-                  name={iconName!}
+                  name={iconName}
                   fill={iconColor || buttonStyles.color}
                   stroke={iconColor || buttonStyles.color}
                   size={iconSize || iconSizes}
