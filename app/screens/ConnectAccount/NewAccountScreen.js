@@ -1,5 +1,12 @@
 import React from 'react';
-import { SafeAreaView, View, TouchableOpacity, Alert, Text, Image } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Alert,
+  Text,
+  Image,
+} from 'react-native';
 import styles from './ConnectAccountScreen.style';
 import { KHeader, KText, KButton } from '../../components';
 import { connectAccounts } from '../../redux';
@@ -13,8 +20,6 @@ import algosdk from 'algosdk';
 import { createKeyPair } from '../../stellar/stellar';
 import Wallet from 'ethereumjs-wallet';
 import { log } from '../../logger/logger';
-
-
 const NewAccountScreen = props => {
   const {
     connectAccount,
@@ -24,31 +29,33 @@ const NewAccountScreen = props => {
   } = props;
 
   const multichainAccount = accounts.filter((value, index, array) => {
-    return (value != null && 
-      ( value.chainName == "ETH" || 
-        value.chainName == "BNB" || 
-        value.chainName == "MATIC" || 
-        value.chainName == "AURORA" || 
-        value.chainName == "TELOSEVM"));
+    return (
+      value != null &&
+      (value.chainName == 'ETH' ||
+        value.chainName == 'BNB' ||
+        value.chainName == 'MATIC' ||
+        value.chainName == 'AURORA' ||
+        value.chainName == 'TELOSEVM')
+    );
   });
 
   const telosAccount = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'Telos');
+    return value != null && value.chainName === 'Telos';
   });
 
   const fioAccount = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'FIO');
+    return value != null && value.chainName === 'FIO';
   });
 
   const xlmAccount = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'XLM');
+    return value != null && value.chainName === 'XLM';
   });
 
   const algoAccount = accounts.filter((value, index, array) => {
-    return (value != null && value.chainName === 'ALGO');
+    return value != null && value.chainName === 'ALGO';
   });
 
-    const _handleCreateAlgorandAccount = () => {
+  const _handleCreateAlgorandAccount = () => {
     try {
       var account = algosdk.generateAccount();
       var address = account.addr;
@@ -95,30 +102,35 @@ const NewAccountScreen = props => {
     }
   };
 
-  const _handleCreateEthereumAccount = (name) => {
+  const _handleCreateEthereumAccount = name => {
     let privateKey = '';
     let publicKey = '';
     let address = '';
 
     let evmAccounts = accounts.filter(cell => isEVMNetwork(cell.chainName));
-    let sameNetworkAccounts = evmAccounts.filter(cell => cell.chainName === name);
+    let sameNetworkAccounts = evmAccounts.filter(
+      cell => cell.chainName === name,
+    );
     if (evmAccounts.length > 0 && sameNetworkAccounts.length === 0) {
       privateKey = evmAccounts[0].privateKey;
       publicKey = evmAccounts[0].publicKey;
       address = evmAccounts[0].address;
-    }
-    else {
+    } else {
       const newEth = Wallet.generate(false);
       privateKey = newEth.getPrivateKeyString();
       publicKey = newEth.getPublicKeyString();
       address = newEth.getAddressString();
     }
 
-    const account = { address: address, privateKey: privateKey, publicKey: publicKey, chainName: name };
+    const account = {
+      address: address,
+      privateKey: privateKey,
+      publicKey: publicKey,
+      chainName: name,
+    };
     connectAccount(account);
     addKey({ private: privateKey, public: publicKey });
   };
-
 
   var multiAccountButton = null;
   if (multichainAccount.length == 0) {
@@ -175,32 +187,62 @@ const NewAccountScreen = props => {
     );
   }
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <KHeader title={'Create or import account'} style={styles.header} />
-          {multiAccountButton}
-          {telosAccountButton}
-          {fioAccountButton}
-          {xlmAccountButton}
-          {algoAccountButton}
-          <KButton
-            title={'Import existing account'}
-            style={styles.button}
-            onPress={() => navigate('ConnectAccount')}
-          />
-          <View style={styles.spacer} />
-          <Text style={styles.message}>Multichain account supported networks:</Text>
-          <Text style={styles.chainName}><Image source={require('../../../assets/chains/eth.png')} style={styles.chainIcon} /> Ethereum</Text>
-          <Text style={styles.chainName}><Image source={require('../../../assets/chains/polygon.png')} style={styles.chainIcon} /> Polygon</Text>
-          <Text style={styles.chainName}><Image source={require('../../../assets/chains/aurora.png')} style={styles.chainIcon} /> Aurora</Text>
-          <Text style={styles.chainName}><Image source={require('../../../assets/chains/bsc.png')} style={styles.chainIcon} /> Binance</Text>
-          <Text style={styles.chainName}><Image source={require('../../../assets/chains/telosevm.png')} style={styles.chainIcon} /> Telos EVM</Text>
+        {multiAccountButton}
+        {telosAccountButton}
+        {fioAccountButton}
+        {xlmAccountButton}
+        {algoAccountButton}
+        <KButton
+          title={'Import existing account'}
+          style={styles.button}
+          onPress={() => navigate('ConnectAccount')}
+        />
+        <View style={styles.spacer} />
+        <Text style={styles.message}>
+          Multichain account supported networks:
+        </Text>
+        <Text style={styles.chainName}>
+          <Image
+            source={require('../../../assets/chains/eth.png')}
+            style={styles.chainIcon}
+          />{' '}
+          Ethereum
+        </Text>
+        <Text style={styles.chainName}>
+          <Image
+            source={require('../../../assets/chains/polygon.png')}
+            style={styles.chainIcon}
+          />{' '}
+          Polygon
+        </Text>
+        <Text style={styles.chainName}>
+          <Image
+            source={require('../../../assets/chains/aurora.png')}
+            style={styles.chainIcon}
+          />{' '}
+          Aurora
+        </Text>
+        <Text style={styles.chainName}>
+          <Image
+            source={require('../../../assets/chains/bsc.png')}
+            style={styles.chainIcon}
+          />{' '}
+          Binance
+        </Text>
+        <Text style={styles.chainName}>
+          <Image
+            source={require('../../../assets/chains/telosevm.png')}
+            style={styles.chainIcon}
+          />{' '}
+          Telos EVM
+        </Text>
       </View>
-  </SafeAreaView>
+    </SafeAreaView>
   );
-
 };
 
 export default connectAccounts()(NewAccountScreen);

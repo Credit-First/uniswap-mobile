@@ -3,22 +3,34 @@ import { Fio } from '@fioprotocol/fiojs';
 import { SafeAreaView, View, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './TransferScreen.style';
-import { KHeader, KButton, KInput, KDomainAddressInput, KSelect, KText, OneIconButton, TwoIconsButtons } from '../../components';
+import {
+  KHeader,
+  KButton,
+  KInput,
+  KDomainAddressInput,
+  KSelect,
+  KText,
+  OneIconButton,
+  TwoIconsButtons,
+} from '../../components';
 import { connectAccounts } from '../../redux';
 import { getAccount, transfer } from '../../eos/eos';
 import { sendFioTransfer } from '../../eos/fio';
 import { submitAlgoTransaction } from '../../algo/algo';
 import { getChain, getEndpoint } from '../../eos/chains';
-import { loadAccount, submitStellarPayment, createStellarAccount } from '../../stellar/stellar';
+import {
+  loadAccount,
+  submitStellarPayment,
+  createStellarAccount,
+} from '../../stellar/stellar';
 import web3Module from '../../ethereum/ethereum';
 import { getNativeTokenName } from '../../external/blockchains';
 
 import { log } from '../../logger/logger';
 
-
 const TransferScreen = props => {
   const [UDAddress, setUDAddress] = useState('');
-  const [toAddress, setToAddress] = useState()
+  const [toAddress, setToAddress] = useState();
   const [fromAccount, setFromAccount] = useState();
   const [chainName, setChainName] = useState();
   const [toAccountName, setToAccountName] = useState('');
@@ -46,7 +58,7 @@ const TransferScreen = props => {
   const [ethTotalAmount, setEthTotalAmount] = useState(0.0);
   const ethDivider = 1000000000000000000;
   const tokenABI = require('../../ethereum/abi.json');
-  const tokenAddress = "";
+  const tokenAddress = '';
   const {
     createKeyPair,
     getCurrentGasPrice,
@@ -56,7 +68,7 @@ const TransferScreen = props => {
   } = web3Module({
     tokenABI,
     tokenAddress,
-    decimals: 18
+    decimals: 18,
   });
 
   const {
@@ -69,13 +81,12 @@ const TransferScreen = props => {
   const fioEndpoint = getEndpoint('FIO');
 
   useEffect(() => {
-    if (UDAddress)
-      setToAddress(UDAddress);
-  }, [UDAddress])
+    if (UDAddress) setToAddress(UDAddress);
+  }, [UDAddress]);
 
   const isValidXLMAddress = address => {
-    return (address != null && address.startsWith('G') && address.length == 56);
-  }
+    return address != null && address.startsWith('G') && address.length == 56;
+  };
 
   const processToPubkeyUpdate = async toAccountPubkey => {
     const chain = getChain(fromAccount.chainName);
@@ -89,9 +100,9 @@ const TransferScreen = props => {
       if (!toAccountInfo) {
         Alert.alert(
           'Error fetching account data for ' +
-          toActor +
-          ' on chain ' +
-          fromAccount.chainName,
+            toActor +
+            ' on chain ' +
+            fromAccount.chainName,
         );
         return;
       }
@@ -192,7 +203,7 @@ const TransferScreen = props => {
 
   const _validateStellarAddress = address => {
     const callback = json => {
-      if (json["status"] && json["status"] === 404) {
+      if (json['status'] && json['status'] === 404) {
         setIsLiveStellarAccount(false);
       } else if (json['balances']) {
         setIsLiveStellarAccount(true);
@@ -225,36 +236,49 @@ const TransferScreen = props => {
   };
 
   const _handleFromAccountChange = value => {
-    if(!chainName) {
+    if (!chainName) {
       setChainName(value.chainName);
     }
     const parseInfo = async () => {
-      const ethBalanceInWei = await getBalanceOfAccount(chainName, value.address);
-      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(4);
+      const ethBalanceInWei = await getBalanceOfAccount(
+        chainName,
+        value.address,
+      );
+      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(
+        4,
+      );
       setEthBalance(ethBalanceInEth);
-    }
+    };
     setFromAccount(value);
     if (value && value.chainName !== 'FIO') {
       setAddressInvalidMessage('');
-      if (value.chainName === 'ETH' || value.chainName === 'BNB' || value.chainName === 'MATIC' || value.chainName === 'AURORA' || value.chainName === 'TELOSEVM') {
+      if (
+        value.chainName === 'ETH' ||
+        value.chainName === 'BNB' ||
+        value.chainName === 'MATIC' ||
+        value.chainName === 'AURORA' ||
+        value.chainName === 'TELOSEVM'
+      ) {
         parseInfo();
       }
     }
   };
 
   const isEVMAccount = () => {
-    if ( fromAccount && 
-        (fromAccount.chainName === 'ETH' || 
-        fromAccount.chainName === 'BNB' || 
-        fromAccount.chainName === 'MATIC' || 
-        fromAccount.chainName === 'AURORA' || 
-        fromAccount.chainName === 'TELOSEVM') ) {
+    if (
+      fromAccount &&
+      (fromAccount.chainName === 'ETH' ||
+        fromAccount.chainName === 'BNB' ||
+        fromAccount.chainName === 'MATIC' ||
+        fromAccount.chainName === 'AURORA' ||
+        fromAccount.chainName === 'TELOSEVM')
+    ) {
       return true;
     }
     return false;
-  }
+  };
 
-  const _handleToAccountChange = async (value) => {
+  const _handleToAccountChange = async value => {
     if (!fromAccount) {
       Alert.alert('Select from account first!');
       return;
@@ -334,11 +358,13 @@ const TransferScreen = props => {
 
   const prepareETHTransfer = async (from, to, amount) => {
     try {
-      const chain = (chainName) ? chainName : from.chainName;
+      const chain = chainName ? chainName : from.chainName;
       const gasPrice = await getCurrentGasPrice(chain);
       setEthGasPrice(gasPrice);
       const ethBalanceInWei = await getBalanceOfAccount(chain, from.address);
-      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(4);
+      const ethBalanceInEth = parseFloat(ethBalanceInWei / ethDivider).toFixed(
+        4,
+      );
       setEthBalance(ethBalanceInEth);
       setEthFromAddress(from.address);
       setEthFromPrivateKey(from.privateKey);
@@ -346,59 +372,72 @@ const TransferScreen = props => {
       setEthFloatAmount(amount);
 
       if (amount < ethBalanceInEth) {
-        const gasLimitation = await getCurrentETHGasLimit(chain, fromAccount, amount.toString(), toAddress);
+        const gasLimitation = await getCurrentETHGasLimit(
+          chain,
+          fromAccount,
+          amount.toString(),
+          toAddress,
+        );
         setEthGasLimit(gasLimitation);
-        const estimatedFee = parseFloat((gasPrice * gasLimitation) / ethDivider).toFixed(4);
+        const estimatedFee = parseFloat(
+          (gasPrice * gasLimitation) / ethDivider,
+        ).toFixed(4);
         setEthEstimatedFee(estimatedFee);
-        const totalAmount = parseFloat(amount) + parseFloat(estimatedFee)
+        const totalAmount = parseFloat(amount) + parseFloat(estimatedFee);
         setEthTotalAmount(totalAmount);
         if (ethBalanceInEth > totalAmount) {
           setPreviewEthTransfer(true);
         } else {
           Alert.alert('Insufficient balance to send transfer!');
         }
-      }
-      else {
+      } else {
         Alert.alert('Insufficient balance to send transfer!');
       }
     } catch (error) {
-      console.log("error:", error);
+      console.log('error:', error);
       if (error.toString().includes('Provided address'))
         Alert.alert('The Provided sending to Address is invalid!');
     }
-  }
+  };
 
   const sendETHTransfer = async () => {
-    const chain = (chainName) ? chainName : from.chainName;
+    const chain = chainName ? chainName : from.chainName;
     if (pendingEthTransfer) {
       Alert.alert(`Waiting for pending ${chain} transfer!`);
       return;
     }
     setPendingEthTransfer(true);
     const keypair = await createKeyPair(chain, ethFromPrivateKey);
-    const result = await transferETH(fromAccount.chainName, keypair, ethToAddress, ethFloatAmount, ethGasLimit, ethGasPrice);
+    const result = await transferETH(
+      fromAccount.chainName,
+      keypair,
+      ethToAddress,
+      ethFloatAmount,
+      ethGasLimit,
+      ethGasPrice,
+    );
     setPendingEthTransfer(false);
     // Save transaction to History:
     const txRecord = {
-      "chain": chain,
-      "sender": ethFromAddress,
-      "receiver": ethToAddress,
-      "amount": ethFloatAmount,
-      "memo": memo,
-      "isFioAddress": isFioAddress,
-      "toFioAddress": toFioAddress,
-      "txid": result.transactionHash,
-      "date": new Date(),
+      chain: chain,
+      sender: ethFromAddress,
+      receiver: ethToAddress,
+      amount: ethFloatAmount,
+      memo: memo,
+      isFioAddress: isFioAddress,
+      toFioAddress: toFioAddress,
+      txid: result.transactionHash,
+      date: new Date(),
     };
     addTransactionToHistory(txRecord);
     Alert.alert(`${chain} Transfer submitted!`);
     setPreviewEthTransfer(false);
-  }
+  };
 
   const rejectETHTransfer = () => {
     setPreviewEthTransfer(false);
     setEthBalance(0);
-  }
+  };
 
   const _handleTransfer = async () => {
     setLoading(true);
@@ -430,9 +469,9 @@ const TransferScreen = props => {
       if (!toPubkey) {
         Alert.alert(
           'Could not determine receiver public key for ' +
-          fromAccount.chainName +
-          ' registered to ' +
-          toAddress,
+            fromAccount.chainName +
+            ' registered to ' +
+            toAddress,
         );
         setLoading(false);
         return;
@@ -485,7 +524,7 @@ const TransferScreen = props => {
             //Double check isLiveStellarAccount for FIO use case:
             const callback = async json => {
               // XLM address doesn't exists
-              if (json["status"] && json["status"] === 404) {
+              if (json['status'] && json['status'] === 404) {
                 setIsLiveStellarAccount(false);
                 await createStellarAccount(
                   fromAccount,
@@ -494,7 +533,8 @@ const TransferScreen = props => {
                   memo,
                   addTransactionToHistory,
                 );
-              } else { // Address exists:
+              } else {
+                // Address exists:
                 setIsLiveStellarAccount(true);
                 await submitStellarPayment(
                   fromAccount,
@@ -518,23 +558,35 @@ const TransferScreen = props => {
           memo,
           addTransactionToHistory,
         );
-      } else if (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA' || fromAccount.chainName === 'TELOSEVM') {
+      } else if (
+        fromAccount.chainName === 'ETH' ||
+        fromAccount.chainName === 'BNB' ||
+        fromAccount.chainName === 'MATIC' ||
+        fromAccount.chainName === 'AURORA' ||
+        fromAccount.chainName === 'TELOSEVM'
+      ) {
         let receiver = toPubkey ? toPubkey : toAddress;
         prepareETHTransfer(fromAccount, receiver, floatAmount, null);
       } else if (chain) {
         // Any of supported EOSIO chains:
-        let result = await transfer(actorName, floatAmount, memo, fromAccount, chain);
+        let result = await transfer(
+          actorName,
+          floatAmount,
+          memo,
+          fromAccount,
+          chain,
+        );
         // Save transaction to History:
         const txRecord = {
-          "chain": chain.name,
-          "sender": fromAccount.accountName,
-          "receiver": actorName,
-          "amount": floatAmount,
-          "memo": memo,
-          "isFioAddress": isFioAddress,
-          "toFioAddress": toFioAddress,
-          "txid": result.transaction_id,
-          "date": new Date(),
+          chain: chain.name,
+          sender: fromAccount.accountName,
+          receiver: actorName,
+          amount: floatAmount,
+          memo: memo,
+          isFioAddress: isFioAddress,
+          toFioAddress: toFioAddress,
+          txid: result.transaction_id,
+          date: new Date(),
         };
         addTransactionToHistory(txRecord);
       } else {
@@ -556,21 +608,27 @@ const TransferScreen = props => {
 
   const _navigateHistory = () => {
     navigate('Transactions');
-  }
+  };
 
-  const getAccountLabel = (item) => {
-    if(item.chainName === 'ETH' || item.chainName === 'BNB' || item.chainName === 'MATIC' || item.chainName === 'AURORA' || item.chainName === 'TELOSEVM') {
+  const getAccountLabel = item => {
+    if (
+      item.chainName === 'ETH' ||
+      item.chainName === 'BNB' ||
+      item.chainName === 'MATIC' ||
+      item.chainName === 'AURORA' ||
+      item.chainName === 'TELOSEVM'
+    ) {
       return item.address;
-    } else if(item.chainName === 'FIO' || item.chainName === 'XLM') {
+    } else if (item.chainName === 'FIO' || item.chainName === 'XLM') {
       return `${item.chainName}: ${item.address}`;
     } else {
       return `${item.chainName}: ${item.accountName}`;
     }
-  }
+  };
 
   const getEVMNetworks = () => {
-    return ['ETH','BNB','MATIC','AURORA','TELOSEVM'];
-  }
+    return ['ETH', 'BNB', 'MATIC', 'AURORA', 'TELOSEVM'];
+  };
 
   if (accounts.length === 0) {
     return (
@@ -595,17 +653,25 @@ const TransferScreen = props => {
           contentContainerStyle={styles.scrollContentContainer}
           enableOnAndroid>
           <View style={styles.inner}>
-            <KHeader
-              title={'Transfer'}
-              style={styles.header}
-            />
+            <KHeader title={'Transfer'} style={styles.header} />
             <KText>From: {ethFromAddress}</KText>
             <KText>To: {ethToAddress}</KText>
             <KText>Memo: {memo}</KText>
-            <KText>Amount: {ethFloatAmount} {getNativeTokenName(fromAccount.chainName)}</KText>
-            <KText>Gas fee: {ethEstimatedFee} {getNativeTokenName(fromAccount.chainName)} (Estimated)</KText>
-            <KText>Total: {ethTotalAmount} {getNativeTokenName(fromAccount.chainName)}</KText>
-            <KText>Balance: {ethBalance} {getNativeTokenName(fromAccount.chainName)}</KText>
+            <KText>
+              Amount: {ethFloatAmount}{' '}
+              {getNativeTokenName(fromAccount.chainName)}
+            </KText>
+            <KText>
+              Gas fee: {ethEstimatedFee}{' '}
+              {getNativeTokenName(fromAccount.chainName)} (Estimated)
+            </KText>
+            <KText>
+              Total: {ethTotalAmount}{' '}
+              {getNativeTokenName(fromAccount.chainName)}
+            </KText>
+            <KText>
+              Balance: {ethBalance} {getNativeTokenName(fromAccount.chainName)}
+            </KText>
             <View style={styles.spacer} />
             <TwoIconsButtons
               onIcon1Press={sendETHTransfer}
@@ -648,7 +714,7 @@ const TransferScreen = props => {
               onValueChange={_handleFromAccountChange}
               containerStyle={styles.inputContainer}
             />
-            {isEVMAccount() &&
+            {isEVMAccount() && (
               <KSelect
                 label={'Pick network'}
                 items={getEVMNetworks().map(item => ({
@@ -658,7 +724,7 @@ const TransferScreen = props => {
                 onValueChange={setChainName}
                 containerStyle={styles.inputContainer}
               />
-            }
+            )}
             <KDomainAddressInput
               label={'Sending to'}
               placeholder={'Enter address or domain name (ENS/UD/FIO)'}
@@ -680,12 +746,20 @@ const TransferScreen = props => {
               autoCapitalize={'none'}
               keyboardType={'numeric'}
             />
-            {fromAccount && (fromAccount.chainName === 'ETH' || fromAccount.chainName === 'BNB' || fromAccount.chainName === 'MATIC' || fromAccount.chainName === 'AURORA' || fromAccount.chainName === 'TELOSEVM') ?
+            {fromAccount &&
+            (fromAccount.chainName === 'ETH' ||
+              fromAccount.chainName === 'BNB' ||
+              fromAccount.chainName === 'MATIC' ||
+              fromAccount.chainName === 'AURORA' ||
+              fromAccount.chainName === 'TELOSEVM') ? (
               <View style={styles.balanceView}>
                 <KText style={styles.blueLabel}> Available Balance: </KText>
-                <KText> {ethBalance} {getNativeTokenName(fromAccount.chainName)}</KText>
+                <KText>
+                  {' '}
+                  {ethBalance} {getNativeTokenName(fromAccount.chainName)}
+                </KText>
               </View>
-              :
+            ) : (
               <KInput
                 label={'Memo'}
                 placeholder={'Optional memo'}
@@ -694,7 +768,7 @@ const TransferScreen = props => {
                 containerStyle={styles.inputContainer}
                 autoCapitalize={'none'}
               />
-            }
+            )}
             <View style={styles.spacer} />
             <KButton
               title={'Submit transfer'}
@@ -715,7 +789,7 @@ const TransferScreen = props => {
             />
           </View>
         </KeyboardAwareScrollView>
-      </SafeAreaView >
+      </SafeAreaView>
     );
   }
 };

@@ -12,6 +12,7 @@ const KButton = ({
   style,
   renderIcon,
   isLoading = false,
+  disabled,
   ...props
 }) => {
   const getGradientColors = () => {
@@ -46,7 +47,7 @@ const KButton = ({
   };
 
   return (
-    <TouchableOpacity {...props} style={style} disabled={isLoading}>
+    <TouchableOpacity {...props} style={style} disabled={isLoading || disabled}>
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
